@@ -1,6 +1,8 @@
 import {
   createUserWithEmailAndPassword,
+  deleteUser,
   onAuthStateChanged,
+  signInAnonymously,
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
@@ -12,6 +14,7 @@ const getErrorMsg = (code) => {
     "auth/user-not-found": "Invalid email or password",
     "auth/wrong-password": "Invalid email or password",
     "auth/email-already-in-use": "Email already in use",
+    "auth/network-request-failed": "Internet Error",
   };
 
   return errorMap[code];
@@ -19,7 +22,7 @@ const getErrorMsg = (code) => {
 
 export const signUpReq = async (
   { email, password },
-  { successCb, errorCb }
+  { successCb = () => {}, errorCb = () => {} }
 ) => {
   try {
     await createUserWithEmailAndPassword(auth, email, password);
@@ -33,7 +36,7 @@ export const signUpReq = async (
 
 export const signInReq = async (
   { email, password },
-  { successCb, errorCb }
+  { successCb = () => {}, errorCb = () => {} }
 ) => {
   try {
     await signInWithEmailAndPassword(auth, email, password);
@@ -45,12 +48,42 @@ export const signInReq = async (
   }
 };
 
-export const signOutReq = async ({ successCb }) => {
+export const signInAnonymouslyReq = async ({
+  successCb = () => {},
+  errorCb = () => {},
+}) => {
+  try {
+    await signInAnonymously(auth);
+    successCb();
+  } catch (error) {
+    errorCb(error.message);
+    console.log(error);
+  }
+};
+
+export const signOutReq = async ({
+  successCb = () => {},
+  errorCb = () => {},
+}) => {
   try {
     await signOut(auth);
     successCb();
   } catch (error) {
+    errorCb(error.message);
     console.log(error);
+  }
+};
+
+export const signOutAnonymouslyReq = async (
+  session,
+  { successCb = () => {}, errorCb = () => {} }
+) => {
+  try {
+    await deleteUser(session);
+    successCb();
+  } catch (error) {
+    errorCb(error.message);
+    console.log(error.message);
   }
 };
 

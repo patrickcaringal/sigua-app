@@ -14,13 +14,12 @@ import {
 import { useFormik } from "formik";
 import { useRouter } from "next/router";
 
-import { useAuth } from "../contexts/AuthContext";
-import { auth } from "../modules/firebase";
-import { SigninSchema } from "../modules/validation";
+import { useAuth } from "../../contexts/AuthContext";
+import { SigninSchema } from "../../modules/validation";
 
 export default function SignInPage() {
   const router = useRouter();
-  const { signIn, signInAnonymously } = useAuth();
+  const { signIn } = useAuth();
 
   const [error, setError] = useState(null);
 
@@ -29,12 +28,14 @@ export default function SignInPage() {
       email: "",
       password: "",
     },
-    // validationSchema: SigninSchema,
-    // validateOnChange: false,
+    validationSchema: SigninSchema,
+    validateOnChange: false,
     onSubmit: async (values) => {
-      await signInAnonymously({
+      setError(null);
+
+      await signIn(values, {
         successCb() {
-          router.push("/dashboard");
+          router.push("/admin/dashboard");
         },
         errorCb(error) {
           setError(error);
@@ -50,7 +51,7 @@ export default function SignInPage() {
       <Container component="main" maxWidth="xs">
         <div className="main-form">
           <Typography component="h1" variant="h5">
-            Patient Sign in
+            Staff Sign in
           </Typography>
           <Box
             component="form"

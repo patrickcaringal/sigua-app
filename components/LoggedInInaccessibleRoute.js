@@ -5,16 +5,22 @@ import { useRouter } from "next/router";
 import { useAuth } from "../contexts/AuthContext";
 
 const LoggedInInaccessibleRoute = ({ children }) => {
-  const { user } = useAuth();
+  const { userSession } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (user) {
+    if (userSession) {
+      const isAdmin = userSession?.email;
+
+      if (isAdmin) {
+        router.push("/admin/dashboard");
+        return;
+      }
       router.push("/dashboard");
     }
-  }, [router, user]);
+  }, [router, userSession]);
 
-  return <>{!user ? children : null}</>;
+  return <>{!userSession ? children : null}</>;
 };
 
 export default LoggedInInaccessibleRoute;

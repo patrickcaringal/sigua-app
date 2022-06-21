@@ -5,16 +5,16 @@ import { useRouter } from "next/router";
 import { useAuth } from "../contexts/AuthContext";
 
 const ProtectedRoute = ({ children }) => {
-  const { user } = useAuth();
+  const { userSession } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!user) {
-      router.push("/signin");
+    if (!userSession) {
+      router.push("/");
     }
-  }, [router, user]);
+  }, [router, userSession]);
 
-  return <>{user ? children : null}</>;
+  return <>{userSession ? children : null}</>;
 };
 
 export default ProtectedRoute;
