@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import {
   Box,
@@ -13,10 +13,13 @@ import { useFormik } from "formik";
 import { useRouter } from "next/router";
 
 import { useAuth } from "../contexts/AuthContext";
+import { SignupSchema } from "../modules/validation";
 
 export default function SignUpPage() {
   const router = useRouter();
   const { signUp } = useAuth();
+
+  const [error, setError] = useState(null);
 
   const formik = useFormik({
     initialValues: {
@@ -25,18 +28,23 @@ export default function SignUpPage() {
       email: "",
       password: "",
     },
+    validationSchema: SignupSchema,
+    validateOnChange: false,
     onSubmit: async (values) => {
+      setError(null);
+
       await signUp(values, {
         successCb() {
           router.push("/dashboard");
         },
-        errorCb() {
-          alert(error);
+        errorCb(error) {
+          setError(error);
         },
       });
     },
   });
-  const { handleSubmit, handleChange, handleBlur, values } = formik;
+  const { handleSubmit, handleChange, handleBlur, values, errors, touched } =
+    formik;
 
   return (
     <div className="patient-signup-page">
@@ -62,6 +70,8 @@ export default function SignUpPage() {
                   value={values.firstName}
                   onChange={handleChange}
                   onBlur={handleBlur}
+                  error={(touched.firstName && errors.firstName) || error}
+                  helperText={touched.firstName && errors.firstName}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -74,6 +84,8 @@ export default function SignUpPage() {
                   value={values.lastName}
                   onChange={handleChange}
                   onBlur={handleBlur}
+                  error={(touched.lastName && errors.lastName) || error}
+                  helperText={touched.lastName && errors.lastName}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -86,6 +98,8 @@ export default function SignUpPage() {
                   value={values.email}
                   onChange={handleChange}
                   onBlur={handleBlur}
+                  error={(touched.email && errors.email) || error}
+                  helperText={touched.email && errors.email}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -99,6 +113,8 @@ export default function SignUpPage() {
                   value={values.password}
                   onChange={handleChange}
                   onBlur={handleBlur}
+                  error={(touched.password && errors.password) || error}
+                  helperText={(touched.password && errors.password) || error}
                 />
               </Grid>
             </Grid>

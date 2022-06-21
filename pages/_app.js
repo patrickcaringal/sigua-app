@@ -17,17 +17,22 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <AuthContextProvider>
-      {isLoggedInInaccessible ? (
-        <LoggedInInaccessibleRoute>
+      {
+        // should NOT be logged in to access routes
+        isLoggedInInaccessible ? (
+          <LoggedInInaccessibleRoute>
+            <Component {...pageProps} />
+          </LoggedInInaccessibleRoute>
+        ) : // should be logged in to access routes
+        isProtected ? (
+          <ProtectedRoute>
+            <Component {...pageProps} />
+          </ProtectedRoute>
+        ) : (
+          // accessible to anyone routes
           <Component {...pageProps} />
-        </LoggedInInaccessibleRoute>
-      ) : isProtected ? (
-        <ProtectedRoute>
-          <Component {...pageProps} />
-        </ProtectedRoute>
-      ) : (
-        <Component {...pageProps} />
-      )}
+        )
+      }
     </AuthContextProvider>
   );
 }

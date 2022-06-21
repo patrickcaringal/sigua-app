@@ -6,8 +6,16 @@ import {
 } from "firebase/auth";
 
 import { auth } from "./config";
-// auth/invalid-emai
-// auth/email-already-in-use
+
+const getErrorMsg = (code) => {
+  const errorMap = {
+    "auth/user-not-found": "Invalid email or password",
+    "auth/wrong-password": "Invalid email or password",
+    "auth/email-already-in-use": "Email already in use",
+  };
+
+  return errorMap[code];
+};
 
 export const signUpReq = async (
   { email, password },
@@ -17,7 +25,8 @@ export const signUpReq = async (
     await createUserWithEmailAndPassword(auth, email, password);
     successCb();
   } catch (error) {
-    errorCb(error.message);
+    const errMsg = getErrorMsg(error.code);
+    errorCb(errMsg);
     console.log(error);
   }
 };
@@ -30,7 +39,8 @@ export const signInReq = async (
     await signInWithEmailAndPassword(auth, email, password);
     successCb();
   } catch (error) {
-    errorCb(error.message);
+    const errMsg = getErrorMsg(error.code);
+    errorCb(errMsg);
     console.log(error);
   }
 };

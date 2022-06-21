@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from "react";
+import React, { useState } from "react";
 
 import {
   Box,
@@ -15,28 +15,36 @@ import { useFormik } from "formik";
 import { useRouter } from "next/router";
 
 import { useAuth } from "../contexts/AuthContext";
+import { SigninSchema } from "../modules/validation";
 
 export default function SignInPage() {
   const router = useRouter();
   const { signIn } = useAuth();
+
+  const [error, setError] = useState(null);
 
   const formik = useFormik({
     initialValues: {
       email: "",
       password: "",
     },
+    validationSchema: SigninSchema,
+    validateOnChange: false,
     onSubmit: async (values) => {
+      setError(null);
+
       await signIn(values, {
         successCb() {
           router.push("/dashboard");
         },
         errorCb(error) {
-          alert(error);
+          setError(error);
         },
       });
     },
   });
-  const { handleSubmit, handleChange, handleBlur, values } = formik;
+  const { handleSubmit, handleChange, handleBlur, values, errors, touched } =
+    formik;
 
   return (
     <div className="login-page">
@@ -54,20 +62,20 @@ export default function SignInPage() {
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
-                  required
                   fullWidth
                   id="email"
-                  label="Email Address"
+                  label="Email"
                   name="email"
                   autoComplete="email"
                   value={values.email}
                   onChange={handleChange}
                   onBlur={handleBlur}
+                  error={(touched.email && errors.email) || error}
+                  helperText={touched.email && errors.email}
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  required
                   fullWidth
                   name="password"
                   label="Password"
@@ -76,6 +84,8 @@ export default function SignInPage() {
                   value={values.password}
                   onChange={handleChange}
                   onBlur={handleBlur}
+                  error={(touched.password && errors.password) || error}
+                  helperText={(touched.password && errors.password) || error}
                 />
               </Grid>
               <Grid item xs={12}>
