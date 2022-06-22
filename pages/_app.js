@@ -13,7 +13,12 @@ const loggedInInaccessibleRoutes = [
   "/admin/signin",
   "/admin/signup",
 ];
-const protectedRoutes = ["/dashboard", "/admin/dashboard"];
+
+const protectedRoutes = [
+  "/dashboard",
+  // admin
+  "/admin/dashboard",
+];
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
@@ -21,8 +26,6 @@ function MyApp({ Component, pageProps }) {
     router.pathname
   );
   const isProtected = protectedRoutes.includes(router.pathname);
-  // console.log({ route: router.pathname });
-  // , isLoggedInInaccessible, isProtected
 
   return (
     <AuthContextProvider>
@@ -35,6 +38,7 @@ function MyApp({ Component, pageProps }) {
         ) : // should be logged in to access routes
         isProtected ? (
           <ProtectedRoute>
+            {/* TODO Role protected route */}
             <Component {...pageProps} />
           </ProtectedRoute>
         ) : (
