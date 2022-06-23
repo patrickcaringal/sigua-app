@@ -55,6 +55,10 @@ export const createAccountReq = async (
 
     // Create Document
     await setDoc(docRef, mappedNewDocument);
+
+    // remove password field
+    delete document.password;
+
     successCb({ id: docRef.id, ...mappedNewDocument });
   } catch (error) {
     errorCb(error.message);
@@ -78,6 +82,33 @@ export const checkAccountDuplicateReq = async (
     // TODO: check duplication on patient
 
     successCb();
+  } catch (error) {
+    errorCb(error.message);
+    console.log(error);
+  }
+};
+
+export const checkAccountCredentialReq = async (
+  { contactNo, password },
+  { successCb = () => {}, errorCb = () => {} }
+) => {
+  try {
+    const q = query(collRef, where("contactNo", "==", contactNo));
+    const querySnapshot = await getDocs(q);
+
+    // Check if account exist
+    const exist = querySnapshot.docs.length === 1;
+    if (!exist) throw new Error("Invalid contact number or password");
+
+    // Check if correct password
+    const document = querySnapshot.docs[0].data();
+    const correctPass = comparePassword(password, document.password);
+    if (!correctPass) throw new Error("Invalid contact number or password");
+
+    // remove password field
+    delete document.password;
+
+    successCb(document);
   } catch (error) {
     errorCb(error.message);
     console.log(error);

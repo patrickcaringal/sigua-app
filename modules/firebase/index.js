@@ -1,4 +1,8 @@
-import { checkAccountDuplicateReq, createAccountReq } from "./account";
+import {
+  checkAccountCredentialReq,
+  checkAccountDuplicateReq,
+  createAccountReq,
+} from "./account";
 import {
   monitorAuthState,
   signInAnonymouslyReq,
@@ -21,4 +25,5 @@ export {
   // account
   createAccountReq,
   checkAccountDuplicateReq,
+  checkAccountCredentialReq,
 };

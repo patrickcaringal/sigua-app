@@ -247,7 +247,7 @@ export default function SignUpPage() {
                       fullWidth
                       label="Contact Number"
                       name="contactNo"
-                      autoComplete="contactNo"
+                      autoComplete="off"
                       value={values.contactNo}
                       onChange={handleChange}
                       onBlur={handleBlur}

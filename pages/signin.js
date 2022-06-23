@@ -15,31 +15,48 @@ import { useFormik } from "formik";
 import { useRouter } from "next/router";
 
 import { useAuth } from "../contexts/AuthContext";
-import { auth } from "../modules/firebase";
+import {
+  checkAccountCredentialReq,
+  signInAnonymouslyReq,
+} from "../modules/firebase";
 import { SigninSchema } from "../modules/validation";
 
 export default function SignInPage() {
   const router = useRouter();
-  const { signIn, signInAnonymously } = useAuth();
+  const { manualSetUser } = useAuth();
 
   const [error, setError] = useState(null);
 
   const formik = useFormik({
     initialValues: {
-      email: "",
-      password: "",
+      contactNo: "09994441760",
+      password: "12345678",
     },
-    // validationSchema: SigninSchema,
-    // validateOnChange: false,
+    validationSchema: SigninSchema,
+    validateOnChange: false,
     onSubmit: async (values) => {
-      await signInAnonymously({
-        successCb() {
-          router.push("/dashboard");
-        },
-        errorCb(error) {
-          setError(error);
-        },
-      });
+      setError(null);
+      const { contactNo, password } = values;
+
+      await checkAccountCredentialReq(
+        { contactNo, password },
+        {
+          async successCb(doc) {
+            // Sign In Anonymously
+            await signInAnonymouslyReq({
+              successCb() {
+                manualSetUser(doc);
+              },
+              errorCb(error) {
+                setError(error);
+              },
+            });
+          },
+          errorCb(error) {
+            setError(error);
+          },
+        }
+      );
     },
   });
   const { handleSubmit, handleChange, handleBlur, values, errors, touched } =
@@ -62,15 +79,14 @@ export default function SignInPage() {
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  id="email"
-                  label="Email"
-                  name="email"
-                  autoComplete="email"
-                  value={values.email}
+                  name="contactNo"
+                  label="Contact Number"
+                  autoComplete="off"
+                  value={values.contactNo}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  error={(touched.email && errors.email) || error}
-                  helperText={touched.email && errors.email}
+                  error={(touched.contactNo && errors.contactNo) || error}
+                  helperText={touched.contactNo && errors.contactNo}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -79,7 +95,7 @@ export default function SignInPage() {
                   name="password"
                   label="Password"
                   type="password"
-                  id="password"
+                  autoComplete="off"
                   value={values.password}
                   onChange={handleChange}
                   onBlur={handleBlur}
