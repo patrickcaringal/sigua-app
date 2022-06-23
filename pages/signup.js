@@ -15,7 +15,6 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
-import SvgIcon, { SvgIconProps } from "@mui/material/SvgIcon";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
@@ -24,6 +23,7 @@ import { useRouter } from "next/router";
 
 import VerificationPage from "../components/views/verification";
 import { useAuth } from "../contexts/AuthContext";
+import { checkAccountDuplicateReq } from "../modules/firebase";
 import { SignupSchema } from "../modules/validation";
 
 const STEPS = {
@@ -64,9 +64,18 @@ export default function SignUpPage() {
     validationSchema: SignupSchema,
     validateOnChange: false,
     onSubmit: async (values) => {
-      // TODO: Check credential
-      // TODO: Send verification here
-      setStep(STEPS.VERIFICATION);
+      setError(null);
+
+      // Check Account Duplication
+      checkAccountDuplicateReq(values.contactNo, {
+        successCb() {
+          setStep(STEPS.VERIFICATION);
+          // TODO: Send verification here
+        },
+        errorCb(error) {
+          setError(error);
+        },
+      });
     },
   });
   const {
