@@ -8,11 +8,11 @@ import { useAuth } from "../contexts/AuthContext";
 const DashboardPage = () => {
   const router = useRouter();
 
-  const { userSession, signOutAnonymously } = useAuth();
+  const { user, userSession, signOutAnonymously } = useAuth();
 
   return (
     <>
-      Patient Dashboard
+      Patient Dashboard {user?.firstName}
       <Button
         fullWidth
         variant="contained"

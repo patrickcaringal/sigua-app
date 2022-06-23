@@ -1,32 +1,22 @@
 import React, { useState } from "react";
 
-import InfoIcon from "@mui/icons-material/Info";
 import {
   Box,
   Button,
-  Container,
   FormHelperText,
   Grid,
-  Link,
   TextField,
   Typography,
 } from "@mui/material";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
-import SvgIcon, { SvgIconProps } from "@mui/material/SvgIcon";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
 import { useFormik } from "formik";
-import { useRouter } from "next/router";
 
 import { useAuth } from "../../contexts/AuthContext";
+import { createAccountReq, signInAnonymouslyReq } from "../../modules/firebase";
 import { VerificationCodeSchema } from "../../modules/validation";
 
 export default function VerificationPage({ values: formValues }) {
   const [error, setError] = useState(null);
+  const { manualSetUser } = useAuth();
 
   const formik = useFormik({
     initialValues: {
@@ -37,33 +27,40 @@ export default function VerificationPage({ values: formValues }) {
     },
     validationSchema: VerificationCodeSchema,
     validateOnChange: false,
-    onSubmit: async (verificationCode) => {
-      const { digit1, digit2, digit3, digit4 } = verificationCode;
-      console.log(digit1, digit2, digit3, digit4);
-      console.log(JSON.stringify(formValues, null, 4));
-      // setError(null);
-      // await signUp(values, {
-      //   successCb() {
-      //     router.push("/dashboard");
-      //   },
-      //   errorCb(error) {
-      //     setError(error);
-      //   },
-      // });
+    onSubmit: async (verificationCodes) => {
+      setError(null);
+
+      const { digit1, digit2, digit3, digit4 } = verificationCodes;
+      const finalCode = `${digit1}${digit2}${digit3}${digit4}`;
+
+      // TODO: Verify code legit
+      if (finalCode === "1234") {
+        // Create User Doc
+        createAccountReq(formValues, {
+          async successCb(doc) {
+            // Sign In Anonymously
+            await signInAnonymouslyReq({
+              successCb() {
+                manualSetUser(doc);
+              },
+              errorCb(error) {
+                setError(error);
+              },
+            });
+          },
+          errorCb(error) {
+            setError(error);
+          },
+        });
+      } else {
+        setError("Incorrect Verification code");
+      }
     },
   });
-  const {
-    handleSubmit,
-    handleChange,
-    handleBlur,
-    setFieldValue,
-    values,
-    errors,
-    touched,
-  } = formik;
-  const hasFormError = !!Object.keys(errors).length;
-
-  console.log(errors);
+  const { handleSubmit, handleChange, handleBlur, values, errors, touched } =
+    formik;
+  const hasFormError =
+    Object.keys(errors).length > 0 && Object.keys(touched).length === 4;
 
   return (
     <div className="verification-form">

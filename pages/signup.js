@@ -36,35 +36,37 @@ export default function SignUpPage() {
   const { signUp } = useAuth();
 
   const [error, setError] = useState(null);
-  const [step, setStep] = useState(STEPS.VERIFICATION);
+  const [step, setStep] = useState(STEPS.DETAILS);
 
   const formik = useFormik({
+    // initialValues: {
+    //   firstName: "",
+    //   middleName: "",
+    //   lastName: "",
+    //   suffix: "",
+    //   birthdate: "",
+    //   gender: "",
+    //   address: "",
+    //   contactNo: "",
+    //   password: "",
+    // },
     initialValues: {
-      firstName: "",
-      middleName: "",
-      lastName: "",
+      firstName: "pat",
+      middleName: "punsalang",
+      lastName: "caringal",
       suffix: "",
-      birthdate: "",
-      gender: "",
-      address: "",
-      contactNo: "",
-      password: "",
+      birthdate: "1997-07-10",
+      gender: "male",
+      address: "dov",
+      contactNo: "09994441760",
+      password: "12345678",
     },
     validationSchema: SignupSchema,
     validateOnChange: false,
     onSubmit: async (values) => {
-      // alert(JSON.stringify(values, null, 4));
+      // TODO: Check credential
+      // TODO: Send verification here
       setStep(STEPS.VERIFICATION);
-      // setError(null);
-
-      // await signUp(values, {
-      //   successCb() {
-      //     router.push("/dashboard");
-      //   },
-      //   errorCb(error) {
-      //     setError(error);
-      //   },
-      // });
     },
   });
   const {

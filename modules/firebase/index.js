@@ -1,3 +1,4 @@
+import { createAccountReq } from "./account";
 import {
   monitorAuthState,
   signInAnonymouslyReq,
@@ -9,6 +10,7 @@ import {
 import { auth } from "./config";
 
 export {
+  // auth
   auth,
   signUpReq,
   signOutReq,
@@ -16,4 +18,6 @@ export {
   signInAnonymouslyReq,
   signOutAnonymouslyReq,
   monitorAuthState,
+  // account
+  createAccountReq,
 };

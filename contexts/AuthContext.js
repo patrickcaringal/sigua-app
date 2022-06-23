@@ -22,11 +22,15 @@ export const AuthContextProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = monitorAuthState(auth, (user) => {
       if (user) {
-        setUser({
-          id: user.uid,
-          // usedoc
-        });
         setUserSession(user);
+        // set user doc if not anonymous account
+        if (user?.email) {
+          console.log("auto set");
+          setUser({
+            id: user.uid,
+            // usedoc
+          });
+        }
       } else {
         setUser(null);
         setUserSession(null);
@@ -37,6 +41,10 @@ export const AuthContextProvider = ({ children }) => {
 
     return () => unsubscribe();
   }, []);
+
+  const manualSetUser = (doc) => {
+    setUser(doc);
+  };
 
   const signUp = async (user, cb) => {
     const res = await signUpReq(user, cb);
@@ -67,6 +75,7 @@ export const AuthContextProvider = ({ children }) => {
     signIn,
     signInAnonymously,
     signOutAnonymously,
+    manualSetUser,
   };
   return (
     <AuthContext.Provider value={value}>
