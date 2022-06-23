@@ -76,8 +76,7 @@ export const checkAccountDuplicateReq = async (
     const querySnapshot = await getDocs(q);
 
     const isDuplicate = querySnapshot.docs.length !== 0;
-    if (isDuplicate)
-      throw new Error("Based on Contact No, account already exist.");
+    if (isDuplicate) throw new Error("Contact No already used.");
 
     // TODO: check duplication on patient
 

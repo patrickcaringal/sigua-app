@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
+import { useLocalStorage } from "../hooks";
 import {
   auth,
   monitorAuthState,
@@ -15,7 +16,8 @@ const AuthContext = createContext({});
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthContextProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [localStorageUser, setLocalStorageUser] = useLocalStorage("user", null);
+  const [user, setUser] = useState(localStorageUser);
   const [userSession, setUserSession] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -24,15 +26,15 @@ export const AuthContextProvider = ({ children }) => {
       if (user) {
         setUserSession(user);
         // set user doc if not anonymous account
-        if (user?.email) {
-          console.log("auto set");
-          setUser({
-            id: user.uid,
-            // usedoc
-          });
-        }
+        // if (user?.email) {
+        //   console.log("auto set");
+        //   setUser({
+        //     id: user.uid,
+        //     // usedoc
+        //   });
+        // }
       } else {
-        setUser(null);
+        // setUser(null);
         setUserSession(null);
       }
 
@@ -44,6 +46,7 @@ export const AuthContextProvider = ({ children }) => {
 
   const manualSetUser = (doc) => {
     setUser(doc);
+    setLocalStorageUser(doc);
   };
 
   const signUp = async (user, cb) => {
