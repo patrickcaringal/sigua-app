@@ -21,6 +21,7 @@ const loggedInInaccessibleRoutes = [
 
 const protectedRoutes = [
   "/dashboard",
+  "/family-members",
   // admin
   "/admin/dashboard",
 ];

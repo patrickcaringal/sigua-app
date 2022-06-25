@@ -2,6 +2,7 @@ import {
   checkAccountCredentialReq,
   checkAccountDuplicateReq,
   createAccountReq,
+  getFamilyMembersReq,
 } from "./account";
 import {
   monitorAuthState,
@@ -26,4 +27,5 @@ export {
   createAccountReq,
   checkAccountDuplicateReq,
   checkAccountCredentialReq,
+  getFamilyMembersReq,
 };

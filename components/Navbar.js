@@ -59,7 +59,7 @@ const ResponsiveAppBar = () => {
   return (
     <>
       <AppBar position="fixed" color="default">
-        <Container maxWidth="xl">
+        <Container maxWidth="lg">
           <Toolbar disableGutters>
             {/* <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} /> */}
             <Logo width="160" height="56" />
@@ -143,6 +143,7 @@ const ResponsiveAppBar = () => {
                   <Tooltip title="Open settings">
                     <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                       <Avatar
+                        sx={{ bgcolor: "primary.main" }}
                         alt={user?.firstName?.toUpperCase()}
                         src="/static/images/avatar/2.jpg"
                       />

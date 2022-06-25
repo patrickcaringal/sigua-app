@@ -34,7 +34,12 @@ const DashboardPage = () => {
       }}
     >
       <Card sx={{ width: 296, height: 208 }}>
-        <CardActionArea sx={{ width: "inherit", height: "inherit" }}>
+        <CardActionArea
+          sx={{ width: "inherit", height: "inherit" }}
+          onClick={() => {
+            router.push("/family-members");
+          }}
+        >
           <CardContent
             sx={{
               display: "flex",

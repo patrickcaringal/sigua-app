@@ -3,6 +3,7 @@ import { format as formatDate } from "date-fns";
 import {
   collection,
   doc,
+  getDoc,
   getDocs,
   query,
   setDoc,
@@ -100,7 +101,10 @@ export const checkAccountCredentialReq = async (
     if (!exist) throw new Error("Invalid contact number or password");
 
     // Check if correct password
-    const document = querySnapshot.docs[0].data();
+    const document = {
+      id: querySnapshot.docs[0].id,
+      ...querySnapshot.docs[0].data(),
+    };
     const correctPass = comparePassword(password, document.password);
     if (!correctPass) throw new Error("Invalid contact number or password");
 
@@ -113,3 +117,36 @@ export const checkAccountCredentialReq = async (
     console.log(error);
   }
 };
+
+export const getFamilyMembersReq = async (
+  id,
+  { successCb = () => {}, errorCb = () => {} }
+) => {
+  try {
+    const docRef = doc(db, "accounts", id);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      successCb(docSnap.data().familyMembers);
+    } else {
+      successCb([]);
+    }
+  } catch (error) {
+    errorCb(error.message);
+    console.log(error);
+  }
+};
+
+// export const getUser = async () => {
+//   try {
+//     const q = query(collRef, where("contactNo", "==", "09994441760"));
+
+//     const querySnapshot = await getDocs(q);
+//     const document = querySnapshot.docs[0].data();
+
+//     console.log({ document, x: querySnapshot.docs[0].id });
+//   } catch (error) {
+//     // errorCb(error.message);
+//     console.log(error);
+//   }
+// };
