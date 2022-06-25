@@ -1,3 +1,13 @@
-import { SigninSchema, SignupSchema, VerificationCodeSchema } from "./schema";
+import {
+  FamilyMemberSchema,
+  SigninSchema,
+  SignupSchema,
+  VerificationCodeSchema,
+} from "./schema";
 
-export { SigninSchema, SignupSchema, VerificationCodeSchema };
+export {
+  SigninSchema,
+  SignupSchema,
+  VerificationCodeSchema,
+  FamilyMemberSchema,
+};
