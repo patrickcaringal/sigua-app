@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
-import InfoIcon from "@mui/icons-material/Info";
 import {
   AppBar,
   Avatar,
@@ -36,17 +35,30 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
+const defaultValues = {
+  familyMembers: [],
+};
+
+const defaultMemberValue = {
+  firstName: "",
+  middleName: "",
+  lastName: "",
+  suffix: "",
+  birthdate: "",
+  gender: "",
+  address: "",
+};
+
 export default function FullScreenDialog({ open, setOpen }) {
   // const [error, setError] = useState(null);
 
   const formik = useFormik({
-    initialValues: {
-      familyMembers: [],
-    },
+    initialValues: defaultValues,
     validationSchema: FamilyMemberSchema,
     validateOnChange: false,
     onSubmit: async (values) => {
-      console.log("submit");
+      // TODO: update account familyMembers doc
+      // automatic unverified family member
     },
   });
 
@@ -58,10 +70,12 @@ export default function FullScreenDialog({ open, setOpen }) {
     values,
     errors,
     touched,
+    resetForm,
   } = formik;
 
   const handleClose = () => {
     setOpen(false);
+    resetForm();
   };
 
   return (
@@ -101,15 +115,7 @@ export default function FullScreenDialog({ open, setOpen }) {
                         startIcon={<AddIcon />}
                         size="small"
                         onClick={() => {
-                          push({
-                            firstName: "",
-                            middleName: "",
-                            lastName: "",
-                            suffix: "",
-                            birthdate: "",
-                            gender: "",
-                            address: "",
-                          });
+                          push(defaultMemberValue);
                         }}
                       >
                         add family member

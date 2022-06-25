@@ -122,6 +122,7 @@ export default function SignUpPage() {
                   <Grid item xs={12} sm={6}>
                     <TextField
                       size="small"
+                      required
                       fullWidth
                       label="Middle Name"
                       name="middleName"

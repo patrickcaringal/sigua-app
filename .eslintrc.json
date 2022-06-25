@@ -6,6 +6,7 @@
   ],
   "plugins": ["import"], //, "autofix"
   "rules": {
+    "@next/next/no-page-custom-font": 0,
     "import/named": 0,
     "import/order": [
       "error",

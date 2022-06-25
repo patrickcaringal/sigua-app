@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
 
+import EditIcon from "@mui/icons-material/Edit";
+import FlakyIcon from "@mui/icons-material/Flaky";
+import NoAccountsIcon from "@mui/icons-material/NoAccounts";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
+import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import {
   Avatar,
   Box,
@@ -7,10 +12,13 @@ import {
   Button,
   Card,
   CardActionArea,
+  CardActions,
   CardContent,
   CardHeader,
   CardMedia,
   Container,
+  Divider,
+  IconButton,
   Link,
   Toolbar,
   Typography,
@@ -89,40 +97,149 @@ const FamilyMemberPage = () => {
               },
               index
             ) => (
-              <Card key={index} sx={{ width: 345, height: 180 }}>
-                <CardHeader
-                  avatar={
-                    <Avatar
-                      sx={{ bgcolor: "primary.main" }}
-                      aria-label="recipe"
+              // , height: 180
+              <>
+                <Card key={index} sx={{ width: 345 }}>
+                  <CardHeader
+                    avatar={
+                      <Avatar
+                        sx={{ bgcolor: "primary.main" }}
+                        aria-label="recipe"
+                      >
+                        {/* TODO: helper for getting initial */}
+                        {firstName.toUpperCase().charAt(0)}
+                      </Avatar>
+                    }
+                    action={
+                      <>
+                        <IconButton size="small">
+                          <VerifiedUserIcon color="success" />
+                        </IconButton>
+                      </>
+                    }
+                    title={`${firstName} ${middleName} ${lastName}`.toUpperCase()}
+                    // subheader={}
+                  />
+                  <CardContent>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        mb: 1,
+                      }}
                     >
-                      {/* TODO: helper for getting initial */}
-                      {firstName.toUpperCase().charAt(0)}
-                    </Avatar>
-                  }
-                  // action={
-                  //   <IconButton aria-label="settings">
-                  //     <MoreVertIcon />
-                  //   </IconButton>
-                  // }
-                  title={`${firstName} ${middleName} ${lastName}`.toUpperCase()}
-                  subheader="Verified"
-                />
-                <CardContent>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mb: 1 }}
-                  >
-                    {contactNo} |{" "}
-                    {formatDate(new Date(birthdate), "MMMM dd, yyyy")} |{" "}
-                    {gender}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {address}
-                  </Typography>
-                </CardContent>
-              </Card>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        disableGutters
+                      >
+                        {contactNo}
+                      </Typography>
+                      <Divider
+                        orientation="vertical"
+                        variant="middle"
+                        flexItem
+                        sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
+                      />
+                      <Typography variant="body2" color="text.secondary">
+                        {formatDate(new Date(birthdate), "MMMM dd, yyyy")}
+                      </Typography>
+                      <Divider
+                        orientation="vertical"
+                        variant="middle"
+                        flexItem
+                        sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
+                      />
+                      <Typography variant="body2" color="text.secondary">
+                        {gender}
+                      </Typography>
+                    </Box>
+                    {/* <Divider orientation="vertical" variant="middle" flexItem /> */}
+
+                    <Typography variant="body2" color="text.secondary">
+                      {address}
+                    </Typography>
+                  </CardContent>
+                  <CardActions sx={{ pt: 0 }}>
+                    <IconButton size="small">
+                      <EditIcon />
+                    </IconButton>
+                    {/* <IconButton size="small">
+                    <UploadFileIcon />
+                  </IconButton> */}
+                  </CardActions>
+                </Card>
+                <Card key={index} sx={{ width: 345 }}>
+                  <CardHeader
+                    avatar={
+                      <Avatar
+                        sx={{ bgcolor: "primary.main" }}
+                        aria-label="recipe"
+                      >
+                        {/* TODO: helper for getting initial */}
+                        {firstName.toUpperCase().charAt(0)}
+                      </Avatar>
+                    }
+                    action={
+                      <>
+                        <IconButton size="small">
+                          <FlakyIcon />
+                        </IconButton>
+                      </>
+                    }
+                    title={`${firstName} ${middleName} ${lastName}`.toUpperCase()}
+                    // subheader={}
+                  />
+                  <CardContent>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        mb: 1,
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        disableGutters
+                      >
+                        {contactNo}
+                      </Typography>
+                      <Divider
+                        orientation="vertical"
+                        variant="middle"
+                        flexItem
+                        sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
+                      />
+                      <Typography variant="body2" color="text.secondary">
+                        {formatDate(new Date(birthdate), "MMMM dd, yyyy")}
+                      </Typography>
+                      <Divider
+                        orientation="vertical"
+                        variant="middle"
+                        flexItem
+                        sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
+                      />
+                      <Typography variant="body2" color="text.secondary">
+                        {gender}
+                      </Typography>
+                    </Box>
+                    {/* <Divider orientation="vertical" variant="middle" flexItem /> */}
+
+                    <Typography variant="body2" color="text.secondary">
+                      {address}
+                    </Typography>
+                  </CardContent>
+                  <CardActions sx={{ pt: 0 }}>
+                    <IconButton size="small">
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton size="small">
+                      <UploadFileIcon />
+                    </IconButton>
+                  </CardActions>
+                </Card>
+              </>
             )
           )}
         </Box>
