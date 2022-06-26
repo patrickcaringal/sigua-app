@@ -26,7 +26,7 @@ export const ResponseDialogProvider = ({ children }) => {
       setType(DIALOG_TYPES.SUCCESS);
       setTitle(null);
       setContent(null);
-    }, 750);
+    }, 250);
   };
 
   const openResponseDialog = ({ content, type }) => {

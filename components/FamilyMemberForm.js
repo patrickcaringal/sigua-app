@@ -116,7 +116,12 @@ export default function FullScreenDialog({ open, setOpen, checkDuplicate }) {
 
       if (hasDuplicate) {
         openResponseDialog({
-          content: `Duplicate Family Members ${dupliNames.join(",")}`,
+          content: (
+            <>
+              <Typography variant="body1">Duplicate Family Members</Typography>
+              <Typography variant="body2">{dupliNames.join(",")}</Typography>
+            </>
+          ),
           type: "WARNING",
         });
       }

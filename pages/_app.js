@@ -8,6 +8,7 @@ import {
   ProtectedRoute,
 } from "../components/";
 import { AuthContextProvider } from "../contexts/AuthContext";
+import { BackdropLoaderProvider } from "../contexts/BackdropLoaderContext";
 import { ResponseDialogProvider } from "../contexts/ResponseDialogContext";
 import { defaultTheme } from "../modules/theme";
 
@@ -37,26 +38,28 @@ function MyApp({ Component, pageProps }) {
   return (
     <ThemeProvider theme={defaultTheme}>
       <AuthContextProvider>
-        <ResponseDialogProvider>
-          <Navbar />
-          {
-            // should NOT be logged in to access routes
-            isLoggedInInaccessible ? (
-              <LoggedInInaccessibleRoute>
+        <BackdropLoaderProvider>
+          <ResponseDialogProvider>
+            <Navbar />
+            {
+              // should NOT be logged in to access routes
+              isLoggedInInaccessible ? (
+                <LoggedInInaccessibleRoute>
+                  <Component {...pageProps} />
+                </LoggedInInaccessibleRoute>
+              ) : // should be logged in to access routes
+              isProtected ? (
+                <ProtectedRoute>
+                  {/* TODO Role protected route */}
+                  <Component {...pageProps} />
+                </ProtectedRoute>
+              ) : (
+                // accessible to anyone routes
                 <Component {...pageProps} />
-              </LoggedInInaccessibleRoute>
-            ) : // should be logged in to access routes
-            isProtected ? (
-              <ProtectedRoute>
-                {/* TODO Role protected route */}
-                <Component {...pageProps} />
-              </ProtectedRoute>
-            ) : (
-              // accessible to anyone routes
-              <Component {...pageProps} />
-            )
-          }
-        </ResponseDialogProvider>
+              )
+            }
+          </ResponseDialogProvider>
+        </BackdropLoaderProvider>
       </AuthContextProvider>
     </ThemeProvider>
   );

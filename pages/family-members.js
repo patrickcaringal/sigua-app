@@ -24,32 +24,38 @@ import {
   Typography,
 } from "@mui/material";
 import { format as formatDate } from "date-fns";
-import { useRouter } from "next/router";
 
-import { ResponseDialog } from "../components";
 import FamilyMemberForm from "../components/FamilyMemberForm";
 import { useAuth } from "../contexts/AuthContext";
+import { useBackdropLoader } from "../contexts/BackdropLoaderContext";
+import { useResponseDialog } from "../contexts/ResponseDialogContext";
+import useRequest from "../hooks/useRequest";
 import { getFamilyMembersReq } from "../modules/firebase";
 
 const FamilyMemberPage = () => {
-  const router = useRouter();
   const { user } = useAuth();
+  const { setBackdropLoader } = useBackdropLoader();
+  const { openResponseDialog } = useResponseDialog();
+  const [getFamilyMembers] = useRequest(getFamilyMembersReq, setBackdropLoader);
 
   const [members, setMembers] = useState([]);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    async function fetchData() {
-      await getFamilyMembersReq(user.id, {
+    if (user.id) {
+      getFamilyMembers(user.id, {
         successCb(members) {
           setMembers(members);
         },
         errorCb(error) {
-          console.log(error);
+          openResponseDialog({
+            content: error,
+            type: "WARNING",
+          });
         },
       });
     }
-    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user.id]);
 
   const membersUniqueId = members.map((i) => {
@@ -111,8 +117,8 @@ const FamilyMemberPage = () => {
               index
             ) => (
               // , height: 180
-              <>
-                <Card key={index} sx={{ width: 345 }}>
+              <React.Fragment key={index}>
+                <Card sx={{ width: 345 }}>
                   <CardHeader
                     avatar={
                       <Avatar
@@ -141,11 +147,7 @@ const FamilyMemberPage = () => {
                         mb: 1,
                       }}
                     >
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        disableGutters
-                      >
+                      <Typography variant="body2" color="text.secondary">
                         {contactNo}
                       </Typography>
                       <Divider
@@ -167,7 +169,6 @@ const FamilyMemberPage = () => {
                         {gender}
                       </Typography>
                     </Box>
-                    {/* <Divider orientation="vertical" variant="middle" flexItem /> */}
 
                     <Typography variant="body2" color="text.secondary">
                       {address}
@@ -177,9 +178,6 @@ const FamilyMemberPage = () => {
                     <IconButton size="small">
                       <EditIcon />
                     </IconButton>
-                    {/* <IconButton size="small">
-                    <UploadFileIcon />
-                  </IconButton> */}
                   </CardActions>
                 </Card>
                 {/* <Card key={index} sx={{ width: 345 }}>
@@ -249,7 +247,7 @@ const FamilyMemberPage = () => {
                     </IconButton>
                   </CardActions>
                 </Card> */}
-              </>
+              </React.Fragment>
             )
           )}
         </Box>
@@ -260,8 +258,6 @@ const FamilyMemberPage = () => {
         setOpen={setOpen}
         checkDuplicate={checkDuplicate}
       />
-
-      <ResponseDialog content="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam non maximus metus." />
     </>
   );
 };

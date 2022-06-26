@@ -1,3 +1,4 @@
+import BackdropLoader from "./BackdropLoader";
 import LoggedInInaccessibleRoute from "./LoggedInInaccessibleRoute";
 import Logo from "./Logo";
 import Navbar from "./Navbar";
@@ -10,4 +11,5 @@ export {
   ProtectedRoute,
   Logo,
   ResponseDialog,
+  BackdropLoader,
 };

@@ -21,13 +21,13 @@ export const DIALOG_TYPES = {
 
 const dialogIcons = {
   [DIALOG_TYPES.SUCCESS]: (
-    <CheckCircleIcon sx={{ mr: 2, fontSize: 60 }} color="success" />
+    <CheckCircleIcon sx={{ mr: 3, fontSize: 60 }} color="success" />
   ),
   [DIALOG_TYPES.WARNING]: (
-    <WarningIcon sx={{ mr: 2, fontSize: 60 }} color="warning" />
+    <WarningIcon sx={{ mr: 3, fontSize: 60 }} color="warning" />
   ),
   [DIALOG_TYPES.ERROR]: (
-    <DangerousIcon sx={{ mr: 2, fontSize: 60 }} color="error" />
+    <DangerousIcon sx={{ mr: 3, fontSize: 60 }} color="error" />
   ),
 };
 
@@ -50,8 +50,8 @@ export default function AlertDialog({
       onClose={handleClose}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
-      // fullWidth
-      // maxWidth="lg"
+      fullWidth
+      maxWidth="xs"
     >
       <DialogTitle id="alert-dialog-title">{title || type}</DialogTitle>
       <DialogContent>
@@ -64,7 +64,7 @@ export default function AlertDialog({
           }}
         >
           {getDialogIcon()}
-          <Box>{content}</Box>
+          <Box sx={{ wordBreak: "break-all" }}>{content}</Box>
         </DialogContentText>
       </DialogContent>
       <DialogActions>
