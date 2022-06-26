@@ -15,6 +15,7 @@ import { useFormik } from "formik";
 import { useRouter } from "next/router";
 
 import { useAuth } from "../contexts/AuthContext";
+import { useResponseDialog } from "../contexts/ResponseDialogContext";
 import {
   checkAccountCredentialReq,
   signInAnonymouslyReq,
@@ -24,8 +25,7 @@ import { SigninSchema } from "../modules/validation";
 export default function SignInPage() {
   const router = useRouter();
   const { manualSetUser } = useAuth();
-
-  const [error, setError] = useState(null);
+  const { openResponseDialog } = useResponseDialog();
 
   const formik = useFormik({
     initialValues: {
@@ -35,7 +35,6 @@ export default function SignInPage() {
     validationSchema: SigninSchema,
     validateOnChange: false,
     onSubmit: async (values) => {
-      setError(null);
       const { contactNo, password } = values;
 
       await checkAccountCredentialReq(
@@ -48,12 +47,18 @@ export default function SignInPage() {
                 manualSetUser(doc);
               },
               errorCb(error) {
-                setError(error);
+                openResponseDialog({
+                  content: error,
+                  type: "ERROR",
+                });
               },
             });
           },
           errorCb(error) {
-            setError(error);
+            openResponseDialog({
+              content: error,
+              type: "ERROR",
+            });
           },
         }
       );
@@ -63,9 +68,28 @@ export default function SignInPage() {
     formik;
 
   return (
-    <div className="login-page">
-      <Container component="main" maxWidth="xs">
-        <div className="main-form">
+    <Box
+      sx={{
+        height: "calc(100vh - 64px)",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+      }}
+    >
+      <Container
+        component="main"
+        maxWidth="xs"
+        sx={{
+          mb: 10,
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
           <Typography component="h1" variant="h5">
             Patient Sign in
           </Typography>
@@ -85,7 +109,7 @@ export default function SignInPage() {
                   value={values.contactNo}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  error={(touched.contactNo && errors.contactNo) || error}
+                  error={touched.contactNo && errors.contactNo}
                   helperText={touched.contactNo && errors.contactNo}
                 />
               </Grid>
@@ -99,8 +123,8 @@ export default function SignInPage() {
                   value={values.password}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  error={(touched.password && errors.password) || error}
-                  helperText={(touched.password && errors.password) || error}
+                  error={touched.password && errors.password}
+                  helperText={touched.password && errors.password}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -138,8 +162,8 @@ export default function SignInPage() {
               </Grid>
             </Grid>
           </Box>
-        </div>
+        </Box>
       </Container>
-    </div>
+    </Box>
   );
 }

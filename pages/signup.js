@@ -22,7 +22,7 @@ import { useFormik } from "formik";
 import { useRouter } from "next/router";
 
 import VerificationPage from "../components/views/verification";
-import { useAuth } from "../contexts/AuthContext";
+import { useResponseDialog } from "../contexts/ResponseDialogContext";
 import { checkAccountDuplicateReq } from "../modules/firebase";
 import { SignupSchema } from "../modules/validation";
 
@@ -33,9 +33,8 @@ const STEPS = {
 
 export default function SignUpPage() {
   const router = useRouter();
-  const { signUp } = useAuth();
+  const { openResponseDialog } = useResponseDialog();
 
-  const [error, setError] = useState(null);
   const [step, setStep] = useState(STEPS.DETAILS);
 
   const formik = useFormik({
@@ -64,8 +63,6 @@ export default function SignUpPage() {
     validationSchema: SignupSchema,
     validateOnChange: false,
     onSubmit: async (values) => {
-      setError(null);
-
       // Check Account Duplication
       checkAccountDuplicateReq(values.contactNo, {
         successCb() {
@@ -73,7 +70,10 @@ export default function SignUpPage() {
           // TODO: Send verification here
         },
         errorCb(error) {
-          setError(error);
+          openResponseDialog({
+            content: error,
+            type: "ERROR",
+          });
         },
       });
     },
@@ -90,10 +90,23 @@ export default function SignUpPage() {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <div className="patient-signup-page">
+      <Box
+        sx={{
+          height: "calc(100vh - 64px)",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+        }}
+      >
         <Container component="main" maxWidth="xs">
           {step === STEPS.DETAILS ? (
-            <div className="main-form">
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
               <Typography component="h1" variant="h5">
                 Sign up
               </Typography>
@@ -115,7 +128,7 @@ export default function SignUpPage() {
                       value={values.firstName}
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      error={(touched.firstName && errors.firstName) || error}
+                      error={touched.firstName && errors.firstName}
                       helperText={touched.firstName && errors.firstName}
                     />
                   </Grid>
@@ -130,7 +143,7 @@ export default function SignUpPage() {
                       value={values.middleName}
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      error={(touched.middleName && errors.middleName) || error}
+                      error={touched.middleName && errors.middleName}
                       helperText={touched.middleName && errors.middleName}
                     />
                   </Grid>
@@ -145,7 +158,7 @@ export default function SignUpPage() {
                       value={values.lastName}
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      error={(touched.lastName && errors.lastName) || error}
+                      error={touched.lastName && errors.lastName}
                       helperText={touched.lastName && errors.lastName}
                     />
                   </Grid>
@@ -159,7 +172,6 @@ export default function SignUpPage() {
                       value={values.suffix}
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      error={error}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -179,9 +191,7 @@ export default function SignUpPage() {
                             required
                             fullWidth
                             name="birthdate"
-                            error={
-                              (touched.birthdate && errors.birthdate) || error
-                            }
+                            error={touched.birthdate && errors.birthdate}
                             helperText={touched.birthdate && errors.birthdate}
                           />
                         );
@@ -194,7 +204,7 @@ export default function SignUpPage() {
                       fullWidth
                       size="small"
                       required
-                      error={(touched.gender && errors.gender) || error}
+                      error={touched.gender && errors.gender}
                     >
                       <InputLabel>Gender</InputLabel>
                       <Select
@@ -224,7 +234,7 @@ export default function SignUpPage() {
                       value={values.address}
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      error={(touched.address && errors.address) || error}
+                      error={touched.address && errors.address}
                       helperText={touched.address && errors.address}
                     />
                   </Grid>
@@ -252,7 +262,7 @@ export default function SignUpPage() {
                       value={values.contactNo}
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      error={(touched.contactNo && errors.contactNo) || error}
+                      error={touched.contactNo && errors.contactNo}
                       helperText={touched.contactNo && errors.contactNo}
                     />
                   </Grid>
@@ -268,10 +278,8 @@ export default function SignUpPage() {
                       value={values.password}
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      error={(touched.password && errors.password) || error}
-                      helperText={
-                        (touched.password && errors.password) || error
-                      }
+                      error={touched.password && errors.password}
+                      helperText={touched.password && errors.password}
                     />
                   </Grid>
                 </Grid>
@@ -298,12 +306,12 @@ export default function SignUpPage() {
                   </Grid>
                 </Grid>
               </Box>
-            </div>
+            </Box>
           ) : (
             <VerificationPage values={values} />
           )}
         </Container>
-      </div>
+      </Box>
     </LocalizationProvider>
   );
 }

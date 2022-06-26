@@ -1,7 +1,7 @@
 import React from "react";
 
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import ErrorIcon from "@mui/icons-material/Error";
+import DangerousIcon from "@mui/icons-material/Dangerous";
 import WarningIcon from "@mui/icons-material/Warning";
 import {
   Box,
@@ -21,13 +21,13 @@ export const DIALOG_TYPES = {
 
 const dialogIcons = {
   [DIALOG_TYPES.SUCCESS]: (
-    <CheckCircleIcon sx={{ mr: 3, fontSize: 60 }} color="success" />
+    <CheckCircleIcon sx={{ mr: 2, fontSize: 60 }} color="success" />
   ),
   [DIALOG_TYPES.WARNING]: (
-    <WarningIcon sx={{ mr: 3, fontSize: 60 }} color="warning" />
+    <WarningIcon sx={{ mr: 2, fontSize: 60 }} color="warning" />
   ),
   [DIALOG_TYPES.ERROR]: (
-    <ErrorIcon sx={{ mr: 3, fontSize: 60 }} color="error" />
+    <DangerousIcon sx={{ mr: 2, fontSize: 60 }} color="error" />
   ),
 };
 

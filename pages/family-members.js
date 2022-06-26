@@ -45,7 +45,6 @@ const FamilyMemberPage = () => {
           setMembers(members);
         },
         errorCb(error) {
-          // setError(error);
           console.log(error);
         },
       });

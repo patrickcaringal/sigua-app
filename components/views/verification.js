@@ -11,12 +11,13 @@ import {
 import { useFormik } from "formik";
 
 import { useAuth } from "../../contexts/AuthContext";
+import { useResponseDialog } from "../../contexts/ResponseDialogContext";
 import { createAccountReq, signInAnonymouslyReq } from "../../modules/firebase";
 import { VerificationCodeSchema } from "../../modules/validation";
 
 export default function VerificationPage({ values: formValues }) {
-  const [error, setError] = useState(null);
   const { manualSetUser } = useAuth();
+  const { openResponseDialog } = useResponseDialog();
 
   const formik = useFormik({
     initialValues: {
@@ -28,8 +29,6 @@ export default function VerificationPage({ values: formValues }) {
     validationSchema: VerificationCodeSchema,
     validateOnChange: false,
     onSubmit: async (verificationCodes) => {
-      setError(null);
-
       const { digit1, digit2, digit3, digit4 } = verificationCodes;
       const finalCode = `${digit1}${digit2}${digit3}${digit4}`;
 
@@ -44,16 +43,25 @@ export default function VerificationPage({ values: formValues }) {
                 manualSetUser(doc);
               },
               errorCb(error) {
-                setError(error);
+                openResponseDialog({
+                  content: error,
+                  type: "ERROR",
+                });
               },
             });
           },
           errorCb(error) {
-            setError(error);
+            openResponseDialog({
+              content: error,
+              type: "ERROR",
+            });
           },
         });
       } else {
-        setError("Incorrect Verification code");
+        openResponseDialog({
+          content: "Incorrect Verification code",
+          type: "ERROR",
+        });
       }
     },
   });
@@ -97,7 +105,7 @@ export default function VerificationPage({ values: formValues }) {
               value={values.digit1}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={hasFormError || error}
+              error={hasFormError}
             />
           </Grid>
           <Grid item xs={4}>
@@ -108,7 +116,7 @@ export default function VerificationPage({ values: formValues }) {
               value={values.digit2}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={hasFormError || error}
+              error={hasFormError}
             />
           </Grid>
           <Grid item xs={4}>
@@ -119,7 +127,7 @@ export default function VerificationPage({ values: formValues }) {
               value={values.digit3}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={hasFormError || error}
+              error={hasFormError}
             />
           </Grid>
           <Grid item xs={4}>
@@ -130,14 +138,14 @@ export default function VerificationPage({ values: formValues }) {
               value={values.digit4}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={hasFormError || error}
+              error={hasFormError}
             />
           </Grid>
         </Box>
 
-        {(hasFormError || error) && (
+        {hasFormError && (
           <FormHelperText error sx={{ mt: 2 }}>
-            {hasFormError ? "Complete the verification code" : error}
+            Complete the verification code
           </FormHelperText>
         )}
 
