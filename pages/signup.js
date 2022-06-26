@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 
 import InfoIcon from "@mui/icons-material/Info";
+import { LoadingButton } from "@mui/lab";
 import {
   Box,
-  Button,
   Container,
   FormHelperText,
   Grid,
@@ -23,6 +23,7 @@ import { useRouter } from "next/router";
 
 import VerificationPage from "../components/views/verification";
 import { useResponseDialog } from "../contexts/ResponseDialogContext";
+import useRequest from "../hooks/useRequest";
 import { checkAccountDuplicateReq } from "../modules/firebase";
 import { SignupSchema } from "../modules/validation";
 
@@ -34,6 +35,9 @@ const STEPS = {
 export default function SignUpPage() {
   const router = useRouter();
   const { openResponseDialog } = useResponseDialog();
+  const [checkAccountDuplicate, checkAccountDuplicateLoading] = useRequest(
+    checkAccountDuplicateReq
+  );
 
   const [step, setStep] = useState(STEPS.DETAILS);
 
@@ -64,7 +68,7 @@ export default function SignUpPage() {
     validateOnChange: false,
     onSubmit: async (values) => {
       // Check Account Duplication
-      checkAccountDuplicateReq(values.contactNo, {
+      checkAccountDuplicate(values.contactNo, {
         successCb() {
           setStep(STEPS.VERIFICATION);
           // TODO: Send verification here
@@ -283,14 +287,15 @@ export default function SignUpPage() {
                     />
                   </Grid>
                 </Grid>
-                <Button
+                <LoadingButton
                   type="submit"
                   fullWidth
                   variant="contained"
                   sx={{ mt: 3, mb: 2 }}
+                  loading={checkAccountDuplicateLoading}
                 >
                   Sign Up
-                </Button>
+                </LoadingButton>
                 <Grid container justifyContent="flex-end">
                   <Grid item>
                     <Link

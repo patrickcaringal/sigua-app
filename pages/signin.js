@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
+import { LoadingButton } from "@mui/lab";
 import {
   Box,
-  Button,
   Checkbox,
   Container,
   FormControlLabel,
@@ -16,6 +16,7 @@ import { useRouter } from "next/router";
 
 import { useAuth } from "../contexts/AuthContext";
 import { useResponseDialog } from "../contexts/ResponseDialogContext";
+import useRequest from "../hooks/useRequest";
 import {
   checkAccountCredentialReq,
   signInAnonymouslyReq,
@@ -26,6 +27,13 @@ export default function SignInPage() {
   const router = useRouter();
   const { manualSetUser } = useAuth();
   const { openResponseDialog } = useResponseDialog();
+  const [checkAccountCredential, checkAccountCredentialLoading] = useRequest(
+    checkAccountCredentialReq
+  );
+  const [signInAnonymously, signInAnonymouslyLoading] =
+    useRequest(signInAnonymouslyReq);
+  const isSignInLoading =
+    checkAccountCredentialLoading || signInAnonymouslyLoading;
 
   const formik = useFormik({
     initialValues: {
@@ -37,12 +45,12 @@ export default function SignInPage() {
     onSubmit: async (values) => {
       const { contactNo, password } = values;
 
-      await checkAccountCredentialReq(
+      checkAccountCredential(
         { contactNo, password },
         {
           async successCb(doc) {
             // Sign In Anonymously
-            await signInAnonymouslyReq({
+            signInAnonymously({
               successCb() {
                 manualSetUser(doc);
               },
@@ -134,14 +142,15 @@ export default function SignInPage() {
                 />
               </Grid>
             </Grid>
-            <Button
+            <LoadingButton
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              loading={isSignInLoading}
             >
               Sign In
-            </Button>
+            </LoadingButton>
             <Grid container>
               <Grid item xs>
                 <Link href="#" variant="body2">

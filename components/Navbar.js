@@ -18,13 +18,23 @@ import { useRouter } from "next/router";
 
 import { Logo } from "../components";
 import { useAuth } from "../contexts/AuthContext";
+import { useBackdropLoader } from "../contexts/BackdropLoaderContext";
+import { useResponseDialog } from "../contexts/ResponseDialogContext";
+import useRequest from "../hooks/useRequest";
+import { signOutAnonymouslyReq } from "../modules/firebase";
 
 const pages = ["Products", "Pricing", "Blog"];
 // const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 const ResponsiveAppBar = () => {
   const router = useRouter();
-  const { userSession, signOutAnonymously, user, manualSetUser } = useAuth();
+  const { userSession, user, manualSetUser } = useAuth();
+  const { setBackdropLoader } = useBackdropLoader();
+  const { openResponseDialog } = useResponseDialog();
+  const [signOutAnonymously] = useRequest(
+    signOutAnonymouslyReq,
+    setBackdropLoader
+  );
 
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
@@ -50,7 +60,10 @@ const ResponsiveAppBar = () => {
         manualSetUser(null);
       },
       errorCb(error) {
-        alert(error);
+        openResponseDialog({
+          content: error,
+          type: "WARNING",
+        });
       },
     });
     setAnchorElUser(null);

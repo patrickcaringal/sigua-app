@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
+import { LoadingButton } from "@mui/lab";
 import {
   Box,
-  Button,
   FormHelperText,
   Grid,
   TextField,
@@ -12,12 +12,17 @@ import { useFormik } from "formik";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useResponseDialog } from "../../contexts/ResponseDialogContext";
+import useRequest from "../../hooks/useRequest";
 import { createAccountReq, signInAnonymouslyReq } from "../../modules/firebase";
 import { VerificationCodeSchema } from "../../modules/validation";
 
 export default function VerificationPage({ values: formValues }) {
   const { manualSetUser } = useAuth();
   const { openResponseDialog } = useResponseDialog();
+  const [createAccount, createAccountLoading] = useRequest(createAccountReq);
+  const [signInAnonymously, signInAnonymouslyLoading] =
+    useRequest(signInAnonymouslyReq);
+  const isSignUpLoading = createAccountLoading || signInAnonymouslyLoading;
 
   const formik = useFormik({
     initialValues: {
@@ -35,10 +40,10 @@ export default function VerificationPage({ values: formValues }) {
       // TODO: Verify code legit
       if (finalCode === "1234") {
         // Create User Doc
-        createAccountReq(formValues, {
-          async successCb(doc) {
+        createAccount(formValues, {
+          successCb(doc) {
             // Sign In Anonymously
-            await signInAnonymouslyReq({
+            signInAnonymously({
               successCb() {
                 manualSetUser(doc);
               },
@@ -149,9 +154,14 @@ export default function VerificationPage({ values: formValues }) {
           </FormHelperText>
         )}
 
-        <Button type="submit" variant="contained" sx={{ mt: 3 }}>
+        <LoadingButton
+          type="submit"
+          variant="contained"
+          sx={{ mt: 3 }}
+          loading={isSignUpLoading}
+        >
           Verify
-        </Button>
+        </LoadingButton>
       </Box>
     </div>
   );
