@@ -8,6 +8,7 @@ import {
   ProtectedRoute,
 } from "../components/";
 import { AuthContextProvider } from "../contexts/AuthContext";
+import { ResponseDialogProvider } from "../contexts/ResponseDialogContext";
 import { defaultTheme } from "../modules/theme";
 
 const loggedInInaccessibleRoutes = [
@@ -36,24 +37,26 @@ function MyApp({ Component, pageProps }) {
   return (
     <ThemeProvider theme={defaultTheme}>
       <AuthContextProvider>
-        <Navbar />
-        {
-          // should NOT be logged in to access routes
-          isLoggedInInaccessible ? (
-            <LoggedInInaccessibleRoute>
+        <ResponseDialogProvider>
+          <Navbar />
+          {
+            // should NOT be logged in to access routes
+            isLoggedInInaccessible ? (
+              <LoggedInInaccessibleRoute>
+                <Component {...pageProps} />
+              </LoggedInInaccessibleRoute>
+            ) : // should be logged in to access routes
+            isProtected ? (
+              <ProtectedRoute>
+                {/* TODO Role protected route */}
+                <Component {...pageProps} />
+              </ProtectedRoute>
+            ) : (
+              // accessible to anyone routes
               <Component {...pageProps} />
-            </LoggedInInaccessibleRoute>
-          ) : // should be logged in to access routes
-          isProtected ? (
-            <ProtectedRoute>
-              {/* TODO Role protected route */}
-              <Component {...pageProps} />
-            </ProtectedRoute>
-          ) : (
-            // accessible to anyone routes
-            <Component {...pageProps} />
-          )
-        }
+            )
+          }
+        </ResponseDialogProvider>
       </AuthContextProvider>
     </ThemeProvider>
   );

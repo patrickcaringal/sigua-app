@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
@@ -27,8 +27,10 @@ import {
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
+import { format as formatDate } from "date-fns";
 import { FieldArray, FormikProvider, useFormik } from "formik";
 
+import { useResponseDialog } from "../contexts/ResponseDialogContext";
 import { FamilyMemberSchema } from "../modules/validation";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -36,7 +38,38 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const defaultValues = {
-  familyMembers: [],
+  familyMembers: [
+    {
+      firstName: "Paul",
+      middleName: "Punsalang",
+      lastName: "Caringal",
+      suffix: "",
+      birthdate: "2002-05-13T03:50:17.000Z",
+      gender: "male",
+      address:
+        "B5 L43 P1 Lakesidenest Subd., Brgy. Banay-banay, Cabuyao City, Laguna",
+    },
+    {
+      firstName: "April",
+      middleName: "Punsalang",
+      lastName: "Caringal",
+      suffix: "",
+      birthdate: "1968-04-19T03:51:33.000Z",
+      gender: "female",
+      address:
+        "B5 L43 P1 Lakesidenest Subd., Brgy. Banay-banay, Cabuyao City, Laguna",
+    },
+    {
+      firstName: "pat",
+      middleName: "Punsalang",
+      lastName: "Caringal",
+      suffix: "",
+      birthdate: "1997-07-10T03:50:17.000Z",
+      gender: "male",
+      address:
+        "B5 L43 P1 Lakesidenest Subd., Brgy. Banay-banay, Cabuyao City, Laguna",
+    },
+  ],
 };
 
 const defaultMemberValue = {
@@ -49,8 +82,8 @@ const defaultMemberValue = {
   address: "",
 };
 
-export default function FullScreenDialog({ open, setOpen }) {
-  // const [error, setError] = useState(null);
+export default function FullScreenDialog({ open, setOpen, checkDuplicate }) {
+  const { openResponseDialog } = useResponseDialog();
 
   const formik = useFormik({
     initialValues: defaultValues,
@@ -59,6 +92,34 @@ export default function FullScreenDialog({ open, setOpen }) {
     onSubmit: async (values) => {
       // TODO: update account familyMembers doc
       // automatic unverified family member
+      const { familyMembers } = values;
+
+      const dupliNames = [];
+      const hasDuplicate = familyMembers.reduce((acc, i, index) => {
+        const { firstName, middleName, lastName, birthdate } = i;
+
+        const m = `${firstName} ${middleName} ${lastName} ${formatDate(
+          new Date(birthdate),
+          "yyyy-MM-dd"
+        )}`.toUpperCase();
+
+        const isDupli = checkDuplicate(m);
+
+        if (isDupli) {
+          dupliNames.push(
+            `${firstName} ${middleName} ${lastName}`.toUpperCase()
+          );
+        }
+
+        return isDupli;
+      }, false);
+
+      if (hasDuplicate) {
+        openResponseDialog({
+          content: `Duplicate Family Members ${dupliNames.join(",")}`,
+          type: "WARNING",
+        });
+      }
     },
   });
 

@@ -26,6 +26,7 @@ import {
 import { format as formatDate } from "date-fns";
 import { useRouter } from "next/router";
 
+import { ResponseDialog } from "../components";
 import FamilyMemberForm from "../components/FamilyMemberForm";
 import { useAuth } from "../contexts/AuthContext";
 import { getFamilyMembersReq } from "../modules/firebase";
@@ -52,9 +53,22 @@ const FamilyMemberPage = () => {
     fetchData();
   }, [user.id]);
 
+  const membersUniqueId = members.map((i) => {
+    const { firstName, middleName, lastName, birthdate } = i;
+    // TODO: create helper
+    const m = `${firstName} ${middleName} ${lastName} ${formatDate(
+      new Date(birthdate),
+      "yyyy-MM-dd"
+    )}`.toUpperCase();
+
+    return m;
+  });
+
   const handleMemberModalOpen = () => {
     setOpen(true);
   };
+
+  const checkDuplicate = (newMember) => membersUniqueId.includes(newMember);
 
   return (
     <>
@@ -169,14 +183,13 @@ const FamilyMemberPage = () => {
                   </IconButton> */}
                   </CardActions>
                 </Card>
-                <Card key={index} sx={{ width: 345 }}>
+                {/* <Card key={index} sx={{ width: 345 }}>
                   <CardHeader
                     avatar={
                       <Avatar
                         sx={{ bgcolor: "primary.main" }}
                         aria-label="recipe"
                       >
-                        {/* TODO: helper for getting initial */}
                         {firstName.toUpperCase().charAt(0)}
                       </Avatar>
                     }
@@ -188,7 +201,6 @@ const FamilyMemberPage = () => {
                       </>
                     }
                     title={`${firstName} ${middleName} ${lastName}`.toUpperCase()}
-                    // subheader={}
                   />
                   <CardContent>
                     <Box
@@ -224,7 +236,6 @@ const FamilyMemberPage = () => {
                         {gender}
                       </Typography>
                     </Box>
-                    {/* <Divider orientation="vertical" variant="middle" flexItem /> */}
 
                     <Typography variant="body2" color="text.secondary">
                       {address}
@@ -238,14 +249,20 @@ const FamilyMemberPage = () => {
                       <UploadFileIcon />
                     </IconButton>
                   </CardActions>
-                </Card>
+                </Card> */}
               </>
             )
           )}
         </Box>
       </Container>
 
-      <FamilyMemberForm open={open} setOpen={setOpen} />
+      <FamilyMemberForm
+        open={open}
+        setOpen={setOpen}
+        checkDuplicate={checkDuplicate}
+      />
+
+      <ResponseDialog content="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam non maximus metus." />
     </>
   );
 };
