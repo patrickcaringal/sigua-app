@@ -50,6 +50,7 @@ export const createAccountReq = async (
     mappedNewDocument.familyMembers = [
       {
         accountId: docRef.id,
+        verified: true,
         ...omitFields(mappedNewDocument, ["password", "familyMembers"]),
       },
     ];
@@ -131,6 +132,29 @@ export const getFamilyMembersReq = async (
     } else {
       successCb([]);
     }
+  } catch (error) {
+    errorCb(error.message);
+    console.log(error);
+  }
+};
+
+export const addFamilyMembersReq = async (
+  { id, familyMembers },
+  { successCb = () => {}, errorCb = () => {} }
+) => {
+  try {
+    // console.log("addFamilyMembersReq", { id, familyMembers });
+    const mappedFamMembers = familyMembers.map((i) => {
+      return {
+        ...i,
+        ...(!i.contact && { verified: false }),
+      };
+    });
+    console.log(JSON.stringify(mappedFamMembers, null, 4));
+
+    // const docRef = doc(db, 'accounts', id);
+    // await setDoc(docRef, { familyMembers }, { merge: true });
+    successCb();
   } catch (error) {
     errorCb(error.message);
     console.log(error);

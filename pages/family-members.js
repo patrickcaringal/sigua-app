@@ -29,7 +29,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useBackdropLoader } from "../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../contexts/ResponseDialogContext";
 import useRequest from "../hooks/useRequest";
-import { getFamilyMembersReq } from "../modules/firebase";
+import { addFamilyMembersReq, getFamilyMembersReq } from "../modules/firebase";
 import { formatDate, getInitials } from "../modules/helper";
 
 const FamilyMemberPage = () => {
@@ -37,6 +37,7 @@ const FamilyMemberPage = () => {
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog } = useResponseDialog();
   const [getFamilyMembers] = useRequest(getFamilyMembersReq, setBackdropLoader);
+  const [addFamilyMembers] = useRequest(addFamilyMembersReq, setBackdropLoader);
 
   const [members, setMembers] = useState([]);
   const [open, setOpen] = useState(false);
@@ -70,7 +71,34 @@ const FamilyMemberPage = () => {
     setOpen(true);
   };
 
-  const checkDuplicate = (newMember) => membersUniqueId.includes(newMember);
+  const handleCheckDuplicate = (newMember) =>
+    membersUniqueId.includes(newMember);
+
+  const handleAddMemeber = (newMember) => {
+    const allMembers = [...members, ...newMember];
+    // addFamilyMembersReq()
+    // console.log(JSON.stringify(allMembers, null, 4));
+
+    addFamilyMembers(
+      { id: user.id, familyMembers: allMembers },
+      {
+        successCb() {
+          // alert("success");
+          openResponseDialog({
+            content: "Family members successfuly added.",
+            type: "SUCCESS",
+            // TODO: add onclose
+          });
+        },
+        errorCb(error) {
+          openResponseDialog({
+            content: error,
+            type: "WARNING",
+          });
+        },
+      }
+    );
+  };
 
   return (
     <>
@@ -255,7 +283,8 @@ const FamilyMemberPage = () => {
       <FamilyMemberForm
         open={open}
         setOpen={setOpen}
-        checkDuplicate={checkDuplicate}
+        onCheckDuplicate={handleCheckDuplicate}
+        onAddMemeber={handleAddMemeber}
       />
     </>
   );

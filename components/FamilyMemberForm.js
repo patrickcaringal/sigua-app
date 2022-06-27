@@ -59,16 +59,16 @@ const defaultValues = {
       address:
         "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUN",
     },
-    {
-      firstName: "PATRICK ANGELO",
-      middleName: "PUNSALANG",
-      lastName: "CARINGAL",
-      suffix: "",
-      birthdate: "1997-07-10T13:52:43.000Z",
-      gender: "male",
-      address:
-        "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUN",
-    },
+    // {
+    //   firstName: "PATRICK ANGELO",
+    //   middleName: "PUNSALANG",
+    //   lastName: "CARINGAL",
+    //   suffix: "",
+    //   birthdate: "1997-07-10T13:52:43.000Z",
+    //   gender: "male",
+    //   address:
+    //     "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUN",
+    // },
   ],
 };
 
@@ -82,7 +82,12 @@ const defaultMemberValue = {
   address: "",
 };
 
-export default function FullScreenDialog({ open, setOpen, checkDuplicate }) {
+export default function FullScreenDialog({
+  open,
+  setOpen,
+  onCheckDuplicate,
+  onAddMemeber,
+}) {
   const { openResponseDialog } = useResponseDialog();
 
   const formik = useFormik({
@@ -90,7 +95,6 @@ export default function FullScreenDialog({ open, setOpen, checkDuplicate }) {
     validationSchema: FamilyMemberSchema,
     validateOnChange: false,
     onSubmit: async (values) => {
-      // TODO: update account familyMembers doc
       // automatic unverified family member
       const { familyMembers } = values;
 
@@ -102,7 +106,7 @@ export default function FullScreenDialog({ open, setOpen, checkDuplicate }) {
         const fullname = `${firstName} ${middleName} ${lastName}`;
 
         const m = `${fullname} ${formatDate(birthdate)}`;
-        const isDupli = checkDuplicate(m);
+        const isDupli = onCheckDuplicate(m);
 
         if (isDupli) dupliNames.push(fullname);
 
@@ -123,7 +127,9 @@ export default function FullScreenDialog({ open, setOpen, checkDuplicate }) {
         return;
       }
 
-      alert("goods");
+      // TODO: update account familyMembers doc
+      // console.log(JSON.stringify(familyMembers, null, 4));
+      onAddMemeber(familyMembers);
     },
   });
 

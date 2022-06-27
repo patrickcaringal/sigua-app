@@ -1,4 +1,5 @@
 import {
+  addFamilyMembersReq,
   checkAccountCredentialReq,
   checkAccountDuplicateReq,
   createAccountReq,
@@ -28,4 +29,5 @@ export {
   checkAccountDuplicateReq,
   checkAccountCredentialReq,
   getFamilyMembersReq,
+  addFamilyMembersReq,
 };
