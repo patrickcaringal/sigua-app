@@ -1,5 +1,4 @@
 import bcrypt from "bcryptjs";
-import { format as formatDate } from "date-fns";
 import {
   collection,
   doc,
@@ -11,6 +10,7 @@ import {
 } from "firebase/firestore";
 import { omit as omitFields } from "lodash";
 
+import { formatDate } from "../helper";
 import { db } from "./config";
 
 const collRef = collection(db, "accounts");
@@ -38,11 +38,11 @@ export const createAccountReq = async (
       newDocument;
     let mappedNewDocument = {
       ...newDocument,
-      firstName: firstName.toLowerCase(),
-      middleName: middleName.toLowerCase(),
-      lastName: lastName.toLowerCase(),
-      suffix: suffix.toLowerCase(),
-      birthdate: formatDate(new Date(birthdate), "yyyy-MM-dd"),
+      firstName: firstName,
+      middleName: middleName,
+      lastName: lastName,
+      suffix: suffix,
+      birthdate: formatDate(birthdate),
       password: hashPassword(password),
       familyMembers: [],
     };

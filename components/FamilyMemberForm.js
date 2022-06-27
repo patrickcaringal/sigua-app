@@ -27,10 +27,10 @@ import {
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
-import { format as formatDate } from "date-fns";
 import { FieldArray, FormikProvider, useFormik } from "formik";
 
 import { useResponseDialog } from "../contexts/ResponseDialogContext";
+import { formatDate } from "../modules/helper";
 import { FamilyMemberSchema } from "../modules/validation";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -40,34 +40,34 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 const defaultValues = {
   familyMembers: [
     {
-      firstName: "Paul",
-      middleName: "Punsalang",
-      lastName: "Caringal",
+      firstName: "PAUL DANIEL",
+      middleName: "PUNSALANG",
+      lastName: "CARINGAL",
       suffix: "",
-      birthdate: "2002-05-13T03:50:17.000Z",
+      birthdate: "1997-07-10T13:52:43.000Z",
       gender: "male",
       address:
-        "B5 L43 P1 Lakesidenest Subd., Brgy. Banay-banay, Cabuyao City, Laguna",
+        "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUN",
     },
     {
-      firstName: "April",
-      middleName: "Punsalang",
-      lastName: "Caringal",
+      firstName: "APRIL",
+      middleName: "PUNSALANG",
+      lastName: "CARINGAL",
       suffix: "",
-      birthdate: "1968-04-19T03:51:33.000Z",
-      gender: "female",
-      address:
-        "B5 L43 P1 Lakesidenest Subd., Brgy. Banay-banay, Cabuyao City, Laguna",
-    },
-    {
-      firstName: "pat",
-      middleName: "Punsalang",
-      lastName: "Caringal",
-      suffix: "",
-      birthdate: "1997-07-10T03:50:17.000Z",
+      birthdate: "1997-07-10T13:52:43.000Z",
       gender: "male",
       address:
-        "B5 L43 P1 Lakesidenest Subd., Brgy. Banay-banay, Cabuyao City, Laguna",
+        "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUN",
+    },
+    {
+      firstName: "PATRICK ANGELO",
+      middleName: "PUNSALANG",
+      lastName: "CARINGAL",
+      suffix: "",
+      birthdate: "1997-07-10T13:52:43.000Z",
+      gender: "male",
+      address:
+        "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUN",
     },
   ],
 };
@@ -94,24 +94,19 @@ export default function FullScreenDialog({ open, setOpen, checkDuplicate }) {
       // automatic unverified family member
       const { familyMembers } = values;
 
-      const dupliNames = [];
-      const hasDuplicate = familyMembers.reduce((acc, i, index) => {
+      const dupliNames = []; // used for error display
+
+      // Check Duplicates
+      const hasDuplicate = familyMembers.reduce((acc, i) => {
         const { firstName, middleName, lastName, birthdate } = i;
+        const fullname = `${firstName} ${middleName} ${lastName}`;
 
-        const m = `${firstName} ${middleName} ${lastName} ${formatDate(
-          new Date(birthdate),
-          "yyyy-MM-dd"
-        )}`.toUpperCase();
-
+        const m = `${fullname} ${formatDate(birthdate)}`;
         const isDupli = checkDuplicate(m);
 
-        if (isDupli) {
-          dupliNames.push(
-            `${firstName} ${middleName} ${lastName}`.toUpperCase()
-          );
-        }
+        if (isDupli) dupliNames.push(fullname);
 
-        return isDupli;
+        return acc || isDupli;
       }, false);
 
       if (hasDuplicate) {
@@ -124,7 +119,11 @@ export default function FullScreenDialog({ open, setOpen, checkDuplicate }) {
           ),
           type: "WARNING",
         });
+
+        return;
       }
+
+      alert("goods");
     },
   });
 
@@ -238,7 +237,12 @@ export default function FullScreenDialog({ open, setOpen, checkDuplicate }) {
                                     name={`familyMembers[${index}].firstName`}
                                     autoComplete="off"
                                     value={famMemberValue.firstName}
-                                    onChange={handleChange}
+                                    onChange={(e) =>
+                                      setFieldValue(
+                                        `familyMembers[${index}].firstName`,
+                                        e.target.value.toUpperCase()
+                                      )
+                                    }
                                     onBlur={handleBlur}
                                     error={
                                       famMemberTouched?.firstName &&
@@ -259,7 +263,12 @@ export default function FullScreenDialog({ open, setOpen, checkDuplicate }) {
                                     name={`familyMembers[${index}].middleName`}
                                     autoComplete="off"
                                     value={famMemberValue.middleName}
-                                    onChange={handleChange}
+                                    onChange={(e) =>
+                                      setFieldValue(
+                                        `familyMembers[${index}].middleName`,
+                                        e.target.value.toUpperCase()
+                                      )
+                                    }
                                     onBlur={handleBlur}
                                     error={
                                       famMemberTouched?.middleName &&
@@ -280,7 +289,12 @@ export default function FullScreenDialog({ open, setOpen, checkDuplicate }) {
                                     name={`familyMembers[${index}].lastName`}
                                     autoComplete="off"
                                     value={famMemberValue.lastName}
-                                    onChange={handleChange}
+                                    onChange={(e) =>
+                                      setFieldValue(
+                                        `familyMembers[${index}].lastName`,
+                                        e.target.value.toUpperCase()
+                                      )
+                                    }
                                     onBlur={handleBlur}
                                     error={
                                       famMemberTouched?.lastName &&
@@ -300,7 +314,12 @@ export default function FullScreenDialog({ open, setOpen, checkDuplicate }) {
                                     name={`familyMembers[${index}].suffix`}
                                     autoComplete="off"
                                     value={famMemberValue.suffix}
-                                    onChange={handleChange}
+                                    onChange={(e) =>
+                                      setFieldValue(
+                                        `familyMembers[${index}].suffix`,
+                                        e.target.value.toUpperCase()
+                                      )
+                                    }
                                     onBlur={handleBlur}
                                     error={
                                       famMemberTouched?.suffix &&
@@ -393,7 +412,12 @@ export default function FullScreenDialog({ open, setOpen, checkDuplicate }) {
                                     name={`familyMembers[${index}].address`}
                                     autoComplete="off"
                                     value={famMemberValue.address}
-                                    onChange={handleChange}
+                                    onChange={(e) =>
+                                      setFieldValue(
+                                        `familyMembers[${index}].address`,
+                                        e.target.value.toUpperCase()
+                                      )
+                                    }
                                     onBlur={handleBlur}
                                     error={
                                       famMemberTouched?.address &&

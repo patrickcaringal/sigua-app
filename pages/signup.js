@@ -42,31 +42,33 @@ export default function SignUpPage() {
   const [step, setStep] = useState(STEPS.DETAILS);
 
   const formik = useFormik({
-    // initialValues: {
-    //   firstName: "",
-    //   middleName: "",
-    //   lastName: "",
-    //   suffix: "",
-    //   birthdate: "",
-    //   gender: "",
-    //   address: "",
-    //   contactNo: "",
-    //   password: "",
-    // },
     initialValues: {
-      firstName: "pat",
-      middleName: "punsalang",
-      lastName: "caringal",
+      firstName: "",
+      middleName: "",
+      lastName: "",
       suffix: "",
-      birthdate: "1997-07-10",
-      gender: "male",
-      address: "dov",
-      contactNo: "09994441760",
-      password: "12345678",
+      birthdate: "",
+      gender: "",
+      address: "",
+      contactNo: "",
+      password: "",
     },
+    // initialValues: {
+    //   firstName: "PATRICK ANGELO",
+    //   middleName: "PUNSALANG",
+    //   lastName: "CARINGAL",
+    //   suffix: "",
+    //   birthdate: "1997-07-10T13:52:43.000Z",
+    //   gender: "male",
+    //   address:
+    //     "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUN",
+    //   contactNo: "09994441760",
+    //   password: "12345678",
+    // },
     validationSchema: SignupSchema,
     validateOnChange: false,
     onSubmit: async (values) => {
+      console.log(JSON.stringify(values, null, 4));
       // Check Account Duplication
       checkAccountDuplicate(values.contactNo, {
         successCb() {
@@ -130,7 +132,9 @@ export default function SignUpPage() {
                       name="firstName"
                       autoComplete="off"
                       value={values.firstName}
-                      onChange={handleChange}
+                      onChange={(e) =>
+                        setFieldValue("firstName", e.target.value.toUpperCase())
+                      }
                       onBlur={handleBlur}
                       error={touched.firstName && errors.firstName}
                       helperText={touched.firstName && errors.firstName}
@@ -145,7 +149,12 @@ export default function SignUpPage() {
                       name="middleName"
                       autoComplete="off"
                       value={values.middleName}
-                      onChange={handleChange}
+                      onChange={(e) =>
+                        setFieldValue(
+                          "middleName",
+                          e.target.value.toUpperCase()
+                        )
+                      }
                       onBlur={handleBlur}
                       error={touched.middleName && errors.middleName}
                       helperText={touched.middleName && errors.middleName}
@@ -160,7 +169,9 @@ export default function SignUpPage() {
                       name="lastName"
                       autoComplete="off"
                       value={values.lastName}
-                      onChange={handleChange}
+                      onChange={(e) =>
+                        setFieldValue("lastName", e.target.value.toUpperCase())
+                      }
                       onBlur={handleBlur}
                       error={touched.lastName && errors.lastName}
                       helperText={touched.lastName && errors.lastName}
@@ -236,7 +247,9 @@ export default function SignUpPage() {
                       name="address"
                       autoComplete="off"
                       value={values.address}
-                      onChange={handleChange}
+                      onChange={(e) =>
+                        setFieldValue("address", e.target.value.toUpperCase())
+                      }
                       onBlur={handleBlur}
                       error={touched.address && errors.address}
                       helperText={touched.address && errors.address}

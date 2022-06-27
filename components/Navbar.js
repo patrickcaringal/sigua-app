@@ -22,6 +22,7 @@ import { useBackdropLoader } from "../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../contexts/ResponseDialogContext";
 import useRequest from "../hooks/useRequest";
 import { signOutAnonymouslyReq } from "../modules/firebase";
+import { getInitials } from "../modules/helper";
 
 const pages = ["Products", "Pricing", "Blog"];
 // const settings = ["Profile", "Account", "Dashboard", "Logout"];
@@ -155,11 +156,9 @@ const ResponsiveAppBar = () => {
                 <>
                   <Tooltip title="Open settings">
                     <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                      <Avatar
-                        sx={{ bgcolor: "primary.main" }}
-                        alt={user?.firstName?.toUpperCase()}
-                        src="/static/images/avatar/2.jpg"
-                      />
+                      <Avatar sx={{ bgcolor: "primary.main" }}>
+                        {getInitials(user?.firstName)}
+                      </Avatar>
                     </IconButton>
                   </Tooltip>
                   <Menu

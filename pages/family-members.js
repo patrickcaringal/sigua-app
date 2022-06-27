@@ -23,7 +23,6 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import { format as formatDate } from "date-fns";
 
 import FamilyMemberForm from "../components/FamilyMemberForm";
 import { useAuth } from "../contexts/AuthContext";
@@ -31,6 +30,7 @@ import { useBackdropLoader } from "../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../contexts/ResponseDialogContext";
 import useRequest from "../hooks/useRequest";
 import { getFamilyMembersReq } from "../modules/firebase";
+import { formatDate, getInitials } from "../modules/helper";
 
 const FamilyMemberPage = () => {
   const { user } = useAuth();
@@ -60,12 +60,9 @@ const FamilyMemberPage = () => {
 
   const membersUniqueId = members.map((i) => {
     const { firstName, middleName, lastName, birthdate } = i;
-    // TODO: create helper
-    const m = `${firstName} ${middleName} ${lastName} ${formatDate(
-      new Date(birthdate),
-      "yyyy-MM-dd"
-    )}`.toUpperCase();
+    const fullname = `${firstName} ${middleName} ${lastName}`;
 
+    const m = `${fullname} ${formatDate(birthdate)}`.toUpperCase();
     return m;
   });
 
@@ -125,8 +122,7 @@ const FamilyMemberPage = () => {
                         sx={{ bgcolor: "primary.main" }}
                         aria-label="recipe"
                       >
-                        {/* TODO: helper for getting initial */}
-                        {firstName.toUpperCase().charAt(0)}
+                        {getInitials(firstName)}
                       </Avatar>
                     }
                     action={
@@ -136,8 +132,7 @@ const FamilyMemberPage = () => {
                         </IconButton>
                       </>
                     }
-                    title={`${firstName} ${middleName} ${lastName}`.toUpperCase()}
-                    // subheader={}
+                    title={`${firstName} ${middleName} ${lastName}`}
                   />
                   <CardContent>
                     <Box
@@ -157,7 +152,7 @@ const FamilyMemberPage = () => {
                         sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
                       />
                       <Typography variant="body2" color="text.secondary">
-                        {formatDate(new Date(birthdate), "MMMM dd, yyyy")}
+                        {formatDate(birthdate)}
                       </Typography>
                       <Divider
                         orientation="vertical"
@@ -165,7 +160,11 @@ const FamilyMemberPage = () => {
                         flexItem
                         sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
                       />
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ textTransform: "capitalize" }}
+                      >
                         {gender}
                       </Typography>
                     </Box>
