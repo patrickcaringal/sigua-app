@@ -13,10 +13,11 @@ import {
   signOutReq,
   signUpReq,
 } from "./auth";
-import { auth } from "./config";
+import { auth, db } from "./config";
 
 export {
   // auth
+  db,
   auth,
   signUpReq,
   signOutReq,

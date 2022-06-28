@@ -143,17 +143,17 @@ export const addFamilyMembersReq = async (
   { successCb = () => {}, errorCb = () => {} }
 ) => {
   try {
-    // console.log("addFamilyMembersReq", { id, familyMembers });
     const mappedFamMembers = familyMembers.map((i) => {
       return {
+        accountId: id,
         ...i,
-        ...(!i.contact && { verified: false }),
+        ...(!i.contactNo && { verified: false }),
       };
     });
-    console.log(JSON.stringify(mappedFamMembers, null, 4));
 
-    // const docRef = doc(db, 'accounts', id);
-    // await setDoc(docRef, { familyMembers }, { merge: true });
+    const docRef = doc(db, "accounts", id);
+
+    await setDoc(docRef, { familyMembers: mappedFamMembers }, { merge: true });
     successCb();
   } catch (error) {
     errorCb(error.message);

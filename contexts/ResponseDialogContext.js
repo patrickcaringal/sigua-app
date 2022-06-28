@@ -29,10 +29,22 @@ export const ResponseDialogProvider = ({ children }) => {
     }, 250);
   };
 
-  const openResponseDialog = ({ content, type }) => {
+  const openResponseDialog = ({
+    autoClose = false,
+    content,
+    type,
+    closeCb = () => {},
+  }) => {
     setType(type);
     setContent(content);
     setOpen(true);
+    closeCb();
+
+    if (autoClose) {
+      setTimeout(() => {
+        setOpen(false);
+      }, 1500);
+    }
   };
 
   const value = { openResponseDialog };

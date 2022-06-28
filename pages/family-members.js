@@ -11,18 +11,19 @@ import {
   Breadcrumbs,
   Button,
   Card,
-  CardActionArea,
   CardActions,
   CardContent,
   CardHeader,
-  CardMedia,
   Container,
   Divider,
   IconButton,
   Link,
   Toolbar,
+  Tooltip,
   Typography,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { tooltipClasses } from "@mui/material/Tooltip";
 
 import FamilyMemberForm from "../components/FamilyMemberForm";
 import { useAuth } from "../contexts/AuthContext";
@@ -31,6 +32,15 @@ import { useResponseDialog } from "../contexts/ResponseDialogContext";
 import useRequest from "../hooks/useRequest";
 import { addFamilyMembersReq, getFamilyMembersReq } from "../modules/firebase";
 import { formatDate, getInitials } from "../modules/helper";
+
+// TODO: Tooltip
+const CustomWidthTooltip = styled(({ className, ...props }) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))({
+  [`& .${tooltipClasses.tooltip}`]: {
+    maxWidth: 120,
+  },
+});
 
 const FamilyMemberPage = () => {
   const { user } = useAuth();
@@ -76,18 +86,19 @@ const FamilyMemberPage = () => {
 
   const handleAddMemeber = (newMember) => {
     const allMembers = [...members, ...newMember];
-    // addFamilyMembersReq()
-    // console.log(JSON.stringify(allMembers, null, 4));
 
     addFamilyMembers(
       { id: user.id, familyMembers: allMembers },
       {
         successCb() {
-          // alert("success");
+          setMembers(allMembers);
           openResponseDialog({
+            autoClose: true,
             content: "Family members successfuly added.",
             type: "SUCCESS",
-            // TODO: add onclose
+            closeCb() {
+              setOpen(false);
+            },
           });
         },
         errorCb(error) {
@@ -138,144 +149,102 @@ const FamilyMemberPage = () => {
                 birthdate,
                 address,
                 gender,
+                verified,
+                verificationAttachment,
               },
               index
-            ) => (
-              // , height: 180
-              <React.Fragment key={index}>
-                <Card sx={{ width: 345 }}>
-                  <CardHeader
-                    avatar={
-                      <Avatar
-                        sx={{ bgcolor: "primary.main" }}
-                        aria-label="recipe"
-                      >
-                        {getInitials(firstName)}
-                      </Avatar>
-                    }
-                    action={
-                      <>
-                        <IconButton size="small">
-                          <VerifiedUserIcon color="success" />
-                        </IconButton>
-                      </>
-                    }
-                    title={`${firstName} ${middleName} ${lastName}`}
-                  />
-                  <CardContent>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                        mb: 1,
-                      }}
-                    >
-                      <Typography variant="body2" color="text.secondary">
-                        {contactNo}
-                      </Typography>
-                      <Divider
-                        orientation="vertical"
-                        variant="middle"
-                        flexItem
-                        sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
-                      />
-                      <Typography variant="body2" color="text.secondary">
-                        {formatDate(birthdate)}
-                      </Typography>
-                      <Divider
-                        orientation="vertical"
-                        variant="middle"
-                        flexItem
-                        sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
-                      />
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ textTransform: "capitalize" }}
-                      >
-                        {gender}
-                      </Typography>
-                    </Box>
+            ) => {
+              const toBeVerified = !verified && !verificationAttachment;
+              return (
+                // , height: 180
+                <React.Fragment key={index}>
+                  <Card sx={{ width: 345 }}>
+                    <CardHeader
+                      avatar={
+                        <Avatar
+                          sx={{ bgcolor: "primary.main" }}
+                          aria-label="recipe"
+                        >
+                          {getInitials(firstName)}
+                        </Avatar>
+                      }
+                      action={
+                        <>
+                          <IconButton size="small">
+                            {verified ? (
+                              <Tooltip title="Verified">
+                                <VerifiedUserIcon color="success" />
+                              </Tooltip>
+                            ) : toBeVerified ? (
+                              // Attach proof of relationship or Autorization letter
+                              <CustomWidthTooltip title="Verifiy member">
+                                <NoAccountsIcon color="error" />
+                              </CustomWidthTooltip>
+                            ) : (
+                              <Tooltip title="For Staff approval">
+                                <FlakyIcon color="warning" />
+                              </Tooltip>
+                            )}
 
-                    <Typography variant="body2" color="text.secondary">
-                      {address}
-                    </Typography>
-                  </CardContent>
-                  <CardActions sx={{ pt: 0 }}>
-                    <IconButton size="small">
-                      <EditIcon />
-                    </IconButton>
-                  </CardActions>
-                </Card>
-                {/* <Card key={index} sx={{ width: 345 }}>
-                  <CardHeader
-                    avatar={
-                      <Avatar
-                        sx={{ bgcolor: "primary.main" }}
-                        aria-label="recipe"
+                            {/* <FlakyIcon /> */}
+                          </IconButton>
+                        </>
+                      }
+                      title={`${firstName} ${middleName} ${lastName}`}
+                    />
+                    <CardContent>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "row",
+                          mb: 1,
+                        }}
                       >
-                        {firstName.toUpperCase().charAt(0)}
-                      </Avatar>
-                    }
-                    action={
-                      <>
-                        <IconButton size="small">
-                          <FlakyIcon />
-                        </IconButton>
-                      </>
-                    }
-                    title={`${firstName} ${middleName} ${lastName}`.toUpperCase()}
-                  />
-                  <CardContent>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                        mb: 1,
-                      }}
-                    >
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        disableGutters
-                      >
-                        {contactNo}
-                      </Typography>
-                      <Divider
-                        orientation="vertical"
-                        variant="middle"
-                        flexItem
-                        sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
-                      />
-                      <Typography variant="body2" color="text.secondary">
-                        {formatDate(new Date(birthdate), "MMMM dd, yyyy")}
-                      </Typography>
-                      <Divider
-                        orientation="vertical"
-                        variant="middle"
-                        flexItem
-                        sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
-                      />
-                      <Typography variant="body2" color="text.secondary">
-                        {gender}
-                      </Typography>
-                    </Box>
+                        <Typography variant="body2" color="text.secondary">
+                          {contactNo}
+                        </Typography>
+                        <Divider
+                          orientation="vertical"
+                          variant="middle"
+                          flexItem
+                          sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
+                        />
+                        <Typography variant="body2" color="text.secondary">
+                          {formatDate(birthdate)}
+                        </Typography>
+                        <Divider
+                          orientation="vertical"
+                          variant="middle"
+                          flexItem
+                          sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
+                        />
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ textTransform: "capitalize" }}
+                        >
+                          {gender}
+                        </Typography>
+                      </Box>
 
-                    <Typography variant="body2" color="text.secondary">
-                      {address}
-                    </Typography>
-                  </CardContent>
-                  <CardActions sx={{ pt: 0 }}>
-                    <IconButton size="small">
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton size="small">
-                      <UploadFileIcon />
-                    </IconButton>
-                  </CardActions>
-                </Card> */}
-              </React.Fragment>
-            )
+                      <Typography variant="body2" color="text.secondary">
+                        {address}
+                      </Typography>
+                    </CardContent>
+                    <CardActions sx={{ pt: 0 }}>
+                      <IconButton size="small">
+                        <EditIcon />
+                      </IconButton>
+                      {toBeVerified && (
+                        <IconButton size="small">
+                          <UploadFileIcon />
+                        </IconButton>
+                      )}
+                    </CardActions>
+                  </Card>
+                </React.Fragment>
+              );
+            }
           )}
         </Box>
       </Container>
