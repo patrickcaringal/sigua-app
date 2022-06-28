@@ -11,7 +11,6 @@ import {
   Breadcrumbs,
   Button,
   Card,
-  CardActions,
   CardContent,
   CardHeader,
   Container,
@@ -19,11 +18,9 @@ import {
   IconButton,
   Link,
   Toolbar,
-  Tooltip,
   Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { tooltipClasses } from "@mui/material/Tooltip";
+import { useRouter } from "next/router";
 
 import FamilyMemberForm from "../components/FamilyMemberForm";
 import { useAuth } from "../contexts/AuthContext";
@@ -33,16 +30,8 @@ import useRequest from "../hooks/useRequest";
 import { addFamilyMembersReq, getFamilyMembersReq } from "../modules/firebase";
 import { formatDate, getInitials } from "../modules/helper";
 
-// TODO: Tooltip
-const CustomWidthTooltip = styled(({ className, ...props }) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))({
-  [`& .${tooltipClasses.tooltip}`]: {
-    maxWidth: 120,
-  },
-});
-
 const FamilyMemberPage = () => {
+  const router = useRouter();
   const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog } = useResponseDialog();
@@ -50,7 +39,7 @@ const FamilyMemberPage = () => {
   const [addFamilyMembers] = useRequest(addFamilyMembersReq, setBackdropLoader);
 
   const [members, setMembers] = useState([]);
-  const [open, setOpen] = useState(false);
+  const [familyMemberModalOpen, setFamilyMemberModalOpen] = useState(false);
 
   useEffect(() => {
     if (user.id) {
@@ -73,16 +62,17 @@ const FamilyMemberPage = () => {
     const { firstName, middleName, lastName, birthdate } = i;
     const fullname = `${firstName} ${middleName} ${lastName}`;
 
-    const m = `${fullname} ${formatDate(birthdate)}`.toUpperCase();
+    const m = `${fullname} ${formatDate(birthdate)}`;
     return m;
   });
 
   const handleMemberModalOpen = () => {
-    setOpen(true);
+    setFamilyMemberModalOpen(true);
   };
 
-  const handleCheckDuplicate = (newMember) =>
-    membersUniqueId.includes(newMember);
+  const handleCheckDuplicate = (newMember) => {
+    return membersUniqueId.includes(newMember);
+  };
 
   const handleAddMemeber = (newMember) => {
     const allMembers = [...members, ...newMember];
@@ -97,7 +87,7 @@ const FamilyMemberPage = () => {
             content: "Family members successfuly added.",
             type: "SUCCESS",
             closeCb() {
-              setOpen(false);
+              setFamilyMemberModalOpen(false);
             },
           });
         },
@@ -117,7 +107,15 @@ const FamilyMemberPage = () => {
         <Toolbar disableGutters>
           <Box sx={{ flexGrow: 1 }}>
             <Breadcrumbs aria-label="breadcrumb">
-              <Link underline="hover" color="inherit" href="/">
+              <Link
+                href="#"
+                underline="hover"
+                color="inherit"
+                onClick={(e) => {
+                  e.preventDefault();
+                  router.push("/dashboard");
+                }}
+              >
                 Home
               </Link>
               <Typography color="text.primary">Family Members</Typography>
@@ -130,7 +128,6 @@ const FamilyMemberPage = () => {
         </Toolbar>
         <Box
           sx={{
-            // bgcolor: "primary.light",
             display: "flex",
             flexDirection: "row",
             flexWrap: "wrap",
@@ -139,119 +136,139 @@ const FamilyMemberPage = () => {
             py: 2,
           }}
         >
-          {members.map(
-            (
-              {
-                firstName,
-                lastName,
-                middleName,
-                contactNo,
-                birthdate,
-                address,
-                gender,
-                verified,
-                verificationAttachment,
-              },
-              index
-            ) => {
-              const toBeVerified = !verified && !verificationAttachment;
-              return (
-                // , height: 180
-                <React.Fragment key={index}>
-                  <Card sx={{ width: 345 }}>
-                    <CardHeader
-                      avatar={
-                        <Avatar
-                          sx={{ bgcolor: "primary.main" }}
-                          aria-label="recipe"
-                        >
-                          {getInitials(firstName)}
-                        </Avatar>
-                      }
-                      action={
-                        <>
-                          <IconButton size="small">
-                            {verified ? (
-                              <Tooltip title="Verified">
-                                <VerifiedUserIcon color="success" />
-                              </Tooltip>
-                            ) : toBeVerified ? (
-                              // Attach proof of relationship or Autorization letter
-                              <CustomWidthTooltip title="Verifiy member">
-                                <NoAccountsIcon color="error" />
-                              </CustomWidthTooltip>
-                            ) : (
-                              <Tooltip title="For Staff approval">
-                                <FlakyIcon color="warning" />
-                              </Tooltip>
-                            )}
+          {members.map((i, index) => {
+            const {
+              firstName,
+              lastName,
+              middleName,
+              contactNo,
+              birthdate,
+              address,
+              gender,
+              verified,
+              verificationAttachment,
+            } = i;
+            const toBeVerified = !verified && !verificationAttachment;
 
-                            {/* <FlakyIcon /> */}
-                          </IconButton>
-                        </>
-                      }
-                      title={`${firstName} ${middleName} ${lastName}`}
-                    />
-                    <CardContent>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "row",
-                          mb: 1,
-                        }}
+            return (
+              <React.Fragment key={index}>
+                <Card sx={{ width: 345 }}>
+                  <CardHeader
+                    avatar={
+                      <Avatar
+                        sx={{ bgcolor: "primary.main" }}
+                        aria-label="recipe"
                       >
-                        <Typography variant="body2" color="text.secondary">
-                          {contactNo}
-                        </Typography>
-                        <Divider
-                          orientation="vertical"
-                          variant="middle"
-                          flexItem
-                          sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
-                        />
-                        <Typography variant="body2" color="text.secondary">
-                          {formatDate(birthdate)}
-                        </Typography>
-                        <Divider
-                          orientation="vertical"
-                          variant="middle"
-                          flexItem
-                          sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
-                        />
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{ textTransform: "capitalize" }}
-                        >
-                          {gender}
-                        </Typography>
-                      </Box>
-
-                      <Typography variant="body2" color="text.secondary">
-                        {address}
-                      </Typography>
-                    </CardContent>
-                    <CardActions sx={{ pt: 0 }}>
-                      <IconButton size="small">
-                        <EditIcon />
-                      </IconButton>
-                      {toBeVerified && (
+                        {getInitials(firstName)}
+                      </Avatar>
+                    }
+                    action={
+                      <>
                         <IconButton size="small">
-                          <UploadFileIcon />
+                          <EditIcon />
                         </IconButton>
+                        {toBeVerified && (
+                          <IconButton size="small">
+                            <UploadFileIcon />
+                          </IconButton>
+                        )}
+                      </>
+                    }
+                    title={`${firstName} ${middleName} ${lastName}`}
+                    subheader={
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ verticalAlign: "middle" }}
+                      >
+                        {verified ? (
+                          <>
+                            <IconButton
+                              size="small"
+                              sx={{ pointerEvents: "none" }}
+                            >
+                              <VerifiedUserIcon color="success" />
+                            </IconButton>
+                            Verified
+                          </>
+                        ) : toBeVerified ? (
+                          <>
+                            <IconButton
+                              size="small"
+                              sx={{ pointerEvents: "none" }}
+                            >
+                              <NoAccountsIcon color="error" />
+                            </IconButton>
+                            To Verifiy
+                          </>
+                        ) : (
+                          <>
+                            {" "}
+                            <IconButton
+                              size="small"
+                              sx={{ pointerEvents: "none" }}
+                            >
+                              <FlakyIcon color="warning" />
+                            </IconButton>
+                            For Staff Approval
+                          </>
+                        )}
+                      </Typography>
+                    }
+                  />
+                  <CardContent>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        mb: 1,
+                      }}
+                    >
+                      {contactNo && (
+                        <>
+                          <Typography variant="body2" color="text.secondary">
+                            {contactNo}
+                          </Typography>
+                          <Divider
+                            orientation="vertical"
+                            variant="middle"
+                            flexItem
+                            sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
+                          />
+                        </>
                       )}
-                    </CardActions>
-                  </Card>
-                </React.Fragment>
-              );
-            }
-          )}
+                      <Typography variant="body2" color="text.secondary">
+                        {formatDate(birthdate, "MMMM dd, yyyy")}
+                      </Typography>
+                      <Divider
+                        orientation="vertical"
+                        variant="middle"
+                        flexItem
+                        sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
+                      />
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ textTransform: "capitalize" }}
+                      >
+                        {gender}
+                      </Typography>
+                    </Box>
+
+                    <Typography variant="body2" color="text.secondary">
+                      {address}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </React.Fragment>
+            );
+          })}
         </Box>
       </Container>
 
       <FamilyMemberForm
-        open={open}
-        setOpen={setOpen}
+        open={familyMemberModalOpen}
+        setOpen={setFamilyMemberModalOpen}
         onCheckDuplicate={handleCheckDuplicate}
         onAddMemeber={handleAddMemeber}
       />

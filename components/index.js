@@ -1,3 +1,4 @@
+import ActionMenu from "./ActionMenu";
 import BackdropLoader from "./BackdropLoader";
 import LoggedInInaccessibleRoute from "./LoggedInInaccessibleRoute";
 import Logo from "./Logo";
@@ -12,4 +13,5 @@ export {
   Logo,
   ResponseDialog,
   BackdropLoader,
+  ActionMenu,
 };

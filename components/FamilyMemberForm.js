@@ -118,7 +118,7 @@ export default function FullScreenDialog({
           content: (
             <>
               <Typography variant="body1">Duplicate Family Members</Typography>
-              <Typography variant="body2">{dupliNames.join(",")}</Typography>
+              <Typography variant="body2">{dupliNames.join(", ")}</Typography>
             </>
           ),
           type: "WARNING",
@@ -127,8 +127,6 @@ export default function FullScreenDialog({
         return;
       }
 
-      // TODO: update account familyMembers doc
-      // console.log(JSON.stringify(familyMembers, null, 4));
       onAddMemeber(familyMembers);
     },
   });
