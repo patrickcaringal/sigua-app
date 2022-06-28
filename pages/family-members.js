@@ -22,6 +22,7 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 
+import { UploadAttachmentModal } from "../components";
 import FamilyMemberForm from "../components/FamilyMemberForm";
 import { useAuth } from "../contexts/AuthContext";
 import { useBackdropLoader } from "../contexts/BackdropLoaderContext";
@@ -43,17 +44,17 @@ const FamilyMemberPage = () => {
 
   useEffect(() => {
     if (user.id) {
-      getFamilyMembers(user.id, {
-        successCb(members) {
-          setMembers(members);
-        },
-        errorCb(error) {
-          openResponseDialog({
-            content: error,
-            type: "WARNING",
-          });
-        },
-      });
+      // getFamilyMembers(user.id, {
+      //   successCb(members) {
+      //     setMembers(members);
+      //   },
+      //   errorCb(error) {
+      //     openResponseDialog({
+      //       content: error,
+      //       type: "WARNING",
+      //     });
+      //   },
+      // });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user.id]);
@@ -272,6 +273,8 @@ const FamilyMemberPage = () => {
         onCheckDuplicate={handleCheckDuplicate}
         onAddMemeber={handleAddMemeber}
       />
+
+      <UploadAttachmentModal />
     </>
   );
 };
