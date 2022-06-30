@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import {
+  Box,
   Button,
   Dialog,
   DialogActions,
@@ -8,32 +9,43 @@ import {
   DialogContentText,
   DialogTitle,
   Input,
+  Typography,
 } from "@mui/material";
 import Image from "next/image";
 
-export default function UploadAttachmentModal() {
-  const [open, setOpen] = useState(true);
+import { getFullName } from "../modules/helper";
+
+const UploadAttachmentModal = ({ data, open, onClose, onUpload }) => {
   const [selectedFile, setSelectedFile] = useState();
   const [preview, setPreview] = useState();
 
-  const handleClickOpen = () => {
-    setOpen(true);
+  const hasImage = selectedFile && preview;
+
+  const handleUpload = () => {
+    onUpload(selectedFile);
   };
 
   const handleClose = () => {
-    setOpen(false);
+    onClose();
   };
 
   const onSelectFile = (e) => {
-    console.log("onSelectFile");
     if (!e.target.files || e.target.files.length === 0) {
       setSelectedFile(undefined);
       return;
     }
 
-    // I've kept this example simple by using the first image instead of multiple
     setSelectedFile(e.target.files[0]);
   };
+
+  useEffect(() => {
+    if (!open) {
+      setTimeout(() => {
+        setSelectedFile(undefined);
+        setPreview(undefined);
+      }, 500);
+    }
+  }, [open]);
 
   useEffect(() => {
     if (!selectedFile) {
@@ -44,7 +56,6 @@ export default function UploadAttachmentModal() {
     const objectUrl = URL.createObjectURL(selectedFile);
     setPreview(objectUrl);
 
-    // free memory when ever this component is unmounted
     return () => URL.revokeObjectURL(objectUrl);
   }, [selectedFile]);
 
@@ -54,34 +65,52 @@ export default function UploadAttachmentModal() {
         Upload Verification Attachment
       </DialogTitle>
       <DialogContent>
-        {selectedFile && preview && (
+        <Typography sx={{ mb: 2 }} variant="body2">
+          {getFullName(data)}
+        </Typography>
+        <Box
+          sx={{
+            height: 400,
+            width: 396,
+            ...(!hasImage && { bgcolor: "grey.A400" }),
+          }}
+        >
           <Image
-            src={preview}
+            src={hasImage ? preview : "/placeholder-image.png"}
             alt=""
             width="100%"
             height="100%"
             layout="responsive"
             objectFit="contain"
           />
-        )}
-
-        <label htmlFor="contained-button-file">
-          <Input
-            sx={{ display: "none" }}
-            accept="image/*"
-            id="contained-button-file"
-            type="file"
-            onChange={onSelectFile}
-          />
-          <Button variant="contained" component="span">
-            choose image
-          </Button>
-        </label>
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <label>
+            <Input
+              sx={{ display: "none" }}
+              accept="image/*"
+              id="contained-button-file"
+              type="file"
+              onChange={onSelectFile}
+            />
+            <Button variant="contained" component="span" sx={{ mt: 2 }}>
+              choose image
+            </Button>
+          </label>
+        </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>Disagree</Button>
-        <Button onClick={handleClose}>Agree</Button>
+        <Button onClick={handleClose}>Close</Button>
+        <Button onClick={handleUpload}>Upload</Button>
       </DialogActions>
     </Dialog>
   );
-}
+};
+
+export default UploadAttachmentModal;

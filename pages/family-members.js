@@ -28,36 +28,62 @@ import { useAuth } from "../contexts/AuthContext";
 import { useBackdropLoader } from "../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../contexts/ResponseDialogContext";
 import useRequest from "../hooks/useRequest";
-import { addFamilyMembersReq, getFamilyMembersReq } from "../modules/firebase";
-import { formatDate, getInitials } from "../modules/helper";
+import {
+  addFamilyMembersReq,
+  getFamilyMembersReq,
+  updateFamilyMembersReq,
+  uploadImageReq,
+} from "../modules/firebase";
+import { formatDate, getFullName, getInitials } from "../modules/helper";
+
+const MEMBER_STATUS = {
+  VERFIED: "VERFIED",
+  FOR_VERIFICATION: "FOR_VERIFICATION",
+  FOR_APPROVAL: "FOR_APPROVAL",
+};
 
 const FamilyMemberPage = () => {
   const router = useRouter();
   const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
-  const { openResponseDialog } = useResponseDialog();
+  const { openResponseDialog, openErrorDialog } = useResponseDialog();
   const [getFamilyMembers] = useRequest(getFamilyMembersReq, setBackdropLoader);
   const [addFamilyMembers] = useRequest(addFamilyMembersReq, setBackdropLoader);
+  const [uploadImage, uploadImageLoading] = useRequest(uploadImageReq);
+  const [updateFamilyMembers, updateFamilyMembersLoading] = useRequest(
+    updateFamilyMembersReq
+  );
+  const uploadLoading = uploadImageLoading || updateFamilyMembersLoading;
 
   const [members, setMembers] = useState([]);
   const [familyMemberModalOpen, setFamilyMemberModalOpen] = useState(false);
 
+  // Attachment Modal
+  const [attachmentModalOpen, setAttachmentModalOpen] = useState(false);
+  const [attachmentModalData, setAttachmentModalData] = useState({});
+
   useEffect(() => {
     if (user.id) {
-      // getFamilyMembers(user.id, {
-      //   successCb(members) {
-      //     setMembers(members);
-      //   },
-      //   errorCb(error) {
-      //     openResponseDialog({
-      //       content: error,
-      //       type: "WARNING",
-      //     });
-      //   },
-      // });
+      getFamilyMembers(user.id, {
+        successCb(members) {
+          setMembers(members);
+        },
+        errorCb(error) {
+          openErrorDialog(error);
+        },
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user.id]);
+
+  useEffect(() => {
+    if (uploadLoading) {
+      setBackdropLoader(true);
+    } else {
+      setBackdropLoader(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uploadLoading]);
 
   const membersUniqueId = members.map((i) => {
     const { firstName, middleName, lastName, birthdate } = i;
@@ -93,10 +119,71 @@ const FamilyMemberPage = () => {
           });
         },
         errorCb(error) {
-          openResponseDialog({
-            content: error,
-            type: "WARNING",
-          });
+          openErrorDialog(error);
+        },
+      }
+    );
+  };
+
+  const handleAttachmentModalOpen = (member) => {
+    const { firstName, lastName, middleName } = member;
+
+    setAttachmentModalOpen(true);
+    setAttachmentModalData({ firstName, lastName, middleName });
+  };
+
+  const handleAttachmentModalClose = () => {
+    setAttachmentModalOpen(false);
+    setAttachmentModalData({});
+  };
+
+  const updateMembers = (member, url) => {
+    const index = members.findIndex((i) => {
+      return getFullName(i) === getFullName(member);
+    });
+
+    let membersCopy = [...members];
+    membersCopy[index] = {
+      ...membersCopy[index],
+      verificationAttachment: url,
+    };
+
+    return membersCopy;
+  };
+
+  const handleUploadAttachment = (file) => {
+    uploadImage(
+      { file },
+      {
+        successCb(url) {
+          // update account fam member
+          const updatedMembers = updateMembers(attachmentModalData, url);
+          updateFamilyMembers(
+            { id: user.id, familyMembers: updatedMembers },
+            {
+              successCb() {
+                setMembers(updatedMembers);
+                openResponseDialog({
+                  autoClose: true,
+                  content:
+                    "Verification Attachment uploaded. For Staff approval.",
+                  type: "SUCCESS",
+                  closeCb() {
+                    handleAttachmentModalClose();
+                  },
+                });
+              },
+              errorCb(error) {
+                openResponseDialog({
+                  content: error,
+                  type: "WARNING",
+                });
+              },
+            }
+          );
+        },
+        errorCb(error) {
+          openErrorDialog(error);
         },
       }
     );
@@ -146,10 +233,15 @@ const FamilyMemberPage = () => {
               birthdate,
               address,
               gender,
+
               verified,
               verificationAttachment,
             } = i;
-            const toBeVerified = !verified && !verificationAttachment;
+            const status = verified
+              ? MEMBER_STATUS.VERFIED
+              : !verificationAttachment
+              ? MEMBER_STATUS.FOR_VERIFICATION
+              : MEMBER_STATUS.FOR_APPROVAL;
 
             return (
               <React.Fragment key={index}>
@@ -168,8 +260,11 @@ const FamilyMemberPage = () => {
                         <IconButton size="small">
                           <EditIcon />
                         </IconButton>
-                        {toBeVerified && (
-                          <IconButton size="small">
+                        {status === MEMBER_STATUS.FOR_VERIFICATION && (
+                          <IconButton
+                            size="small"
+                            onClick={() => handleAttachmentModalOpen(i)}
+                          >
                             <UploadFileIcon />
                           </IconButton>
                         )}
@@ -182,7 +277,7 @@ const FamilyMemberPage = () => {
                         color="text.secondary"
                         sx={{ verticalAlign: "middle" }}
                       >
-                        {verified ? (
+                        {status === MEMBER_STATUS.VERFIED ? (
                           <>
                             <IconButton
                               size="small"
@@ -192,7 +287,7 @@ const FamilyMemberPage = () => {
                             </IconButton>
                             Verified
                           </>
-                        ) : toBeVerified ? (
+                        ) : status === MEMBER_STATUS.FOR_VERIFICATION ? (
                           <>
                             <IconButton
                               size="small"
@@ -204,7 +299,6 @@ const FamilyMemberPage = () => {
                           </>
                         ) : (
                           <>
-                            {" "}
                             <IconButton
                               size="small"
                               sx={{ pointerEvents: "none" }}
@@ -274,7 +368,12 @@ const FamilyMemberPage = () => {
         onAddMemeber={handleAddMemeber}
       />
 
-      <UploadAttachmentModal />
+      <UploadAttachmentModal
+        data={attachmentModalData}
+        open={attachmentModalOpen}
+        onClose={handleAttachmentModalClose}
+        onUpload={handleUploadAttachment}
+      />
     </>
   );
 };

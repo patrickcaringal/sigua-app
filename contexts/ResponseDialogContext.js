@@ -43,11 +43,17 @@ export const ResponseDialogProvider = ({ children }) => {
     if (autoClose) {
       setTimeout(() => {
         setOpen(false);
-      }, 1500);
+      }, 2000);
     }
   };
 
-  const value = { openResponseDialog };
+  const openErrorDialog = (content) => {
+    setType("ERROR");
+    setContent(content);
+    setOpen(true);
+  };
+
+  const value = { openErrorDialog, openResponseDialog };
   return (
     <ResponseDialogContext.Provider value={value}>
       <ResponseDialog

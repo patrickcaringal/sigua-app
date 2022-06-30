@@ -6,6 +6,7 @@ import {
   getDocs,
   query,
   setDoc,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import { omit as omitFields } from "lodash";
@@ -154,6 +155,23 @@ export const addFamilyMembersReq = async (
     const docRef = doc(db, "accounts", id);
 
     await setDoc(docRef, { familyMembers: mappedFamMembers }, { merge: true });
+    successCb();
+  } catch (error) {
+    errorCb(error.message);
+    console.log(error);
+  }
+};
+
+export const updateFamilyMembersReq = async (
+  { id, familyMembers },
+  { successCb = () => {}, errorCb = () => {} }
+) => {
+  try {
+    const docRef = doc(db, "accounts", id);
+    await updateDoc(docRef, {
+      familyMembers,
+    });
+
     successCb();
   } catch (error) {
     errorCb(error.message);

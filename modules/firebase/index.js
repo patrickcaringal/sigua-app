@@ -4,6 +4,7 @@ import {
   checkAccountDuplicateReq,
   createAccountReq,
   getFamilyMembersReq,
+  updateFamilyMembersReq,
 } from "./account";
 import {
   monitorAuthState,
@@ -14,6 +15,7 @@ import {
   signUpReq,
 } from "./auth";
 import { auth, db } from "./config";
+import { uploadImageReq } from "./storage";
 
 export {
   // auth
@@ -31,4 +33,7 @@ export {
   checkAccountCredentialReq,
   getFamilyMembersReq,
   addFamilyMembersReq,
+  updateFamilyMembersReq,
+  // storage
+  uploadImageReq,
 };
