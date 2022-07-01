@@ -47,7 +47,7 @@ export const ResponseDialogProvider = ({ children }) => {
     }
   };
 
-  const openErrorDialog = (content) => {
+  const openErrorDialog = (content = "") => {
     setType("ERROR");
     setContent(content);
     setOpen(true);

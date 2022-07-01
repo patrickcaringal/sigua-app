@@ -48,16 +48,13 @@ export const signInReq = async (
   }
 };
 
-export const signInAnonymouslyReq = async ({
-  successCb = () => {},
-  errorCb = () => {},
-}) => {
+export const signInAnonymouslyReq = async () => {
   try {
     await signInAnonymously(auth);
-    successCb();
+    return { success: true };
   } catch (error) {
-    errorCb(error.message);
     console.log(error);
+    return { error: error.message };
   }
 };
 
@@ -74,16 +71,13 @@ export const signOutReq = async ({
   }
 };
 
-export const signOutAnonymouslyReq = async (
-  session,
-  { successCb = () => {}, errorCb = () => {} }
-) => {
+export const signOutAnonymouslyReq = async (session) => {
   try {
     await deleteUser(session);
-    successCb();
+    return { success: true };
   } catch (error) {
-    errorCb(error.message);
-    console.log(error.message);
+    console.log(error);
+    return { error: error.message };
   }
 };
 

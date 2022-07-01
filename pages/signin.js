@@ -26,7 +26,7 @@ import { SigninSchema } from "../modules/validation";
 export default function SignInPage() {
   const router = useRouter();
   const { manualSetUser } = useAuth();
-  const { openResponseDialog } = useResponseDialog();
+  const { openErrorDialog } = useResponseDialog();
   const [checkAccountCredential, checkAccountCredentialLoading] = useRequest(
     checkAccountCredentialReq
   );
@@ -45,31 +45,20 @@ export default function SignInPage() {
     onSubmit: async (values) => {
       const { contactNo, password } = values;
 
-      checkAccountCredential(
-        { contactNo, password },
+      // Authenticate
+      const { data: userInfo, error: authError } = await checkAccountCredential(
         {
-          async successCb(doc) {
-            // Sign In Anonymously
-            signInAnonymously({
-              successCb() {
-                manualSetUser(doc);
-              },
-              errorCb(error) {
-                openResponseDialog({
-                  content: error,
-                  type: "ERROR",
-                });
-              },
-            });
-          },
-          errorCb(error) {
-            openResponseDialog({
-              content: error,
-              type: "ERROR",
-            });
-          },
+          contactNo,
+          password,
         }
       );
+      if (authError) return openErrorDialog(authError);
+
+      // Sign In Anonymously
+      const { error: signInError } = await signInAnonymously();
+      if (signInError) return openErrorDialog(signInError);
+
+      manualSetUser(userInfo);
     },
   });
   const { handleSubmit, handleChange, handleBlur, values, errors, touched } =

@@ -6,10 +6,12 @@ const useLoading = (action, loadingAction) => {
   const doAction = async (...args) => {
     setLoading(true);
     loadingAction && loadingAction(true);
-    await action(...args);
+    const res = await action(...args);
     setLoading(false);
     loadingAction && loadingAction(false);
     // return action(...args).finally(() => setLoading(false));
+
+    return res;
   };
 
   return [doAction, loading];

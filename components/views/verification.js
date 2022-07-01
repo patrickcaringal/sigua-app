@@ -18,7 +18,7 @@ import { VerificationCodeSchema } from "../../modules/validation";
 
 export default function VerificationPage({ values: formValues }) {
   const { manualSetUser } = useAuth();
-  const { openResponseDialog } = useResponseDialog();
+  const { openErrorDialog } = useResponseDialog();
   const [createAccount, createAccountLoading] = useRequest(createAccountReq);
   const [signInAnonymously, signInAnonymouslyLoading] =
     useRequest(signInAnonymouslyReq);
@@ -40,33 +40,17 @@ export default function VerificationPage({ values: formValues }) {
       // TODO: Verify code legit
       if (finalCode === "1234") {
         // Create User Doc
-        createAccount(formValues, {
-          successCb(doc) {
-            // Sign In Anonymously
-            signInAnonymously({
-              successCb() {
-                manualSetUser(doc);
-              },
-              errorCb(error) {
-                openResponseDialog({
-                  content: error,
-                  type: "ERROR",
-                });
-              },
-            });
-          },
-          errorCb(error) {
-            openResponseDialog({
-              content: error,
-              type: "ERROR",
-            });
-          },
-        });
+        const { data: userInfo, error: createAccError } = await createAccount(
+          formValues
+        );
+        if (createAccError) return openErrorDialog(createAccError);
+
+        const { error: signInError } = await signInAnonymously();
+        if (signInError) return openErrorDialog(signInError);
+
+        manualSetUser(userInfo);
       } else {
-        openResponseDialog({
-          content: "Incorrect Verification code",
-          type: "ERROR",
-        });
+        openErrorDialog("Incorrect Verification code");
       }
     },
   });

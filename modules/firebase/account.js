@@ -27,10 +27,7 @@ export const comparePassword = (password, hashedPassword) => {
   return isMatched;
 };
 
-export const createAccountReq = async (
-  newDocument,
-  { successCb = () => {}, errorCb = () => {} }
-) => {
+export const createAccountReq = async (newDocument) => {
   try {
     const docRef = doc(collRef);
 
@@ -59,20 +56,18 @@ export const createAccountReq = async (
     // Create Document
     await setDoc(docRef, mappedNewDocument);
 
-    // remove password field
+    // Remove password field
     delete document.password;
 
-    successCb({ id: docRef.id, ...mappedNewDocument });
+    const data = { id: docRef.id, ...mappedNewDocument };
+    return { data, success: true };
   } catch (error) {
-    errorCb(error.message);
     console.log(error);
+    return { error: error.message };
   }
 };
 
-export const checkAccountDuplicateReq = async (
-  contactNo,
-  { successCb = () => {}, errorCb = () => {} }
-) => {
+export const checkAccountDuplicateReq = async (contactNo) => {
   try {
     const q = query(collRef, where("contactNo", "==", contactNo));
 
@@ -83,17 +78,14 @@ export const checkAccountDuplicateReq = async (
 
     // TODO: check duplication on patient
 
-    successCb();
+    return { success: true };
   } catch (error) {
-    errorCb(error.message);
     console.log(error);
+    return { error: error.message };
   }
 };
 
-export const checkAccountCredentialReq = async (
-  { contactNo, password },
-  { successCb = () => {}, errorCb = () => {} }
-) => {
+export const checkAccountCredentialReq = async ({ contactNo, password }) => {
   try {
     const q = query(collRef, where("contactNo", "==", contactNo));
     const querySnapshot = await getDocs(q);
@@ -110,13 +102,13 @@ export const checkAccountCredentialReq = async (
     const correctPass = comparePassword(password, document.password);
     if (!correctPass) throw new Error("Invalid contact number or password");
 
-    // remove password field
+    // Remove password field
     delete document.password;
 
-    successCb(document);
+    return { data: document, success: true };
   } catch (error) {
-    errorCb(error.message);
     console.log(error);
+    return { error: error.message };
   }
 };
 

@@ -31,7 +31,7 @@ const ResponsiveAppBar = () => {
   const router = useRouter();
   const { userSession, user, manualSetUser } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
-  const { openResponseDialog } = useResponseDialog();
+  const { openErrorDialog } = useResponseDialog();
   const [signOutAnonymously] = useRequest(
     signOutAnonymouslyReq,
     setBackdropLoader
@@ -55,18 +55,12 @@ const ResponsiveAppBar = () => {
     setAnchorElUser(null);
   };
 
-  const handleLogout = () => {
-    signOutAnonymously(userSession, {
-      successCb() {
-        manualSetUser(null);
-      },
-      errorCb(error) {
-        openResponseDialog({
-          content: error,
-          type: "WARNING",
-        });
-      },
-    });
+  const handleLogout = async () => {
+    // Sign Out
+    const { error: signOutError } = await signOutAnonymously(userSession);
+    if (signOutError) return openErrorDialog(signOutError);
+
+    manualSetUser(null);
     setAnchorElUser(null);
   };
 
