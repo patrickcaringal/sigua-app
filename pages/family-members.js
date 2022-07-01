@@ -63,27 +63,19 @@ const FamilyMemberPage = () => {
   const [attachmentModalData, setAttachmentModalData] = useState({});
 
   useEffect(() => {
-    if (user.id) {
-      getFamilyMembers(user.id, {
-        successCb(members) {
-          setMembers(members);
-        },
-        errorCb(error) {
-          openErrorDialog(error);
-        },
-      });
-    }
+    const fetch = async () => {
+      // Get Family Members
+      const { data: members, error: getFamError } = await getFamilyMembers(
+        user.id
+      );
+      if (getFamError) return openErrorDialog(getFamError);
+
+      setMembers(members);
+    };
+
+    if (user.id) fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user.id]);
-
-  useEffect(() => {
-    if (uploadLoading) {
-      setBackdropLoader(true);
-    } else {
-      setBackdropLoader(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uploadLoading]);
 
   const membersUniqueId = members.map((i) => {
     const { firstName, middleName, lastName, birthdate } = i;
@@ -101,35 +93,31 @@ const FamilyMemberPage = () => {
     return membersUniqueId.includes(newMember);
   };
 
-  const handleAddMemeber = (newMember) => {
+  const handleAddMemeber = async (newMember) => {
+    // Add Family Member
     const allMembers = [...members, ...newMember];
+    const { error: addFamMemberError } = await addFamilyMembers({
+      id: user.id,
+      familyMembers: allMembers,
+    });
+    if (addFamMemberError) return openErrorDialog(addFamMemberError);
 
-    addFamilyMembers(
-      { id: user.id, familyMembers: allMembers },
-      {
-        successCb() {
-          setMembers(allMembers);
-          openResponseDialog({
-            autoClose: true,
-            content: "Family members successfuly added.",
-            type: "SUCCESS",
-            closeCb() {
-              setFamilyMemberModalOpen(false);
-            },
-          });
-        },
-        errorCb(error) {
-          openErrorDialog(error);
-        },
-      }
-    );
+    setMembers(allMembers);
+    openResponseDialog({
+      autoClose: true,
+      content: "Family members successfuly added.",
+      type: "SUCCESS",
+      closeCb() {
+        setFamilyMemberModalOpen(false);
+      },
+    });
   };
 
-  const handleAttachmentModalOpen = (member) => {
+  const handleAttachmentModalOpen = (member, index) => {
     const { firstName, lastName, middleName } = member;
 
     setAttachmentModalOpen(true);
-    setAttachmentModalData({ firstName, lastName, middleName });
+    setAttachmentModalData({ index, firstName, lastName, middleName });
   };
 
   const handleAttachmentModalClose = () => {
@@ -137,10 +125,10 @@ const FamilyMemberPage = () => {
     setAttachmentModalData({});
   };
 
-  const updateMembers = (member, url) => {
-    const index = members.findIndex((i) => {
-      return getFullName(i) === getFullName(member);
-    });
+  const updateMembers = (index, url) => {
+    // const index = members.findIndex((i) => {
+    //   return getFullName(i) === getFullName(member);
+    // });
 
     let membersCopy = [...members];
     membersCopy[index] = {
@@ -151,42 +139,37 @@ const FamilyMemberPage = () => {
     return membersCopy;
   };
 
-  const handleUploadAttachment = (file) => {
-    uploadImage(
-      { file },
-      {
-        successCb(url) {
-          // update account fam member
-          const updatedMembers = updateMembers(attachmentModalData, url);
-          updateFamilyMembers(
-            { id: user.id, familyMembers: updatedMembers },
-            {
-              successCb() {
-                setMembers(updatedMembers);
-                openResponseDialog({
-                  autoClose: true,
-                  content:
-                    "Verification Attachment uploaded. For Staff approval.",
-                  type: "SUCCESS",
-                  closeCb() {
-                    handleAttachmentModalClose();
-                  },
-                });
-              },
-              errorCb(error) {
-                openResponseDialog({
-                  content: error,
-                  type: "WARNING",
-                });
-              },
-            }
-          );
-        },
-        errorCb(error) {
-          openErrorDialog(error);
-        },
-      }
-    );
+  const handleUploadAttachment = async (file) => {
+    setBackdropLoader(true);
+
+    // Upload Verification Attachment
+    const { data: url, error: uploadError } = await uploadImage({ file });
+    if (uploadError) {
+      setBackdropLoader(false);
+      return openErrorDialog(uploadError);
+    }
+
+    // Update Fam Member Verification Attachment
+    const updatedMembers = updateMembers(attachmentModalData.index, url);
+    const { error: updateFamMemberError } = await updateFamilyMembers({
+      id: user.id,
+      familyMembers: updatedMembers,
+    });
+    if (updateFamMemberError) {
+      setBackdropLoader(false);
+      return openErrorDialog(updateFamMemberError);
+    }
+
+    setMembers(updatedMembers);
+    setBackdropLoader(false);
+    openResponseDialog({
+      autoClose: true,
+      content: "Verification Attachment uploaded. For Staff approval.",
+      type: "SUCCESS",
+      closeCb() {
+        handleAttachmentModalClose();
+      },
+    });
   };
 
   return (
@@ -263,7 +246,7 @@ const FamilyMemberPage = () => {
                         {status === MEMBER_STATUS.FOR_VERIFICATION && (
                           <IconButton
                             size="small"
-                            onClick={() => handleAttachmentModalOpen(i)}
+                            onClick={() => handleAttachmentModalOpen(i, index)}
                           >
                             <UploadFileIcon />
                           </IconButton>

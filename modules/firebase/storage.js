@@ -3,10 +3,7 @@ import { v4 } from "uuid";
 
 const storage = getStorage();
 
-export const uploadImageReq = async (
-  { file },
-  { successCb = () => {}, errorCb = () => {} }
-) => {
+export const uploadImageReq = async ({ file }) => {
   try {
     // upload
     const filename = v4();
@@ -15,9 +12,9 @@ export const uploadImageReq = async (
 
     // get uploaded url
     const url = await getDownloadURL(res.ref);
-    successCb(url);
+    return { data: url, success: true };
   } catch (error) {
-    errorCb(error.message);
     console.log(error);
+    return { error: error.message };
   }
 };

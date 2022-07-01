@@ -9,8 +9,6 @@ const useLoading = (action, loadingAction) => {
     const res = await action(...args);
     setLoading(false);
     loadingAction && loadingAction(false);
-    // return action(...args).finally(() => setLoading(false));
-
     return res;
   };
 

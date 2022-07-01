@@ -112,29 +112,24 @@ export const checkAccountCredentialReq = async ({ contactNo, password }) => {
   }
 };
 
-export const getFamilyMembersReq = async (
-  id,
-  { successCb = () => {}, errorCb = () => {} }
-) => {
+export const getFamilyMembersReq = async (id) => {
   try {
     const docRef = doc(db, "accounts", id);
     const docSnap = await getDoc(docRef);
 
+    let data = [];
     if (docSnap.exists()) {
-      successCb(docSnap.data().familyMembers);
-    } else {
-      successCb([]);
+      data = docSnap.data().familyMembers;
     }
+
+    return { data, success: true };
   } catch (error) {
-    errorCb(error.message);
     console.log(error);
+    return { error: error.message };
   }
 };
 
-export const addFamilyMembersReq = async (
-  { id, familyMembers },
-  { successCb = () => {}, errorCb = () => {} }
-) => {
+export const addFamilyMembersReq = async ({ id, familyMembers }) => {
   try {
     const mappedFamMembers = familyMembers.map((i) => {
       return {
@@ -145,29 +140,27 @@ export const addFamilyMembersReq = async (
     });
 
     const docRef = doc(db, "accounts", id);
-
-    await setDoc(docRef, { familyMembers: mappedFamMembers }, { merge: true });
-    successCb();
+    await updateDoc(docRef, {
+      familyMembers: mappedFamMembers,
+    });
+    return { success: true };
   } catch (error) {
-    errorCb(error.message);
     console.log(error);
+    return { error: error.message };
   }
 };
 
-export const updateFamilyMembersReq = async (
-  { id, familyMembers },
-  { successCb = () => {}, errorCb = () => {} }
-) => {
+export const updateFamilyMembersReq = async ({ id, familyMembers }) => {
   try {
     const docRef = doc(db, "accounts", id);
     await updateDoc(docRef, {
       familyMembers,
     });
 
-    successCb();
+    return { success: true };
   } catch (error) {
-    errorCb(error.message);
     console.log(error);
+    return { error: error.message };
   }
 };
 
