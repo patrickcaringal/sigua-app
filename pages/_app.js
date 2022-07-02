@@ -17,15 +17,14 @@ const loggedInInaccessibleRoutes = [
   "/signin",
   "/signup",
   // admin
-  "/admin/signin",
-  "/admin/signup",
+  "/doctor/signin",
 ];
 
 const protectedRoutes = [
   "/dashboard",
   "/family-members",
   // admin
-  "/admin/dashboard",
+  "/doctor/dashboard",
 ];
 
 function MyApp({ Component, pageProps }) {

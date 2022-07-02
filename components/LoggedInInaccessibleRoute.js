@@ -10,12 +10,11 @@ const LoggedInInaccessibleRoute = ({ children }) => {
 
   useEffect(() => {
     if (userSession) {
-      const isAdmin = userSession?.email;
-
-      if (isAdmin) {
-        router.push("/admin/dashboard");
+      if (router.pathname.includes("/doctor")) {
+        router.push("/doctor/dashboard");
         return;
       }
+
       router.push("/dashboard");
     }
   }, [router, userSession]);

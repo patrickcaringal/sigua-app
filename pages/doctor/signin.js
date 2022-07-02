@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 
+import { LoadingButton } from "@mui/lab";
 import {
   Box,
-  Button,
   Checkbox,
   Container,
   FormControlLabel,
@@ -15,43 +15,71 @@ import { useFormik } from "formik";
 import { useRouter } from "next/router";
 
 import { useAuth } from "../../contexts/AuthContext";
-import { SigninSchema } from "../../modules/validation";
+import { useResponseDialog } from "../../contexts/ResponseDialogContext";
+import useRequest from "../../hooks/useRequest";
+import { signInReq } from "../../modules/firebase";
+import { DoctorSigninSchema } from "../../modules/validation";
 
-export default function SignInPage() {
+const DoctorSignInPage = () => {
   const router = useRouter();
-  const { signIn } = useAuth();
-
-  const [error, setError] = useState(null);
+  const { manualSetUser } = useAuth();
+  const { openErrorDialog } = useResponseDialog();
+  const [signIn, isSignInLoading] = useRequest(signInReq);
+  // const [checkAccountCredential, checkAccountCredentialLoading] = useRequest(
+  //   checkAccountCredentialReq
+  // );
+  // const [signInAnonymously, signInAnonymouslyLoading] =
+  //   useRequest(signInAnonymouslyReq);
+  // const isSignInLoading =
+  //   checkAccountCredentialLoading || signInAnonymouslyLoading;
 
   const formik = useFormik({
     initialValues: {
-      email: "",
-      password: "",
+      email: "sigua@gmail.com",
+      password: "12345678",
     },
-    validationSchema: SigninSchema,
+    validationSchema: DoctorSigninSchema,
     validateOnChange: false,
     onSubmit: async (values) => {
-      setError(null);
-
-      await signIn(values, {
-        successCb() {
-          router.push("/admin/dashboard");
-        },
-        errorCb(error) {
-          setError(error);
-        },
+      const { email, password } = values;
+      // Authenticate
+      const { data: userInfo, error: authError } = await signIn({
+        email,
+        password,
       });
+      if (authError) return openErrorDialog(authError);
+
+      manualSetUser(userInfo);
     },
   });
   const { handleSubmit, handleChange, handleBlur, values, errors, touched } =
     formik;
 
   return (
-    <div className="login-page">
-      <Container component="main" maxWidth="xs">
-        <div className="main-form">
+    <Box
+      sx={{
+        height: "calc(100vh - 64px)",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+      }}
+    >
+      <Container
+        component="main"
+        maxWidth="xs"
+        sx={{
+          mb: 10,
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
           <Typography component="h1" variant="h5">
-            Staff Sign in
+            Doctor Sign in
           </Typography>
           <Box
             component="form"
@@ -63,14 +91,13 @@ export default function SignInPage() {
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  id="email"
-                  label="Email"
                   name="email"
-                  autoComplete="email"
+                  label="Email"
+                  autoComplete="off"
                   value={values.email}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  error={(touched.email && errors.email) || error}
+                  error={touched.email && errors.email}
                   helperText={touched.email && errors.email}
                 />
               </Grid>
@@ -80,12 +107,12 @@ export default function SignInPage() {
                   name="password"
                   label="Password"
                   type="password"
-                  id="password"
+                  autoComplete="off"
                   value={values.password}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  error={(touched.password && errors.password) || error}
-                  helperText={(touched.password && errors.password) || error}
+                  error={touched.password && errors.password}
+                  helperText={touched.password && errors.password}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -95,36 +122,27 @@ export default function SignInPage() {
                 />
               </Grid>
             </Grid>
-            <Button
+            <LoadingButton
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              loading={isSignInLoading}
             >
               Sign In
-            </Button>
+            </LoadingButton>
             <Grid container>
               <Grid item xs>
                 <Link href="#" variant="body2">
                   Forgot password?
                 </Link>
               </Grid>
-              <Grid item>
-                <Link
-                  href="#"
-                  variant="body2"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    router.push("/signup");
-                  }}
-                >
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
             </Grid>
           </Box>
-        </div>
+        </Box>
       </Container>
-    </div>
+    </Box>
   );
-}
+};
+
+export default DoctorSignInPage;

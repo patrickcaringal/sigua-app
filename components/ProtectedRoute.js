@@ -10,6 +10,11 @@ const ProtectedRoute = ({ children }) => {
 
   useEffect(() => {
     if (!userSession) {
+      if (router.pathname.includes("/doctor")) {
+        router.push("/doctor/signin");
+        return;
+      }
+
       router.push("/");
     }
   }, [router, userSession]);

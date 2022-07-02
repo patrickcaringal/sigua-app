@@ -21,7 +21,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useBackdropLoader } from "../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../contexts/ResponseDialogContext";
 import useRequest from "../hooks/useRequest";
-import { signOutAnonymouslyReq } from "../modules/firebase";
+import { signOutAnonymouslyReq, signOutReq } from "../modules/firebase";
 import { getInitials } from "../modules/helper";
 
 const pages = ["Products", "Pricing", "Blog"];
@@ -29,7 +29,7 @@ const pages = ["Products", "Pricing", "Blog"];
 
 const ResponsiveAppBar = () => {
   const router = useRouter();
-  const { userSession, user, manualSetUser } = useAuth();
+  const { userSession, user, manualSetUser, isAdmin } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
   const { openErrorDialog } = useResponseDialog();
   const [signOutAnonymously] = useRequest(
@@ -56,10 +56,18 @@ const ResponsiveAppBar = () => {
   };
 
   const handleLogout = async () => {
-    // Sign Out
+    // Sign Out Doctor, Staff
+    if (isAdmin) {
+      const { error: signOutError } = await signOutReq();
+      if (signOutError) return openErrorDialog(signOutError);
+      manualSetUser(null);
+      setAnchorElUser(null);
+      return;
+    }
+
+    // Sign Out Patient
     const { error: signOutError } = await signOutAnonymously(userSession);
     if (signOutError) return openErrorDialog(signOutError);
-
     manualSetUser(null);
     setAnchorElUser(null);
   };

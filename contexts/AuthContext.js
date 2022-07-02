@@ -72,6 +72,7 @@ export const AuthContextProvider = ({ children }) => {
 
   const value = {
     user,
+    isAdmin: user?.role === "superadmin",
     userSession,
     signOut,
     signUp,

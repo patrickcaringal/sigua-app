@@ -6,8 +6,18 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 
-import { auth } from "./config";
+import { auth, db } from "./config";
 
 const getErrorMsg = (code) => {
   const errorMap = {
@@ -34,17 +44,29 @@ export const signUpReq = async (
   }
 };
 
-export const signInReq = async (
-  { email, password },
-  { successCb = () => {}, errorCb = () => {} }
-) => {
+export const signInReq = async ({ email, password }) => {
   try {
-    await signInWithEmailAndPassword(auth, email, password);
-    successCb();
+    // Authenticate
+    const res = await signInWithEmailAndPassword(auth, email, password);
+
+    // Get User Document
+    const id = res?.user?.uid;
+    const collRef = collection(db, "doctors");
+    const q = query(collRef, where("accountId", "==", id));
+    const querySnapshot = await getDocs(q);
+
+    const exist = querySnapshot.docs.length === 1;
+    if (!exist) throw new Error("Doctor document not found");
+
+    const document = {
+      id: querySnapshot.docs[0].id,
+      ...querySnapshot.docs[0].data(),
+    };
+
+    return { data: document, success: true };
   } catch (error) {
     const errMsg = getErrorMsg(error.code);
-    errorCb(errMsg);
-    console.log(error);
+    return { error: errMsg || error.message };
   }
 };
 
@@ -58,16 +80,13 @@ export const signInAnonymouslyReq = async () => {
   }
 };
 
-export const signOutReq = async ({
-  successCb = () => {},
-  errorCb = () => {},
-}) => {
+export const signOutReq = async () => {
   try {
     await signOut(auth);
-    successCb();
+    return { success: true };
   } catch (error) {
-    errorCb(error.message);
     console.log(error);
+    return { error: error.message };
   }
 };
 
