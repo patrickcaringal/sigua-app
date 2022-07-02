@@ -2,34 +2,36 @@ import * as React from "react";
 
 import AdbIcon from "@mui/icons-material/Adb";
 import MenuIcon from "@mui/icons-material/Menu";
-import { Link } from "@mui/material";
-import AppBar from "@mui/material/AppBar";
-import Avatar from "@mui/material/Avatar";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Container from "@mui/material/Container";
-import IconButton from "@mui/material/IconButton";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import Toolbar from "@mui/material/Toolbar";
-import Tooltip from "@mui/material/Tooltip";
-import Typography from "@mui/material/Typography";
+import {
+  AppBar,
+  Avatar,
+  Box,
+  Button,
+  Container,
+  CssBaseline,
+  IconButton,
+  Menu,
+  MenuItem,
+  Toolbar,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { useRouter } from "next/router";
 
-import { Logo } from "../components";
-import { useAuth } from "../contexts/AuthContext";
-import { useBackdropLoader } from "../contexts/BackdropLoaderContext";
-import { useResponseDialog } from "../contexts/ResponseDialogContext";
-import useRequest from "../hooks/useRequest";
-import { signOutAnonymouslyReq, signOutReq } from "../modules/firebase";
-import { getInitials } from "../modules/helper";
+import { Logo } from "../../components";
+import { useAuth } from "../../contexts/AuthContext";
+import { useBackdropLoader } from "../../contexts/BackdropLoaderContext";
+import { useResponseDialog } from "../../contexts/ResponseDialogContext";
+import useRequest from "../../hooks/useRequest";
+import { signOutAnonymouslyReq, signOutReq } from "../../modules/firebase";
+import { getInitials } from "../../modules/helper";
 
 const pages = ["Products", "Pricing", "Blog"];
 // const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 const ResponsiveAppBar = () => {
   const router = useRouter();
-  const { userSession, user, manualSetUser, isAdmin } = useAuth();
+  const { userSession, user, manualSetUser, isAdmin, isLoggedIn } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
   const { openErrorDialog } = useResponseDialog();
   const [signOutAnonymously] = useRequest(
@@ -74,8 +76,13 @@ const ResponsiveAppBar = () => {
 
   return (
     <>
-      <AppBar position="fixed" color="default">
-        <Container maxWidth="lg">
+      <CssBaseline />
+      <AppBar
+        position="fixed"
+        color="default"
+        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      >
+        <Container maxWidth={isAdmin ? "xl" : "lg"}>
           <Toolbar disableGutters>
             {/* <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} /> */}
             <Logo width="160" height="56" />
@@ -154,7 +161,7 @@ const ResponsiveAppBar = () => {
 
             {/* Right */}
             <Box sx={{ flexGrow: 0 }}>
-              {user ? (
+              {isLoggedIn ? (
                 <>
                   <Tooltip title="Open settings">
                     <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
@@ -190,7 +197,9 @@ const ResponsiveAppBar = () => {
                   </Menu>
                 </>
               ) : // displayed if page is not signin or signup
-              !["/signin", "/signup"].includes(router.pathname) ? (
+              !["/signin", "/signup", "/doctor/signin"].includes(
+                  router.pathname
+                ) ? (
                 <Button
                   color="inherit"
                   onClick={(e) => {

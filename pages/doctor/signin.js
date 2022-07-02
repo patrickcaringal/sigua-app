@@ -3,16 +3,13 @@ import React from "react";
 import { LoadingButton } from "@mui/lab";
 import {
   Box,
-  Checkbox,
   Container,
-  FormControlLabel,
   Grid,
   Link,
   TextField,
   Typography,
 } from "@mui/material";
 import { useFormik } from "formik";
-import { useRouter } from "next/router";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useResponseDialog } from "../../contexts/ResponseDialogContext";
@@ -21,17 +18,9 @@ import { signInReq } from "../../modules/firebase";
 import { DoctorSigninSchema } from "../../modules/validation";
 
 const DoctorSignInPage = () => {
-  const router = useRouter();
   const { manualSetUser } = useAuth();
   const { openErrorDialog } = useResponseDialog();
   const [signIn, isSignInLoading] = useRequest(signInReq);
-  // const [checkAccountCredential, checkAccountCredentialLoading] = useRequest(
-  //   checkAccountCredentialReq
-  // );
-  // const [signInAnonymously, signInAnonymouslyLoading] =
-  //   useRequest(signInAnonymouslyReq);
-  // const isSignInLoading =
-  //   checkAccountCredentialLoading || signInAnonymouslyLoading;
 
   const formik = useFormik({
     initialValues: {
@@ -113,12 +102,6 @@ const DoctorSignInPage = () => {
                   onBlur={handleBlur}
                   error={touched.password && errors.password}
                   helperText={touched.password && errors.password}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={<Checkbox value="remember" color="primary" />}
-                  label="Remember me"
                 />
               </Grid>
             </Grid>

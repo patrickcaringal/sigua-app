@@ -5,11 +5,11 @@ import { useRouter } from "next/router";
 import { useAuth } from "../contexts/AuthContext";
 
 const ProtectedRoute = ({ children }) => {
-  const { userSession } = useAuth();
+  const { isLoggedIn } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!userSession) {
+    if (!isLoggedIn) {
       if (router.pathname.includes("/doctor")) {
         router.push("/doctor/signin");
         return;
@@ -17,9 +17,9 @@ const ProtectedRoute = ({ children }) => {
 
       router.push("/");
     }
-  }, [router, userSession]);
+  }, [router, isLoggedIn]);
 
-  return <>{userSession ? children : null}</>;
+  return <>{isLoggedIn ? children : null}</>;
 };
 
 export default ProtectedRoute;
