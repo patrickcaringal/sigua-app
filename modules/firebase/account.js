@@ -32,14 +32,9 @@ export const createAccountReq = async (newDocument) => {
     const docRef = doc(collRef);
 
     // Transform Document
-    const { firstName, middleName, lastName, suffix, birthdate, password } =
-      newDocument;
+    const { birthdate, password } = newDocument;
     let mappedNewDocument = {
       ...newDocument,
-      firstName: firstName,
-      middleName: middleName,
-      lastName: lastName,
-      suffix: suffix,
       birthdate: formatDate(birthdate),
       password: hashPassword(password),
       familyMembers: [],

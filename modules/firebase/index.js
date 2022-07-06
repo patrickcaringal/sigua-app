@@ -15,6 +15,7 @@ import {
   signUpReq,
 } from "./auth";
 import { auth, db } from "./config";
+import { addStaffReq } from "./staff";
 import { uploadImageReq } from "./storage";
 
 export {
@@ -34,6 +35,8 @@ export {
   getFamilyMembersReq,
   addFamilyMembersReq,
   updateFamilyMembersReq,
+  // staff
+  addStaffReq,
   // storage
   uploadImageReq,
 };

@@ -17,13 +17,46 @@ import {
 import { useRouter } from "next/router";
 
 import { ManageStaffModal } from "../../components";
+import { useBackdropLoader } from "../../contexts/BackdropLoaderContext";
+import { useResponseDialog } from "../../contexts/ResponseDialogContext";
+import useRequest from "../../hooks/useRequest";
+import { addStaffReq } from "../../modules/firebase";
+
 const DashboardPage = () => {
   const router = useRouter();
+  const { setBackdropLoader } = useBackdropLoader();
+  const { openResponseDialog, openErrorDialog } = useResponseDialog();
+  const [addStaff] = useRequest(addStaffReq, setBackdropLoader);
 
   const [staffModalOpen, setStaffModalOpen] = useState(false);
 
   const handleStaffModalOpen = () => {
     setStaffModalOpen(true);
+  };
+
+  const handleCheckDuplicate = (newStaff) => {
+    // return membersUniqueId.includes(newStaff);
+    return false;
+  };
+
+  const handleAddStaff = async (newStaff) => {
+    // Add Staff
+    // const allMembers = [...members, ...newStaff];
+
+    const { error: addStaffError } = await addStaff({
+      staffs: newStaff,
+    });
+    if (addStaffError) return openErrorDialog(addStaffError);
+
+    // setMembers(allMembers);
+    openResponseDialog({
+      autoClose: true,
+      content: "Staff successfuly added.",
+      type: "SUCCESS",
+      closeCb() {
+        setStaffModalOpen(false);
+      },
+    });
   };
 
   return (
@@ -90,8 +123,8 @@ const DashboardPage = () => {
       <ManageStaffModal
         open={staffModalOpen}
         setOpen={setStaffModalOpen}
-        // onCheckDuplicate={handleCheckDuplicate}
-        // onAddMemeber={handleAddMemeber}
+        onCheckDuplicate={handleCheckDuplicate}
+        onAddStaff={handleAddStaff}
       />
     </Box>
   );

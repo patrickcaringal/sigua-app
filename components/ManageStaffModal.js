@@ -31,6 +31,7 @@ import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
 import { FieldArray, FormikProvider, useFormik } from "formik";
 
 import { useResponseDialog } from "../contexts/ResponseDialogContext";
+import { formatDate, getFullName } from "../modules/helper";
 import { StaffSchema } from "../modules/validation";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -69,8 +70,8 @@ const defaultStaffValue = {
 export default function ManageStaffModal({
   open,
   setOpen,
-  // onCheckDuplicate,
-  // onAddMemeber,
+  onCheckDuplicate,
+  onAddStaff,
 }) {
   const { openResponseDialog } = useResponseDialog();
 
@@ -79,32 +80,32 @@ export default function ManageStaffModal({
     validationSchema: StaffSchema,
     validateOnChange: false,
     onSubmit: async (values) => {
-      // console.log({ values });
-      // // automatic unverified family member
-      // const { staffs } = values;
-      // const dupliNames = []; // used for error display
-      // // Check Duplicates
-      // const hasDuplicate = staffs.reduce((acc, i) => {
-      //   const { firstName, middleName, lastName, birthdate } = i;
-      //   const fullname = `${firstName} ${middleName} ${lastName}`;
-      //   const m = `${fullname} ${formatDate(birthdate)}`;
-      //   const isDupli = onCheckDuplicate(m);
-      //   if (isDupli) dupliNames.push(fullname);
-      //   return acc || isDupli;
-      // }, false);
-      // if (hasDuplicate) {
-      //   openResponseDialog({
-      //     content: (
-      //       <>
-      //         <Typography variant="body1">Duplicate Family Members</Typography>
-      //         <Typography variant="body2">{dupliNames.join(", ")}</Typography>
-      //       </>
-      //     ),
-      //     type: "WARNING",
-      //   });
-      //   return;
-      // }
-      // onAddMemeber(staffs);
+      const { staffs } = values;
+      const dupliNames = []; // used for error display
+
+      // Check Duplicates
+      const hasDuplicate = staffs.reduce((acc, i) => {
+        const { firstName, middleName, lastName, birthdate } = i;
+        const fullname = getFullName({ firstName, middleName, lastName });
+        const m = `${fullname} ${formatDate(birthdate)}`;
+        const isDupli = onCheckDuplicate(m);
+        if (isDupli) dupliNames.push(fullname);
+        return acc || isDupli;
+      }, false);
+
+      if (hasDuplicate) {
+        openResponseDialog({
+          content: (
+            <>
+              <Typography variant="body1">Staff already exist</Typography>
+              <Typography variant="body2">{dupliNames.join(", ")}</Typography>
+            </>
+          ),
+          type: "WARNING",
+        });
+        return;
+      }
+      onAddStaff(staffs);
     },
   });
 
