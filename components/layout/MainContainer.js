@@ -10,7 +10,10 @@ const LeftSidebar = ({ children }) => {
   const { isAdmin } = useAuth();
 
   return (
-    <Box component="main" sx={{ ml: isAdmin ? "240px" : 0 }}>
+    <Box
+      component="main"
+      sx={{ ml: isAdmin ? "240px" : 0, bgcolor: "#f5f5f5" }}
+    >
       {children}
     </Box>
   );

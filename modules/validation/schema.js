@@ -56,3 +56,22 @@ export const FamilyMemberSchema = Yup.object().shape({
     })
   ),
 });
+
+export const StaffSchema = Yup.object().shape({
+  familyMembers: Yup.array().of(
+    Yup.object().shape({
+      firstName: Yup.string()
+        .max(50, "First Name too long")
+        .required("Required"),
+      middleName: Yup.string()
+        .max(50, "Middle Name too long")
+        .required("Required"),
+      lastName: Yup.string().max(50, "Last Name too long").required("Required"),
+      suffix: Yup.string().max(5, "Suffix too long"),
+      birthdate: Yup.string().nullable().required("Required"),
+      gender: Yup.string().required("Required"),
+      address: Yup.string().required("Required"),
+      branch: Yup.string().required("Required"),
+    })
+  ),
+});

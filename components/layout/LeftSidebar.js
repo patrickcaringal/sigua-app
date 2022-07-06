@@ -1,5 +1,6 @@
 import * as React from "react";
 
+import GroupIcon from "@mui/icons-material/Group";
 import MailIcon from "@mui/icons-material/Mail";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import {
@@ -13,12 +14,15 @@ import {
   ListItemText,
   Toolbar,
 } from "@mui/material";
+import { useRouter } from "next/router";
 
 import { useAuth } from "../../contexts/AuthContext";
 
 const drawerWidth = 240;
 
 const LeftSidebar = () => {
+  const router = useRouter();
+
   const { isAdmin } = useAuth();
 
   if (!isAdmin) return null;
@@ -39,6 +43,24 @@ const LeftSidebar = () => {
     >
       <Toolbar />
       <Box sx={{ overflow: "auto" }}>
+        <List>
+          {[
+            {
+              text: "Staffs",
+              icon: <GroupIcon />,
+              onClick: () => router.push("/doctor/staffss"),
+            },
+          ].map(({ text, icon, onClick }) => (
+            <ListItem key={text} disablePadding onClick={onClick}>
+              <ListItemButton>
+                <ListItemIcon>{icon}</ListItemIcon>
+                <ListItemText primary={text} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+
+        <Divider />
         <List>
           {["Doctors", "Staffs", "Branches", "Services"].map((text, index) => (
             <ListItem key={text} disablePadding>

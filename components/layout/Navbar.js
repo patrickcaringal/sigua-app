@@ -82,7 +82,7 @@ const ResponsiveAppBar = () => {
         color="default"
         sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
       >
-        <Container maxWidth={isAdmin ? "xl" : "lg"}>
+        <Container maxWidth={isAdmin ? "none" : "lg"}>
           <Toolbar disableGutters>
             {/* <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} /> */}
             <Logo width="160" height="56" />

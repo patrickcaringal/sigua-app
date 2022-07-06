@@ -5,6 +5,7 @@ import MainContainer from "./layout/MainContainer";
 import Navbar from "./layout/Navbar";
 import LoggedInInaccessibleRoute from "./LoggedInInaccessibleRoute";
 import Logo from "./Logo";
+import ManageStaffModal from "./ManageStaffModal";
 import ProtectedRoute from "./ProtectedRoute";
 import ResponseDialog from "./ResponseDialog";
 import UploadAttachmentModal from "./UploadAttachmentModal";
@@ -20,4 +21,5 @@ export {
   ActionMenu,
   LeftSidebar,
   MainContainer,
+  ManageStaffModal,
 };
