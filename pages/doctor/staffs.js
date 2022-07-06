@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import {
@@ -20,15 +20,32 @@ import { ManageStaffModal } from "../../components";
 import { useBackdropLoader } from "../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../contexts/ResponseDialogContext";
 import useRequest from "../../hooks/useRequest";
-import { addStaffReq } from "../../modules/firebase";
+import { addStaffReq, getStaffsReq } from "../../modules/firebase";
 
 const DashboardPage = () => {
   const router = useRouter();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
+  const [getStaffs] = useRequest(getStaffsReq, setBackdropLoader);
   const [addStaff] = useRequest(addStaffReq, setBackdropLoader);
 
+  const [staffs, setStaffs] = useState([]);
   const [staffModalOpen, setStaffModalOpen] = useState(false);
+
+  useEffect(() => {
+    const fetch = async () => {
+      // Get Staffs
+      const { data: staffList, error: getStaffsError } = await getStaffs({
+        branch: "LAKESIDE",
+      });
+      if (getStaffsError) return openErrorDialog(getStaffsError);
+
+      setStaffs(staffList);
+    };
+
+    fetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleStaffModalOpen = () => {
     setStaffModalOpen(true);

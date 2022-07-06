@@ -17,6 +17,24 @@ import { db } from "./config";
 
 const collRef = collection(db, "staffs");
 
+export const getStaffsReq = async ({ branch }) => {
+  try {
+    const q = query(collRef, where("branch", "==", branch));
+
+    const querySnapshot = await getDocs(q);
+
+    const data = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
 export const addStaffReq = async ({ staffs }) => {
   try {
     const batch = writeBatch(db);
