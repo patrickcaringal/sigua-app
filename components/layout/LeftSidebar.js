@@ -48,7 +48,7 @@ const LeftSidebar = () => {
             {
               text: "Staffs",
               icon: <GroupIcon />,
-              onClick: () => router.push("/doctor/staffss"),
+              onClick: () => router.push("/doctor/staffs"),
             },
           ].map(({ text, icon, onClick }) => (
             <ListItem key={text} disablePadding onClick={onClick}>

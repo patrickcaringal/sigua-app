@@ -31,29 +31,30 @@ import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
 import { FieldArray, FormikProvider, useFormik } from "formik";
 
 import { useResponseDialog } from "../contexts/ResponseDialogContext";
-import { formatDate } from "../modules/helper";
-import { FamilyMemberSchema } from "../modules/validation";
+import { StaffSchema } from "../modules/validation";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
 const defaultValues = {
-  familyMembers: [
+  staffs: [
     {
-      firstName: "PAUL DANIEL",
-      middleName: "PUNSALANG",
-      lastName: "CARINGAL",
+      firstName: "KIM",
+      middleName: "SOYA",
+      lastName: "JISOO",
       suffix: "",
       birthdate: "1997-07-10T13:52:43.000Z",
-      gender: "male",
+      gender: "female",
       address:
-        "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUN",
+        "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUNA",
+      email: "soya@gmail.com",
+      branch: "LAKESIDE",
     },
   ],
 };
 
-const defaultMemberValue = {
+const defaultStaffValue = {
   firstName: "",
   middleName: "",
   lastName: "",
@@ -61,6 +62,8 @@ const defaultMemberValue = {
   birthdate: "",
   gender: "",
   address: "",
+  email: "",
+  branch: "",
 };
 
 export default function ManageStaffModal({
@@ -73,14 +76,15 @@ export default function ManageStaffModal({
 
   const formik = useFormik({
     initialValues: defaultValues,
-    validationSchema: FamilyMemberSchema,
+    validationSchema: StaffSchema,
     validateOnChange: false,
     onSubmit: async (values) => {
+      // console.log({ values });
       // // automatic unverified family member
-      // const { familyMembers } = values;
+      // const { staffs } = values;
       // const dupliNames = []; // used for error display
       // // Check Duplicates
-      // const hasDuplicate = familyMembers.reduce((acc, i) => {
+      // const hasDuplicate = staffs.reduce((acc, i) => {
       //   const { firstName, middleName, lastName, birthdate } = i;
       //   const fullname = `${firstName} ${middleName} ${lastName}`;
       //   const m = `${fullname} ${formatDate(birthdate)}`;
@@ -100,7 +104,7 @@ export default function ManageStaffModal({
       //   });
       //   return;
       // }
-      // onAddMemeber(familyMembers);
+      // onAddMemeber(staffs);
     },
   });
 
@@ -154,14 +158,14 @@ export default function ManageStaffModal({
           <FormikProvider value={formik}>
             <Container maxWidth="lg">
               <FieldArray
-                name="familyMembers"
+                name="staffs"
                 render={({ push, remove }) => (
                   <>
                     <Fab
                       color="primary"
                       sx={{ position: "absolute", bottom: 16, right: 16 }}
                       onClick={() => {
-                        push(defaultMemberValue);
+                        push(defaultStaffValue);
                       }}
                     >
                       <AddIcon />
@@ -177,10 +181,12 @@ export default function ManageStaffModal({
                         minHeight: 280,
                       }}
                     >
-                      {formik.values.familyMembers.map((member, index) => {
-                        const famMemberValue = values.familyMembers[index];
-                        const famMemberTouched = touched.familyMembers?.[index];
-                        const famMemberErrors = errors.familyMembers?.[index];
+                      {formik.values.staffs.map((s, index) => {
+                        const staffValue = values.staffs[index];
+                        const staffTouched = touched.staffs?.[index];
+                        const staffErrors = errors.staffs?.[index];
+                        const getError = (field) =>
+                          staffTouched?.[field] && staffErrors?.[field];
 
                         return (
                           <Card key={index} elevation={2}>
@@ -212,24 +218,18 @@ export default function ManageStaffModal({
                                     required
                                     fullWidth
                                     label="First Name"
-                                    name={`familyMembers[${index}].firstName`}
+                                    name={`staffs[${index}].firstName`}
                                     autoComplete="off"
-                                    value={famMemberValue.firstName}
+                                    value={staffValue.firstName}
                                     onChange={(e) =>
                                       setFieldValue(
-                                        `familyMembers[${index}].firstName`,
+                                        `staffs[${index}].firstName`,
                                         e.target.value.toUpperCase()
                                       )
                                     }
                                     onBlur={handleBlur}
-                                    error={
-                                      famMemberTouched?.firstName &&
-                                      famMemberErrors?.firstName
-                                    }
-                                    helperText={
-                                      famMemberTouched?.firstName &&
-                                      famMemberErrors?.firstName
-                                    }
+                                    error={getError("firstName")}
+                                    helperText={getError("firstName")}
                                   />
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
@@ -238,24 +238,18 @@ export default function ManageStaffModal({
                                     required
                                     fullWidth
                                     label="Middle Name"
-                                    name={`familyMembers[${index}].middleName`}
+                                    name={`staffs[${index}].middleName`}
                                     autoComplete="off"
-                                    value={famMemberValue.middleName}
+                                    value={staffValue.middleName}
                                     onChange={(e) =>
                                       setFieldValue(
-                                        `familyMembers[${index}].middleName`,
+                                        `staffs[${index}].middleName`,
                                         e.target.value.toUpperCase()
                                       )
                                     }
                                     onBlur={handleBlur}
-                                    error={
-                                      famMemberTouched?.middleName &&
-                                      famMemberErrors?.middleName
-                                    }
-                                    helperText={
-                                      famMemberTouched?.middleName &&
-                                      famMemberErrors?.middleName
-                                    }
+                                    error={getError("middleName")}
+                                    helperText={getError("middleName")}
                                   />
                                 </Grid>
                                 <Grid item xs={12} sm={9}>
@@ -264,24 +258,18 @@ export default function ManageStaffModal({
                                     required
                                     fullWidth
                                     label="Last Name"
-                                    name={`familyMembers[${index}].lastName`}
+                                    name={`staffs[${index}].lastName`}
                                     autoComplete="off"
-                                    value={famMemberValue.lastName}
+                                    value={staffValue.lastName}
                                     onChange={(e) =>
                                       setFieldValue(
-                                        `familyMembers[${index}].lastName`,
+                                        `staffs[${index}].lastName`,
                                         e.target.value.toUpperCase()
                                       )
                                     }
                                     onBlur={handleBlur}
-                                    error={
-                                      famMemberTouched?.lastName &&
-                                      famMemberErrors?.lastName
-                                    }
-                                    helperText={
-                                      famMemberTouched?.lastName &&
-                                      famMemberErrors?.lastName
-                                    }
+                                    error={getError("lastName")}
+                                    helperText={getError("lastName")}
                                   />
                                 </Grid>
                                 <Grid item xs={12} sm={3}>
@@ -289,24 +277,18 @@ export default function ManageStaffModal({
                                     size="small"
                                     fullWidth
                                     label="Suffix"
-                                    name={`familyMembers[${index}].suffix`}
+                                    name={`staffs[${index}].suffix`}
                                     autoComplete="off"
-                                    value={famMemberValue.suffix}
+                                    value={staffValue.suffix}
                                     onChange={(e) =>
                                       setFieldValue(
-                                        `familyMembers[${index}].suffix`,
+                                        `staffs[${index}].suffix`,
                                         e.target.value.toUpperCase()
                                       )
                                     }
                                     onBlur={handleBlur}
-                                    error={
-                                      famMemberTouched?.suffix &&
-                                      famMemberErrors?.suffix
-                                    }
-                                    helperText={
-                                      famMemberTouched?.suffix &&
-                                      famMemberErrors?.suffix
-                                    }
+                                    error={getError("suffix")}
+                                    helperText={getError("suffix")}
                                   />
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
@@ -316,10 +298,10 @@ export default function ManageStaffModal({
                                     <MobileDatePicker
                                       label="Date of Birth"
                                       inputFormat="MM/dd/yyyy"
-                                      value={famMemberValue.birthdate}
+                                      value={staffValue.birthdate}
                                       onChange={(value) => {
                                         setFieldValue(
-                                          `familyMembers[${index}].birthdate`,
+                                          `staffs[${index}].birthdate`,
                                           value,
                                           false
                                         );
@@ -332,15 +314,9 @@ export default function ManageStaffModal({
                                             {...params}
                                             required
                                             fullWidth
-                                            name={`familyMembers[${index}].birthdate`}
-                                            error={
-                                              famMemberTouched?.birthdate &&
-                                              famMemberErrors?.birthdate
-                                            }
-                                            helperText={
-                                              famMemberTouched?.birthdate &&
-                                              famMemberErrors?.birthdate
-                                            }
+                                            name={`staffs[${index}].birthdate`}
+                                            error={getError("birthdate")}
+                                            helperText={getError("birthdate")}
                                           />
                                         );
                                       }}
@@ -352,18 +328,15 @@ export default function ManageStaffModal({
                                     fullWidth
                                     size="small"
                                     required
-                                    error={
-                                      famMemberTouched?.gender &&
-                                      famMemberErrors?.gender
-                                    }
+                                    error={getError("gender")}
                                   >
                                     <InputLabel>Gender</InputLabel>
                                     <Select
-                                      value={famMemberValue.gender}
+                                      value={staffValue.gender}
                                       label="Gender"
                                       onChange={(e) => {
                                         setFieldValue(
-                                          `familyMembers[${index}].gender`,
+                                          `staffs[${index}].gender`,
                                           e.target.value,
                                           false
                                         );
@@ -373,12 +346,11 @@ export default function ManageStaffModal({
                                       <MenuItem value="male">Male</MenuItem>
                                       <MenuItem value="female">Female</MenuItem>
                                     </Select>
-                                    {famMemberTouched?.gender &&
-                                      famMemberErrors?.gender && (
-                                        <FormHelperText>
-                                          {famMemberErrors?.gender}
-                                        </FormHelperText>
-                                      )}
+                                    {getError("gender") && (
+                                      <FormHelperText>
+                                        {staffErrors?.gender}
+                                      </FormHelperText>
+                                    )}
                                   </FormControl>
                                 </Grid>
                                 <Grid item xs={12}>
@@ -387,61 +359,70 @@ export default function ManageStaffModal({
                                     required
                                     fullWidth
                                     label="Full Address"
-                                    name={`familyMembers[${index}].address`}
+                                    name={`staffs[${index}].address`}
                                     autoComplete="off"
-                                    value={famMemberValue.address}
+                                    value={staffValue.address}
                                     onChange={(e) =>
                                       setFieldValue(
-                                        `familyMembers[${index}].address`,
+                                        `staffs[${index}].address`,
                                         e.target.value.toUpperCase()
                                       )
                                     }
                                     onBlur={handleBlur}
-                                    error={
-                                      famMemberTouched?.address &&
-                                      famMemberErrors?.address
-                                    }
-                                    helperText={
-                                      famMemberTouched?.address &&
-                                      famMemberErrors?.address
-                                    }
+                                    error={getError("address")}
+                                    helperText={getError("address")}
                                   />
                                 </Grid>
-
+                                <Grid item xs={12}>
+                                  <TextField
+                                    size="small"
+                                    required
+                                    fullWidth
+                                    label="Email"
+                                    name={`staffs[${index}].email`}
+                                    autoComplete="off"
+                                    value={staffValue.email}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    error={getError("email")}
+                                    helperText={getError("email")}
+                                  />
+                                </Grid>
                                 <Grid item xs={12}>
                                   <FormControl
                                     fullWidth
                                     size="small"
                                     required
-                                    error={
-                                      famMemberTouched?.gender &&
-                                      famMemberErrors?.gender
-                                    }
+                                    error={getError("branch")}
                                   >
                                     <InputLabel>Branch</InputLabel>
                                     <Select
-                                      value={famMemberValue.gender}
-                                      label="Gender"
+                                      value={staffValue.branch}
+                                      label="Branch"
                                       onChange={(e) => {
                                         setFieldValue(
-                                          `familyMembers[${index}].gender`,
+                                          `staffs[${index}].branch`,
                                           e.target.value,
                                           false
                                         );
                                       }}
                                       onBlur={handleBlur}
                                     >
-                                      <MenuItem value="male">Lakeside</MenuItem>
-                                      <MenuItem value="female">
+                                      <MenuItem value="LAKESIDE">
+                                        Lakeside
+                                      </MenuItem>
+                                      <MenuItem value="MABUHAY">
                                         Mabuhay
                                       </MenuItem>
+                                      <MenuItem value="SOUTHVILLE">
+                                        Sunrise
+                                      </MenuItem>
                                     </Select>
-                                    {famMemberTouched?.gender &&
-                                      famMemberErrors?.gender && (
-                                        <FormHelperText>
-                                          {famMemberErrors?.gender}
-                                        </FormHelperText>
-                                      )}
+                                    {getError("branch") && (
+                                      <FormHelperText>
+                                        {staffErrors?.branch}
+                                      </FormHelperText>
+                                    )}
                                   </FormControl>
                                 </Grid>
                               </Grid>

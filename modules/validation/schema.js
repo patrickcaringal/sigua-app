@@ -58,7 +58,7 @@ export const FamilyMemberSchema = Yup.object().shape({
 });
 
 export const StaffSchema = Yup.object().shape({
-  familyMembers: Yup.array().of(
+  staffs: Yup.array().of(
     Yup.object().shape({
       firstName: Yup.string()
         .max(50, "First Name too long")
@@ -71,6 +71,7 @@ export const StaffSchema = Yup.object().shape({
       birthdate: Yup.string().nullable().required("Required"),
       gender: Yup.string().required("Required"),
       address: Yup.string().required("Required"),
+      email: Yup.string().email().required("Required"),
       branch: Yup.string().required("Required"),
     })
   ),
