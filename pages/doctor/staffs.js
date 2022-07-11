@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
+import MailIcon from "@mui/icons-material/Mail";
 import {
   Box,
   Breadcrumbs,
@@ -9,8 +10,15 @@ import {
   CardActionArea,
   CardContent,
   CardMedia,
+  IconButton,
   Link,
   Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Toolbar,
   Typography,
 } from "@mui/material";
@@ -21,18 +29,47 @@ import { useBackdropLoader } from "../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../contexts/ResponseDialogContext";
 import useRequest from "../../hooks/useRequest";
 import { addStaffReq, getStaffsReq } from "../../modules/firebase";
+import { getFullName, getUniquePersonId } from "../../modules/helper";
+const LOCAL_MODE = false;
 
 const DashboardPage = () => {
   const router = useRouter();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
   const [getStaffs] = useRequest(getStaffsReq, setBackdropLoader);
-  const [addStaff] = useRequest(addStaffReq, setBackdropLoader);
+  const [addStaff] = useRequest(addStaffReq);
 
-  const [staffs, setStaffs] = useState([]);
+  const [staffs, setStaffs] = useState(
+    LOCAL_MODE
+      ? [
+          {
+            id: "HqOIh50XFGWgTYFE0aFU",
+            gender: "female",
+            suffix: "",
+            lastName: "JISOO",
+            birthdate: "1997-07-10",
+            email: "soya@gmail.com",
+            role: "staff",
+            middleName: "SOYA",
+            branch: "LAKESIDE",
+            firstName: "KIM",
+            address:
+              "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUNA",
+          },
+        ]
+      : []
+  );
   const [staffModalOpen, setStaffModalOpen] = useState(false);
 
+  const staffsUniqueId = staffs.map((i) => {
+    const { firstName, middleName, lastName, birthdate } = i;
+    const m = getUniquePersonId({ firstName, middleName, lastName, birthdate });
+    return m;
+  });
+
   useEffect(() => {
+    if (LOCAL_MODE) return;
+
     const fetch = async () => {
       // Get Staffs
       const { data: staffList, error: getStaffsError } = await getStaffs({
@@ -51,21 +88,19 @@ const DashboardPage = () => {
     setStaffModalOpen(true);
   };
 
-  const handleCheckDuplicate = (newStaff) => {
-    // return membersUniqueId.includes(newStaff);
-    return false;
-  };
+  const handleCheckDuplicate = (newStaff) => staffsUniqueId.includes(newStaff);
 
   const handleAddStaff = async (newStaff) => {
     // Add Staff
-    // const allMembers = [...members, ...newStaff];
-
     const { error: addStaffError } = await addStaff({
       staffs: newStaff,
     });
     if (addStaffError) return openErrorDialog(addStaffError);
 
-    // setMembers(allMembers);
+    // Successful
+    const allStaffs = [...staffs, ...newStaff];
+    setStaffs(allStaffs);
+
     openResponseDialog({
       autoClose: true,
       content: "Staff successfuly added.",
@@ -75,6 +110,8 @@ const DashboardPage = () => {
       },
     });
   };
+
+  const handleSendEmail = () => {};
 
   return (
     <Box
@@ -131,9 +168,59 @@ const DashboardPage = () => {
       >
         <Paper
           elevation={2}
-          sx={{ p: 2, height: "calc(100vh - 64px - 64px - 16px)" }}
+          sx={{ height: "calc(100vh - 64px - 64px - 16px)" }}
         >
-          content
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Address</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Branch</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+
+              <TableBody>
+                {staffs.map(
+                  ({
+                    id,
+                    firstName,
+                    suffix,
+                    lastName,
+                    middleName,
+                    email,
+                    branch,
+                    address,
+                  }) => (
+                    <TableRow key={id}>
+                      <TableCell>
+                        {getFullName({
+                          firstName,
+                          suffix,
+                          lastName,
+                          middleName,
+                        })}
+                      </TableCell>
+                      <TableCell>{email}</TableCell>
+                      <TableCell sx={{ maxWidth: 160 }}>{address}</TableCell>
+                      <TableCell>{branch}</TableCell>
+                      <TableCell>
+                        <IconButton
+                          color="primary"
+                          component="span"
+                          onClick={handleSendEmail}
+                        >
+                          <MailIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  )
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Paper>
       </Box>
 

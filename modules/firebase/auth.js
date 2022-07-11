@@ -17,7 +17,7 @@ import {
   where,
 } from "firebase/firestore";
 
-import { auth, db } from "./config";
+import { auth, db, secondaryAuth } from "./config";
 
 const getErrorMsg = (code) => {
   const errorMap = {
@@ -30,17 +30,12 @@ const getErrorMsg = (code) => {
   return errorMap[code];
 };
 
-export const signUpReq = async (
-  { email, password },
-  { successCb = () => {}, errorCb = () => {} }
-) => {
+export const signUpReq = async ({ email, password }) => {
   try {
-    await createUserWithEmailAndPassword(auth, email, password);
-    successCb();
+    await createUserWithEmailAndPassword(secondaryAuth, email, password);
+    return { success: true };
   } catch (error) {
-    const errMsg = getErrorMsg(error.code);
-    errorCb(errMsg);
-    console.log(error);
+    return { error: error.message };
   }
 };
 

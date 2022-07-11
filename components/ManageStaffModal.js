@@ -31,7 +31,7 @@ import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
 import { FieldArray, FormikProvider, useFormik } from "formik";
 
 import { useResponseDialog } from "../contexts/ResponseDialogContext";
-import { formatDate, getFullName } from "../modules/helper";
+import { getFullName, getUniquePersonId } from "../modules/helper";
 import { StaffSchema } from "../modules/validation";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -50,6 +50,18 @@ const defaultValues = {
       address:
         "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUNA",
       email: "soya@gmail.com",
+      branch: "LAKESIDE",
+    },
+    {
+      firstName: "KIM",
+      middleName: "SOYA",
+      lastName: "JISOO",
+      suffix: "",
+      birthdate: "1997-07-11T13:52:43.000Z",
+      gender: "female",
+      address:
+        "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUNA",
+      email: "soya2@gmail.com",
       branch: "LAKESIDE",
     },
   ],
@@ -86,9 +98,18 @@ export default function ManageStaffModal({
       // Check Duplicates
       const hasDuplicate = staffs.reduce((acc, i) => {
         const { firstName, middleName, lastName, birthdate } = i;
-        const fullname = getFullName({ firstName, middleName, lastName });
-        const m = `${fullname} ${formatDate(birthdate)}`;
+        const m = getUniquePersonId({
+          firstName,
+          middleName,
+          lastName,
+          birthdate,
+        });
         const isDupli = onCheckDuplicate(m);
+        const fullname = getFullName({
+          firstName,
+          middleName,
+          lastName,
+        });
         if (isDupli) dupliNames.push(fullname);
         return acc || isDupli;
       }, false);
@@ -105,6 +126,8 @@ export default function ManageStaffModal({
         });
         return;
       }
+
+      // Add Staff
       onAddStaff(staffs);
     },
   });

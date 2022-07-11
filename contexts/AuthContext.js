@@ -1,15 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 import { useLocalStorage } from "../hooks";
-import {
-  auth,
-  monitorAuthState,
-  signInAnonymouslyReq,
-  signInReq,
-  signOutAnonymouslyReq,
-  signOutReq,
-  signUpReq,
-} from "../modules/firebase";
+import { auth, monitorAuthState } from "../modules/firebase";
 
 const AuthContext = createContext({});
 
@@ -49,37 +41,11 @@ export const AuthContextProvider = ({ children }) => {
     setLocalStorageUser(doc);
   };
 
-  const signUp = async (user, cb) => {
-    const res = await signUpReq(user, cb);
-    return res;
-  };
-
-  const signIn = async (user, cb) => {
-    await signInReq(user, cb);
-  };
-
-  const signInAnonymously = async (cb) => {
-    await signInAnonymouslyReq(cb);
-  };
-
-  const signOut = async (cb) => {
-    await signOutReq(cb);
-  };
-
-  const signOutAnonymously = async (session, cb) => {
-    await signOutAnonymouslyReq(session, cb);
-  };
-
   const value = {
     user,
     isAdmin: user?.role === "superadmin",
     isLoggedIn: user && userSession,
     userSession,
-    signOut,
-    signUp,
-    signIn,
-    signInAnonymously,
-    signOutAnonymously,
     manualSetUser,
   };
   return (

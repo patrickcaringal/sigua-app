@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import {
   collection,
   doc,
@@ -9,11 +10,12 @@ import {
   updateDoc,
   where,
   writeBatch,
+  zxc,
 } from "firebase/firestore";
 import { omit as omitFields } from "lodash";
 
 import { formatDate } from "../helper";
-import { db } from "./config";
+import { db, secondaryAuth } from "./config";
 
 const collRef = collection(db, "staffs");
 
@@ -37,6 +39,20 @@ export const getStaffsReq = async ({ branch }) => {
 
 export const addStaffReq = async ({ staffs }) => {
   try {
+    // Bulk Create Auth Account
+    for (let index = 0; index < staffs.length; index++) {
+      const {
+        user: { uid },
+      } = await createUserWithEmailAndPassword(
+        secondaryAuth,
+        staffs[index].email,
+        "12345678"
+      );
+
+      staffs[index] = { ...staffs[index], id: uid };
+    }
+
+    // Bulk Create Account Document
     const batch = writeBatch(db);
 
     staffs.forEach((staffdoc) => {

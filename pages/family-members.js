@@ -34,7 +34,7 @@ import {
   updateFamilyMembersReq,
   uploadImageReq,
 } from "../modules/firebase";
-import { formatDate, getFullName, getInitials } from "../modules/helper";
+import { formatDate, getInitials } from "../modules/helper";
 
 const MEMBER_STATUS = {
   VERFIED: "VERFIED",
