@@ -13,8 +13,8 @@ const defaultSorter = (x, y) => {
 };
 
 const SORT_DIRECTIONS = {
-  ASC: "ascending",
-  DESC: "descending",
+  ASC: "asc",
+  DESC: "desc",
 };
 
 const useSort = (sorters, defaultSortKey) => {
@@ -27,7 +27,6 @@ const useSort = (sorters, defaultSortKey) => {
 
       const keySorter = sorters?.[sortBy];
       const sorter = keySorter || defaultSorter;
-      console.log("HERE");
       const sorted = [...items].sort((x, y) => {
         return sorter(x[sortBy], y[sortBy], defaultSorter);
       });

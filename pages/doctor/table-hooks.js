@@ -23,6 +23,7 @@ import Typography from "@mui/material/Typography";
 import { visuallyHidden } from "@mui/utils";
 import PropTypes from "prop-types";
 
+import useSelect from "../../hooks/useSelect";
 import useSort from "../../hooks/useSort";
 
 function createData(name, calories, fat, carbs, protein) {
@@ -116,15 +117,14 @@ const headCells = [
   },
 ];
 
-function EnhancedTableHead(props) {
-  const {
-    onSelectAllClick,
-    order,
-    orderBy,
-    numSelected,
-    rowCount,
-    onRequestSort,
-  } = props;
+function EnhancedTableHead({
+  onSelectAllClick,
+  order,
+  orderBy,
+  numSelected,
+  rowCount,
+  onRequestSort,
+}) {
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -224,22 +224,28 @@ const EnhancedTableToolbar = (props) => {
 };
 
 export default function EnhancedTable() {
-  const [order, setOrder] = React.useState("asc"); // useSort
-  const [orderBy, setOrderBy] = React.useState("calories"); // useSort
-  const [selected, setSelected] = React.useState([]); // useSelect
+  // const [order, setOrder] = React.useState("asc"); // useSort
+  // const [orderBy, setOrderBy] = React.useState("calories"); // useSort
+  // const [selected, setSelected] = React.useState([]); // useSelect
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5); // usePagination
 
   const sorter = useSort(["name", "calories"], "name");
+  const order = sorter.sortDir;
+  const orderBy = sorter.sortBy;
   // sorter.setSortBy("name");
-  const x = sorter.getSorted(rows);
-  console.log(JSON.stringify(x, null, 4));
+  // const x = sorter.getSorted(rows);
+  // console.log(JSON.stringify(x, null, 4));
+
+  const selected = useSelect("name");
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
+    // setOrder(isAsc ? "desc" : "asc");
+    sorter.setSortDir(isAsc ? "desc" : "asc");
+    // setOrderBy(property);
+    sorter.setSortBy(property);
   };
 
   const handleSelectAllClick = (event) => {
@@ -251,24 +257,25 @@ export default function EnhancedTable() {
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
+  const handleClick = (row, isSelected) => {
+    selected.select([{ ...row, checked: !isSelected }]);
+    // const selectedIndex = selected.indexOf(name);
+    // let newSelected = [];
 
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
+    // if (selectedIndex === -1) {
+    //   newSelected = newSelected.concat(selected, name);
+    // } else if (selectedIndex === 0) {
+    //   newSelected = newSelected.concat(selected.slice(1));
+    // } else if (selectedIndex === selected.length - 1) {
+    //   newSelected = newSelected.concat(selected.slice(0, -1));
+    // } else if (selectedIndex > 0) {
+    //   newSelected = newSelected.concat(
+    //     selected.slice(0, selectedIndex),
+    //     selected.slice(selectedIndex + 1)
+    //   );
+    // }
 
-    setSelected(newSelected);
+    // setSelected(newSelected);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -293,7 +300,7 @@ export default function EnhancedTable() {
   return (
     <Box sx={{ width: "100%" }}>
       <Paper sx={{ width: "100%", mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} />
+        {/* <EnhancedTableToolbar numSelected={selected.length} /> */}
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
@@ -304,23 +311,24 @@ export default function EnhancedTable() {
               numSelected={selected.length}
               order={order}
               orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
+              // onSelectAllClick={handleSelectAllClick}
+              onSelectAllClick={() => {}}
               onRequestSort={handleRequestSort}
               rowCount={rows.length}
             />
             <TableBody>
-              {/* if you don't need to support IE11, you can replace the `stableSort` call with:
-                 rows.slice().sort(getComparator(order, orderBy)) */}
-              {stableSort(rows, getComparator(order, orderBy))
+              {sorter
+                .getSorted(rows)
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
-                  const isItemSelected = isSelected(row.name);
+                  // const isItemSelected = isSelected(row.name);
+                  const isItemSelected = selected.isItemSelected(row.name);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.name)}
+                      onClick={(event) => handleClick(row, isItemSelected)}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
