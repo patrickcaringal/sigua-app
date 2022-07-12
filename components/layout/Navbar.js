@@ -31,7 +31,15 @@ const pages = ["Products", "Pricing", "Blog"];
 
 const ResponsiveAppBar = () => {
   const router = useRouter();
-  const { userSession, user, manualSetUser, isAdmin, isLoggedIn } = useAuth();
+  const {
+    userSession,
+    user,
+    manualSetUser,
+    isAdmin,
+    isStaff,
+    isLoggedIn,
+    isAdminPanel,
+  } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
   const { openErrorDialog } = useResponseDialog();
   const [signOutAnonymously] = useRequest(
@@ -59,7 +67,7 @@ const ResponsiveAppBar = () => {
 
   const handleLogout = async () => {
     // Sign Out Doctor, Staff
-    if (isAdmin) {
+    if (isAdmin || isStaff) {
       const { error: signOutError } = await signOutReq();
       if (signOutError) return openErrorDialog(signOutError);
       manualSetUser(null);
@@ -82,7 +90,7 @@ const ResponsiveAppBar = () => {
         color="default"
         sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
       >
-        <Container maxWidth={isAdmin ? "none" : "lg"}>
+        <Container maxWidth={isAdminPanel ? "none" : "lg"}>
           <Toolbar disableGutters>
             {/* <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} /> */}
             <Logo width="160" height="56" />

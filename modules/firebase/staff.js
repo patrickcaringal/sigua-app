@@ -1,5 +1,7 @@
-import bcrypt from "bcryptjs";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import {
   collection,
   doc,
@@ -15,9 +17,35 @@ import {
 import { omit as omitFields } from "lodash";
 
 import { formatDate } from "../helper";
-import { db, secondaryAuth } from "./config";
+import { auth, db, secondaryAuth } from "./config";
 
 const collRef = collection(db, "staffs");
+
+export const signInStaffReq = async ({ email, password }) => {
+  try {
+    // Authenticate
+    const res = await signInWithEmailAndPassword(auth, email, password);
+
+    // Get User Document
+    const id = res?.user?.uid;
+    const collRef = collection(db, "staffs");
+    const q = query(collRef, where("id", "==", id));
+    const querySnapshot = await getDocs(q);
+
+    const exist = querySnapshot.docs.length === 1;
+    if (!exist) throw new Error("Staff document not found");
+
+    const document = {
+      id: querySnapshot.docs[0].id,
+      ...querySnapshot.docs[0].data(),
+    };
+
+    return { data: document, success: true };
+  } catch (error) {
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
 
 export const getStaffsReq = async ({ branch }) => {
   try {

@@ -15,6 +15,11 @@ const LoggedInInaccessibleRoute = ({ children }) => {
         return;
       }
 
+      if (router.pathname.includes("/staff")) {
+        router.push("/staff/dashboard");
+        return;
+      }
+
       router.push("/dashboard");
     }
   }, [router, isLoggedIn]);

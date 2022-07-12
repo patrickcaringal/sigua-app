@@ -21,6 +21,7 @@ const loggedInInaccessibleRoutes = [
   "/signup",
   // admin
   "/doctor/signin",
+  "/staff/signin",
 ];
 
 const protectedRoutes = [
@@ -28,6 +29,8 @@ const protectedRoutes = [
   "/family-members",
   // admin
   "/doctor/dashboard",
+  "/doctor/staffs",
+  "/staff/dashboard",
 ];
 
 function MyApp({ Component, pageProps }) {
