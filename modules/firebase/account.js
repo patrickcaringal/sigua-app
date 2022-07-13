@@ -159,6 +159,34 @@ export const updateFamilyMembersReq = async ({ id, familyMembers }) => {
   }
 };
 
+export const getMemberForApprovalReq = async ({}) => {
+  try {
+    // TODO: query by familyMembersForApproval field
+    const q = query(collRef);
+    // , where("branch", "==", branch)
+
+    const querySnapshot = await getDocs(q);
+
+    const data = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    
+
+    const mappedData = data.map((i) => {
+      // Remove password field
+      delete i.password;
+      return i;
+    });
+
+    return { data: mappedData, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
 // export const getUser = async () => {
 //   try {
 //     const q = query(collRef, where("contactNo", "==", "09994441760"));

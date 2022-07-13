@@ -6,6 +6,7 @@ import Navbar from "./layout/Navbar";
 import LoggedInInaccessibleRoute from "./LoggedInInaccessibleRoute";
 import Logo from "./Logo";
 import ManageStaffModal from "./ManageStaffModal";
+import MemberApprovalModal from "./MemberApprovalModal";
 import ProtectedRoute from "./ProtectedRoute";
 import ResponseDialog from "./ResponseDialog";
 import UploadAttachmentModal from "./UploadAttachmentModal";
@@ -22,4 +23,5 @@ export {
   LeftSidebar,
   MainContainer,
   ManageStaffModal,
+  MemberApprovalModal,
 };

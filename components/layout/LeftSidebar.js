@@ -1,5 +1,6 @@
 import * as React from "react";
 
+import FactCheckIcon from "@mui/icons-material/FactCheck";
 import GroupIcon from "@mui/icons-material/Group";
 import MailIcon from "@mui/icons-material/Mail";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
@@ -35,7 +36,13 @@ const LeftSidebar = () => {
           onClick: () => router.push("/doctor/staffs"),
         },
       ]
-    : [];
+    : [
+        {
+          text: "Member Approval",
+          icon: <FactCheckIcon />,
+          onClick: () => router.push("/staff/member/approval"),
+        },
+      ];
 
   return (
     <Drawer

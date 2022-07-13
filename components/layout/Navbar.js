@@ -50,7 +50,6 @@ const ResponsiveAppBar = () => {
     signOutAnonymouslyReq,
     setBackdropLoader
   );
-  console.log(JSON.stringify(user, null, 4));
 
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);

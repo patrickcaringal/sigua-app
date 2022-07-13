@@ -4,6 +4,7 @@ import {
   checkAccountDuplicateReq,
   createAccountReq,
   getFamilyMembersReq,
+  getMemberForApprovalReq,
   updateFamilyMembersReq,
 } from "./account";
 import {
@@ -35,6 +36,7 @@ export {
   getFamilyMembersReq,
   addFamilyMembersReq,
   updateFamilyMembersReq,
+  getMemberForApprovalReq,
   // staff
   addStaffReq,
   getStaffsReq,

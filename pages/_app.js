@@ -30,6 +30,7 @@ const protectedRoutes = [
   // admin
   "/doctor/dashboard",
   "/doctor/staffs",
+  // staff
   "/staff/dashboard",
 ];
 
