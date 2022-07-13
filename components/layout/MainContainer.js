@@ -12,7 +12,10 @@ const LeftSidebar = ({ children }) => {
   return (
     <Box
       component="main"
-      sx={{ ml: isAdminPanel ? "240px" : 0, bgcolor: "#f5f5f5" }}
+      sx={{
+        ml: isAdminPanel ? "240px" : 0,
+        bgcolor: "grey.100",
+      }}
     >
       {children}
     </Box>

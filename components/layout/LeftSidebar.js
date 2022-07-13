@@ -23,9 +23,19 @@ const drawerWidth = 240;
 const LeftSidebar = () => {
   const router = useRouter();
 
-  const { isAdminPanel } = useAuth();
+  const { isAdminPanel, isAdmin } = useAuth();
 
   if (!isAdminPanel) return null;
+
+  const sidebarItems = isAdmin
+    ? [
+        {
+          text: "Staffs",
+          icon: <GroupIcon />,
+          onClick: () => router.push("/doctor/staffs"),
+        },
+      ]
+    : [];
 
   return (
     <Drawer
@@ -37,20 +47,16 @@ const LeftSidebar = () => {
         [`& .MuiDrawer-paper`]: {
           width: drawerWidth,
           boxSizing: "border-box",
-          bgcolor: "#f5f5f5",
+          bgcolor: "common.white",
+          border: "none",
+          boxShadow: "0px 1px 8px 0px rgb(0, 0, 0, 0.01)",
         },
       }}
     >
       <Toolbar />
       <Box sx={{ overflow: "auto" }}>
         <List>
-          {[
-            {
-              text: "Staffs",
-              icon: <GroupIcon />,
-              onClick: () => router.push("/doctor/staffs"),
-            },
-          ].map(({ text, icon, onClick }) => (
+          {sidebarItems.map(({ text, icon, onClick }) => (
             <ListItem key={text} disablePadding onClick={onClick}>
               <ListItemButton>
                 <ListItemIcon>{icon}</ListItemIcon>
@@ -59,7 +65,7 @@ const LeftSidebar = () => {
             </ListItem>
           ))}
         </List>
-
+        {/* 
         <Divider />
         <List>
           {["Doctors", "Staffs", "Branches", "Services"].map((text, index) => (
@@ -85,7 +91,7 @@ const LeftSidebar = () => {
               </ListItemButton>
             </ListItem>
           ))}
-        </List>
+        </List> */}
       </Box>
     </Drawer>
   );

@@ -134,7 +134,7 @@ const DashboardPage = () => {
               color="inherit"
               onClick={(e) => {
                 e.preventDefault();
-                router.push("/dashboard");
+                router.push("/doctor/dashboard");
               }}
             >
               Home
@@ -207,13 +207,13 @@ const DashboardPage = () => {
                       <TableCell sx={{ maxWidth: 160 }}>{address}</TableCell>
                       <TableCell>{branch}</TableCell>
                       <TableCell>
-                        <IconButton
+                        {/* <IconButton
                           color="primary"
                           component="span"
                           onClick={handleSendEmail}
                         >
                           <MailIcon />
-                        </IconButton>
+                        </IconButton> */}
                       </TableCell>
                     </TableRow>
                   )

@@ -9,7 +9,7 @@ export const getInitials = (str = "") => {
 };
 
 export const getFullName = ({ firstName, lastName, middleName, suffix }) => {
-  let fullName = `${firstName} ${lastName} ${middleName}`;
+  let fullName = `${firstName} ${middleName} ${lastName}`;
   if (suffix) fullName = `${fullName} ${suffix}`;
   return fullName;
 };

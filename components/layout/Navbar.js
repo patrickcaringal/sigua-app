@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import AdbIcon from "@mui/icons-material/Adb";
+import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
   AppBar,
@@ -9,7 +10,10 @@ import {
   Button,
   Container,
   CssBaseline,
+  Divider,
   IconButton,
+  ListItemIcon,
+  ListItemText,
   Menu,
   MenuItem,
   Toolbar,
@@ -24,7 +28,7 @@ import { useBackdropLoader } from "../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../contexts/ResponseDialogContext";
 import useRequest from "../../hooks/useRequest";
 import { signOutAnonymouslyReq, signOutReq } from "../../modules/firebase";
-import { getInitials } from "../../modules/helper";
+import { getFullName, getInitials } from "../../modules/helper";
 
 const pages = ["Products", "Pricing", "Blog"];
 // const settings = ["Profile", "Account", "Dashboard", "Logout"];
@@ -46,6 +50,7 @@ const ResponsiveAppBar = () => {
     signOutAnonymouslyReq,
     setBackdropLoader
   );
+  console.log(JSON.stringify(user, null, 4));
 
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
@@ -87,8 +92,12 @@ const ResponsiveAppBar = () => {
       <CssBaseline />
       <AppBar
         position="fixed"
-        color="default"
-        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          bgcolor: "common.white",
+          boxShadow:
+            "0px 2px 4px -1px rgb(0, 0, 0, 0.05), 0px 4px 5px 0px rgb(0, 0, 0, 0.05), 0px 1px 10px 0px rgb(0, 0, 0, 0.05)",
+        }}
       >
         <Container maxWidth={isAdminPanel ? "none" : "lg"}>
           <Toolbar disableGutters>
@@ -171,13 +180,11 @@ const ResponsiveAppBar = () => {
             <Box sx={{ flexGrow: 0 }}>
               {isLoggedIn ? (
                 <>
-                  <Tooltip title="Open settings">
-                    <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                      <Avatar sx={{ bgcolor: "primary.main" }}>
-                        {getInitials(user?.firstName)}
-                      </Avatar>
-                    </IconButton>
-                  </Tooltip>
+                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <Avatar sx={{ bgcolor: "primary.main" }}>
+                      {getInitials(user?.firstName)}
+                    </Avatar>
+                  </IconButton>
                   <Menu
                     sx={{ mt: "45px" }}
                     id="menu-appbar"
@@ -194,14 +201,32 @@ const ResponsiveAppBar = () => {
                     open={Boolean(anchorElUser)}
                     onClose={handleCloseUserMenu}
                   >
+                    <Box sx={{ width: 260, p: 2 }}>
+                      <Typography variant="body1" textAlign="center">
+                        {getFullName(user).toUpperCase()}
+                      </Typography>
+                      <Typography variant="body2" textAlign="center">
+                        {user?.email}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        textAlign="center"
+                        display="block"
+                      >
+                        {user?.role === "superadmin"
+                          ? "Doctor"
+                          : !user?.role
+                          ? "Patient"
+                          : user?.role}
+                      </Typography>
+                    </Box>
+                    <Divider />
                     <MenuItem onClick={handleLogout}>
-                      <Typography textAlign="center">Logout</Typography>
+                      <ListItemIcon>
+                        <LogoutIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText>Logout</ListItemText>
                     </MenuItem>
-                    {/* {settings.map((setting) => (
-                    <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                      <Typography textAlign="center">{setting}</Typography>
-                    </MenuItem>
-                  ))} */}
                   </Menu>
                 </>
               ) : // displayed if page is not signin or signup
