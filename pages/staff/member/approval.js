@@ -84,10 +84,11 @@ const DashboardPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleMemberModalOpen = ({ verificationAttachment }) => {
+  const handleMemberModalOpen = (m) => {
+    const { verificationAttachment, requester } = m;
     setMemberApprovalModalState({
       open: true,
-      data: { src: verificationAttachment },
+      data: { src: verificationAttachment, requester, member: getFullName(m) },
     });
   };
 
@@ -101,12 +102,7 @@ const DashboardPage = () => {
   return (
     <Box
       sx={{
-        // bgcolor: "primary.light",
         height: "calc(100vh - 64px)",
-        // display: "flex",
-        // flexDirection: "column",
-        // alignItems: "center",
-        // justifyContent: "center",
         mx: 4,
       }}
     >
@@ -128,29 +124,27 @@ const DashboardPage = () => {
           </Breadcrumbs>
         </Box>
 
-        {/* <Button
+        <Button
           variant="contained"
           size="small"
-          onClick={handleStaffModalOpen}
-          startIcon={<GroupAddIcon />}
+          onClick={() => {}}
+          sx={{ mr: 2 }}
+          disabled
         >
-          add staff
-        </Button> */}
+          Approve
+        </Button>
+        <Button
+          variant="contained"
+          size="small"
+          color="error"
+          onClick={() => {}}
+          disabled
+        >
+          Reject
+        </Button>
       </Toolbar>
 
-      <Box
-        sx={
-          {
-            // display: "flex",
-            // flexDirection: "row",
-            // flexWrap: "wrap",
-            // columnGap: 2,
-            // rowGap: 2,
-            // my: 1,
-            // border: "1px solid blue",
-          }
-        }
-      >
+      <Box>
         <Paper
           elevation={2}
           sx={{ height: "calc(100vh - 64px - 64px - 16px)" }}
