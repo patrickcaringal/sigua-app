@@ -1,5 +1,4 @@
 import "../styles/globals.scss";
-import { Box } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import { useRouter } from "next/router";
 
@@ -10,36 +9,21 @@ import {
   Navbar,
   ProtectedRoute,
 } from "../components";
+import {
+  LOGGED_IN_INACCESSIBLE_ROUTES,
+  PROTECTED_ROUTES,
+} from "../components/common/Routes";
 import { AuthContextProvider } from "../contexts/AuthContext";
 import { BackdropLoaderProvider } from "../contexts/BackdropLoaderContext";
 import { ResponseDialogProvider } from "../contexts/ResponseDialogContext";
 import { defaultTheme } from "../modules/theme";
 
-const loggedInInaccessibleRoutes = [
-  "/",
-  "/signin",
-  "/signup",
-  // admin
-  "/doctor/signin",
-  "/staff/signin",
-];
-
-const protectedRoutes = [
-  "/dashboard",
-  "/family-members",
-  // admin
-  "/doctor/dashboard",
-  "/doctor/staffs",
-  // staff
-  "/staff/dashboard",
-];
-
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
-  const isLoggedInInaccessible = loggedInInaccessibleRoutes.includes(
+  const isLoggedInInaccessible = LOGGED_IN_INACCESSIBLE_ROUTES.includes(
     router.pathname
   );
-  const isProtected = protectedRoutes.includes(router.pathname);
+  const isProtected = PROTECTED_ROUTES.includes(router.pathname);
 
   return (
     <ThemeProvider theme={defaultTheme}>

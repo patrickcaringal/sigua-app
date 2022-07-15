@@ -37,7 +37,7 @@ const DashboardPage = () => {
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
   const [getStaffs] = useRequest(getStaffsReq, setBackdropLoader);
-  const [addStaff] = useRequest(addStaffReq);
+  const [addStaff] = useRequest(addStaffReq, setBackdropLoader);
 
   const [staffs, setStaffs] = useState(
     LOCAL_MODE

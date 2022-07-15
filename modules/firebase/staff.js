@@ -14,9 +14,9 @@ import {
   writeBatch,
   zxc,
 } from "firebase/firestore";
-import { omit as omitFields } from "lodash";
 
 import { formatDate } from "../helper";
+import { getErrorMsg } from "./auth";
 import { auth, db, secondaryAuth } from "./config";
 
 const collRef = collection(db, "staffs");
@@ -49,9 +49,9 @@ export const signInStaffReq = async ({ email, password }) => {
 
 export const getStaffsReq = async ({ branch }) => {
   try {
-    const q = query(collRef, where("branch", "==", branch));
-
-    const querySnapshot = await getDocs(q);
+    // TODO: adjust when get branch needed
+    // const q = query(collRef, where("branch", "==", branch));
+    const querySnapshot = await getDocs(collRef);
 
     const data = querySnapshot.docs.map((doc) => ({
       id: doc.id,
@@ -100,7 +100,7 @@ export const addStaffReq = async ({ staffs }) => {
 
     return { success: true };
   } catch (error) {
-    console.log("batch", error);
-    return { error: error.message };
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
   }
 };

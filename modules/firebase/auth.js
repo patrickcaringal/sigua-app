@@ -19,7 +19,7 @@ import {
 
 import { auth, db, secondaryAuth } from "./config";
 
-const getErrorMsg = (code) => {
+export const getErrorMsg = (code) => {
   const errorMap = {
     "auth/user-not-found": "Invalid email or password",
     "auth/wrong-password": "Invalid email or password",

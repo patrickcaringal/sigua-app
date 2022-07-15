@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 
 import { useRouter } from "next/router";
 
+import { PATHS, getRoleRoutes } from "../components/common/Routes";
 import { useAuth } from "../contexts/AuthContext";
 
 const LoggedInInaccessibleRoute = ({ children }) => {

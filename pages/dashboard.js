@@ -22,13 +22,11 @@ const DashboardPage = () => {
   return (
     <Box
       sx={{
-        backgroundColor: "primary.light",
         height: "calc(100vh - 64px)",
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        border: "1px solid gray",
         py: 4,
         px: 2,
       }}

@@ -38,6 +38,7 @@ export const createAccountReq = async (newDocument) => {
       birthdate: formatDate(birthdate),
       password: hashPassword(password),
       familyMembers: [],
+      role: "patient",
     };
     // Add Default Memeber
     mappedNewDocument.familyMembers = [

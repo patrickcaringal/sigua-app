@@ -9,7 +9,6 @@ import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import {
   Avatar,
   Box,
-  Breadcrumbs,
   Button,
   Card,
   CardContent,
@@ -17,7 +16,6 @@ import {
   Container,
   Divider,
   IconButton,
-  Link,
   Typography,
 } from "@mui/material";
 import { useRouter } from "next/router";
@@ -37,7 +35,7 @@ import {
   updateFamilyMembersReq,
   uploadImageReq,
 } from "../modules/firebase";
-import { formatDate, getInitials } from "../modules/helper";
+import { formatDate, getFullName, getInitials } from "../modules/helper";
 
 const MEMBER_STATUS = {
   VERFIED: "VERFIED",
@@ -81,21 +79,26 @@ const icons = {
   ),
 };
 
+const statusUploadAllowed = [
+  MEMBER_STATUS.FOR_VERIFICATION,
+  MEMBER_STATUS.REJECTED,
+];
+
 const FamilyMemberPage = () => {
   const router = useRouter();
   const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
+
+  // Requests
   const [getFamilyMembers] = useRequest(getFamilyMembersReq, setBackdropLoader);
   const [addFamilyMembers] = useRequest(addFamilyMembersReq, setBackdropLoader);
-  const [uploadImage, uploadImageLoading] = useRequest(uploadImageReq);
-  const [updateFamilyMembers, updateFamilyMembersLoading] = useRequest(
-    updateFamilyMembersReq
-  );
+  const [uploadImage] = useRequest(uploadImageReq);
+  const [updateFamilyMembers] = useRequest(updateFamilyMembersReq);
 
+  // Local States
   const [members, setMembers] = useState([]);
   const [familyMemberModalOpen, setFamilyMemberModalOpen] = useState(false);
-
   // Attachment Modal
   const [attachmentModalOpen, setAttachmentModalOpen] = useState(false);
   const [attachmentModalData, setAttachmentModalData] = useState({});
@@ -248,11 +251,11 @@ const FamilyMemberPage = () => {
             birthdate,
             address,
             gender,
-
             verified,
             verificationAttachment,
             verificationRejectReason,
           } = i;
+
           const status = verified
             ? MEMBER_STATUS.VERFIED
             : !verificationAttachment
@@ -278,24 +281,19 @@ const FamilyMemberPage = () => {
                       <IconButton size="small">
                         <EditIcon />
                       </IconButton>
-                      {status === MEMBER_STATUS.FOR_VERIFICATION ||
-                        (status === MEMBER_STATUS.REJECTED && (
-                          <IconButton
-                            size="small"
-                            onClick={() => handleAttachmentModalOpen(i, index)}
-                          >
-                            <UploadFileIcon />
-                          </IconButton>
-                        ))}
+                      {statusUploadAllowed.includes(status) && (
+                        <IconButton
+                          size="small"
+                          onClick={() => handleAttachmentModalOpen(i, index)}
+                        >
+                          <UploadFileIcon />
+                        </IconButton>
+                      )}
                     </>
                   }
-                  title={`${firstName} ${middleName} ${lastName}`}
+                  title={getFullName(i)}
                   subheader={
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ verticalAlign: "middle" }}
-                    >
+                    <Typography variant="body2" color="text.secondary">
                       {icons[status]}
                     </Typography>
                   }
