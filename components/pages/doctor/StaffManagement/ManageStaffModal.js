@@ -30,9 +30,9 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
 import { FieldArray, FormikProvider, useFormik } from "formik";
 
-import { useResponseDialog } from "../contexts/ResponseDialogContext";
-import { getFullName, getUniquePersonId } from "../modules/helper";
-import { StaffSchema } from "../modules/validation";
+import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
+import { getFullName, getUniquePersonId } from "../../../../modules/helper";
+import { StaffSchema } from "../../../../modules/validation";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;

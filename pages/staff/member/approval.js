@@ -21,12 +21,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Toolbar,
   Typography,
 } from "@mui/material";
 import { useRouter } from "next/router";
 
-import { MemberApprovalModal } from "../../../components";
+import { Toolbar } from "../../../components/common";
+import { MemberApprovalModal } from "../../../components/pages/staff/MemberApproval";
 import { useBackdropLoader } from "../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../contexts/ResponseDialogContext";
 import useRequest from "../../../hooks/useRequest";
@@ -218,43 +218,10 @@ const MemberApprovalPage = () => {
         mx: 4,
       }}
     >
-      <Toolbar disableGutters>
-        <Box sx={{ flexGrow: 1 }}>
-          <Breadcrumbs aria-label="breadcrumb">
-            <Link
-              href="#"
-              underline="hover"
-              color="inherit"
-              onClick={(e) => {
-                e.preventDefault();
-                router.push("/doctor/dashboard");
-              }}
-            >
-              <HomeIcon sx={{ mt: "4px" }} />
-            </Link>
-            <Typography color="text.primary">Member Approval</Typography>
-          </Breadcrumbs>
-        </Box>
-
-        <Button
-          variant="contained"
-          size="small"
-          onClick={() => {}}
-          sx={{ mr: 2 }}
-          disabled
-        >
-          Approve
-        </Button>
-        <Button
-          variant="contained"
-          size="small"
-          color="error"
-          onClick={() => {}}
-          disabled
-        >
-          Reject
-        </Button>
-      </Toolbar>
+      <Toolbar
+        onRootClick={() => router.push("/staff/dashboard")}
+        paths={[{ text: "Member Approval" }]}
+      />
 
       <Box>
         <Paper

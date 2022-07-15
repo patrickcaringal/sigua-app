@@ -12,6 +12,7 @@ import {
   CardHeader,
   Container,
   Dialog,
+  Fab,
   FormControl,
   FormHelperText,
   Grid,
@@ -29,9 +30,9 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
 import { FieldArray, FormikProvider, useFormik } from "formik";
 
-import { useResponseDialog } from "../contexts/ResponseDialogContext";
-import { formatDate } from "../modules/helper";
-import { FamilyMemberSchema } from "../modules/validation";
+import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
+import { formatDate } from "../../../../modules/helper";
+import { FamilyMemberSchema } from "../../../../modules/validation";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -82,12 +83,12 @@ const defaultMemberValue = {
   address: "",
 };
 
-export default function FullScreenDialog({
+const ManageFamilyMemberModal = ({
   open,
   setOpen,
   onCheckDuplicate,
   onAddMemeber,
-}) {
+}) => {
   const { openResponseDialog } = useResponseDialog();
 
   const formik = useFormik({
@@ -149,13 +150,19 @@ export default function FullScreenDialog({
 
   return (
     <Dialog
-      fullScreen
+      fullWidth
+      maxWidth="sm"
       open={open}
       onClose={handleClose}
       TransitionComponent={Transition}
     >
-      <Box component="form" noValidate onSubmit={handleSubmit}>
-        <AppBar sx={{ position: "relative" }}>
+      <Box
+        component="form"
+        noValidate
+        onSubmit={handleSubmit}
+        sx={{ overflow: "overlay" }}
+      >
+        <AppBar sx={{ position: "sticky" }}>
           <Container maxWidth="lg">
             <Toolbar disableGutters>
               <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
@@ -178,18 +185,15 @@ export default function FullScreenDialog({
                 name="familyMembers"
                 render={({ push, remove }) => (
                   <>
-                    <Toolbar disableGutters sx={{ justifyContent: "flex-end" }}>
-                      <Button
-                        variant="contained"
-                        startIcon={<AddIcon />}
-                        size="small"
-                        onClick={() => {
-                          push(defaultMemberValue);
-                        }}
-                      >
-                        add family member
-                      </Button>
-                    </Toolbar>
+                    <Fab
+                      color="primary"
+                      sx={{ position: "absolute", bottom: 16, right: 16 }}
+                      onClick={() => {
+                        push(defaultMemberValue);
+                      }}
+                    >
+                      <AddIcon />
+                    </Fab>
                     <Box
                       sx={{
                         display: "flex",
@@ -198,6 +202,7 @@ export default function FullScreenDialog({
                         py: 1,
                         rowGap: 3,
                         overflow: "overlay",
+                        minHeight: 280,
                       }}
                     >
                       {formik.values.familyMembers.map((member, index) => {
@@ -232,7 +237,7 @@ export default function FullScreenDialog({
                             />
                             <CardContent>
                               <Grid container spacing={2}>
-                                <Grid item xs={12} sm={4}>
+                                <Grid item xs={12} sm={6}>
                                   <TextField
                                     size="small"
                                     required
@@ -258,7 +263,7 @@ export default function FullScreenDialog({
                                     }
                                   />
                                 </Grid>
-                                <Grid item xs={12} sm={3}>
+                                <Grid item xs={12} sm={6}>
                                   <TextField
                                     size="small"
                                     required
@@ -284,7 +289,7 @@ export default function FullScreenDialog({
                                     }
                                   />
                                 </Grid>
-                                <Grid item xs={12} sm={4}>
+                                <Grid item xs={12} sm={9}>
                                   <TextField
                                     size="small"
                                     required
@@ -310,7 +315,7 @@ export default function FullScreenDialog({
                                     }
                                   />
                                 </Grid>
-                                <Grid item xs={12} sm={1}>
+                                <Grid item xs={12} sm={3}>
                                   <TextField
                                     size="small"
                                     fullWidth
@@ -448,4 +453,6 @@ export default function FullScreenDialog({
       </Box>
     </Dialog>
   );
-}
+};
+
+export default ManageFamilyMemberModal;

@@ -18,13 +18,15 @@ import {
   Divider,
   IconButton,
   Link,
-  Toolbar,
   Typography,
 } from "@mui/material";
 import { useRouter } from "next/router";
 
-import { UploadAttachmentModal } from "../components";
-import FamilyMemberForm from "../components/FamilyMemberForm";
+import { Toolbar } from "../components/common";
+import {
+  ManageFamilyMemberModal,
+  UploadAttachmentModal,
+} from "../components/pages/patient/FamilyMembers";
 import { useAuth } from "../contexts/AuthContext";
 import { useBackdropLoader } from "../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../contexts/ResponseDialogContext";
@@ -174,6 +176,7 @@ const FamilyMemberPage = () => {
     membersCopy[index] = {
       ...membersCopy[index],
       verificationAttachment: url,
+      verificationRejectReason: null,
     };
 
     return membersCopy;
@@ -214,25 +217,15 @@ const FamilyMemberPage = () => {
 
   return (
     <Container maxWidth="lg">
-      <Toolbar disableGutters>
-        <Box sx={{ flexGrow: 1 }}>
-          <Breadcrumbs aria-label="breadcrumb">
-            <Link
-              href="#"
-              underline="hover"
-              color="inherit"
-              onClick={(e) => {
-                e.preventDefault();
-                router.push("/dashboard");
-              }}
-            >
-              Home
-            </Link>
-            <Typography color="text.primary">Family Members</Typography>
-          </Breadcrumbs>
-        </Box>
-
-        <Button variant="contained" onClick={handleMemberModalOpen}>
+      <Toolbar
+        onRootClick={() => router.push("/dashboard")}
+        paths={[{ text: "Family Members" }]}
+      >
+        <Button
+          variant="contained"
+          size="small"
+          onClick={handleMemberModalOpen}
+        >
           Add Family Member
         </Button>
       </Toolbar>
@@ -356,7 +349,7 @@ const FamilyMemberPage = () => {
         })}
       </Box>
 
-      <FamilyMemberForm
+      <ManageFamilyMemberModal
         open={familyMemberModalOpen}
         setOpen={setFamilyMemberModalOpen}
         onCheckDuplicate={handleCheckDuplicate}

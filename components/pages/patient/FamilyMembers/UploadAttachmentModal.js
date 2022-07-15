@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import Image from "next/image";
 
-import { getFullName } from "../modules/helper";
+import { getFullName } from "../../../../modules/helper";
 
 const UploadAttachmentModal = ({ data, open, onClose, onUpload }) => {
   const [selectedFile, setSelectedFile] = useState();

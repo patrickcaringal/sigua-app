@@ -19,12 +19,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Toolbar,
   Typography,
 } from "@mui/material";
 import { useRouter } from "next/router";
 
-import { ManageStaffModal } from "../../components";
+import { Toolbar } from "../../components/common";
+import { ManageStaffModal } from "../../components/pages/doctor/StaffManagement";
 import { useBackdropLoader } from "../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../contexts/ResponseDialogContext";
 import useRequest from "../../hooks/useRequest";
@@ -116,33 +116,14 @@ const DashboardPage = () => {
   return (
     <Box
       sx={{
-        // bgcolor: "primary.light",
         height: "calc(100vh - 64px)",
-        // display: "flex",
-        // flexDirection: "column",
-        // alignItems: "center",
-        // justifyContent: "center",
         mx: 4,
       }}
     >
-      <Toolbar disableGutters>
-        <Box sx={{ flexGrow: 1 }}>
-          <Breadcrumbs aria-label="breadcrumb">
-            <Link
-              href="#"
-              underline="hover"
-              color="inherit"
-              onClick={(e) => {
-                e.preventDefault();
-                router.push("/doctor/dashboard");
-              }}
-            >
-              Home
-            </Link>
-            <Typography color="text.primary">Staffs</Typography>
-          </Breadcrumbs>
-        </Box>
-
+      <Toolbar
+        onRootClick={() => router.push("/doctor/dashboard")}
+        paths={[{ text: "Staffs" }]}
+      >
         <Button
           variant="contained"
           size="small"
@@ -152,7 +133,6 @@ const DashboardPage = () => {
           add staff
         </Button>
       </Toolbar>
-
       <Box
         sx={
           {
