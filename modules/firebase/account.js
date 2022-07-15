@@ -126,18 +126,8 @@ export const getFamilyMembersReq = async (id) => {
 
 export const addFamilyMembersReq = async ({ id, familyMembers }) => {
   try {
-    const mappedFamMembers = familyMembers.map((i) => {
-      return {
-        accountId: id,
-        ...i,
-        ...(!i.contactNo && { verified: false }),
-      };
-    });
-
     const docRef = doc(db, "accounts", id);
-    await updateDoc(docRef, {
-      familyMembers: mappedFamMembers,
-    });
+    await updateDoc(docRef, { familyMembers });
     return { success: true };
   } catch (error) {
     console.log(error);
@@ -171,8 +161,6 @@ export const getMemberForApprovalReq = async ({}) => {
       id: doc.id,
       ...doc.data(),
     }));
-
-    
 
     const mappedData = data.map((i) => {
       // Remove password field

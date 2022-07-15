@@ -30,11 +30,14 @@ import { MemberApprovalModal } from "../../../components";
 import { useBackdropLoader } from "../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../contexts/ResponseDialogContext";
 import useRequest from "../../../hooks/useRequest";
-import { getMemberForApprovalReq } from "../../../modules/firebase";
+import {
+  getMemberForApprovalReq,
+  updateFamilyMembersReq,
+} from "../../../modules/firebase";
 import { getFullName, getUniquePersonId } from "../../../modules/helper";
 const LOCAL_MODE = false;
 
-const DashboardPage = () => {
+const MemberApprovalPage = () => {
   const router = useRouter();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
@@ -42,11 +45,14 @@ const DashboardPage = () => {
     getMemberForApprovalReq,
     setBackdropLoader
   );
+  const [updateFamilyMembers, updateFamilyMembersLoading] = useRequest(
+    updateFamilyMembersReq,
+    setBackdropLoader
+  );
   //   const [addStaff] = useRequest(addStaffReq);
 
   const [accounts, setAccounts] = useState([]); // used to pull Family members
   const [members, setMembers] = useState([]);
-  const [memberApprovalModalOpen, setMemberApprovalModalOpen] = useState(false);
   const [memberApprovalModalState, setMemberApprovalModalState] = useState({
     open: false,
     data: null,
@@ -62,21 +68,7 @@ const DashboardPage = () => {
       if (getMembersError) return openErrorDialog(getMembersError);
 
       setAccounts(accountList);
-
-      const memberList = accountList.reduce((acc, m) => {
-        let notVerifiedMember = m.familyMembers.filter(
-          (i) => !i.verified && i.verificationAttachment
-        );
-
-        // No Not Verified member, exit
-        if (notVerifiedMember.length === 0) return acc;
-
-        const requester = getFullName(m);
-        notVerifiedMember = notVerifiedMember.map((i) => ({ ...i, requester }));
-
-        return [...acc, ...notVerifiedMember];
-      }, []);
-
+      const memberList = getMemberList(accountList);
       setMembers(memberList);
     };
 
@@ -84,11 +76,58 @@ const DashboardPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const getMemberList = (accountList) => {
+    const memberList = accountList.reduce((acc, m) => {
+      let notVerifiedMember = m.familyMembers.filter(
+        (i) =>
+          !i.verified && i.verificationAttachment && !i.verificationRejectReason
+      );
+
+      // No Not Verified member, exit
+      if (notVerifiedMember.length === 0) return acc;
+
+      const requester = getFullName(m);
+      notVerifiedMember = notVerifiedMember.map((i) => ({ ...i, requester }));
+
+      return [...acc, ...notVerifiedMember];
+    }, []);
+
+    return memberList;
+  };
+
+  const updateMember = (
+    accountId,
+    memberName,
+    approved,
+    verificationRejectReason = ""
+  ) => {
+    const accountIndex = accounts.findIndex((i) => i.id === accountId);
+    const updatedAccount = { ...accounts[accountIndex] };
+
+    const memberIndex = updatedAccount.familyMembers.findIndex(
+      (i) => getFullName(i) === memberName
+    );
+    updatedAccount.familyMembers[memberIndex].verified = approved;
+    if (!approved) {
+      updatedAccount.familyMembers[memberIndex].verificationRejectReason =
+        verificationRejectReason;
+    } else {
+      delete updatedAccount.familyMembers[memberIndex].verificationRejectReason;
+    }
+
+    return { updatedAccount, accountIndex };
+  };
+
   const handleMemberModalOpen = (m) => {
-    const { verificationAttachment, requester } = m;
+    const { verificationAttachment, requester, accountId } = m;
     setMemberApprovalModalState({
       open: true,
-      data: { src: verificationAttachment, requester, member: getFullName(m) },
+      data: {
+        src: verificationAttachment,
+        accountId,
+        requester,
+        member: getFullName(m),
+      },
     });
   };
 
@@ -96,6 +135,79 @@ const DashboardPage = () => {
     setMemberApprovalModalState({
       open: false,
       data: null,
+    });
+  };
+
+  const handleApprove = async ({ memberName, accountId }) => {
+    const { updatedAccount, accountIndex } = updateMember(
+      accountId,
+      memberName,
+      true
+    );
+
+    // Update Family Member to verified
+    const { error: updateFamMemberError } = await updateFamilyMembers({
+      id: accountId,
+      familyMembers: updatedAccount.familyMembers,
+    });
+    if (updateFamMemberError) {
+      return openErrorDialog(updateFamMemberError);
+    }
+
+    // Update Local State
+    const accountsCopy = [...accounts];
+    accountsCopy[accountIndex] = updatedAccount;
+    setAccounts(accountsCopy);
+
+    const memberList = getMemberList(accountsCopy);
+    setMembers(memberList);
+
+    openResponseDialog({
+      autoClose: true,
+      content: "Member Verification approved.",
+      type: "SUCCESS",
+      closeCb() {
+        handleMemberModalClose();
+      },
+    });
+  };
+
+  const handleReject = async ({
+    memberName,
+    accountId,
+    verificationRejectReason,
+  }) => {
+    const { updatedAccount, accountIndex } = updateMember(
+      accountId,
+      memberName,
+      false,
+      verificationRejectReason
+    );
+
+    // Update Family Member to verified
+    const { error: updateFamMemberError } = await updateFamilyMembers({
+      id: accountId,
+      familyMembers: updatedAccount.familyMembers,
+    });
+    if (updateFamMemberError) {
+      return openErrorDialog(updateFamMemberError);
+    }
+
+    // Update Local State
+    const accountsCopy = [...accounts];
+    accountsCopy[accountIndex] = updatedAccount;
+    setAccounts(accountsCopy);
+
+    const memberList = getMemberList(accountsCopy);
+    setMembers(memberList);
+
+    openResponseDialog({
+      autoClose: true,
+      content: "Member Verification rejected.",
+      type: "SUCCESS",
+      closeCb() {
+        handleMemberModalClose();
+      },
     });
   };
 
@@ -161,7 +273,7 @@ const DashboardPage = () => {
               </TableHead>
 
               <TableBody>
-                {members.map((m) => {
+                {members.map((m, index) => {
                   const {
                     id,
                     firstName,
@@ -174,7 +286,7 @@ const DashboardPage = () => {
                   } = m;
 
                   return (
-                    <TableRow key={id}>
+                    <TableRow key={index}>
                       <TableCell>
                         {getFullName({
                           firstName,
@@ -220,9 +332,11 @@ const DashboardPage = () => {
         open={memberApprovalModalState.open}
         data={memberApprovalModalState.data}
         onClose={handleMemberModalClose}
+        onApprove={handleApprove}
+        onReject={handleReject}
       />
     </Box>
   );
 };
 
-export default DashboardPage;
+export default MemberApprovalPage;

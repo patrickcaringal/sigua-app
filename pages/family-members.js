@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import EditIcon from "@mui/icons-material/Edit";
 import FlakyIcon from "@mui/icons-material/Flaky";
+import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import NoAccountsIcon from "@mui/icons-material/NoAccounts";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
@@ -40,6 +41,42 @@ const MEMBER_STATUS = {
   VERFIED: "VERFIED",
   FOR_VERIFICATION: "FOR_VERIFICATION",
   FOR_APPROVAL: "FOR_APPROVAL",
+  REJECTED: "REJECTED",
+};
+
+const icons = {
+  [MEMBER_STATUS.VERFIED]: (
+    <>
+      <IconButton size="small" sx={{ pointerEvents: "none" }}>
+        <VerifiedUserIcon color="success" />
+      </IconButton>
+      Verified
+    </>
+  ),
+  [MEMBER_STATUS.FOR_VERIFICATION]: (
+    <>
+      <IconButton size="small" sx={{ pointerEvents: "none" }}>
+        <NoAccountsIcon color="error" />
+      </IconButton>
+      To Verifiy
+    </>
+  ),
+  [MEMBER_STATUS.FOR_APPROVAL]: (
+    <>
+      <IconButton size="small" sx={{ pointerEvents: "none" }}>
+        <FlakyIcon color="warning" />
+      </IconButton>
+      For Staff Approval
+    </>
+  ),
+  [MEMBER_STATUS.REJECTED]: (
+    <>
+      <IconButton size="small" sx={{ pointerEvents: "none" }}>
+        <HighlightOffIcon color="error" />
+      </IconButton>
+      Rejected
+    </>
+  ),
 };
 
 const FamilyMemberPage = () => {
@@ -53,7 +90,6 @@ const FamilyMemberPage = () => {
   const [updateFamilyMembers, updateFamilyMembersLoading] = useRequest(
     updateFamilyMembersReq
   );
-  const uploadLoading = uploadImageLoading || updateFamilyMembersLoading;
 
   const [members, setMembers] = useState([]);
   const [familyMemberModalOpen, setFamilyMemberModalOpen] = useState(false);
@@ -93,9 +129,17 @@ const FamilyMemberPage = () => {
     return membersUniqueId.includes(newMember);
   };
 
-  const handleAddMemeber = async (newMember) => {
+  const handleAddMemeber = async (newMembers) => {
+    const mappedNewMembers = newMembers.map((i) => {
+      return {
+        accountId: user.id,
+        ...i,
+        ...(!i.contactNo && { verified: false, verificationAttachment: null }),
+      };
+    });
+
     // Add Family Member
-    const allMembers = [...members, ...newMember];
+    const allMembers = [...members, ...mappedNewMembers];
     const { error: addFamMemberError } = await addFamilyMembers({
       id: user.id,
       familyMembers: allMembers,
@@ -126,10 +170,6 @@ const FamilyMemberPage = () => {
   };
 
   const updateMembers = (index, url) => {
-    // const index = members.findIndex((i) => {
-    //   return getFullName(i) === getFullName(member);
-    // });
-
     let membersCopy = [...members];
     membersCopy[index] = {
       ...membersCopy[index],
@@ -173,176 +213,148 @@ const FamilyMemberPage = () => {
   };
 
   return (
-    <>
-      <Container maxWidth="lg">
-        <Toolbar disableGutters>
-          <Box sx={{ flexGrow: 1 }}>
-            <Breadcrumbs aria-label="breadcrumb">
-              <Link
-                href="#"
-                underline="hover"
-                color="inherit"
-                onClick={(e) => {
-                  e.preventDefault();
-                  router.push("/dashboard");
-                }}
-              >
-                Home
-              </Link>
-              <Typography color="text.primary">Family Members</Typography>
-            </Breadcrumbs>
-          </Box>
+    <Container maxWidth="lg">
+      <Toolbar disableGutters>
+        <Box sx={{ flexGrow: 1 }}>
+          <Breadcrumbs aria-label="breadcrumb">
+            <Link
+              href="#"
+              underline="hover"
+              color="inherit"
+              onClick={(e) => {
+                e.preventDefault();
+                router.push("/dashboard");
+              }}
+            >
+              Home
+            </Link>
+            <Typography color="text.primary">Family Members</Typography>
+          </Breadcrumbs>
+        </Box>
 
-          <Button variant="contained" onClick={handleMemberModalOpen}>
-            Add Family Member
-          </Button>
-        </Toolbar>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            flexWrap: "wrap",
-            columnGap: 2,
-            rowGap: 2,
-            py: 2,
-          }}
-        >
-          {members.map((i, index) => {
-            const {
-              firstName,
-              lastName,
-              middleName,
-              contactNo,
-              birthdate,
-              address,
-              gender,
+        <Button variant="contained" onClick={handleMemberModalOpen}>
+          Add Family Member
+        </Button>
+      </Toolbar>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          flexWrap: "wrap",
+          columnGap: 2,
+          rowGap: 2,
+          py: 2,
+        }}
+      >
+        {members.map((i, index) => {
+          const {
+            firstName,
+            lastName,
+            middleName,
+            contactNo,
+            birthdate,
+            address,
+            gender,
 
-              verified,
-              verificationAttachment,
-            } = i;
-            const status = verified
-              ? MEMBER_STATUS.VERFIED
-              : !verificationAttachment
-              ? MEMBER_STATUS.FOR_VERIFICATION
-              : MEMBER_STATUS.FOR_APPROVAL;
+            verified,
+            verificationAttachment,
+            verificationRejectReason,
+          } = i;
+          const status = verified
+            ? MEMBER_STATUS.VERFIED
+            : !verificationAttachment
+            ? MEMBER_STATUS.FOR_VERIFICATION
+            : verificationAttachment && verificationRejectReason
+            ? MEMBER_STATUS.REJECTED
+            : MEMBER_STATUS.FOR_APPROVAL;
 
-            return (
-              <React.Fragment key={index}>
-                <Card sx={{ width: 345 }}>
-                  <CardHeader
-                    avatar={
-                      <Avatar
-                        sx={{ bgcolor: "primary.main" }}
-                        aria-label="recipe"
-                      >
-                        {getInitials(firstName)}
-                      </Avatar>
-                    }
-                    action={
-                      <>
-                        <IconButton size="small">
-                          <EditIcon />
-                        </IconButton>
-                        {status === MEMBER_STATUS.FOR_VERIFICATION && (
+          return (
+            <React.Fragment key={index}>
+              <Card sx={{ width: 345 }}>
+                <CardHeader
+                  avatar={
+                    <Avatar
+                      sx={{ bgcolor: "primary.main" }}
+                      aria-label="recipe"
+                    >
+                      {getInitials(firstName)}
+                    </Avatar>
+                  }
+                  action={
+                    <>
+                      <IconButton size="small">
+                        <EditIcon />
+                      </IconButton>
+                      {status === MEMBER_STATUS.FOR_VERIFICATION ||
+                        (status === MEMBER_STATUS.REJECTED && (
                           <IconButton
                             size="small"
                             onClick={() => handleAttachmentModalOpen(i, index)}
                           >
                             <UploadFileIcon />
                           </IconButton>
-                        )}
-                      </>
-                    }
-                    title={`${firstName} ${middleName} ${lastName}`}
-                    subheader={
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ verticalAlign: "middle" }}
-                      >
-                        {status === MEMBER_STATUS.VERFIED ? (
-                          <>
-                            <IconButton
-                              size="small"
-                              sx={{ pointerEvents: "none" }}
-                            >
-                              <VerifiedUserIcon color="success" />
-                            </IconButton>
-                            Verified
-                          </>
-                        ) : status === MEMBER_STATUS.FOR_VERIFICATION ? (
-                          <>
-                            <IconButton
-                              size="small"
-                              sx={{ pointerEvents: "none" }}
-                            >
-                              <NoAccountsIcon color="error" />
-                            </IconButton>
-                            To Verifiy
-                          </>
-                        ) : (
-                          <>
-                            <IconButton
-                              size="small"
-                              sx={{ pointerEvents: "none" }}
-                            >
-                              <FlakyIcon color="warning" />
-                            </IconButton>
-                            For Staff Approval
-                          </>
-                        )}
-                      </Typography>
-                    }
-                  />
-                  <CardContent>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                        mb: 1,
-                      }}
+                        ))}
+                    </>
+                  }
+                  title={`${firstName} ${middleName} ${lastName}`}
+                  subheader={
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ verticalAlign: "middle" }}
                     >
-                      {contactNo && (
-                        <>
-                          <Typography variant="body2" color="text.secondary">
-                            {contactNo}
-                          </Typography>
-                          <Divider
-                            orientation="vertical"
-                            variant="middle"
-                            flexItem
-                            sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
-                          />
-                        </>
-                      )}
-                      <Typography variant="body2" color="text.secondary">
-                        {formatDate(birthdate, "MMMM dd, yyyy")}
-                      </Typography>
-                      <Divider
-                        orientation="vertical"
-                        variant="middle"
-                        flexItem
-                        sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
-                      />
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ textTransform: "capitalize" }}
-                      >
-                        {gender}
-                      </Typography>
-                    </Box>
-
-                    <Typography variant="body2" color="text.secondary">
-                      {address}
+                      {icons[status]}
                     </Typography>
-                  </CardContent>
-                </Card>
-              </React.Fragment>
-            );
-          })}
-        </Box>
-      </Container>
+                  }
+                />
+                <CardContent>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                      mb: 1,
+                    }}
+                  >
+                    {contactNo && (
+                      <>
+                        <Typography variant="body2" color="text.secondary">
+                          {contactNo}
+                        </Typography>
+                        <Divider
+                          orientation="vertical"
+                          variant="middle"
+                          flexItem
+                          sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
+                        />
+                      </>
+                    )}
+                    <Typography variant="body2" color="text.secondary">
+                      {formatDate(birthdate, "MMMM dd, yyyy")}
+                    </Typography>
+                    <Divider
+                      orientation="vertical"
+                      variant="middle"
+                      flexItem
+                      sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
+                    />
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ textTransform: "capitalize" }}
+                    >
+                      {gender}
+                    </Typography>
+                  </Box>
+
+                  <Typography variant="body2" color="text.secondary">
+                    {address}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </React.Fragment>
+          );
+        })}
+      </Box>
 
       <FamilyMemberForm
         open={familyMemberModalOpen}
@@ -357,7 +369,7 @@ const FamilyMemberPage = () => {
         onClose={handleAttachmentModalClose}
         onUpload={handleUploadAttachment}
       />
-    </>
+    </Container>
   );
 };
 

@@ -233,7 +233,6 @@ const ResponsiveAppBar = () => {
                   router.pathname
                 ) ? (
                 <Button
-                  color="inherit"
                   onClick={(e) => {
                     e.preventDefault();
                     router.push("/signin");

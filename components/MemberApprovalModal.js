@@ -11,16 +11,22 @@ import {
   DialogTitle,
   Fab,
   Input,
+  TextField,
   Typography,
 } from "@mui/material";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 const ReactViewer = dynamic(() => import("react-viewer"), { ssr: false });
 
-const MemberApprovalModal = ({ data, open, onClose }) => {
-  const { src = "", requester, member } = data || {};
+const MemberApprovalModal = ({ data, open, onClose, onApprove, onReject }) => {
+  const { src = "", requester, member, accountId } = data || {};
 
   const [viewerOpen, setViewerOpen] = useState(false);
+  const [rejectInputShown, setRejectInputShown] = useState(false);
+  const [rejectReason, setRejectReason] = useState({
+    value: null,
+    error: null,
+  });
 
   const dialogOpen = viewerOpen ? false : open;
   const image = [
@@ -29,6 +35,13 @@ const MemberApprovalModal = ({ data, open, onClose }) => {
       alt: "",
     },
   ];
+
+  const validateInput = (value) => {
+    setRejectReason((prev) => ({
+      ...prev,
+      error: value.trim() === "" ? "Rejection reason is required" : null,
+    }));
+  };
 
   const handleViewerOpen = () => {
     setViewerOpen(true);
@@ -40,6 +53,28 @@ const MemberApprovalModal = ({ data, open, onClose }) => {
 
   const handleClose = () => {
     onClose();
+    handleCancelReject();
+  };
+
+  const handleApprove = () => {
+    onApprove({ memberName: member, accountId });
+  };
+
+  const handleReject = () => {
+    setRejectInputShown(true);
+  };
+
+  const handleProceedReject = () => {
+    onReject({
+      memberName: member,
+      accountId,
+      verificationRejectReason: rejectReason.value,
+    });
+  };
+
+  const handleCancelReject = () => {
+    setRejectInputShown(false);
+    setRejectReason("");
   };
 
   return (
@@ -80,10 +115,29 @@ const MemberApprovalModal = ({ data, open, onClose }) => {
               />
             )}
           </Box>
+          {rejectInputShown && (
+            <TextField
+              size="small"
+              required
+              fullWidth
+              label="Rejection reason"
+              autoComplete="off"
+              value={rejectReason.value}
+              onChange={(e) =>
+                setRejectReason((prev) => ({
+                  ...prev,
+                  value: e.target.value,
+                }))
+              }
+              onBlur={(e) => validateInput(e.target.value)}
+              error={rejectReason.error}
+              helperText={rejectReason.error}
+            />
+          )}
           <Fab
             size="small"
             color="primary"
-            sx={{ position: "absolute", bottom: 70, right: 16 }}
+            sx={{ position: "absolute", bottom: 100, right: 16 }}
             onClick={handleViewerOpen}
           >
             <ImageSearchIcon />
@@ -91,12 +145,32 @@ const MemberApprovalModal = ({ data, open, onClose }) => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Close</Button>
-          <Button onClick={() => {}} variant="outlined" color="success">
-            Approve
-          </Button>
-          <Button onClick={() => {}} variant="outlined" color="error">
-            Reject
-          </Button>
+          {!rejectInputShown && (
+            <>
+              <Button
+                onClick={handleApprove}
+                variant="outlined"
+                color="success"
+              >
+                Approve
+              </Button>
+              <Button onClick={handleReject} variant="outlined" color="error">
+                Reject
+              </Button>
+            </>
+          )}
+          {rejectInputShown && (
+            <>
+              <Button onClick={handleCancelReject}>Cancel</Button>
+              <Button
+                onClick={handleProceedReject}
+                variant="outlined"
+                color="error"
+              >
+                Proceed Reject
+              </Button>
+            </>
+          )}
         </DialogActions>
       </Dialog>
 
