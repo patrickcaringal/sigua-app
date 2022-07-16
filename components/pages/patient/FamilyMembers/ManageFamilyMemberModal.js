@@ -162,7 +162,12 @@ const ManageFamilyMemberModal = ({
                 Add Family Member
               </Typography>
 
-              <Button color="inherit" sx={{ mr: 2 }} type="submit">
+              <Button
+                color="inherit"
+                sx={{ mr: 2 }}
+                type="submit"
+                disabled={values.familyMembers.length === 0}
+              >
                 save
               </Button>
               <Button color="inherit" onClick={handleClose}>

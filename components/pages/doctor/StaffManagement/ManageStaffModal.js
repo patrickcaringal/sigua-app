@@ -173,7 +173,12 @@ export default function ManageStaffModal({
                 Add Staff
               </Typography>
 
-              <Button color="inherit" sx={{ mr: 2 }} type="submit">
+              <Button
+                color="inherit"
+                sx={{ mr: 2 }}
+                type="submit"
+                disabled={values.staffs.length === 0}
+              >
                 save
               </Button>
               <Button color="inherit" onClick={handleClose}>

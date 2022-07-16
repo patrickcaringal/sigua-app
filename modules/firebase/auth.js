@@ -41,6 +41,7 @@ export const signUpReq = async ({ email, password }) => {
 
 export const signInReq = async ({ email, password }) => {
   try {
+    // NOTE: query by role before login
     // Authenticate
     const res = await signInWithEmailAndPassword(auth, email, password);
 

@@ -90,9 +90,10 @@ const FamilyMemberPage = () => {
   const handleAddMemeber = async (newMembers) => {
     const mappedNewMembers = newMembers.map((i) => {
       return {
-        accountId: user.id,
         ...i,
         ...(!i.contactNo && { verified: false, verificationAttachment: null }),
+        accountId: user.id,
+        birthdate: formatDate(i.birthdate),
       };
     });
 
