@@ -21,6 +21,7 @@ import { useBackdropLoader } from "../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../contexts/ResponseDialogContext";
 import useRequest from "../../../hooks/useRequest";
 import {
+  deleteImageReq,
   getMemberForApprovalReq,
   updateFamilyMembersReq,
 } from "../../../modules/firebase";
@@ -37,10 +38,8 @@ const MemberApprovalPage = () => {
     getMemberForApprovalReq,
     setBackdropLoader
   );
-  const [updateFamilyMembers] = useRequest(
-    updateFamilyMembersReq,
-    setBackdropLoader
-  );
+  const [updateFamilyMembers] = useRequest(updateFamilyMembersReq);
+  const [deleteImage] = useRequest(deleteImageReq);
 
   // Local States
   const [accounts, setAccounts] = useState([]); // used to pull Family members
@@ -99,7 +98,12 @@ const MemberApprovalPage = () => {
     const memberIndex = updatedAccount.familyMembers.findIndex(
       (i) => getFullName(i) === memberName
     );
+
+    const imageUrl =
+      updatedAccount.familyMembers[memberIndex].verificationAttachment;
+
     updatedAccount.familyMembers[memberIndex].verified = approved;
+
     if (!approved) {
       updatedAccount.familyMembers[memberIndex].verificationRejectReason =
         verificationRejectReason;
@@ -107,7 +111,7 @@ const MemberApprovalPage = () => {
       delete updatedAccount.familyMembers[memberIndex].verificationRejectReason;
     }
 
-    return { updatedAccount, accountIndex };
+    return { updatedAccount, accountIndex, imageUrl };
   };
 
   const handleMemberModalOpen = (m) => {
@@ -131,7 +135,9 @@ const MemberApprovalPage = () => {
   };
 
   const handleApprove = async ({ memberName, accountId }) => {
-    const { updatedAccount, accountIndex } = updateMember(
+    setBackdropLoader(true);
+
+    const { updatedAccount, accountIndex, imageUrl } = updateMember(
       accountId,
       memberName,
       true
@@ -143,7 +149,17 @@ const MemberApprovalPage = () => {
       familyMembers: updatedAccount.familyMembers,
     });
     if (updateFamMemberError) {
+      setBackdropLoader(false);
       return openErrorDialog(updateFamMemberError);
+    }
+
+    // Delete Image from Storage
+    const { error: deleteImageError } = await deleteImage({
+      url: imageUrl,
+    });
+    if (deleteImageError) {
+      setBackdropLoader(false);
+      return openErrorDialog(deleteImageError);
     }
 
     // Update Local State
@@ -154,6 +170,7 @@ const MemberApprovalPage = () => {
     const memberList = getMemberList(accountsCopy);
     setMembers(memberList);
 
+    setBackdropLoader(false);
     openResponseDialog({
       autoClose: true,
       content: "Member Verification approved.",
@@ -169,7 +186,9 @@ const MemberApprovalPage = () => {
     accountId,
     verificationRejectReason,
   }) => {
-    const { updatedAccount, accountIndex } = updateMember(
+    setBackdropLoader(true);
+
+    const { updatedAccount, accountIndex, imageUrl } = updateMember(
       accountId,
       memberName,
       false,
@@ -182,7 +201,17 @@ const MemberApprovalPage = () => {
       familyMembers: updatedAccount.familyMembers,
     });
     if (updateFamMemberError) {
+      setBackdropLoader(false);
       return openErrorDialog(updateFamMemberError);
+    }
+
+    // Delete Image from Storage
+    const { error: deleteImageError } = await deleteImage({
+      url: imageUrl,
+    });
+    if (deleteImageError) {
+      setBackdropLoader(false);
+      return openErrorDialog(deleteImageError);
     }
 
     // Update Local State
@@ -193,6 +222,7 @@ const MemberApprovalPage = () => {
     const memberList = getMemberList(accountsCopy);
     setMembers(memberList);
 
+    setBackdropLoader(false);
     openResponseDialog({
       autoClose: true,
       content: "Member Verification rejected.",

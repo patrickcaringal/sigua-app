@@ -24,8 +24,8 @@ const MemberApprovalModal = ({ data, open, onClose, onApprove, onReject }) => {
   const [viewerOpen, setViewerOpen] = useState(false);
   const [rejectInputShown, setRejectInputShown] = useState(false);
   const [rejectReason, setRejectReason] = useState({
-    value: null,
-    error: null,
+    value: "",
+    error: "",
   });
 
   const dialogOpen = viewerOpen ? false : open;
@@ -39,7 +39,7 @@ const MemberApprovalModal = ({ data, open, onClose, onApprove, onReject }) => {
   const validateInput = (value) => {
     setRejectReason((prev) => ({
       ...prev,
-      error: value.trim() === "" ? "Rejection reason is required" : null,
+      error: value.trim() === "" ? "Rejection reason is required" : "",
     }));
   };
 
@@ -65,6 +65,9 @@ const MemberApprovalModal = ({ data, open, onClose, onApprove, onReject }) => {
   };
 
   const handleProceedReject = () => {
+    validateInput(rejectReason.value);
+    if (rejectReason.value === "") return;
+
     onReject({
       memberName: member,
       accountId,

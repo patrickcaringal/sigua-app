@@ -13,6 +13,7 @@ import {
   Container,
   Divider,
   IconButton,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useRouter } from "next/router";
@@ -164,7 +165,12 @@ const FamilyMemberPage = () => {
     setBackdropLoader(false);
     openResponseDialog({
       autoClose: true,
-      content: "Verification Attachment uploaded. For Staff approval.",
+      content: (
+        <>
+          <Typography>Verification Attachment uploaded.</Typography>
+          <Typography>For Staff approval</Typography>
+        </>
+      ),
       type: "SUCCESS",
       closeCb() {
         handleAttachmentModalClose();
@@ -246,9 +252,19 @@ const FamilyMemberPage = () => {
                   }
                   title={getFullName(i)}
                   subheader={
-                    <Typography variant="body2" color="text.secondary">
-                      {icons[status]}
-                    </Typography>
+                    status === MEMBER_STATUS.REJECTED ? (
+                      <Tooltip
+                        title={`Rejection reason: ${verificationRejectReason}`}
+                      >
+                        <Typography variant="body2" color="text.secondary">
+                          {icons[status]}
+                        </Typography>
+                      </Tooltip>
+                    ) : (
+                      <Typography variant="body2" color="text.secondary">
+                        {icons[status]}
+                      </Typography>
+                    )
                   }
                 />
                 <CardContent>

@@ -203,10 +203,13 @@ const ManageFamilyMemberModal = ({
                         minHeight: 280,
                       }}
                     >
-                      {formik.values.familyMembers.map((member, index) => {
+                      {values.familyMembers.map((member, index) => {
                         const famMemberValue = values.familyMembers[index];
                         const famMemberTouched = touched.familyMembers?.[index];
                         const famMemberErrors = errors.familyMembers?.[index];
+
+                        const getError = (key) =>
+                          famMemberTouched?.[key] && famMemberErrors?.[key];
 
                         return (
                           <Card key={index} elevation={2}>
@@ -251,14 +254,8 @@ const ManageFamilyMemberModal = ({
                                       )
                                     }
                                     onBlur={handleBlur}
-                                    error={
-                                      famMemberTouched?.firstName &&
-                                      famMemberErrors?.firstName
-                                    }
-                                    helperText={
-                                      famMemberTouched?.firstName &&
-                                      famMemberErrors?.firstName
-                                    }
+                                    error={getError("firstName")}
+                                    helperText={getError("firstName")}
                                   />
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
@@ -277,14 +274,8 @@ const ManageFamilyMemberModal = ({
                                       )
                                     }
                                     onBlur={handleBlur}
-                                    error={
-                                      famMemberTouched?.middleName &&
-                                      famMemberErrors?.middleName
-                                    }
-                                    helperText={
-                                      famMemberTouched?.middleName &&
-                                      famMemberErrors?.middleName
-                                    }
+                                    error={getError("middleName")}
+                                    helperText={getError("middleName")}
                                   />
                                 </Grid>
                                 <Grid item xs={12} sm={9}>
@@ -303,14 +294,8 @@ const ManageFamilyMemberModal = ({
                                       )
                                     }
                                     onBlur={handleBlur}
-                                    error={
-                                      famMemberTouched?.lastName &&
-                                      famMemberErrors?.lastName
-                                    }
-                                    helperText={
-                                      famMemberTouched?.lastName &&
-                                      famMemberErrors?.lastName
-                                    }
+                                    error={getError("lastName")}
+                                    helperText={getError("lastName")}
                                   />
                                 </Grid>
                                 <Grid item xs={12} sm={3}>
@@ -328,14 +313,8 @@ const ManageFamilyMemberModal = ({
                                       )
                                     }
                                     onBlur={handleBlur}
-                                    error={
-                                      famMemberTouched?.suffix &&
-                                      famMemberErrors?.suffix
-                                    }
-                                    helperText={
-                                      famMemberTouched?.suffix &&
-                                      famMemberErrors?.suffix
-                                    }
+                                    error={getError("suffix")}
+                                    helperText={getError("suffix")}
                                   />
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
@@ -362,14 +341,8 @@ const ManageFamilyMemberModal = ({
                                             required
                                             fullWidth
                                             name={`familyMembers[${index}].birthdate`}
-                                            error={
-                                              famMemberTouched?.birthdate &&
-                                              famMemberErrors?.birthdate
-                                            }
-                                            helperText={
-                                              famMemberTouched?.birthdate &&
-                                              famMemberErrors?.birthdate
-                                            }
+                                            error={getError("birthdate")}
+                                            helperText={getError("birthdate")}
                                           />
                                         );
                                       }}
@@ -381,10 +354,7 @@ const ManageFamilyMemberModal = ({
                                     fullWidth
                                     size="small"
                                     required
-                                    error={
-                                      famMemberTouched?.gender &&
-                                      famMemberErrors?.gender
-                                    }
+                                    error={getError("gender")}
                                   >
                                     <InputLabel>Gender</InputLabel>
                                     <Select
@@ -402,12 +372,11 @@ const ManageFamilyMemberModal = ({
                                       <MenuItem value="male">Male</MenuItem>
                                       <MenuItem value="female">Female</MenuItem>
                                     </Select>
-                                    {famMemberTouched?.gender &&
-                                      famMemberErrors?.gender && (
-                                        <FormHelperText>
-                                          {famMemberErrors?.gender}
-                                        </FormHelperText>
-                                      )}
+                                    {getError("gender") && (
+                                      <FormHelperText>
+                                        {getError("gender")}
+                                      </FormHelperText>
+                                    )}
                                   </FormControl>
                                 </Grid>
                                 <Grid item xs={12}>
@@ -426,14 +395,8 @@ const ManageFamilyMemberModal = ({
                                       )
                                     }
                                     onBlur={handleBlur}
-                                    error={
-                                      famMemberTouched?.address &&
-                                      famMemberErrors?.address
-                                    }
-                                    helperText={
-                                      famMemberTouched?.address &&
-                                      famMemberErrors?.address
-                                    }
+                                    error={getError("address")}
+                                    helperText={getError("address")}
                                   />
                                 </Grid>
                               </Grid>

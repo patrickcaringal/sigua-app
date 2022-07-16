@@ -42,6 +42,7 @@ export const signInStaffReq = async ({ email, password }) => {
 
     return { data: document, success: true };
   } catch (error) {
+    console.log(error);
     const errMsg = getErrorMsg(error.code);
     return { error: errMsg || error.message };
   }

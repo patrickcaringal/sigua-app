@@ -63,7 +63,13 @@ const VerificationPage = ({ values: formValues }) => {
     Object.keys(errors).length > 0 && Object.keys(touched).length === 4;
 
   return (
-    <div className="verification-form">
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
       <Typography component="h1" variant="h5">
         Contact Number Verification
       </Typography>
@@ -150,7 +156,7 @@ const VerificationPage = ({ values: formValues }) => {
           Verify
         </LoadingButton>
       </Box>
-    </div>
+    </Box>
   );
 };
 
