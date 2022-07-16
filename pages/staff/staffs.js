@@ -24,13 +24,12 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 
-import { ManageStaffModal } from "../../components";
+import { ManageStaffModal } from "../../components/pages/staff/MemberApproval";
 import { useBackdropLoader } from "../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../contexts/ResponseDialogContext";
 import useRequest from "../../hooks/useRequest";
 import { addStaffReq, getStaffsReq } from "../../modules/firebase";
 import { getFullName, getUniquePersonId } from "../../modules/helper";
-const LOCAL_MODE = false;
 
 const DashboardPage = () => {
   const router = useRouter();
@@ -39,26 +38,7 @@ const DashboardPage = () => {
   const [getStaffs] = useRequest(getStaffsReq, setBackdropLoader);
   const [addStaff] = useRequest(addStaffReq);
 
-  const [staffs, setStaffs] = useState(
-    LOCAL_MODE
-      ? [
-          {
-            id: "HqOIh50XFGWgTYFE0aFU",
-            gender: "female",
-            suffix: "",
-            lastName: "JISOO",
-            birthdate: "1997-07-10",
-            email: "soya@gmail.com",
-            role: "staff",
-            middleName: "SOYA",
-            branch: "LAKESIDE",
-            firstName: "KIM",
-            address:
-              "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUNA",
-          },
-        ]
-      : []
-  );
+  const [staffs, setStaffs] = useState([]);
   const [staffModalOpen, setStaffModalOpen] = useState(false);
 
   const staffsUniqueId = staffs.map((i) => {
