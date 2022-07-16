@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 import { LoadingButton } from "@mui/lab";
 import {
@@ -10,13 +10,16 @@ import {
 } from "@mui/material";
 import { useFormik } from "formik";
 
-import { useAuth } from "../../contexts/AuthContext";
-import { useResponseDialog } from "../../contexts/ResponseDialogContext";
-import useRequest from "../../hooks/useRequest";
-import { createAccountReq, signInAnonymouslyReq } from "../../modules/firebase";
-import { VerificationCodeSchema } from "../../modules/validation";
+import { useAuth } from "../../../../contexts/AuthContext";
+import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
+import useRequest from "../../../../hooks/useRequest";
+import {
+  createAccountReq,
+  signInAnonymouslyReq,
+} from "../../../../modules/firebase";
+import { VerificationCodeSchema } from "../../../../modules/validation";
 
-export default function VerificationPage({ values: formValues }) {
+const VerificationPage = ({ values: formValues }) => {
   const { manualSetUser } = useAuth();
   const { openErrorDialog } = useResponseDialog();
   const [createAccount, createAccountLoading] = useRequest(createAccountReq);
@@ -149,4 +152,6 @@ export default function VerificationPage({ values: formValues }) {
       </Box>
     </div>
   );
-}
+};
+
+export default VerificationPage;

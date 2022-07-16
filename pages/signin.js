@@ -1,11 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 
 import { LoadingButton } from "@mui/lab";
 import {
   Box,
-  Checkbox,
   Container,
-  FormControlLabel,
   Grid,
   Link,
   TextField,
@@ -23,6 +21,11 @@ import {
 } from "../modules/firebase";
 import { SigninSchema } from "../modules/validation";
 
+const defaultValue = {
+  contactNo: "",
+  password: "",
+};
+
 export default function SignInPage() {
   const router = useRouter();
   const { manualSetUser } = useAuth();
@@ -36,10 +39,7 @@ export default function SignInPage() {
     checkAccountCredentialLoading || signInAnonymouslyLoading;
 
   const formik = useFormik({
-    initialValues: {
-      contactNo: "09994441760",
-      password: "12345678",
-    },
+    initialValues: defaultValue,
     validationSchema: SigninSchema,
     validateOnChange: false,
     onSubmit: async (values) => {
@@ -73,13 +73,7 @@ export default function SignInPage() {
         justifyContent: "center",
       }}
     >
-      <Container
-        component="main"
-        maxWidth="xs"
-        sx={{
-          mb: 10,
-        }}
-      >
+      <Container component="main" maxWidth="xs" sx={{ mb: 10 }}>
         <Box
           sx={{
             display: "flex",
@@ -88,7 +82,7 @@ export default function SignInPage() {
           }}
         >
           <Typography component="h1" variant="h5">
-            Patient Sign in
+            Patient Sign In
           </Typography>
           <Box
             component="form"
@@ -122,12 +116,6 @@ export default function SignInPage() {
                   onBlur={handleBlur}
                   error={touched.password && errors.password}
                   helperText={touched.password && errors.password}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={<Checkbox value="remember" color="primary" />}
-                  label="Remember me"
                 />
               </Grid>
             </Grid>

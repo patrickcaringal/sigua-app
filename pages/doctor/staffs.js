@@ -1,17 +1,9 @@
 import React, { useEffect, useState } from "react";
 
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
-import MailIcon from "@mui/icons-material/Mail";
 import {
   Box,
-  Breadcrumbs,
   Button,
-  Card,
-  CardActionArea,
-  CardContent,
-  CardMedia,
-  IconButton,
-  Link,
   Paper,
   Table,
   TableBody,
@@ -30,35 +22,18 @@ import { useResponseDialog } from "../../contexts/ResponseDialogContext";
 import useRequest from "../../hooks/useRequest";
 import { addStaffReq, getStaffsReq } from "../../modules/firebase";
 import { getFullName, getUniquePersonId } from "../../modules/helper";
-const LOCAL_MODE = false;
 
 const DashboardPage = () => {
   const router = useRouter();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
+
+  // Requests
   const [getStaffs] = useRequest(getStaffsReq, setBackdropLoader);
   const [addStaff] = useRequest(addStaffReq, setBackdropLoader);
 
-  const [staffs, setStaffs] = useState(
-    LOCAL_MODE
-      ? [
-          {
-            id: "HqOIh50XFGWgTYFE0aFU",
-            gender: "female",
-            suffix: "",
-            lastName: "JISOO",
-            birthdate: "1997-07-10",
-            email: "soya@gmail.com",
-            role: "staff",
-            middleName: "SOYA",
-            branch: "LAKESIDE",
-            firstName: "KIM",
-            address:
-              "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUNA",
-          },
-        ]
-      : []
-  );
+  // Local States
+  const [staffs, setStaffs] = useState([]);
   const [staffModalOpen, setStaffModalOpen] = useState(false);
 
   const staffsUniqueId = staffs.map((i) => {
@@ -68,8 +43,6 @@ const DashboardPage = () => {
   });
 
   useEffect(() => {
-    if (LOCAL_MODE) return;
-
     const fetch = async () => {
       // Get Staffs
       const { data: staffList, error: getStaffsError } = await getStaffs({
@@ -133,19 +106,7 @@ const DashboardPage = () => {
           add staff
         </Button>
       </Toolbar>
-      <Box
-        sx={
-          {
-            // display: "flex",
-            // flexDirection: "row",
-            // flexWrap: "wrap",
-            // columnGap: 2,
-            // rowGap: 2,
-            // my: 1,
-            // border: "1px solid blue",
-          }
-        }
-      >
+      <Box>
         <Paper
           elevation={2}
           sx={{ height: "calc(100vh - 64px - 64px - 16px)" }}
@@ -163,8 +124,8 @@ const DashboardPage = () => {
               </TableHead>
 
               <TableBody>
-                {staffs.map(
-                  ({
+                {staffs.map((i) => {
+                  const {
                     id,
                     firstName,
                     suffix,
@@ -173,7 +134,9 @@ const DashboardPage = () => {
                     email,
                     branch,
                     address,
-                  }) => (
+                  } = i;
+
+                  return (
                     <TableRow key={id}>
                       <TableCell>
                         {getFullName({
@@ -184,20 +147,33 @@ const DashboardPage = () => {
                         })}
                       </TableCell>
                       <TableCell>{email}</TableCell>
-                      <TableCell sx={{ maxWidth: 160 }}>{address}</TableCell>
+                      <TableCell sx={{ maxWidth: 200 }}>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            display: "-webkit-box",
+                            WebkitBoxOrient: "vertical",
+                            WebkitLineClamp: "2",
+                            overflow: "hidden",
+                          }}
+                          component="div"
+                        >
+                          {address}
+                        </Typography>
+                      </TableCell>
                       <TableCell>{branch}</TableCell>
                       <TableCell>
                         {/* <IconButton
-                          color="primary"
-                          component="span"
-                          onClick={handleSendEmail}
-                        >
-                          <MailIcon />
-                        </IconButton> */}
+                            color="primary"
+                            component="span"
+                            onClick={handleSendEmail}
+                          >
+                            <MailIcon />
+                          </IconButton> */}
                       </TableCell>
                     </TableRow>
-                  )
-                )}
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>

@@ -21,7 +21,7 @@ import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
 import { useFormik } from "formik";
 import { useRouter } from "next/router";
 
-import VerificationPage from "../components/views/verification";
+import { VerificationPage } from "../components/pages/patient/SignUp";
 import { useResponseDialog } from "../contexts/ResponseDialogContext";
 import useRequest from "../hooks/useRequest";
 import { checkAccountDuplicateReq } from "../modules/firebase";
@@ -31,6 +31,30 @@ const STEPS = {
   DETAILS: "details",
   VERIFICATION: "verification",
 };
+
+const defaultValue = {
+  firstName: "",
+  middleName: "",
+  lastName: "",
+  suffix: "",
+  birthdate: "",
+  gender: "",
+  address: "",
+  contactNo: "",
+  password: "",
+};
+// {
+//   firstName: "PATRICK ANGELO",
+//   middleName: "PUNSALANG",
+//   lastName: "CARINGAL",
+//   suffix: "",
+//   birthdate: "1997-07-10T13:52:43.000Z",
+//   gender: "male",
+//   address:
+//     "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUN",
+//   contactNo: "09994441760",
+//   password: "12345678",
+// },
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -42,29 +66,7 @@ export default function SignUpPage() {
   const [step, setStep] = useState(STEPS.DETAILS);
 
   const formik = useFormik({
-    // initialValues: {
-    //   firstName: "",
-    //   middleName: "",
-    //   lastName: "",
-    //   suffix: "",
-    //   birthdate: "",
-    //   gender: "",
-    //   address: "",
-    //   contactNo: "",
-    //   password: "",
-    // },
-    initialValues: {
-      firstName: "PATRICK ANGELO",
-      middleName: "PUNSALANG",
-      lastName: "CARINGAL",
-      suffix: "",
-      birthdate: "1997-07-10T13:52:43.000Z",
-      gender: "male",
-      address:
-        "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUN",
-      contactNo: "09994441760",
-      password: "12345678",
-    },
+    initialValues: defaultValue,
     validationSchema: SignupSchema,
     validateOnChange: false,
     onSubmit: async (values) => {

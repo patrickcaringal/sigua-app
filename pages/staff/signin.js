@@ -17,16 +17,18 @@ import useRequest from "../../hooks/useRequest";
 import { signInStaffReq } from "../../modules/firebase";
 import { DoctorSigninSchema } from "../../modules/validation";
 
+const defaultValues = {
+  email: "",
+  password: "",
+};
+
 const StaffSignInPage = () => {
   const { manualSetUser } = useAuth();
   const { openErrorDialog } = useResponseDialog();
   const [signIn, isSignInLoading] = useRequest(signInStaffReq);
 
   const formik = useFormik({
-    initialValues: {
-      email: "soya@gmail.com",
-      password: "12345678",
-    },
+    initialValues: defaultValues,
     validationSchema: DoctorSigninSchema,
     validateOnChange: false,
     onSubmit: async (values) => {
@@ -68,7 +70,7 @@ const StaffSignInPage = () => {
           }}
         >
           <Typography component="h1" variant="h5">
-            Staff Sign in
+            Staff Sign In
           </Typography>
           <Box
             component="form"

@@ -45,7 +45,7 @@ export const createAccountReq = async (newDocument) => {
       {
         accountId: docRef.id,
         verified: true,
-        ...omitFields(mappedNewDocument, ["password", "familyMembers"]),
+        ...omitFields(mappedNewDocument, ["password", "familyMembers", "role"]),
       },
     ];
 

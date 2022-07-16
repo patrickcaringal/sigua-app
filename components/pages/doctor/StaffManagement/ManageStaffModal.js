@@ -39,33 +39,37 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const defaultValues = {
-  staffs: [
-    {
-      firstName: "KIM",
-      middleName: "SOYA",
-      lastName: "JISOO",
-      suffix: "",
-      birthdate: "1997-07-10T13:52:43.000Z",
-      gender: "female",
-      address:
-        "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUNA",
-      email: "soya@gmail.com",
-      branch: "LAKESIDE",
-    },
-    {
-      firstName: "KIM",
-      middleName: "SOYA",
-      lastName: "JISOO",
-      suffix: "",
-      birthdate: "1997-07-11T13:52:43.000Z",
-      gender: "female",
-      address:
-        "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUNA",
-      email: "soya2@gmail.com",
-      branch: "LAKESIDE",
-    },
-  ],
+  staffs: [],
 };
+
+// {
+//   staffs: [
+//     {
+//       firstName: "KIM",
+//       middleName: "SOYA",
+//       lastName: "JISOO",
+//       suffix: "",
+//       birthdate: "1997-07-10T13:52:43.000Z",
+//       gender: "female",
+//       address:
+//         "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUNA",
+//       email: "soya@gmail.com",
+//       branch: "LAKESIDE",
+//     },
+//     {
+//       firstName: "KIM",
+//       middleName: "SOYA",
+//       lastName: "JISOO",
+//       suffix: "",
+//       birthdate: "1997-07-11T13:52:43.000Z",
+//       gender: "female",
+//       address:
+//         "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUNA",
+//       email: "soya2@gmail.com",
+//       branch: "LAKESIDE",
+//     },
+//   ],
+// }
 
 const defaultStaffValue = {
   firstName: "",

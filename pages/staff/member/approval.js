@@ -1,19 +1,9 @@
 import React, { useEffect, useState } from "react";
 
 import FactCheckIcon from "@mui/icons-material/FactCheck";
-import GroupAddIcon from "@mui/icons-material/GroupAdd";
-import HomeIcon from "@mui/icons-material/Home";
-import MailIcon from "@mui/icons-material/Mail";
 import {
   Box,
-  Breadcrumbs,
-  Button,
-  Card,
-  CardActionArea,
-  CardContent,
-  CardMedia,
   IconButton,
-  Link,
   Paper,
   Table,
   TableBody,
@@ -34,23 +24,25 @@ import {
   getMemberForApprovalReq,
   updateFamilyMembersReq,
 } from "../../../modules/firebase";
-import { getFullName, getUniquePersonId } from "../../../modules/helper";
+import { getFullName } from "../../../modules/helper";
 const LOCAL_MODE = false;
 
 const MemberApprovalPage = () => {
   const router = useRouter();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
+
+  // Requests
   const [getMemberForApproval] = useRequest(
     getMemberForApprovalReq,
     setBackdropLoader
   );
-  const [updateFamilyMembers, updateFamilyMembersLoading] = useRequest(
+  const [updateFamilyMembers] = useRequest(
     updateFamilyMembersReq,
     setBackdropLoader
   );
-  //   const [addStaff] = useRequest(addStaffReq);
 
+  // Local States
   const [accounts, setAccounts] = useState([]); // used to pull Family members
   const [members, setMembers] = useState([]);
   const [memberApprovalModalState, setMemberApprovalModalState] = useState({
@@ -242,13 +234,11 @@ const MemberApprovalPage = () => {
               <TableBody>
                 {members.map((m, index) => {
                   const {
-                    id,
                     firstName,
                     suffix,
                     lastName,
                     middleName,
                     requester,
-                    branch,
                     address,
                   } = m;
 

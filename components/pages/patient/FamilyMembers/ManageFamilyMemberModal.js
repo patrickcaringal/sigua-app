@@ -39,39 +39,32 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const defaultValues = {
-  familyMembers: [
-    {
-      firstName: "PAUL DANIEL",
-      middleName: "PUNSALANG",
-      lastName: "CARINGAL",
-      suffix: "",
-      birthdate: "1997-07-10T13:52:43.000Z",
-      gender: "male",
-      address:
-        "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUN",
-    },
-    {
-      firstName: "APRIL",
-      middleName: "PUNSALANG",
-      lastName: "CARINGAL",
-      suffix: "",
-      birthdate: "1997-07-10T13:52:43.000Z",
-      gender: "male",
-      address:
-        "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUN",
-    },
-    // {
-    //   firstName: "PATRICK ANGELO",
-    //   middleName: "PUNSALANG",
-    //   lastName: "CARINGAL",
-    //   suffix: "",
-    //   birthdate: "1997-07-10T13:52:43.000Z",
-    //   gender: "male",
-    //   address:
-    //     "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUN",
-    // },
-  ],
+  familyMembers: [],
 };
+// {
+//   familyMembers: [
+//     {
+//       firstName: "PAUL DANIEL",
+//       middleName: "PUNSALANG",
+//       lastName: "CARINGAL",
+//       suffix: "",
+//       birthdate: "1997-07-10T13:52:43.000Z",
+//       gender: "male",
+//       address:
+//         "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUN",
+//     },
+//     {
+//       firstName: "APRIL",
+//       middleName: "PUNSALANG",
+//       lastName: "CARINGAL",
+//       suffix: "",
+//       birthdate: "1997-07-10T13:52:43.000Z",
+//       gender: "male",
+//       address:
+//         "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUN",
+//     },
+//   ],
+// }
 
 const defaultMemberValue = {
   firstName: "",

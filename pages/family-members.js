@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from "react";
 
 import EditIcon from "@mui/icons-material/Edit";
-import FlakyIcon from "@mui/icons-material/Flaky";
-import HighlightOffIcon from "@mui/icons-material/HighlightOff";
-import NoAccountsIcon from "@mui/icons-material/NoAccounts";
+import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
-import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import {
   Avatar,
   Box,
@@ -22,8 +19,11 @@ import { useRouter } from "next/router";
 
 import { Toolbar } from "../components/common";
 import {
+  MEMBER_STATUS,
   ManageFamilyMemberModal,
   UploadAttachmentModal,
+  icons,
+  statusUploadAllowed,
 } from "../components/pages/patient/FamilyMembers";
 import { useAuth } from "../contexts/AuthContext";
 import { useBackdropLoader } from "../contexts/BackdropLoaderContext";
@@ -36,53 +36,6 @@ import {
   uploadImageReq,
 } from "../modules/firebase";
 import { formatDate, getFullName, getInitials } from "../modules/helper";
-
-const MEMBER_STATUS = {
-  VERFIED: "VERFIED",
-  FOR_VERIFICATION: "FOR_VERIFICATION",
-  FOR_APPROVAL: "FOR_APPROVAL",
-  REJECTED: "REJECTED",
-};
-
-const icons = {
-  [MEMBER_STATUS.VERFIED]: (
-    <>
-      <IconButton size="small" sx={{ pointerEvents: "none" }}>
-        <VerifiedUserIcon color="success" />
-      </IconButton>
-      Verified
-    </>
-  ),
-  [MEMBER_STATUS.FOR_VERIFICATION]: (
-    <>
-      <IconButton size="small" sx={{ pointerEvents: "none" }}>
-        <NoAccountsIcon color="error" />
-      </IconButton>
-      To Verifiy
-    </>
-  ),
-  [MEMBER_STATUS.FOR_APPROVAL]: (
-    <>
-      <IconButton size="small" sx={{ pointerEvents: "none" }}>
-        <FlakyIcon color="warning" />
-      </IconButton>
-      For Staff Approval
-    </>
-  ),
-  [MEMBER_STATUS.REJECTED]: (
-    <>
-      <IconButton size="small" sx={{ pointerEvents: "none" }}>
-        <HighlightOffIcon color="error" />
-      </IconButton>
-      Rejected
-    </>
-  ),
-};
-
-const statusUploadAllowed = [
-  MEMBER_STATUS.FOR_VERIFICATION,
-  MEMBER_STATUS.REJECTED,
-];
 
 const FamilyMemberPage = () => {
   const router = useRouter();
@@ -228,6 +181,7 @@ const FamilyMemberPage = () => {
           variant="contained"
           size="small"
           onClick={handleMemberModalOpen}
+          startIcon={<GroupAddIcon />}
         >
           Add Family Member
         </Button>
@@ -245,8 +199,6 @@ const FamilyMemberPage = () => {
         {members.map((i, index) => {
           const {
             firstName,
-            lastName,
-            middleName,
             contactNo,
             birthdate,
             address,

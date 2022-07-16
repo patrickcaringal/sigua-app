@@ -17,16 +17,20 @@ import useRequest from "../../hooks/useRequest";
 import { signInReq } from "../../modules/firebase";
 import { DoctorSigninSchema } from "../../modules/validation";
 
+const defaultValues = {
+  email: "",
+  password: "",
+};
+
 const DoctorSignInPage = () => {
   const { manualSetUser } = useAuth();
   const { openErrorDialog } = useResponseDialog();
+
+  // Requests
   const [signIn, isSignInLoading] = useRequest(signInReq);
 
   const formik = useFormik({
-    initialValues: {
-      email: "sigua@gmail.com",
-      password: "12345678",
-    },
+    initialValues: defaultValues,
     validationSchema: DoctorSigninSchema,
     validateOnChange: false,
     onSubmit: async (values) => {
@@ -53,13 +57,7 @@ const DoctorSignInPage = () => {
         justifyContent: "center",
       }}
     >
-      <Container
-        component="main"
-        maxWidth="xs"
-        sx={{
-          mb: 10,
-        }}
-      >
+      <Container component="main" maxWidth="xs" sx={{ mb: 10 }}>
         <Box
           sx={{
             display: "flex",
@@ -68,7 +66,7 @@ const DoctorSignInPage = () => {
           }}
         >
           <Typography component="h1" variant="h5">
-            Doctor Sign in
+            Doctor Sign In
           </Typography>
           <Box
             component="form"
