@@ -25,6 +25,7 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
@@ -82,6 +83,7 @@ const ManageFamilyMemberModal = ({
   onCheckDuplicate,
   onAddMemeber,
 }) => {
+  const isMobileView = useMediaQuery((theme) => theme.breakpoints.only("xs"));
   const { openResponseDialog } = useResponseDialog();
 
   const formik = useFormik({
@@ -143,6 +145,7 @@ const ManageFamilyMemberModal = ({
 
   return (
     <Dialog
+      fullScreen={isMobileView}
       fullWidth
       maxWidth="sm"
       open={open}
@@ -176,7 +179,7 @@ const ManageFamilyMemberModal = ({
             </Toolbar>
           </Container>
         </AppBar>
-        <Box>
+        <Box sx={{ py: 2 }}>
           <FormikProvider value={formik}>
             <Container maxWidth="lg">
               <FieldArray

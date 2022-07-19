@@ -155,6 +155,7 @@ const FamilyMemberPage = () => {
     const { error: updateFamMemberError } = await updateFamilyMembers({
       id: user.id,
       familyMembers: updatedMembers,
+      hasVerificationForApproval: true,
     });
     if (updateFamMemberError) {
       setBackdropLoader(false);
@@ -196,11 +197,12 @@ const FamilyMemberPage = () => {
       <Box
         sx={{
           display: "flex",
-          flexDirection: "row",
+          flexDirection: { sx: "column", md: "row" },
           flexWrap: "wrap",
           columnGap: 2,
           rowGap: 2,
-          py: 2,
+          mt: 1,
+          // py: 2,
         }}
       >
         {members.map((i, index) => {
@@ -225,7 +227,7 @@ const FamilyMemberPage = () => {
 
           return (
             <React.Fragment key={index}>
-              <Card sx={{ width: 345 }}>
+              <Card sx={{ width: { xs: "100%", md: 345 } }}>
                 <CardHeader
                   avatar={
                     <Avatar

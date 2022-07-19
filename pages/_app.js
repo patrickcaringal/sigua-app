@@ -61,7 +61,6 @@ function MyApp({ Component, pageProps }) {
                   ) : // should be logged in to access routes
                   isProtected ? (
                     <ProtectedRoute>
-                      {/* TODO Role protected route */}
                       <Component {...pageProps} />
                     </ProtectedRoute>
                   ) : (

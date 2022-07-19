@@ -18,14 +18,10 @@ const ProtectedRoute = ({ children }) => {
     () => ({
       doctor: isAdmin && isLoggedIn && !doctorRoutes.includes(router.pathname),
       staff: isStaff && isLoggedIn && !staffRoutes.includes(router.pathname),
-      // TODO: update to isPatient
       patient:
-        !isAdmin &&
-        !isStaff &&
-        isLoggedIn &&
-        !patientRoutes.includes(router.pathname),
+        isPatient && isLoggedIn && !patientRoutes.includes(router.pathname),
     }),
-    [isLoggedIn, isAdmin, isStaff, router.pathname]
+    [isLoggedIn, isAdmin, isStaff, isPatient, router.pathname]
   );
 
   // Not Logged in

@@ -10,11 +10,14 @@ import {
   Input,
   Typography,
 } from "@mui/material";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import Image from "next/image";
 
 import { getFullName } from "../../../../modules/helper";
 
 const UploadAttachmentModal = ({ data, open, onClose, onUpload }) => {
+  const isMobileView = useMediaQuery((theme) => theme.breakpoints.only("xs"));
+
   const [selectedFile, setSelectedFile] = useState();
   const [preview, setPreview] = useState();
 
@@ -59,18 +62,24 @@ const UploadAttachmentModal = ({ data, open, onClose, onUpload }) => {
   }, [selectedFile]);
 
   return (
-    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="xs">
+    <Dialog
+      fullScreen={isMobileView}
+      open={open}
+      onClose={handleClose}
+      fullWidth
+      maxWidth="xs"
+    >
       <DialogTitle id="alert-dialog-title">
         Upload Verification Attachment
       </DialogTitle>
-      <DialogContent>
+      <DialogContent sx={{ overflow: "overlay" }}>
         <Typography sx={{ mb: 2 }} variant="body2">
           {getFullName(data)}
         </Typography>
         <Box
           sx={{
-            height: 400,
-            width: 396,
+            height: "auto",
+            width: "auto",
             ...(!hasImage && { bgcolor: "grey.A400" }),
           }}
         >
