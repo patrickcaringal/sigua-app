@@ -2,6 +2,7 @@ import * as React from "react";
 
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import GroupIcon from "@mui/icons-material/Group";
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import MailIcon from "@mui/icons-material/Mail";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import {
@@ -34,6 +35,11 @@ const LeftSidebar = () => {
           text: "Staffs",
           icon: <GroupIcon />,
           onClick: () => router.push("/doctor/staffs"),
+        },
+        {
+          text: "Branches",
+          icon: <LocalHospitalIcon />,
+          onClick: () => router.push("/doctor/branches"),
         },
       ]
     : [
