@@ -13,13 +13,9 @@ import {
   Container,
   Dialog,
   Fab,
-  FormControl,
-  FormHelperText,
   Grid,
   IconButton,
   InputLabel,
-  MenuItem,
-  Select,
   Slide,
   TextField,
   Toolbar,
@@ -44,16 +40,14 @@ const defaultValues = {
 
 const defaultServiceValue = {
   name: "",
-  // services: [],
-  address: "",
-  capacity: "",
+  description: "",
 };
 
 export default function ManageServiceModal({
   open,
   setOpen,
   onCheckDuplicate,
-  onAddStaff,
+  onAddService,
 }) {
   const { openResponseDialog } = useResponseDialog();
 
@@ -62,7 +56,7 @@ export default function ManageServiceModal({
     // validationSchema: StaffSchema,
     validateOnChange: false,
     onSubmit: async (values) => {
-      // const { staffs } = values;
+      const { services } = values;
       // const dupliNames = []; // used for error display
       // // Check Duplicates
       // const hasDuplicate = staffs.reduce((acc, i) => {
@@ -94,8 +88,8 @@ export default function ManageServiceModal({
       //   });
       //   return;
       // }
-      // // Add Staff
-      // onAddStaff(staffs);
+      // Add Serivce
+      onAddService(services);
     },
   });
 
@@ -235,18 +229,18 @@ export default function ManageServiceModal({
                                     required
                                     fullWidth
                                     label="Description"
-                                    name={`services[${index}].descriptiom`}
+                                    name={`services[${index}].description`}
                                     autoComplete="off"
-                                    value={serviceValue.descriptiom}
+                                    value={serviceValue.description}
                                     onChange={(e) =>
                                       setFieldValue(
-                                        `services[${index}].descriptiom`,
+                                        `services[${index}].description`,
                                         e.target.value.toUpperCase()
                                       )
                                     }
                                     onBlur={handleBlur}
-                                    error={getError("descriptiom")}
-                                    helperText={getError("descriptiom")}
+                                    error={getError("description")}
+                                    helperText={getError("description")}
                                   />
                                 </Grid>
                               </Grid>

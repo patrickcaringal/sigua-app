@@ -16,6 +16,7 @@ import {
   signUpReq,
 } from "./auth";
 import { auth, db } from "./config";
+import { addServiceReq, getServicesReq } from "./services";
 import { addStaffReq, getStaffsReq, signInStaffReq } from "./staff";
 import { deleteImageReq, uploadImageReq } from "./storage";
 
@@ -41,6 +42,9 @@ export {
   addStaffReq,
   getStaffsReq,
   signInStaffReq,
+  // service
+  getServicesReq,
+  addServiceReq,
   // storage
   uploadImageReq,
   deleteImageReq,

@@ -20,7 +20,7 @@ import { ManageServiceModal } from "../../components/pages/doctor/ServiceManagem
 import { useBackdropLoader } from "../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../contexts/ResponseDialogContext";
 import useRequest from "../../hooks/useRequest";
-import { addStaffReq, getStaffsReq } from "../../modules/firebase";
+import { addServiceReq, getServicesReq } from "../../modules/firebase";
 import { getFullName, getUniquePersonId } from "../../modules/helper";
 const ServicesManagementPage = () => {
   const router = useRouter();
@@ -28,52 +28,53 @@ const ServicesManagementPage = () => {
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   // Requests
-  const [getStaffs] = useRequest(getStaffsReq, setBackdropLoader);
-  const [addStaff] = useRequest(addStaffReq, setBackdropLoader);
+  const [getServices] = useRequest(getServicesReq, setBackdropLoader);
+  const [addService] = useRequest(addServiceReq, setBackdropLoader);
 
   // Local States
-  const [staffs, setStaffs] = useState([]);
+  const [services, setServices] = useState([]);
   const [servicehModalOpen, setServiceModalOpen] = useState(false);
 
-  const staffsUniqueId = staffs.map((i) => {
-    const { firstName, middleName, lastName, birthdate } = i;
-    const m = getUniquePersonId({ firstName, middleName, lastName, birthdate });
-    return m;
-  });
+  // const staffsUniqueId = services.map((i) => {
+  //   const { firstName, middleName, lastName, birthdate } = i;
+  //   const m = getUniquePersonId({ firstName, middleName, lastName, birthdate });
+  //   return m;
+  // });
 
   useEffect(() => {
-    // const fetch = async () => {
-    //   // Get Staffs
-    //   const { data: staffList, error: getStaffsError } = await getStaffs({
-    //     branch: "LAKESIDE",
-    //   });
-    //   if (getStaffsError) return openErrorDialog(getStaffsError);
-    //   setStaffs(staffList);
-    // };
-    // fetch();
-    // // eslint-disable-next-line react-hooks/exhaustive-deps
+    const fetch = async () => {
+      // Get Services
+      const { data: serviceList, error: getServicesError } =
+        await getServices();
+      if (getServicesError) return openErrorDialog(getServicesError);
+
+      console.log(serviceList);
+      setServices(serviceList);
+    };
+    fetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleServiceModalOpen = () => {
     setServiceModalOpen(true);
   };
 
-  const handleCheckDuplicate = (newStaff) => staffsUniqueId.includes(newStaff);
+  // const handleCheckDuplicate = (newStaff) => staffsUniqueId.includes(newStaff);
 
-  const handleAddStaff = async (newStaff) => {
-    // Add Staff
-    const { error: addStaffError } = await addStaff({
-      staffs: newStaff,
+  const handleAddService = async (newService) => {
+    // Add Services
+    const { error: addServicesError } = await addService({
+      services: newService,
     });
-    if (addStaffError) return openErrorDialog(addStaffError);
+    if (addServicesError) return openErrorDialog(addServicesError);
 
     // Successful
-    const allStaffs = [...staffs, ...newStaff];
-    setStaffs(allStaffs);
+    const allServices = [...services, ...newService];
+    setServices(allServices);
 
     openResponseDialog({
       autoClose: true,
-      content: "Staff successfuly added.",
+      content: "Services successfuly added.",
       type: "SUCCESS",
       closeCb() {
         setServiceModalOpen(false);
@@ -116,12 +117,12 @@ const ServicesManagementPage = () => {
               </TableHead>
 
               <TableBody>
-                {staffs.map((i) => {
-                  const { id, service, description } = i;
+                {services.map((i) => {
+                  const { id, name, description } = i;
 
                   return (
                     <TableRow key={id}>
-                      <TableCell></TableCell>
+                      <TableCell>{name}</TableCell>
                       <TableCell>
                         <Typography
                           variant="caption"
@@ -133,7 +134,7 @@ const ServicesManagementPage = () => {
                           }}
                           component="div"
                         >
-                          {/* {address} */}
+                          {description}
                         </Typography>
                       </TableCell>
                     </TableRow>
@@ -148,8 +149,8 @@ const ServicesManagementPage = () => {
       <ManageServiceModal
         open={servicehModalOpen}
         setOpen={setServiceModalOpen}
-        onCheckDuplicate={handleCheckDuplicate}
-        onAddStaff={handleAddStaff}
+        // onCheckDuplicate={handleCheckDuplicate}
+        onAddService={handleAddService}
       />
     </Box>
   );
