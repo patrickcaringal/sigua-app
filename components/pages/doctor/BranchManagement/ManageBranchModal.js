@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
@@ -32,7 +32,8 @@ import { FieldArray, FormikProvider, useFormik } from "formik";
 
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { getFullName, getUniquePersonId } from "../../../../modules/helper";
-import { StaffSchema } from "../../../../modules/validation";
+import { BranchesSchema } from "../../../../modules/validation";
+import Form from "./Form";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -44,7 +45,7 @@ const defaultValues = {
 
 const defaultBranchValue = {
   name: "",
-  // services: [],
+  services: [],
   address: "",
   capacity: "",
 };
@@ -52,63 +53,37 @@ const defaultBranchValue = {
 export default function ManageBranchModal({
   open,
   setOpen,
-  onCheckDuplicate,
-  onAddStaff,
+  onAddBranch,
+  services,
 }) {
-  const { openResponseDialog } = useResponseDialog();
+  const servicesMap = services.reduce((acc, i) => {
+    return { ...acc, [i.name]: i.id };
+  }, {});
 
   const formik = useFormik({
     initialValues: defaultValues,
-    // validationSchema: StaffSchema,
+    validationSchema: BranchesSchema,
     validateOnChange: false,
     onSubmit: async (values) => {
-      // const { staffs } = values;
-      // const dupliNames = []; // used for error display
-      // // Check Duplicates
-      // const hasDuplicate = staffs.reduce((acc, i) => {
-      //   const { firstName, middleName, lastName, birthdate } = i;
-      //   const m = getUniquePersonId({
-      //     firstName,
-      //     middleName,
-      //     lastName,
-      //     birthdate,
-      //   });
-      //   const isDupli = onCheckDuplicate(m);
-      //   const fullname = getFullName({
-      //     firstName,
-      //     middleName,
-      //     lastName,
-      //   });
-      //   if (isDupli) dupliNames.push(fullname);
-      //   return acc || isDupli;
-      // }, false);
-      // if (hasDuplicate) {
-      //   openResponseDialog({
-      //     content: (
-      //       <>
-      //         <Typography variant="body1">Staff already exist</Typography>
-      //         <Typography variant="body2">{dupliNames.join(", ")}</Typography>
-      //       </>
-      //     ),
-      //     type: "WARNING",
-      //   });
-      //   return;
-      // }
-      // // Add Staff
-      // onAddStaff(staffs);
+      const { branches } = values;
+
+      const mappedBranches = branches.map((i) => ({
+        ...i,
+        services: i.services.map((j) => ({
+          id: servicesMap[j],
+          name: j,
+        })),
+      }));
+
+      onAddBranch(mappedBranches);
     },
   });
 
-  const {
-    handleSubmit,
-    handleChange,
-    handleBlur,
-    setFieldValue,
-    values,
-    errors,
-    touched,
-    resetForm,
-  } = formik;
+  const { handleSubmit, values, resetForm } = formik;
+
+  useEffect(() => {
+    if (!open) resetForm();
+  }, [open, resetForm]);
 
   const handleClose = () => {
     setOpen(false);
@@ -153,131 +128,7 @@ export default function ManageBranchModal({
         <Box sx={{ py: 2 }}>
           <FormikProvider value={formik}>
             <Container maxWidth="lg">
-              <FieldArray
-                name="branches"
-                render={({ push, remove }) => (
-                  <>
-                    <Fab
-                      color="primary"
-                      sx={{ position: "absolute", bottom: 16, right: 16 }}
-                      onClick={() => {
-                        push(defaultBranchValue);
-                      }}
-                      size="small"
-                    >
-                      <AddIcon />
-                    </Fab>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        px: 1,
-                        py: 1,
-                        rowGap: 3,
-                        overflow: "overlay",
-                        minHeight: 280,
-                      }}
-                    >
-                      {values.branches.map((s, index) => {
-                        const branchValue = values.branches[index];
-                        const branchTouched = touched.branches?.[index];
-                        const branchErrors = errors.branches?.[index];
-                        const getError = (field) =>
-                          branchTouched?.[field] && branchErrors?.[field];
-
-                        return (
-                          <Card key={index} elevation={2}>
-                            <CardHeader
-                              avatar={
-                                <Avatar sx={{ bgcolor: "primary.main" }}>
-                                  {index + 1}
-                                </Avatar>
-                              }
-                              action={
-                                <>
-                                  <IconButton
-                                    size="small"
-                                    onClick={() => {
-                                      remove(index);
-                                    }}
-                                  >
-                                    <CloseIcon />
-                                  </IconButton>
-                                </>
-                              }
-                              title={`Branch ${index + 1}`}
-                            />
-                            <CardContent>
-                              <Grid container spacing={2}>
-                                <Grid item xs={12} sm={8}>
-                                  <TextField
-                                    size="small"
-                                    required
-                                    fullWidth
-                                    label="Branch Name"
-                                    name={`branches[${index}].name`}
-                                    autoComplete="off"
-                                    value={branchValue.name}
-                                    onChange={(e) =>
-                                      setFieldValue(
-                                        `branches[${index}].name`,
-                                        e.target.value.toUpperCase()
-                                      )
-                                    }
-                                    onBlur={handleBlur}
-                                    error={getError("name")}
-                                    helperText={getError("name")}
-                                  />
-                                </Grid>
-                                <Grid item xs={12} sm={4}>
-                                  <TextField
-                                    size="small"
-                                    required
-                                    fullWidth
-                                    label="Capacity"
-                                    name={`branches[${index}].capacity`}
-                                    autoComplete="off"
-                                    value={branchValue.capacity}
-                                    onChange={(e) =>
-                                      setFieldValue(
-                                        `branches[${index}].capacity`,
-                                        e.target.value.toUpperCase()
-                                      )
-                                    }
-                                    onBlur={handleBlur}
-                                    error={getError("capacity")}
-                                    helperText={getError("capacity")}
-                                  />
-                                </Grid>
-                                <Grid item xs={12}>
-                                  <TextField
-                                    size="small"
-                                    required
-                                    fullWidth
-                                    label="Address"
-                                    name={`branches[${index}].address`}
-                                    autoComplete="off"
-                                    value={branchValue.address}
-                                    onChange={(e) =>
-                                      setFieldValue(
-                                        `branches[${index}].address`,
-                                        e.target.value.toUpperCase()
-                                      )
-                                    }
-                                    onBlur={handleBlur}
-                                    error={getError("address")}
-                                    helperText={getError("address")}
-                                  />
-                                </Grid>
-                              </Grid>
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
-                    </Box>
-                  </>
-                )}
-              />
+              <Form {...formik} services={services} />
             </Container>
           </FormikProvider>
         </Box>

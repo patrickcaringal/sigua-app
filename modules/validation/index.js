@@ -1,4 +1,5 @@
 import {
+  BranchesSchema,
   DoctorSigninSchema,
   FamilyMemberSchema,
   ServicesSchema,
@@ -9,6 +10,7 @@ import {
 } from "./schema";
 
 export {
+  BranchesSchema,
   DoctorSigninSchema,
   FamilyMemberSchema,
   ServicesSchema,

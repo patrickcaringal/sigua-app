@@ -4,6 +4,7 @@ import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import {
   Box,
   Button,
+  Chip,
   Paper,
   Table,
   TableBody,
@@ -13,6 +14,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
+import { omit as omitFields } from "lodash";
 import { useRouter } from "next/router";
 
 import { Toolbar } from "../../components/common";
@@ -20,8 +22,12 @@ import { ManageBranchModal } from "../../components/pages/doctor/BranchManagemen
 import { useBackdropLoader } from "../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../contexts/ResponseDialogContext";
 import useRequest from "../../hooks/useRequest";
-import { addStaffReq, getStaffsReq } from "../../modules/firebase";
-import { getFullName, getUniquePersonId } from "../../modules/helper";
+import {
+  addBranchReq,
+  getBranchesReq,
+  getServicesReq,
+} from "../../modules/firebase";
+import { pluralize } from "../../modules/helper";
 
 const BranchManagementPage = () => {
   const router = useRouter();
@@ -29,52 +35,68 @@ const BranchManagementPage = () => {
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   // Requests
-  const [getStaffs] = useRequest(getStaffsReq, setBackdropLoader);
-  const [addStaff] = useRequest(addStaffReq, setBackdropLoader);
+  const [getServices] = useRequest(getServicesReq, setBackdropLoader);
+  const [getBranches] = useRequest(getBranchesReq, setBackdropLoader);
+  const [addBranch] = useRequest(addBranchReq, setBackdropLoader);
 
   // Local States
-  const [staffs, setStaffs] = useState([]);
+  const [services, setServices] = useState([]);
+  const [servicesMap, setServicesMap] = useState({});
+  const [branches, setBranches] = useState([]);
   const [branchModalOpen, setBranchModalOpen] = useState(false);
 
-  const staffsUniqueId = staffs.map((i) => {
-    const { firstName, middleName, lastName, birthdate } = i;
-    const m = getUniquePersonId({ firstName, middleName, lastName, birthdate });
-    return m;
-  });
-
   useEffect(() => {
-    // const fetch = async () => {
-    //   // Get Staffs
-    //   const { data: staffList, error: getStaffsError } = await getStaffs({
-    //     branch: "LAKESIDE",
-    //   });
-    //   if (getStaffsError) return openErrorDialog(getStaffsError);
-    //   setStaffs(staffList);
-    // };
-    // fetch();
-    // // eslint-disable-next-line react-hooks/exhaustive-deps
+    const fetchServices = async () => {
+      // Get Services
+      const {
+        data: serviceList,
+        map: serviceMap,
+        error: getServiceError,
+      } = await getServices();
+      if (getServiceError) return openErrorDialog(getServiceError);
+
+      setServices(
+        serviceList.map((i) => ({
+          ...omitFields(i, ["dateCreated", "dateUpdated", "description"]),
+        }))
+      );
+      setServicesMap(serviceMap);
+    };
+
+    const fetchBranches = async () => {
+      // Get Branches
+      const { data: branchList, error: getBranchError } = await getBranches();
+      if (getBranchError) return openErrorDialog(getBranchError);
+
+      setBranches(branchList);
+    };
+
+    fetchServices();
+    fetchBranches();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleBranchModalOpen = () => {
     setBranchModalOpen(true);
   };
 
-  const handleCheckDuplicate = (newStaff) => staffsUniqueId.includes(newStaff);
-
-  const handleAddStaff = async (newStaff) => {
-    // Add Staff
-    const { error: addStaffError } = await addStaff({
-      staffs: newStaff,
+  const handleAddBranch = async (newBranch) => {
+    // Add Branch
+    const { data: addedBranch, error: addBranchError } = await addBranch({
+      docs: newBranch,
     });
-    if (addStaffError) return openErrorDialog(addStaffError);
+    if (addBranchError) return openErrorDialog(addBranchError);
 
     // Successful
-    const allStaffs = [...staffs, ...newStaff];
-    setStaffs(allStaffs);
+    setBranches((prev) => [...prev, ...addedBranch]);
 
     openResponseDialog({
       autoClose: true,
-      content: "Staff successfuly added.",
+      content: `${pluralize(
+        "Branch",
+        addedBranch.length,
+        "es"
+      )} successfuly added.`,
       type: "SUCCESS",
       closeCb() {
         setBranchModalOpen(false);
@@ -119,22 +141,31 @@ const BranchManagementPage = () => {
               </TableHead>
 
               <TableBody>
-                {staffs.map((i) => {
-                  const {
-                    id,
-                    firstName,
-                    suffix,
-                    lastName,
-                    middleName,
-                    email,
-                    branch,
-                    address,
-                  } = i;
+                {branches.map((i) => {
+                  const { id, name, address, capacity, services } = i;
 
                   return (
                     <TableRow key={id}>
-                      <TableCell></TableCell>
-                      <TableCell></TableCell>
+                      <TableCell>{name}</TableCell>
+                      <TableCell sx={{ maxWidth: 300 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "row",
+                            flexWrap: "wrap",
+                            gap: 1,
+                          }}
+                        >
+                          {services.map((s) => (
+                            <Chip
+                              key={s.id}
+                              label={servicesMap[s.id]}
+                              color="primary"
+                              size="small"
+                            />
+                          ))}
+                        </Box>
+                      </TableCell>
                       <TableCell sx={{ maxWidth: 200 }}>
                         <Typography
                           variant="caption"
@@ -146,10 +177,10 @@ const BranchManagementPage = () => {
                           }}
                           component="div"
                         >
-                          {/* {address} */}
+                          {address}
                         </Typography>
                       </TableCell>
-                      <TableCell></TableCell>
+                      <TableCell>{capacity}</TableCell>
                     </TableRow>
                   );
                 })}
@@ -160,10 +191,10 @@ const BranchManagementPage = () => {
       </Box>
 
       <ManageBranchModal
+        services={services}
         open={branchModalOpen}
         setOpen={setBranchModalOpen}
-        onCheckDuplicate={handleCheckDuplicate}
-        onAddStaff={handleAddStaff}
+        onAddBranch={handleAddBranch}
       />
     </Box>
   );

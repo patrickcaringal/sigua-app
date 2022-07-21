@@ -11,9 +11,9 @@ import { pluralize } from "../helper";
 import { getErrorMsg } from "./auth";
 import { db, timestampFields } from "./config";
 
-const collRef = collection(db, "services");
+const collRef = collection(db, "branches");
 
-export const getServicesReq = async () => {
+export const getBranchesReq = async () => {
   try {
     const querySnapshot = await getDocs(collRef);
 
@@ -22,16 +22,14 @@ export const getServicesReq = async () => {
       ...doc.data(),
     }));
 
-    const map = data.reduce((acc, i) => ({ ...acc, [i.id]: i.name }), {});
-
-    return { data, map, success: true };
+    return { data, success: true };
   } catch (error) {
     console.log(error);
     return { error: error.message };
   }
 };
 
-export const addServiceReq = async ({ docs }) => {
+export const addBranchReq = async ({ docs }) => {
   try {
     const q = query(
       collRef,
@@ -48,22 +46,23 @@ export const addServiceReq = async ({ docs }) => {
       const duplicates = querySnapshot.docs.map((i) => i.data().name);
       throw new Error(
         `Duplicate ${pluralize(
-          "Service",
-          duplicates.length
+          "Branch",
+          duplicates.length,
+          "es"
         )}. ${duplicates.join(", ")}`
       );
     }
 
-    // Bulk Create Service Document
+    // Bulk Create Document
     const batch = writeBatch(db);
 
-    const data = docs.map((serviceDoc) => {
+    const data = docs.map((d) => {
       const mappedDoc = {
-        ...serviceDoc,
+        ...d,
         ...timestampFields({ dateCreated: true, dateUpdated: true }),
       };
       const docRef = doc(collRef);
-      batch.set(doc(db, "services", docRef.id), mappedDoc);
+      batch.set(doc(db, "branches", docRef.id), mappedDoc);
 
       return mappedDoc;
     });

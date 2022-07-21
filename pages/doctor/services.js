@@ -56,7 +56,7 @@ const ServicesManagementPage = () => {
   const handleAddService = async (newService) => {
     // Add Services
     const { data: addedService, error: addServicesError } = await addService({
-      services: newService,
+      docs: newService,
     });
     if (addServicesError) return openErrorDialog(addServicesError);
 
@@ -65,7 +65,10 @@ const ServicesManagementPage = () => {
 
     openResponseDialog({
       autoClose: true,
-      content: `${pluralize("Service", newService.length)} successfuly added.`,
+      content: `${pluralize(
+        "Service",
+        addedService.length
+      )} successfuly added.`,
       type: "SUCCESS",
       closeCb() {
         setServiceModalOpen(false);
