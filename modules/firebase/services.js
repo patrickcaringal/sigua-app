@@ -1,5 +1,13 @@
-import { collection, doc, getDocs, writeBatch } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  where,
+  writeBatch,
+} from "firebase/firestore";
 
+import { pluralize } from "../helper";
 import { getErrorMsg } from "./auth";
 import { db } from "./config";
 
@@ -23,12 +31,33 @@ export const getServicesReq = async () => {
 
 export const addServiceReq = async ({ services }) => {
   try {
+    const q = query(
+      collRef,
+      where(
+        "name",
+        "in",
+        services.map((i) => i.name)
+      )
+    );
+    const querySnapshot = await getDocs(q);
+
+    const isDuplicate = querySnapshot.docs.length !== 0;
+    if (isDuplicate) {
+      const duplicates = querySnapshot.docs.map((i) => i.data().name);
+      throw new Error(
+        `Duplicate ${pluralize(
+          "Service",
+          duplicates.length
+        )}. ${duplicates.join(", ")}`
+      );
+    }
+
     // Bulk Create Service Document
     const batch = writeBatch(db);
 
     services.forEach((serviceDoc) => {
       const docRef = doc(collRef);
-      const mappedDoc = { ...serviceDoc };
+      const mappedDoc = { ...serviceDoc, dateCreated: new Date() };
 
       batch.set(doc(db, "services", docRef.id), mappedDoc);
     });

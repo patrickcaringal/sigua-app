@@ -1,34 +1,19 @@
-import React from "react";
+import React, { useEffect } from "react";
 
-import AddIcon from "@mui/icons-material/Add";
-import CloseIcon from "@mui/icons-material/Close";
 import {
   AppBar,
-  Avatar,
   Box,
   Button,
-  Card,
-  CardContent,
-  CardHeader,
   Container,
   Dialog,
-  Fab,
-  Grid,
-  IconButton,
-  InputLabel,
   Slide,
-  TextField,
   Toolbar,
   Typography,
 } from "@mui/material";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
-import { FieldArray, FormikProvider, useFormik } from "formik";
+import { FormikProvider, useFormik } from "formik";
 
-import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
-import { getFullName, getUniquePersonId } from "../../../../modules/helper";
-import { StaffSchema } from "../../../../modules/validation";
+import { ServicesSchema } from "../../../../modules/validation";
+import Form from "./Form";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -38,71 +23,24 @@ const defaultValues = {
   services: [],
 };
 
-const defaultServiceValue = {
-  name: "",
-  description: "",
-};
-
-export default function ManageServiceModal({
-  open,
-  setOpen,
-  onCheckDuplicate,
-  onAddService,
-}) {
-  const { openResponseDialog } = useResponseDialog();
-
+export default function ManageServiceModal({ open, setOpen, onAddService }) {
   const formik = useFormik({
     initialValues: defaultValues,
-    // validationSchema: StaffSchema,
+    validationSchema: ServicesSchema,
     validateOnChange: false,
     onSubmit: async (values) => {
       const { services } = values;
-      // const dupliNames = []; // used for error display
-      // // Check Duplicates
-      // const hasDuplicate = staffs.reduce((acc, i) => {
-      //   const { firstName, middleName, lastName, birthdate } = i;
-      //   const m = getUniquePersonId({
-      //     firstName,
-      //     middleName,
-      //     lastName,
-      //     birthdate,
-      //   });
-      //   const isDupli = onCheckDuplicate(m);
-      //   const fullname = getFullName({
-      //     firstName,
-      //     middleName,
-      //     lastName,
-      //   });
-      //   if (isDupli) dupliNames.push(fullname);
-      //   return acc || isDupli;
-      // }, false);
-      // if (hasDuplicate) {
-      //   openResponseDialog({
-      //     content: (
-      //       <>
-      //         <Typography variant="body1">Staff already exist</Typography>
-      //         <Typography variant="body2">{dupliNames.join(", ")}</Typography>
-      //       </>
-      //     ),
-      //     type: "WARNING",
-      //   });
-      //   return;
-      // }
+
       // Add Serivce
       onAddService(services);
     },
   });
 
-  const {
-    handleSubmit,
-    handleChange,
-    handleBlur,
-    setFieldValue,
-    values,
-    errors,
-    touched,
-    resetForm,
-  } = formik;
+  const { handleSubmit, values, resetForm } = formik;
+
+  useEffect(() => {
+    if (!open) resetForm();
+  }, [open, resetForm]);
 
   const handleClose = () => {
     setOpen(false);
@@ -147,111 +85,7 @@ export default function ManageServiceModal({
         <Box sx={{ py: 2 }}>
           <FormikProvider value={formik}>
             <Container maxWidth="lg">
-              <FieldArray
-                name="services"
-                render={({ push, remove }) => (
-                  <>
-                    <Fab
-                      color="primary"
-                      sx={{ position: "absolute", bottom: 16, right: 16 }}
-                      onClick={() => {
-                        push(defaultServiceValue);
-                      }}
-                      size="small"
-                    >
-                      <AddIcon />
-                    </Fab>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        px: 1,
-                        py: 1,
-                        rowGap: 3,
-                        overflow: "overlay",
-                        minHeight: 280,
-                      }}
-                    >
-                      {values.services.map((s, index) => {
-                        const serviceValue = values.services[index];
-                        const serviceTouched = touched.services?.[index];
-                        const serviceErrors = errors.services?.[index];
-                        const getError = (field) =>
-                          serviceTouched?.[field] && serviceErrors?.[field];
-
-                        return (
-                          <Card key={index} elevation={2}>
-                            <CardHeader
-                              avatar={
-                                <Avatar sx={{ bgcolor: "primary.main" }}>
-                                  {index + 1}
-                                </Avatar>
-                              }
-                              action={
-                                <>
-                                  <IconButton
-                                    size="small"
-                                    onClick={() => {
-                                      remove(index);
-                                    }}
-                                  >
-                                    <CloseIcon />
-                                  </IconButton>
-                                </>
-                              }
-                              title={`Service ${index + 1}`}
-                            />
-                            <CardContent>
-                              <Grid container spacing={2}>
-                                <Grid item xs={12} sm={12}>
-                                  <TextField
-                                    size="small"
-                                    required
-                                    fullWidth
-                                    label="Service"
-                                    name={`services[${index}].name`}
-                                    autoComplete="off"
-                                    value={serviceValue.name}
-                                    onChange={(e) =>
-                                      setFieldValue(
-                                        `services[${index}].name`,
-                                        e.target.value.toUpperCase()
-                                      )
-                                    }
-                                    onBlur={handleBlur}
-                                    error={getError("name")}
-                                    helperText={getError("name")}
-                                  />
-                                </Grid>
-                                <Grid item xs={12}>
-                                  <TextField
-                                    size="small"
-                                    required
-                                    fullWidth
-                                    label="Description"
-                                    name={`services[${index}].description`}
-                                    autoComplete="off"
-                                    value={serviceValue.description}
-                                    onChange={(e) =>
-                                      setFieldValue(
-                                        `services[${index}].description`,
-                                        e.target.value.toUpperCase()
-                                      )
-                                    }
-                                    onBlur={handleBlur}
-                                    error={getError("description")}
-                                    helperText={getError("description")}
-                                  />
-                                </Grid>
-                              </Grid>
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
-                    </Box>
-                  </>
-                )}
-              />
+              <Form {...formik} />
             </Container>
           </FormikProvider>
         </Box>

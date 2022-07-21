@@ -21,7 +21,8 @@ import { useBackdropLoader } from "../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../contexts/ResponseDialogContext";
 import useRequest from "../../hooks/useRequest";
 import { addServiceReq, getServicesReq } from "../../modules/firebase";
-import { getFullName, getUniquePersonId } from "../../modules/helper";
+import { formatTimeStamp, pluralize } from "../../modules/helper";
+
 const ServicesManagementPage = () => {
   const router = useRouter();
   const { setBackdropLoader } = useBackdropLoader();
@@ -35,12 +36,6 @@ const ServicesManagementPage = () => {
   const [services, setServices] = useState([]);
   const [servicehModalOpen, setServiceModalOpen] = useState(false);
 
-  // const staffsUniqueId = services.map((i) => {
-  //   const { firstName, middleName, lastName, birthdate } = i;
-  //   const m = getUniquePersonId({ firstName, middleName, lastName, birthdate });
-  //   return m;
-  // });
-
   useEffect(() => {
     const fetch = async () => {
       // Get Services
@@ -48,7 +43,6 @@ const ServicesManagementPage = () => {
         await getServices();
       if (getServicesError) return openErrorDialog(getServicesError);
 
-      console.log(serviceList);
       setServices(serviceList);
     };
     fetch();
@@ -58,8 +52,6 @@ const ServicesManagementPage = () => {
   const handleServiceModalOpen = () => {
     setServiceModalOpen(true);
   };
-
-  // const handleCheckDuplicate = (newStaff) => staffsUniqueId.includes(newStaff);
 
   const handleAddService = async (newService) => {
     // Add Services
@@ -74,7 +66,7 @@ const ServicesManagementPage = () => {
 
     openResponseDialog({
       autoClose: true,
-      content: "Services successfuly added.",
+      content: `${pluralize("Service", newService.length)} successfuly added.`,
       type: "SUCCESS",
       closeCb() {
         setServiceModalOpen(false);
@@ -118,7 +110,7 @@ const ServicesManagementPage = () => {
 
               <TableBody>
                 {services.map((i) => {
-                  const { id, name, description } = i;
+                  const { id, name, description, dateCreated } = i;
 
                   return (
                     <TableRow key={id}>
@@ -134,7 +126,7 @@ const ServicesManagementPage = () => {
                           }}
                           component="div"
                         >
-                          {description}
+                          {formatTimeStamp(dateCreated, "yyyy-dd-MM")}
                         </Typography>
                       </TableCell>
                     </TableRow>
@@ -149,7 +141,6 @@ const ServicesManagementPage = () => {
       <ManageServiceModal
         open={servicehModalOpen}
         setOpen={setServiceModalOpen}
-        // onCheckDuplicate={handleCheckDuplicate}
         onAddService={handleAddService}
       />
     </Box>

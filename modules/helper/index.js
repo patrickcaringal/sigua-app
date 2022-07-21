@@ -4,6 +4,13 @@ export const formatDate = (date, dateformat = "yyyy-MM-dd") => {
   return format(new Date(date), dateformat);
 };
 
+export const formatTimeStamp = (timestamp, dateformat = "yyyy-MM-dd") => {
+  return format(
+    new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000),
+    dateformat
+  );
+};
+
 export const getInitials = (str = "") => {
   return str.toUpperCase().charAt(0);
 };
@@ -25,3 +32,6 @@ export const getUniquePersonId = ({
   const id = `${fullname} ${formatDate(birthdate)}`;
   return id;
 };
+
+export const pluralize = (noun, count, suffix = "s") =>
+  `${noun}${count !== 1 ? suffix : ""}`;

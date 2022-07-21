@@ -76,3 +76,14 @@ export const StaffSchema = Yup.object().shape({
     })
   ),
 });
+
+export const ServicesSchema = Yup.object().shape({
+  services: Yup.array().of(
+    Yup.object().shape({
+      name: Yup.string().max(50, "First Name too long").required("Required"),
+      description: Yup.string()
+        .max(50, "First Name too long")
+        .required("Required"),
+    })
+  ),
+});

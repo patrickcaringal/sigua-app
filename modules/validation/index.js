@@ -1,6 +1,7 @@
 import {
   DoctorSigninSchema,
   FamilyMemberSchema,
+  ServicesSchema,
   SigninSchema,
   SignupSchema,
   StaffSchema,
@@ -10,6 +11,7 @@ import {
 export {
   DoctorSigninSchema,
   FamilyMemberSchema,
+  ServicesSchema,
   SigninSchema,
   SignupSchema,
   StaffSchema,
