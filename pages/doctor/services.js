@@ -21,7 +21,7 @@ import { useBackdropLoader } from "../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../contexts/ResponseDialogContext";
 import useRequest from "../../hooks/useRequest";
 import { addServiceReq, getServicesReq } from "../../modules/firebase";
-import { formatTimeStamp, pluralize } from "../../modules/helper";
+import { pluralize } from "../../modules/helper";
 
 const ServicesManagementPage = () => {
   const router = useRouter();
@@ -55,14 +55,13 @@ const ServicesManagementPage = () => {
 
   const handleAddService = async (newService) => {
     // Add Services
-    const { error: addServicesError } = await addService({
+    const { data: addedService, error: addServicesError } = await addService({
       services: newService,
     });
     if (addServicesError) return openErrorDialog(addServicesError);
 
     // Successful
-    const allServices = [...services, ...newService];
-    setServices(allServices);
+    setServices((prev) => [...prev, ...addedService]);
 
     openResponseDialog({
       autoClose: true,
@@ -110,11 +109,11 @@ const ServicesManagementPage = () => {
 
               <TableBody>
                 {services.map((i) => {
-                  const { id, name, description, dateCreated } = i;
+                  const { id, name, description } = i;
 
                   return (
                     <TableRow key={id}>
-                      <TableCell>{name}</TableCell>
+                      <TableCell sx={{ width: 250 }}>{name}</TableCell>
                       <TableCell>
                         <Typography
                           variant="caption"
@@ -126,7 +125,7 @@ const ServicesManagementPage = () => {
                           }}
                           component="div"
                         >
-                          {formatTimeStamp(dateCreated, "yyyy-dd-MM")}
+                          {description}
                         </Typography>
                       </TableCell>
                     </TableRow>

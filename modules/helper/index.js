@@ -5,6 +5,8 @@ export const formatDate = (date, dateformat = "yyyy-MM-dd") => {
 };
 
 export const formatTimeStamp = (timestamp, dateformat = "yyyy-MM-dd") => {
+  if (!timestamp) return "";
+
   return format(
     new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000),
     dateformat

@@ -1,4 +1,5 @@
 import {
+  Timestamp,
   collection,
   doc,
   getDocs,
@@ -9,7 +10,7 @@ import {
 
 import { pluralize } from "../helper";
 import { getErrorMsg } from "./auth";
-import { db } from "./config";
+import { db, timestampFields } from "./config";
 
 const collRef = collection(db, "services");
 
@@ -55,16 +56,20 @@ export const addServiceReq = async ({ services }) => {
     // Bulk Create Service Document
     const batch = writeBatch(db);
 
-    services.forEach((serviceDoc) => {
+    const data = services.map((serviceDoc) => {
+      const mappedDoc = {
+        ...serviceDoc,
+        ...timestampFields({ dateCreated: true, dateUpdated: true }),
+      };
       const docRef = doc(collRef);
-      const mappedDoc = { ...serviceDoc, dateCreated: new Date() };
-
       batch.set(doc(db, "services", docRef.id), mappedDoc);
+
+      return mappedDoc;
     });
 
     await batch.commit();
 
-    return { success: true };
+    return { data, success: true };
   } catch (error) {
     console.log(error);
     const errMsg = getErrorMsg(error.code);

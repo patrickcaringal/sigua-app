@@ -20,7 +20,14 @@ const defaultItem = {
   description: "",
 };
 
-const Form = ({ values, touched, errors, handleBlur, setFieldValue }) => {
+const Form = ({
+  values,
+  touched,
+  errors,
+  handleChange,
+  handleBlur,
+  setFieldValue,
+}) => {
   return (
     <FieldArray
       name="services"
@@ -90,12 +97,7 @@ const Form = ({ values, touched, errors, handleBlur, setFieldValue }) => {
                             name={getFieldName("name")}
                             autoComplete="off"
                             value={valueArr.name}
-                            onChange={(e) =>
-                              setFieldValue(
-                                getFieldName("name"),
-                                e.target.value.toUpperCase()
-                              )
-                            }
+                            onChange={handleChange}
                             onBlur={handleBlur}
                             error={getError("name")}
                             helperText={getError("name")}
@@ -110,12 +112,7 @@ const Form = ({ values, touched, errors, handleBlur, setFieldValue }) => {
                             name={`services[${index}].description`}
                             autoComplete="off"
                             value={valueArr.description}
-                            onChange={(e) =>
-                              setFieldValue(
-                                `services[${index}].description`,
-                                e.target.value.toUpperCase()
-                              )
-                            }
+                            onChange={handleChange}
                             onBlur={handleBlur}
                             error={getError("description")}
                             helperText={getError("description")}

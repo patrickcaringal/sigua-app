@@ -80,9 +80,9 @@ export const StaffSchema = Yup.object().shape({
 export const ServicesSchema = Yup.object().shape({
   services: Yup.array().of(
     Yup.object().shape({
-      name: Yup.string().max(50, "First Name too long").required("Required"),
+      name: Yup.string().max(50, "Service name too long").required("Required"),
       description: Yup.string()
-        .max(50, "First Name too long")
+        .max(250, "First Name too long")
         .required("Required"),
     })
   ),
