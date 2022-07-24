@@ -30,8 +30,6 @@ export default function ManageServiceModal({ open, setOpen, onAddService }) {
     validateOnChange: false,
     onSubmit: async (values) => {
       const { services } = values;
-
-      // Add Serivce
       onAddService(services);
     },
   });

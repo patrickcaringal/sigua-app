@@ -26,57 +26,26 @@ const defaultValues = {
   familyMembers: [],
 };
 
-const ManageFamilyMemberModal = ({
-  open,
-  setOpen,
-  onCheckDuplicate,
-  onAddMemeber,
-}) => {
+const ManageFamilyMemberModal = ({ open, data, setOpen, onSave }) => {
+  const isCreate = !data;
   const isMobileView = useMediaQuery((theme) => theme.breakpoints.only("xs"));
   const { openResponseDialog } = useResponseDialog();
+  const initialValues = isCreate ? defaultValues : { familyMembers: [data] };
 
   const formik = useFormik({
-    initialValues: defaultValues,
+    initialValues,
     validationSchema: FamilyMemberSchema,
     validateOnChange: false,
+    enableReinitialize: true,
     onSubmit: async (values) => {
       // automatic unverified family member
       const { familyMembers } = values;
 
-      const dupliNames = []; // used for error display
-
-      // Check Duplicates
-      const hasDuplicate = familyMembers.reduce((acc, i) => {
-        const { firstName, middleName, lastName, birthdate } = i;
-        const fullname = `${firstName} ${middleName} ${lastName}`;
-
-        const m = `${fullname} ${formatDate(birthdate)}`;
-        const isDupli = onCheckDuplicate(m);
-
-        if (isDupli) dupliNames.push(fullname);
-
-        return acc || isDupli;
-      }, false);
-
-      if (hasDuplicate) {
-        openResponseDialog({
-          content: (
-            <>
-              <Typography variant="body1">Duplicate Family Members</Typography>
-              <Typography variant="body2">{dupliNames.join(", ")}</Typography>
-            </>
-          ),
-          type: "WARNING",
-        });
-
-        return;
-      }
-
-      onAddMemeber(familyMembers);
+      onSave(familyMembers);
     },
   });
 
-  const { handleSubmit, values, resetForm } = formik;
+  const { handleSubmit, values, resetForm, dirty } = formik;
 
   const handleClose = () => {
     setOpen(false);
@@ -102,14 +71,14 @@ const ManageFamilyMemberModal = ({
           <Container maxWidth="lg">
             <Toolbar disableGutters>
               <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-                Add Family Member
+                {isCreate ? "Add" : "Edit"} Family Member
               </Typography>
 
               <Button
                 color="inherit"
                 sx={{ mr: 2 }}
                 type="submit"
-                disabled={values.familyMembers.length === 0}
+                disabled={values.familyMembers.length === 0 || !dirty}
               >
                 save
               </Button>
@@ -122,7 +91,7 @@ const ManageFamilyMemberModal = ({
         <Box sx={{ py: 2 }}>
           <FormikProvider value={formik}>
             <Container maxWidth="lg">
-              <Form {...formik} />
+              <Form {...formik} isCreate={isCreate} />
             </Container>
           </FormikProvider>
         </Box>

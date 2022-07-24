@@ -62,7 +62,6 @@ const ServicesManagementPage = () => {
 
     // Successful
     setServices((prev) => [...prev, ...addedService]);
-
     openResponseDialog({
       autoClose: true,
       content: `${pluralize(

@@ -31,22 +31,32 @@ const defaultMemberValue = {
   address: "",
 };
 
-const Form = ({ handleBlur, setFieldValue, values, errors, touched }) => {
+const Form = ({
+  isCreate,
+  // formik
+  handleBlur,
+  setFieldValue,
+  values,
+  errors,
+  touched,
+}) => {
   return (
     <FieldArray
       name="familyMembers"
       render={({ push, remove }) => (
         <>
-          <Fab
-            color="primary"
-            size="small"
-            sx={{ position: "absolute", bottom: 16, right: 16 }}
-            onClick={() => {
-              push(defaultMemberValue);
-            }}
-          >
-            <AddIcon />
-          </Fab>
+          {isCreate && (
+            <Fab
+              color="primary"
+              size="small"
+              sx={{ position: "absolute", bottom: 16, right: 16 }}
+              onClick={() => {
+                push(defaultMemberValue);
+              }}
+            >
+              <AddIcon />
+            </Fab>
+          )}
           <Box
             sx={{
               display: "flex",
@@ -68,30 +78,32 @@ const Form = ({ handleBlur, setFieldValue, values, errors, touched }) => {
                 `familyMembers[${index}].${field}`;
 
               return (
-                <Card key={index} elevation={2}>
-                  <CardHeader
-                    avatar={
-                      <Avatar
-                        sx={{ bgcolor: "primary.main" }}
-                        aria-label="recipe"
-                      >
-                        {index + 1}
-                      </Avatar>
-                    }
-                    action={
-                      <>
-                        <IconButton
-                          size="small"
-                          onClick={() => {
-                            remove(index);
-                          }}
+                <Card key={index} elevation={isCreate ? 2 : 0}>
+                  {isCreate && (
+                    <CardHeader
+                      avatar={
+                        <Avatar
+                          sx={{ bgcolor: "primary.main" }}
+                          aria-label="recipe"
                         >
-                          <CloseIcon />
-                        </IconButton>
-                      </>
-                    }
-                    title={`Family Member ${index + 1}`}
-                  />
+                          {index + 1}
+                        </Avatar>
+                      }
+                      action={
+                        <>
+                          <IconButton
+                            size="small"
+                            onClick={() => {
+                              remove(index);
+                            }}
+                          >
+                            <CloseIcon />
+                          </IconButton>
+                        </>
+                      }
+                      title={`Family Member ${index + 1}`}
+                    />
+                  )}
                   <CardContent>
                     <Grid container spacing={2}>
                       <Grid item xs={12} sm={6}>

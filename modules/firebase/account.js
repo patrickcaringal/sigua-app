@@ -11,7 +11,7 @@ import {
 } from "firebase/firestore";
 import { omit as omitFields } from "lodash";
 
-import { formatDate } from "../helper";
+import { formatDate, getFullName, pluralize } from "../helper";
 import { db } from "./config";
 
 const collRef = collection(db, "accounts");
@@ -44,8 +44,10 @@ export const createAccountReq = async (newDocument) => {
     // Add Default Memeber
     mappedNewDocument.familyMembers = [
       {
+        id: doc(collRef).id,
         accountId: docRef.id,
         verified: true,
+        verificationAttachment: null,
         ...omitFields(mappedNewDocument, [
           "password",
           "familyMembers",
@@ -122,6 +124,7 @@ export const getFamilyMembersReq = async (id) => {
     let data = [];
     if (docSnap.exists()) {
       data = docSnap.data().familyMembers;
+      data = data.map((i, index) => ({ index, ...i }));
     }
 
     return { data, success: true };
@@ -134,8 +137,43 @@ export const getFamilyMembersReq = async (id) => {
 export const addFamilyMembersReq = async ({ id, familyMembers }) => {
   try {
     const docRef = doc(db, "accounts", id);
-    await updateDoc(docRef, { familyMembers });
-    return { success: true };
+    const docSnap = await getDoc(docRef);
+
+    // Check Duplicates
+    let duplicates = [];
+    if (docSnap.exists()) {
+      const old = docSnap.data().familyMembers;
+      familyMembers.forEach((n) => {
+        const exist = old.filter((o) => getFullName(o) === getFullName(n));
+
+        if (exist.length) duplicates.push(getFullName(n));
+      });
+    }
+
+    if (duplicates.length) {
+      throw new Error(
+        `Duplicate ${pluralize(
+          "Family Member",
+          duplicates.length
+        )}. ${duplicates.join(", ")}`
+      );
+    }
+
+    // Insert default fields
+    familyMembers = familyMembers.map((i) => ({
+      ...i,
+      id: doc(collRef).id,
+      accountId: id,
+      birthdate: formatDate(i.birthdate),
+      ...(!i.contactNo && { verified: false, verificationAttachment: null }),
+    }));
+
+    // Update document
+    await updateDoc(docRef, {
+      familyMembers: [...docSnap.data().familyMembers, ...familyMembers],
+    });
+
+    return { data: familyMembers, success: true };
   } catch (error) {
     console.log(error);
     return { error: error.message };

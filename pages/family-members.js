@@ -37,6 +37,11 @@ import {
 } from "../modules/firebase";
 import { formatDate, getFullName, getInitials } from "../modules/helper";
 
+const defaultFamilyMemberModal = {
+  open: false,
+  data: null,
+};
+
 const FamilyMemberPage = () => {
   const router = useRouter();
   const { user } = useAuth();
@@ -47,11 +52,13 @@ const FamilyMemberPage = () => {
   const [getFamilyMembers] = useRequest(getFamilyMembersReq, setBackdropLoader);
   const [addFamilyMembers] = useRequest(addFamilyMembersReq, setBackdropLoader);
   const [uploadImage] = useRequest(uploadImageReq);
-  const [updateFamilyMembers] = useRequest(updateFamilyMembersReq);
+  const [updateFamilyMemberVerification] = useRequest(updateFamilyMembersReq);
 
   // Local States
   const [members, setMembers] = useState([]);
-  const [familyMemberModalOpen, setFamilyMemberModalOpen] = useState(false);
+  const [familyMemberModal, setFamilyMemberModal] = useState(
+    defaultFamilyMemberModal
+  );
   // Attachment Modal
   const [attachmentModalOpen, setAttachmentModalOpen] = useState(false);
   const [attachmentModalData, setAttachmentModalData] = useState({});
@@ -71,47 +78,74 @@ const FamilyMemberPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user.id]);
 
-  const membersUniqueId = members.map((i) => {
-    const { firstName, middleName, lastName, birthdate } = i;
-    const fullname = `${firstName} ${middleName} ${lastName}`;
-
-    const m = `${fullname} ${formatDate(birthdate)}`;
-    return m;
-  });
-
   const handleMemberModalOpen = () => {
-    setFamilyMemberModalOpen(true);
+    setFamilyMemberModal({
+      open: true,
+      data: null,
+    });
   };
 
-  const handleCheckDuplicate = (newMember) => {
-    return membersUniqueId.includes(newMember);
+  const handleEditMemberModalOpen = (member, index) => {
+    setFamilyMemberModal({
+      open: true,
+      data: member,
+    });
   };
 
   const handleAddMemeber = async (newMembers) => {
-    const mappedNewMembers = newMembers.map((i) => {
-      return {
-        ...i,
-        ...(!i.contactNo && { verified: false, verificationAttachment: null }),
-        accountId: user.id,
-        birthdate: formatDate(i.birthdate),
-      };
-    });
-
-    // Add Family Member
-    const allMembers = [...members, ...mappedNewMembers];
-    const { error: addFamMemberError } = await addFamilyMembers({
-      id: user.id,
-      familyMembers: allMembers,
-    });
+    // Add
+    const { data: addedMembers, error: addFamMemberError } =
+      await addFamilyMembers({
+        id: user.id,
+        familyMembers: newMembers,
+      });
     if (addFamMemberError) return openErrorDialog(addFamMemberError);
 
-    setMembers(allMembers);
+    // Successful
+    setMembers((prev) => [...prev, ...addedMembers]);
     openResponseDialog({
       autoClose: true,
       content: "Family members successfuly added.",
       type: "SUCCESS",
       closeCb() {
-        setFamilyMemberModalOpen(false);
+        setFamilyMemberModal(defaultFamilyMemberModal);
+      },
+    });
+  };
+
+  const handleEditMemeber = async (updatedDocs) => {
+    setBackdropLoader(true);
+
+    const updatedMember = updatedDocs[0];
+    const index = updatedMember.index;
+    const membersCopy = [...members];
+
+    membersCopy[index] = {
+      ...membersCopy[index],
+      ...updatedMember,
+    };
+
+    // Update
+    const { error: updateFamMemberError } =
+      await updateFamilyMemberVerification({
+        id: user.id,
+        familyMembers: membersCopy,
+      });
+
+    if (updateFamMemberError) {
+      setBackdropLoader(false);
+      return openErrorDialog(updateFamMemberError);
+    }
+
+    // Success
+    setBackdropLoader(false);
+    setMembers(membersCopy);
+    openResponseDialog({
+      autoClose: true,
+      content: "Family member successfuly updated.",
+      type: "SUCCESS",
+      closeCb() {
+        setFamilyMemberModal(defaultFamilyMemberModal);
       },
     });
   };
@@ -142,20 +176,21 @@ const FamilyMemberPage = () => {
   const handleUploadAttachment = async (file) => {
     setBackdropLoader(true);
 
-    // Upload Verification Attachment
+    // Upload
     const { data: url, error: uploadError } = await uploadImage({ file });
     if (uploadError) {
       setBackdropLoader(false);
       return openErrorDialog(uploadError);
     }
 
-    // Update Fam Member Verification Attachment
+    // Update
     const updatedMembers = updateMembers(attachmentModalData.index, url);
-    const { error: updateFamMemberError } = await updateFamilyMembers({
-      id: user.id,
-      familyMembers: updatedMembers,
-      hasVerificationForApproval: true,
-    });
+    const { error: updateFamMemberError } =
+      await updateFamilyMemberVerification({
+        id: user.id,
+        familyMembers: updatedMembers,
+        hasVerificationForApproval: true,
+      });
     if (updateFamMemberError) {
       setBackdropLoader(false);
       return openErrorDialog(updateFamMemberError);
@@ -200,7 +235,6 @@ const FamilyMemberPage = () => {
           columnGap: 2,
           rowGap: 2,
           mt: 1,
-          // py: 2,
         }}
       >
         {members.map((i, index) => {
@@ -237,7 +271,10 @@ const FamilyMemberPage = () => {
                   }
                   action={
                     <>
-                      <IconButton size="small">
+                      <IconButton
+                        size="small"
+                        onClick={() => handleEditMemberModalOpen(i, index)}
+                      >
                         <EditIcon />
                       </IconButton>
                       {statusUploadAllowed.includes(status) && (
@@ -317,10 +354,10 @@ const FamilyMemberPage = () => {
       </Box>
 
       <ManageFamilyMemberModal
-        open={familyMemberModalOpen}
-        setOpen={setFamilyMemberModalOpen}
-        onCheckDuplicate={handleCheckDuplicate}
-        onAddMemeber={handleAddMemeber}
+        open={familyMemberModal.open}
+        data={familyMemberModal.data}
+        setOpen={setFamilyMemberModal}
+        onSave={!familyMemberModal.data ? handleAddMemeber : handleEditMemeber}
       />
 
       <UploadAttachmentModal
