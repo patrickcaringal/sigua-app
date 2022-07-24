@@ -2,8 +2,9 @@ import * as React from "react";
 
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import GroupIcon from "@mui/icons-material/Group";
-import MailIcon from "@mui/icons-material/Mail";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
+import MapsHomeWorkIcon from "@mui/icons-material/MapsHomeWork";
+import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
+import WarehouseIcon from "@mui/icons-material/Warehouse";
 import {
   Box,
   Divider,
@@ -17,6 +18,7 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 
+import { PATHS } from "../../components/common/Routes";
 import { useAuth } from "../../contexts/AuthContext";
 
 const drawerWidth = 240;
@@ -33,7 +35,17 @@ const LeftSidebar = () => {
         {
           text: "Staffs",
           icon: <GroupIcon />,
-          onClick: () => router.push("/doctor/staffs"),
+          onClick: () => router.push(PATHS.DOCTOR.STAFF_MANAGEMENT),
+        },
+        {
+          text: "Branches",
+          icon: <MapsHomeWorkIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.BRANCH_MANAGEMENT),
+        },
+        {
+          text: "Services",
+          icon: <MedicalServicesIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.SERVICES_MANAGEMENT),
         },
       ]
     : [

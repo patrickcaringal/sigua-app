@@ -38,6 +38,7 @@ export const createAccountReq = async (newDocument) => {
       birthdate: formatDate(birthdate),
       password: hashPassword(password),
       familyMembers: [],
+      hasVerificationForApproval: false,
       role: "patient",
     };
     // Add Default Memeber
@@ -45,7 +46,12 @@ export const createAccountReq = async (newDocument) => {
       {
         accountId: docRef.id,
         verified: true,
-        ...omitFields(mappedNewDocument, ["password", "familyMembers", "role"]),
+        ...omitFields(mappedNewDocument, [
+          "password",
+          "familyMembers",
+          "role",
+          "hasVerificationForApproval",
+        ]),
       },
     ];
 
@@ -138,10 +144,11 @@ export const addFamilyMembersReq = async ({ id, familyMembers }) => {
 
 export const updateFamilyMembersReq = async ({ id, familyMembers }) => {
   try {
+    // Check if has fam member for verification
+    const hasVerificationForApproval = familyMembers.some((i) => !i.verified);
+
     const docRef = doc(db, "accounts", id);
-    await updateDoc(docRef, {
-      familyMembers,
-    });
+    await updateDoc(docRef, { familyMembers, hasVerificationForApproval });
 
     return { success: true };
   } catch (error) {
@@ -152,9 +159,7 @@ export const updateFamilyMembersReq = async ({ id, familyMembers }) => {
 
 export const getMemberForApprovalReq = async ({}) => {
   try {
-    // TODO: query by familyMembersForApproval field
-    const q = query(collRef);
-    // , where("branch", "==", branch)
+    const q = query(collRef, where("hasVerificationForApproval", "==", true));
 
     const querySnapshot = await getDocs(q);
 

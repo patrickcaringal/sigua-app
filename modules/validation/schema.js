@@ -76,3 +76,29 @@ export const StaffSchema = Yup.object().shape({
     })
   ),
 });
+
+export const ServicesSchema = Yup.object().shape({
+  services: Yup.array().of(
+    Yup.object().shape({
+      name: Yup.string().max(50, "Service name too long").required("Required"),
+      description: Yup.string()
+        .max(250, "Description too long")
+        .required("Required"),
+    })
+  ),
+});
+
+export const BranchesSchema = Yup.object().shape({
+  branches: Yup.array().of(
+    Yup.object().shape({
+      name: Yup.string().max(50, "Branch name too long").required("Required"),
+      services: Yup.array().min(1, "Required"),
+      capacity: Yup.number()
+        .required("Required")
+        .test("Is positive?", "Positive number only", (value) => value >= 0),
+      address: Yup.string()
+        .max(250, "Description too long")
+        .required("Required"),
+    })
+  ),
+});

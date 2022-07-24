@@ -24,11 +24,11 @@ const DashboardPage = () => {
       sx={{
         height: "calc(100vh - 64px)",
         display: "flex",
-        flexDirection: "row",
+        flexDirection: { xs: "column", md: "row" },
         alignItems: "center",
         justifyContent: "center",
-        py: 4,
-        px: 2,
+        rowGap: 3,
+        columnGap: 3,
       }}
     >
       <Card sx={{ width: 296, height: 208 }}>
@@ -59,7 +59,7 @@ const DashboardPage = () => {
         </CardActionArea>
       </Card>
 
-      <Card sx={{ width: 296, height: 208, mx: 4 }}>
+      <Card sx={{ width: 296, height: 208 }}>
         <CardActionArea sx={{ width: "inherit", height: "inherit" }}>
           <CardContent
             sx={{

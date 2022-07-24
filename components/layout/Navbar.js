@@ -100,12 +100,20 @@ const ResponsiveAppBar = () => {
       >
         <Container maxWidth={isAdminPanel ? "none" : "lg"}>
           <Toolbar disableGutters>
-            {/* <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} /> */}
-            <Logo width="160" height="56" />
+            {/* Left */}
+            <Box sx={{ flexGrow: 1 }}>
+              <Logo width="160" height="56" />
+            </Box>
 
             {/* Mobile */}
-            <>
-              <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+            {/* <>
+              <Box
+                sx={{
+                  flexGrow: 1,
+                  display: { xs: "flex", md: "none" },
+                  color: "black",
+                }}
+              >
                 <IconButton
                   size="large"
                   aria-label="account of current user"
@@ -141,39 +149,15 @@ const ResponsiveAppBar = () => {
                   ))}
                 </Menu>
               </Box>
-              <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
-              <Typography
-                variant="h5"
-                noWrap
-                component="a"
-                href=""
+              <Box
                 sx={{
-                  mr: 2,
-                  display: { xs: "flex", md: "none" },
                   flexGrow: 1,
-                  fontFamily: "monospace",
-                  fontWeight: 700,
-                  letterSpacing: ".3rem",
-                  color: "inherit",
-                  textDecoration: "none",
+                  display: { xs: "flex", md: "none" },
                 }}
               >
-                Sigua mobile
-              </Typography>
-            </>
-
-            {/* Navbar items */}
-            <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-              {/* {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: "white", display: "block" }}
-              >
-                {page}
-              </Button>
-            ))} */}
-            </Box>
+                <Logo width="160" height="56" />
+              </Box>
+            </> */}
 
             {/* Right */}
             <Box sx={{ flexGrow: 0 }}>
