@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 
 import EditIcon from "@mui/icons-material/Edit";
-import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import {
   Avatar,
@@ -189,7 +188,6 @@ const FamilyMemberPage = () => {
           variant="contained"
           size="small"
           onClick={handleMemberModalOpen}
-          startIcon={<GroupAddIcon />}
         >
           Add Family Member
         </Button>
