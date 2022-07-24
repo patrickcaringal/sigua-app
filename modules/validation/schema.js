@@ -17,10 +17,10 @@ export const SignupSchema = Yup.object().shape({
 });
 
 export const VerificationCodeSchema = Yup.object().shape({
-  digit1: Yup.string().required("Required"),
-  digit2: Yup.string().required("Required"),
-  digit3: Yup.string().required("Required"),
-  digit4: Yup.string().required("Required"),
+  digit1: Yup.number().required("Required"),
+  digit2: Yup.number().required("Required"),
+  digit3: Yup.number().required("Required"),
+  digit4: Yup.number().required("Required"),
 });
 
 export const SigninSchema = Yup.object().shape({

@@ -1,30 +1,15 @@
 import React, { useEffect, useState } from "react";
 
-import EditIcon from "@mui/icons-material/Edit";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
-import {
-  Avatar,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  Container,
-  Divider,
-  IconButton,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Container, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 
 import { Toolbar } from "../components/common";
 import {
-  MEMBER_STATUS,
+  Cards,
   ManageFamilyMemberModal,
   UploadAttachmentModal,
-  icons,
-  statusUploadAllowed,
 } from "../components/pages/patient/FamilyMembers";
+import { MobileNumberVerificationModal } from "../components/shared";
 import { useAuth } from "../contexts/AuthContext";
 import { useBackdropLoader } from "../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../contexts/ResponseDialogContext";
@@ -35,11 +20,10 @@ import {
   updateFamilyMembersReq,
   uploadImageReq,
 } from "../modules/firebase";
-import { formatDate, getFullName, getInitials } from "../modules/helper";
 
-const defaultFamilyMemberModal = {
+const defaultModal = {
   open: false,
-  data: null,
+  data: {},
 };
 
 const FamilyMemberPage = () => {
@@ -56,12 +40,11 @@ const FamilyMemberPage = () => {
 
   // Local States
   const [members, setMembers] = useState([]);
-  const [familyMemberModal, setFamilyMemberModal] = useState(
-    defaultFamilyMemberModal
-  );
+  const [familyMemberModal, setFamilyMemberModal] = useState(defaultModal);
   // Attachment Modal
-  const [attachmentModalOpen, setAttachmentModalOpen] = useState(false);
-  const [attachmentModalData, setAttachmentModalData] = useState({});
+  const [verificationModal, setVerificationModal] = useState(defaultModal);
+  // Phone Verification Modal
+  const [phoneModal, setPhoneModal] = useState(defaultModal);
 
   useEffect(() => {
     const fetch = async () => {
@@ -85,8 +68,15 @@ const FamilyMemberPage = () => {
     });
   };
 
-  const handleEditMemberModalOpen = (member, index) => {
+  const handleEditMemberModalOpen = (member) => {
     setFamilyMemberModal({
+      open: true,
+      data: member,
+    });
+  };
+
+  const handlePhoneModalOpen = (member) => {
+    setPhoneModal({
       open: true,
       data: member,
     });
@@ -108,7 +98,7 @@ const FamilyMemberPage = () => {
       content: "Family members successfuly added.",
       type: "SUCCESS",
       closeCb() {
-        setFamilyMemberModal(defaultFamilyMemberModal);
+        setFamilyMemberModal(defaultModal);
       },
     });
   };
@@ -145,21 +135,25 @@ const FamilyMemberPage = () => {
       content: "Family member successfuly updated.",
       type: "SUCCESS",
       closeCb() {
-        setFamilyMemberModal(defaultFamilyMemberModal);
+        setFamilyMemberModal(defaultModal);
       },
     });
   };
 
-  const handleAttachmentModalOpen = (member, index) => {
-    const { firstName, lastName, middleName } = member;
-
-    setAttachmentModalOpen(true);
-    setAttachmentModalData({ index, firstName, lastName, middleName });
+  const handleAttachmentModalOpen = (member) => {
+    const { firstName, lastName, middleName, index } = member;
+    setVerificationModal({
+      open: true,
+      data: { index, firstName, lastName, middleName },
+    });
   };
 
   const handleAttachmentModalClose = () => {
-    setAttachmentModalOpen(false);
-    setAttachmentModalData({});
+    setVerificationModal(defaultModal);
+  };
+
+  const handlePhoneModalClose = () => {
+    setPhoneModal(defaultModal);
   };
 
   const updateMembers = (index, url) => {
@@ -184,7 +178,7 @@ const FamilyMemberPage = () => {
     }
 
     // Update
-    const updatedMembers = updateMembers(attachmentModalData.index, url);
+    const updatedMembers = updateMembers(verificationModal.data.index, url);
     const { error: updateFamMemberError } =
       await updateFamilyMemberVerification({
         id: user.id,
@@ -196,6 +190,7 @@ const FamilyMemberPage = () => {
       return openErrorDialog(updateFamMemberError);
     }
 
+    // Success
     setMembers(updatedMembers);
     setBackdropLoader(false);
     openResponseDialog({
@@ -232,125 +227,17 @@ const FamilyMemberPage = () => {
           display: "flex",
           flexDirection: { sx: "column", md: "row" },
           flexWrap: "wrap",
-          columnGap: 2,
-          rowGap: 2,
+          gap: 2,
           mt: 1,
+          pb: 1,
         }}
       >
-        {members.map((i, index) => {
-          const {
-            firstName,
-            contactNo,
-            birthdate,
-            address,
-            gender,
-            verified,
-            verificationAttachment,
-            verificationRejectReason,
-          } = i;
-
-          const status = verified
-            ? MEMBER_STATUS.VERFIED
-            : !verificationAttachment
-            ? MEMBER_STATUS.FOR_VERIFICATION
-            : verificationAttachment && verificationRejectReason
-            ? MEMBER_STATUS.REJECTED
-            : MEMBER_STATUS.FOR_APPROVAL;
-
-          return (
-            <React.Fragment key={index}>
-              <Card sx={{ width: { xs: "100%", md: 345 } }}>
-                <CardHeader
-                  avatar={
-                    <Avatar
-                      sx={{ bgcolor: "primary.main" }}
-                      aria-label="recipe"
-                    >
-                      {getInitials(firstName)}
-                    </Avatar>
-                  }
-                  action={
-                    <>
-                      <IconButton
-                        size="small"
-                        onClick={() => handleEditMemberModalOpen(i, index)}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      {statusUploadAllowed.includes(status) && (
-                        <IconButton
-                          size="small"
-                          onClick={() => handleAttachmentModalOpen(i, index)}
-                        >
-                          <UploadFileIcon />
-                        </IconButton>
-                      )}
-                    </>
-                  }
-                  title={getFullName(i)}
-                  subheader={
-                    status === MEMBER_STATUS.REJECTED ? (
-                      <Tooltip
-                        title={`Rejection reason: ${verificationRejectReason}`}
-                      >
-                        <Typography variant="body2" color="text.secondary">
-                          {icons[status]}
-                        </Typography>
-                      </Tooltip>
-                    ) : (
-                      <Typography variant="body2" color="text.secondary">
-                        {icons[status]}
-                      </Typography>
-                    )
-                  }
-                />
-                <CardContent>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      mb: 1,
-                    }}
-                  >
-                    {contactNo && (
-                      <>
-                        <Typography variant="body2" color="text.secondary">
-                          {contactNo}
-                        </Typography>
-                        <Divider
-                          orientation="vertical"
-                          variant="middle"
-                          flexItem
-                          sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
-                        />
-                      </>
-                    )}
-                    <Typography variant="body2" color="text.secondary">
-                      {formatDate(birthdate, "MMMM dd, yyyy")}
-                    </Typography>
-                    <Divider
-                      orientation="vertical"
-                      variant="middle"
-                      flexItem
-                      sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
-                    />
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ textTransform: "capitalize" }}
-                    >
-                      {gender}
-                    </Typography>
-                  </Box>
-
-                  <Typography variant="body2" color="text.secondary">
-                    {address}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </React.Fragment>
-          );
-        })}
+        <Cards
+          data={members}
+          onEditModal={handleEditMemberModalOpen}
+          onVerificationModal={handleAttachmentModalOpen}
+          onPhoneModal={handlePhoneModalOpen}
+        />
       </Box>
 
       <ManageFamilyMemberModal
@@ -361,10 +248,15 @@ const FamilyMemberPage = () => {
       />
 
       <UploadAttachmentModal
-        data={attachmentModalData}
-        open={attachmentModalOpen}
+        data={verificationModal.data}
+        open={verificationModal.open}
         onClose={handleAttachmentModalClose}
         onUpload={handleUploadAttachment}
+      />
+
+      <MobileNumberVerificationModal
+        open={phoneModal.open}
+        onClose={handlePhoneModalClose}
       />
     </Container>
   );

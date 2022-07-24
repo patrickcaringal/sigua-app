@@ -5,22 +5,14 @@ import {
   Box,
   Button,
   Container,
-  Dialog,
-  Slide,
   Toolbar,
   Typography,
 } from "@mui/material";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import { FormikProvider, useFormik } from "formik";
 
-import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
-import { formatDate } from "../../../../modules/helper";
+import { Modal } from "../../../../components/common";
 import { FamilyMemberSchema } from "../../../../modules/validation";
 import Form from "./Form";
-
-const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
 
 const defaultValues = {
   familyMembers: [],
@@ -28,8 +20,6 @@ const defaultValues = {
 
 const ManageFamilyMemberModal = ({ open, data, setOpen, onSave }) => {
   const isCreate = !data;
-  const isMobileView = useMediaQuery((theme) => theme.breakpoints.only("xs"));
-  const { openResponseDialog } = useResponseDialog();
   const initialValues = isCreate ? defaultValues : { familyMembers: [data] };
 
   const formik = useFormik({
@@ -40,7 +30,6 @@ const ManageFamilyMemberModal = ({ open, data, setOpen, onSave }) => {
     onSubmit: async (values) => {
       // automatic unverified family member
       const { familyMembers } = values;
-
       onSave(familyMembers);
     },
   });
@@ -53,14 +42,7 @@ const ManageFamilyMemberModal = ({ open, data, setOpen, onSave }) => {
   };
 
   return (
-    <Dialog
-      fullScreen={isMobileView}
-      fullWidth
-      maxWidth="sm"
-      open={open}
-      onClose={handleClose}
-      TransitionComponent={Transition}
-    >
+    <Modal open={open} onClose={handleClose}>
       <Box
         component="form"
         noValidate
@@ -96,7 +78,7 @@ const ManageFamilyMemberModal = ({ open, data, setOpen, onSave }) => {
           </FormikProvider>
         </Box>
       </Box>
-    </Dialog>
+    </Modal>
   );
 };
 
