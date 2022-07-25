@@ -14,8 +14,9 @@ import {
   where,
   writeBatch,
 } from "firebase/firestore";
+import lodash from "lodash";
 
-import { formatDate, getFullName, pluralize } from "../helper";
+import { formatTimeStamp, getFullName, pluralize } from "../helper";
 import { getErrorMsg } from "./auth";
 import { auth, db, secondaryAuth, timestampFields } from "./config";
 
@@ -54,8 +55,8 @@ export const getStaffsReq = async ({ branch }) => {
     // const q = query(collRef, where("branch", "==", branch));
     const querySnapshot = await getDocs(collRef);
 
-    const data = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
+    const data = querySnapshot.docs.map((doc, index) => ({
+      index,
       ...doc.data(),
     }));
 
@@ -115,7 +116,7 @@ export const addStaffReq = async ({ staffs }) => {
 
     // Bulk Create Auth Account
     for (let index = 0; index < staffs.length; index++) {
-      const staffdoc = staffs[index];
+      const staffdoc = { ...staffs[index] };
       const { birthdate, email } = staffdoc;
 
       const {
@@ -130,19 +131,44 @@ export const addStaffReq = async ({ staffs }) => {
         ...staffdoc,
         id: uid,
         name: getFullName(staffdoc),
-        birthdate: Timestamp.fromDate(birthdate),
+        birthdate: Timestamp.fromDate(new Date(birthdate)),
         // formatDate(birthdate)
         role: "staff",
         ...timestampFields({ dateCreated: true, dateUpdated: true }),
       };
 
-      batch.set(doc(db, "staffs", doc(collRef).id), staffdoc);
+      batch.set(doc(db, "staffs", uid), staffdoc);
+
+      staffs[index] = { ...staffdoc };
     }
 
     // Bulk Create Account Document
     await batch.commit();
 
     return { data: staffs, success: true };
+  } catch (error) {
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const updateStaffReq = async ({ staff }) => {
+  try {
+    // Check fullname duplicate
+    const q = query(collRef, where("name", "==", getFullName(staff)));
+    const querySnapshot = await getDocs(q);
+
+    const isDuplicate =
+      querySnapshot.docs.filter((doc) => doc.id !== staff.id).length !== 0;
+    if (isDuplicate) {
+      throw new Error(`Duplicate Staff. ${getFullName(staff)}`);
+    }
+
+    // Update
+    const docRef = doc(db, "staffs", staff.id);
+    await updateDoc(docRef, { ...lodash.omit(staff, ["id", "index"]) });
+
+    return { success: true };
   } catch (error) {
     const errMsg = getErrorMsg(error.code);
     return { error: errMsg || error.message };

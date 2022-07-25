@@ -21,7 +21,7 @@ import { FieldArray } from "formik";
 
 import { DatePicker, Input } from "../../../../components/common/Form";
 
-const defaultMemberValue = {
+const defaultItem = {
   firstName: "",
   middleName: "",
   lastName: "",
@@ -53,7 +53,7 @@ const Form = ({
               size="small"
               sx={{ position: "absolute", bottom: 16, right: 16 }}
               onClick={() => {
-                push(defaultMemberValue);
+                push(defaultItem);
               }}
             >
               <AddIcon />

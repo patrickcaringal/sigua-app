@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 
+import EditIcon from "@mui/icons-material/Edit";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import {
   Box,
   Button,
+  IconButton,
   Paper,
   Table,
   TableBody,
@@ -20,10 +22,19 @@ import { ManageStaffModal } from "../../components/pages/doctor/StaffManagement"
 import { useBackdropLoader } from "../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../contexts/ResponseDialogContext";
 import useRequest from "../../hooks/useRequest";
-import { addStaffReq, getStaffsReq } from "../../modules/firebase";
-import { pluralize } from "../../modules/helper";
+import {
+  addStaffReq,
+  getStaffsReq,
+  updateStaffReq,
+} from "../../modules/firebase";
+import { formatTimeStamp, getFullName, pluralize } from "../../modules/helper";
 
-const DashboardPage = () => {
+const defaultModal = {
+  open: false,
+  data: {},
+};
+
+const StaffsPage = () => {
   const router = useRouter();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
@@ -31,10 +42,12 @@ const DashboardPage = () => {
   // Requests
   const [getStaffs] = useRequest(getStaffsReq, setBackdropLoader);
   const [addStaff] = useRequest(addStaffReq, setBackdropLoader);
+  const [updateStaff] = useRequest(updateStaffReq, setBackdropLoader);
 
   // Local States
   const [staffs, setStaffs] = useState([]);
-  const [staffModalOpen, setStaffModalOpen] = useState(false);
+  // const [staffModalOpen, setStaffModalOpen] = useState(false);
+  const [staffModal, setStaffModal] = useState(defaultModal);
 
   useEffect(() => {
     const fetch = async () => {
@@ -52,7 +65,10 @@ const DashboardPage = () => {
   }, []);
 
   const handleStaffModalOpen = () => {
-    setStaffModalOpen(true);
+    setStaffModal({
+      open: true,
+      data: null,
+    });
   };
 
   const handleAddStaff = async (newStaff) => {
@@ -70,12 +86,49 @@ const DashboardPage = () => {
       content: `${pluralize("Staff", addedStaff.length)} successfuly added.`,
       type: "SUCCESS",
       closeCb() {
-        setStaffModalOpen(false);
+        setStaffModal(defaultModal);
       },
     });
   };
 
-  const handleSendEmail = () => {};
+  const handleEditStaff = async (updatedDocs) => {
+    const updatedStaff = updatedDocs[0];
+    const index = updatedStaff.index;
+    const staffCopy = [...staffs];
+
+    staffCopy[index] = {
+      ...staffCopy[index],
+      ...updatedStaff,
+    };
+
+    // Update
+    const { error: updateError } = await updateStaff({
+      staff: updatedStaff,
+    });
+    if (updateError) return openErrorDialog(updateError);
+
+    // Success
+    setStaffs(staffCopy);
+    openResponseDialog({
+      autoClose: true,
+      content: "Staff successfuly updated.",
+      type: "SUCCESS",
+      closeCb() {
+        setStaffModal(defaultModal);
+      },
+    });
+  };
+
+  const handleStaffModalClose = () => {
+    setStaffModal(defaultModal);
+  };
+
+  const handleEditModalOpen = (staff) => {
+    setStaffModal({
+      open: true,
+      data: staff,
+    });
+  };
 
   return (
     <Box
@@ -116,11 +169,11 @@ const DashboardPage = () => {
 
               <TableBody>
                 {staffs.map((i) => {
-                  const { id, name, email, branch, address } = i;
+                  const { id, name, email, branch, address, birthdate } = i;
 
                   return (
                     <TableRow key={id}>
-                      <TableCell>{name}</TableCell>
+                      <TableCell>{getFullName(i)}</TableCell>
                       <TableCell>{email}</TableCell>
                       <TableCell sx={{ width: 200, maxWidth: 200 }}>
                         <Typography
@@ -133,18 +186,24 @@ const DashboardPage = () => {
                           }}
                           component="div"
                         >
+                          {/* {formatTimeStamp(birthdate)} */}
                           {address}
                         </Typography>
                       </TableCell>
                       <TableCell>{branch}</TableCell>
                       <TableCell>
-                        {/* <IconButton
-                            color="primary"
-                            component="span"
-                            onClick={handleSendEmail}
-                          >
-                            <MailIcon />
-                          </IconButton> */}
+                        <IconButton
+                          color="primary"
+                          size="small"
+                          onClick={() =>
+                            handleEditModalOpen({
+                              ...i,
+                              birthdate: formatTimeStamp(birthdate),
+                            })
+                          }
+                        >
+                          <EditIcon />
+                        </IconButton>
                       </TableCell>
                     </TableRow>
                   );
@@ -155,13 +214,16 @@ const DashboardPage = () => {
         </Paper>
       </Box>
 
-      <ManageStaffModal
-        open={staffModalOpen}
-        setOpen={setStaffModalOpen}
-        onAddStaff={handleAddStaff}
-      />
+      {staffModal.open && (
+        <ManageStaffModal
+          open={staffModal.open}
+          data={staffModal.data}
+          onClose={handleStaffModalClose}
+          onSave={!staffModal.data ? handleAddStaff : handleEditStaff}
+        />
+      )}
     </Box>
   );
 };
 
-export default DashboardPage;
+export default StaffsPage;

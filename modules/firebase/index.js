@@ -18,7 +18,12 @@ import {
 import { addBranchReq, getBranchesReq } from "./branches";
 import { auth, db } from "./config";
 import { addServiceReq, getServicesReq } from "./services";
-import { addStaffReq, getStaffsReq, signInStaffReq } from "./staff";
+import {
+  addStaffReq,
+  getStaffsReq,
+  signInStaffReq,
+  updateStaffReq,
+} from "./staff";
 import { deleteImageReq, uploadImageReq } from "./storage";
 
 export {
@@ -43,6 +48,7 @@ export {
   addStaffReq,
   getStaffsReq,
   signInStaffReq,
+  updateStaffReq,
   // service
   getServicesReq,
   addServiceReq,

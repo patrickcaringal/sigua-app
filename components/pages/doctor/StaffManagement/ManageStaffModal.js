@@ -32,6 +32,7 @@ import { FieldArray, FormikProvider, useFormik } from "formik";
 
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { StaffSchema } from "../../../../modules/validation";
+import { Modal } from "../../../common";
 import Form from "./Form";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -83,15 +84,23 @@ const defaultStaffValue = {
   branch: "",
 };
 
-export default function ManageStaffModal({ open, setOpen, onAddStaff }) {
+export default function ManageStaffModal({
+  open = false,
+  data,
+  onClose,
+  onSave,
+}) {
+  const isCreate = !data;
+  const initialValues = isCreate ? defaultValues : { staffs: [data] };
+
   const formik = useFormik({
-    initialValues: defaultValues,
+    initialValues: initialValues,
     validationSchema: StaffSchema,
     validateOnChange: false,
+    enableReinitialize: true,
     onSubmit: async (values) => {
       const { staffs } = values;
-      // Add Staff
-      onAddStaff(staffs);
+      onSave(staffs);
     },
   });
 
@@ -103,22 +112,17 @@ export default function ManageStaffModal({ open, setOpen, onAddStaff }) {
     values,
     errors,
     touched,
+    dirty,
     resetForm,
   } = formik;
 
   const handleClose = () => {
-    setOpen(false);
+    onClose();
     resetForm();
   };
 
   return (
-    <Dialog
-      fullWidth
-      maxWidth="sm"
-      open={open}
-      onClose={handleClose}
-      TransitionComponent={Transition}
-    >
+    <Modal open={open} onClose={handleClose}>
       <Box
         component="form"
         noValidate
@@ -129,14 +133,14 @@ export default function ManageStaffModal({ open, setOpen, onAddStaff }) {
           <Container maxWidth="lg">
             <Toolbar disableGutters>
               <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-                Add Staff
+                {isCreate ? "Add" : "Edit"} Staff
               </Typography>
 
               <Button
                 color="inherit"
                 sx={{ mr: 2 }}
                 type="submit"
-                disabled={values.staffs.length === 0}
+                disabled={values.staffs.length === 0 || !dirty}
               >
                 save
               </Button>
@@ -149,11 +153,11 @@ export default function ManageStaffModal({ open, setOpen, onAddStaff }) {
         <Box sx={{ py: 2 }}>
           <FormikProvider value={formik}>
             <Container maxWidth="lg">
-              <Form {...formik} />
+              <Form {...formik} isCreate={isCreate} />
             </Container>
           </FormikProvider>
         </Box>
       </Box>
-    </Dialog>
+    </Modal>
   );
 }
