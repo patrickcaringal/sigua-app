@@ -18,7 +18,7 @@ const defaultValues = {
   familyMembers: [],
 };
 
-const ManageFamilyMemberModal = ({ open, data, setOpen, onSave }) => {
+const ManageFamilyMemberModal = ({ open = false, data, setOpen, onSave }) => {
   const isCreate = !data;
   const initialValues = isCreate ? defaultValues : { familyMembers: [data] };
 

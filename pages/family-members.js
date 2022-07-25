@@ -36,7 +36,7 @@ const FamilyMemberPage = () => {
   const [getFamilyMembers] = useRequest(getFamilyMembersReq, setBackdropLoader);
   const [addFamilyMembers] = useRequest(addFamilyMembersReq, setBackdropLoader);
   const [uploadImage] = useRequest(uploadImageReq);
-  const [updateFamilyMemberVerification] = useRequest(updateFamilyMembersReq);
+  const [updateFamilyMember] = useRequest(updateFamilyMembersReq);
 
   // Local States
   const [members, setMembers] = useState([]);
@@ -110,17 +110,20 @@ const FamilyMemberPage = () => {
     const index = updatedMember.index;
     const membersCopy = [...members];
 
+    const isContactUpdated =
+      membersCopy[index].contactNo !== updatedMember.contactNo;
+
     membersCopy[index] = {
       ...membersCopy[index],
       ...updatedMember,
+      ...(isContactUpdated && { verifiedContactNo: false }),
     };
 
     // Update
-    const { error: updateFamMemberError } =
-      await updateFamilyMemberVerification({
-        id: user.id,
-        familyMembers: membersCopy,
-      });
+    const { error: updateFamMemberError } = await updateFamilyMember({
+      id: user.id,
+      familyMembers: membersCopy,
+    });
 
     if (updateFamMemberError) {
       setBackdropLoader(false);
@@ -156,17 +159,6 @@ const FamilyMemberPage = () => {
     setPhoneModal(defaultModal);
   };
 
-  const updateMembers = (index, url) => {
-    let membersCopy = [...members];
-    membersCopy[index] = {
-      ...membersCopy[index],
-      verificationAttachment: url,
-      verificationRejectReason: null,
-    };
-
-    return membersCopy;
-  };
-
   const handleUploadAttachment = async (file) => {
     setBackdropLoader(true);
 
@@ -178,20 +170,26 @@ const FamilyMemberPage = () => {
     }
 
     // Update
-    const updatedMembers = updateMembers(verificationModal.data.index, url);
-    const { error: updateFamMemberError } =
-      await updateFamilyMemberVerification({
-        id: user.id,
-        familyMembers: updatedMembers,
-        hasVerificationForApproval: true,
-      });
+    const index = verificationModal.data.index;
+    const membersCopy = [...members];
+    membersCopy[index] = {
+      ...membersCopy[index],
+      verificationAttachment: url,
+      verificationRejectReason: null,
+    };
+
+    const { error: updateFamMemberError } = await updateFamilyMember({
+      id: user.id,
+      familyMembers: membersCopy,
+      hasVerificationForApproval: true,
+    });
     if (updateFamMemberError) {
       setBackdropLoader(false);
       return openErrorDialog(updateFamMemberError);
     }
 
     // Success
-    setMembers(updatedMembers);
+    setMembers(membersCopy);
     setBackdropLoader(false);
     openResponseDialog({
       autoClose: true,
@@ -206,6 +204,47 @@ const FamilyMemberPage = () => {
         handleAttachmentModalClose();
       },
     });
+  };
+
+  const handleVerifyPhone = async (member) => {
+    const { code } = member;
+
+    // TODO: Verify code legit
+    if (code === "1234") {
+      setBackdropLoader(true);
+
+      const index = member.index;
+      const membersCopy = [...members];
+
+      membersCopy[index] = {
+        ...membersCopy[index],
+        verifiedContactNo: true,
+      };
+
+      // Update
+      const { error: updateFamMemberError } = await updateFamilyMember({
+        id: user.id,
+        familyMembers: membersCopy,
+      });
+      if (updateFamMemberError) {
+        setBackdropLoader(false);
+        return openErrorDialog(updateFamMemberError);
+      }
+
+      // Success
+      setBackdropLoader(false);
+      setMembers(membersCopy);
+      openResponseDialog({
+        autoClose: true,
+        content: "Contact No successfuly verified.",
+        type: "SUCCESS",
+        closeCb() {
+          setPhoneModal(defaultModal);
+        },
+      });
+    } else {
+      openErrorDialog("Incorrect Verification code");
+    }
   };
 
   return (
@@ -240,24 +279,34 @@ const FamilyMemberPage = () => {
         />
       </Box>
 
-      <ManageFamilyMemberModal
-        open={familyMemberModal.open}
-        data={familyMemberModal.data}
-        setOpen={setFamilyMemberModal}
-        onSave={!familyMemberModal.data ? handleAddMemeber : handleEditMemeber}
-      />
+      {familyMemberModal.open && (
+        <ManageFamilyMemberModal
+          open={familyMemberModal.open}
+          data={familyMemberModal.data}
+          setOpen={setFamilyMemberModal}
+          onSave={
+            !familyMemberModal.data ? handleAddMemeber : handleEditMemeber
+          }
+        />
+      )}
 
-      <UploadAttachmentModal
-        data={verificationModal.data}
-        open={verificationModal.open}
-        onClose={handleAttachmentModalClose}
-        onUpload={handleUploadAttachment}
-      />
+      {verificationModal.open && (
+        <UploadAttachmentModal
+          data={verificationModal.data}
+          open={verificationModal.open}
+          onClose={handleAttachmentModalClose}
+          onUpload={handleUploadAttachment}
+        />
+      )}
 
-      <MobileNumberVerificationModal
-        open={phoneModal.open}
-        onClose={handlePhoneModalClose}
-      />
+      {phoneModal.open && (
+        <MobileNumberVerificationModal
+          open={phoneModal.open}
+          data={phoneModal.data}
+          onClose={handlePhoneModalClose}
+          onVerify={handleVerifyPhone}
+        />
+      )}
     </Container>
   );
 };

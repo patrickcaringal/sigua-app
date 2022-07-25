@@ -47,6 +47,7 @@ export const createAccountReq = async (newDocument) => {
         id: doc(collRef).id,
         accountId: docRef.id,
         verified: true,
+        verifiedContactNo: true,
         verificationAttachment: null,
         ...omitFields(mappedNewDocument, [
           "password",
@@ -165,7 +166,9 @@ export const addFamilyMembersReq = async ({ id, familyMembers }) => {
       id: doc(collRef).id,
       accountId: id,
       birthdate: formatDate(i.birthdate),
-      ...(!i.contactNo && { verified: false, verificationAttachment: null }),
+      verified: false,
+      verifiedContactNo: false,
+      verificationAttachment: null,
     }));
 
     // Update document

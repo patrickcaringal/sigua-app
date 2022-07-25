@@ -29,11 +29,13 @@ const defaultMemberValue = {
   birthdate: "",
   gender: "",
   address: "",
+  contactNo: "",
 };
 
 const Form = ({
   isCreate,
   // formik
+  handleChange,
   handleBlur,
   setFieldValue,
   values,
@@ -230,6 +232,17 @@ const Form = ({
                           }
                           onBlur={handleBlur}
                           error={getError("address")}
+                        />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <Input
+                          value={valueArr.contactNo}
+                          required
+                          label="Contact Number"
+                          name={getFieldName("contactNo")}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          error={getError("contactNo")}
                         />
                       </Grid>
                     </Grid>

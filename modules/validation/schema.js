@@ -53,6 +53,9 @@ export const FamilyMemberSchema = Yup.object().shape({
       birthdate: Yup.string().nullable().required("Required"),
       gender: Yup.string().required("Required"),
       address: Yup.string().required("Required"),
+      contactNo: Yup.string()
+        .matches(/^(09)\d{9}$/, "Invalid Contact Number")
+        .required("Required"),
     })
   ),
 });

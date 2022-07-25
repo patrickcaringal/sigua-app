@@ -33,6 +33,7 @@ const Cards = ({ data, onEditModal, onVerificationModal, onPhoneModal }) => {
           address,
           gender,
           verified,
+          verifiedContactNo,
           verificationAttachment,
           verificationRejectReason,
         } = i;
@@ -44,7 +45,6 @@ const Cards = ({ data, onEditModal, onVerificationModal, onPhoneModal }) => {
           : verificationAttachment && verificationRejectReason
           ? MEMBER_STATUS.REJECTED
           : MEMBER_STATUS.FOR_APPROVAL;
-
         return (
           <Card key={index} sx={{ width: { xs: "100%", md: 370 } }}>
             <CardHeader
@@ -67,7 +67,7 @@ const Cards = ({ data, onEditModal, onVerificationModal, onPhoneModal }) => {
                       <UploadFileIcon />
                     </IconButton>
                   )}
-                  {status === MEMBER_STATUS.VERFIED && !contactNo && (
+                  {status === MEMBER_STATUS.VERFIED && !verifiedContactNo && (
                     <IconButton
                       size="small"
                       color="primary"
@@ -96,7 +96,7 @@ const Cards = ({ data, onEditModal, onVerificationModal, onPhoneModal }) => {
                 )
               }
             />
-            <CardContent>
+            <CardContent sx={{ pt: 0 }}>
               <Box
                 sx={{
                   display: "flex",
@@ -104,19 +104,20 @@ const Cards = ({ data, onEditModal, onVerificationModal, onPhoneModal }) => {
                   mb: 1,
                 }}
               >
-                {contactNo && (
-                  <>
-                    <Typography variant="body2" color="text.secondary">
-                      {contactNo}
-                    </Typography>
-                    <Divider
-                      orientation="vertical"
-                      variant="middle"
-                      flexItem
-                      sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
-                    />
-                  </>
-                )}
+                <Typography
+                  variant="body2"
+                  color={
+                    !!verifiedContactNo ? "text.secondary" : "text.disabled"
+                  }
+                >
+                  {contactNo}
+                </Typography>
+                <Divider
+                  orientation="vertical"
+                  variant="middle"
+                  flexItem
+                  sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
+                />
                 <Typography variant="body2" color="text.secondary">
                   {formatDate(birthdate, "MMMM dd, yyyy")}
                 </Typography>

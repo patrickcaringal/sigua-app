@@ -1,2 +1,2 @@
-import MobileNumberVerificationModal from "./MobileNumberVerificationModal";
+import { MobileNumberVerificationModal } from "./MobileNumberVerificationModal";
 export { MobileNumberVerificationModal };
