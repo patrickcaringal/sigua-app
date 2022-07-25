@@ -21,7 +21,7 @@ import { useBackdropLoader } from "../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../contexts/ResponseDialogContext";
 import useRequest from "../../hooks/useRequest";
 import { addStaffReq, getStaffsReq } from "../../modules/firebase";
-import { getFullName, getUniquePersonId } from "../../modules/helper";
+import { pluralize } from "../../modules/helper";
 
 const DashboardPage = () => {
   const router = useRouter();
@@ -35,12 +35,6 @@ const DashboardPage = () => {
   // Local States
   const [staffs, setStaffs] = useState([]);
   const [staffModalOpen, setStaffModalOpen] = useState(false);
-
-  const staffsUniqueId = staffs.map((i) => {
-    const { firstName, middleName, lastName, birthdate } = i;
-    const m = getUniquePersonId({ firstName, middleName, lastName, birthdate });
-    return m;
-  });
 
   useEffect(() => {
     const fetch = async () => {
@@ -61,22 +55,19 @@ const DashboardPage = () => {
     setStaffModalOpen(true);
   };
 
-  const handleCheckDuplicate = (newStaff) => staffsUniqueId.includes(newStaff);
-
   const handleAddStaff = async (newStaff) => {
     // Add Staff
-    const { error: addStaffError } = await addStaff({
+    const { data: addedStaff, error: addStaffError } = await addStaff({
       staffs: newStaff,
     });
     if (addStaffError) return openErrorDialog(addStaffError);
 
     // Successful
-    const allStaffs = [...staffs, ...newStaff];
-    setStaffs(allStaffs);
+    setStaffs((prev) => [...prev, ...addedStaff]);
 
     openResponseDialog({
       autoClose: true,
-      content: "Staff successfuly added.",
+      content: `${pluralize("Staff", addedStaff.length)} successfuly added.`,
       type: "SUCCESS",
       closeCb() {
         setStaffModalOpen(false);
@@ -125,29 +116,13 @@ const DashboardPage = () => {
 
               <TableBody>
                 {staffs.map((i) => {
-                  const {
-                    id,
-                    firstName,
-                    suffix,
-                    lastName,
-                    middleName,
-                    email,
-                    branch,
-                    address,
-                  } = i;
+                  const { id, name, email, branch, address } = i;
 
                   return (
                     <TableRow key={id}>
-                      <TableCell>
-                        {getFullName({
-                          firstName,
-                          suffix,
-                          lastName,
-                          middleName,
-                        })}
-                      </TableCell>
+                      <TableCell>{name}</TableCell>
                       <TableCell>{email}</TableCell>
-                      <TableCell sx={{ maxWidth: 200 }}>
+                      <TableCell sx={{ width: 200, maxWidth: 200 }}>
                         <Typography
                           variant="caption"
                           sx={{
@@ -183,7 +158,6 @@ const DashboardPage = () => {
       <ManageStaffModal
         open={staffModalOpen}
         setOpen={setStaffModalOpen}
-        onCheckDuplicate={handleCheckDuplicate}
         onAddStaff={handleAddStaff}
       />
     </Box>

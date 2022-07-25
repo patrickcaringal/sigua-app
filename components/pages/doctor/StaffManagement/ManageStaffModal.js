@@ -31,7 +31,6 @@ import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
 import { FieldArray, FormikProvider, useFormik } from "formik";
 
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
-import { getFullName, getUniquePersonId } from "../../../../modules/helper";
 import { StaffSchema } from "../../../../modules/validation";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -83,54 +82,13 @@ const defaultStaffValue = {
   branch: "",
 };
 
-export default function ManageStaffModal({
-  open,
-  setOpen,
-  onCheckDuplicate,
-  onAddStaff,
-}) {
-  const { openResponseDialog } = useResponseDialog();
-
+export default function ManageStaffModal({ open, setOpen, onAddStaff }) {
   const formik = useFormik({
     initialValues: defaultValues,
     validationSchema: StaffSchema,
     validateOnChange: false,
     onSubmit: async (values) => {
       const { staffs } = values;
-      const dupliNames = []; // used for error display
-
-      // Check Duplicates
-      const hasDuplicate = staffs.reduce((acc, i) => {
-        const { firstName, middleName, lastName, birthdate } = i;
-        const m = getUniquePersonId({
-          firstName,
-          middleName,
-          lastName,
-          birthdate,
-        });
-        const isDupli = onCheckDuplicate(m);
-        const fullname = getFullName({
-          firstName,
-          middleName,
-          lastName,
-        });
-        if (isDupli) dupliNames.push(fullname);
-        return acc || isDupli;
-      }, false);
-
-      if (hasDuplicate) {
-        openResponseDialog({
-          content: (
-            <>
-              <Typography variant="body1">Staff already exist</Typography>
-              <Typography variant="body2">{dupliNames.join(", ")}</Typography>
-            </>
-          ),
-          type: "WARNING",
-        });
-        return;
-      }
-
       // Add Staff
       onAddStaff(staffs);
     },
