@@ -1,12 +1,15 @@
 import React from "react";
 
+import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import {
   Avatar,
   Box,
+  Button,
   Card,
+  CardActions,
   CardContent,
   CardHeader,
   Divider,
@@ -46,38 +49,19 @@ const Cards = ({ data, onEditModal, onVerificationModal, onPhoneModal }) => {
           ? MEMBER_STATUS.REJECTED
           : MEMBER_STATUS.FOR_APPROVAL;
         return (
-          <Card key={index} sx={{ width: { xs: "100%", md: 370 } }}>
+          <Card
+            key={index}
+            sx={{
+              width: { xs: "100%", md: 370 },
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
             <CardHeader
               avatar={
                 <Avatar sx={{ bgcolor: "primary.main" }} aria-label="recipe">
                   {getInitials(firstName)}
                 </Avatar>
-              }
-              action={
-                <>
-                  <IconButton size="small" onClick={() => onEditModal(i)}>
-                    <EditIcon />
-                  </IconButton>
-                  {statusUploadAllowed.includes(status) && (
-                    <IconButton
-                      size="small"
-                      color="primary"
-                      onClick={() => onVerificationModal(i)}
-                    >
-                      <UploadFileIcon />
-                    </IconButton>
-                  )}
-                  {status === MEMBER_STATUS.VERFIED && !verifiedContactNo && (
-                    <IconButton
-                      size="small"
-                      color="primary"
-                      component="label"
-                      onClick={() => onPhoneModal(i)}
-                    >
-                      <PhoneIphoneIcon />
-                    </IconButton>
-                  )}
-                </>
               }
               title={getFullName(i)}
               subheader={
@@ -96,7 +80,7 @@ const Cards = ({ data, onEditModal, onVerificationModal, onPhoneModal }) => {
                 )
               }
             />
-            <CardContent sx={{ pt: 0 }}>
+            <CardContent sx={{ pt: 0, pb: 1, flex: 1 }}>
               <Box
                 sx={{
                   display: "flex",
@@ -136,10 +120,68 @@ const Cards = ({ data, onEditModal, onVerificationModal, onPhoneModal }) => {
                 </Typography>
               </Box>
 
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="caption"
+                sx={{
+                  display: "-webkit-box",
+                  WebkitBoxOrient: "vertical",
+                  WebkitLineClamp: "2",
+                  overflow: "hidden",
+                }}
+                component="div"
+                color="text.secondary"
+              >
                 {address}
               </Typography>
             </CardContent>
+            <CardActions sx={{ display: "flex" }}>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<EditIcon />}
+                onClick={() => onEditModal(i)}
+              >
+                Edit
+              </Button>
+              {statusUploadAllowed.includes(status) && (
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<UploadFileIcon />}
+                  onClick={() => onVerificationModal(i)}
+                >
+                  Upload
+                </Button>
+              )}
+              {status === MEMBER_STATUS.VERFIED && !verifiedContactNo && (
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<PhoneIphoneIcon />}
+                  onClick={() => onEditModal(i)}
+                >
+                  Verify
+                </Button>
+              )}
+              {/* <Button
+                variant="outlined"
+                size="small"
+                color="error"
+                startIcon={<DeleteIcon />}
+                onClick={() => onEditModal(i)}
+                sx={{ marginLeft: "auto !important" }}
+              >
+                Delete
+              </Button> */}
+              <IconButton
+                size="small"
+                color="error"
+                onClick={() => {}}
+                sx={{ marginLeft: "auto !important" }}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </CardActions>
           </Card>
         );
       })}
