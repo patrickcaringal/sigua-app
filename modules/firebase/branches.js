@@ -22,7 +22,9 @@ export const getBranchesReq = async () => {
       ...doc.data(),
     }));
 
-    return { data, success: true };
+    const map = data.reduce((acc, i) => ({ ...acc, [i.id]: i.name }), {});
+
+    return { data, map, success: true };
   } catch (error) {
     console.log(error);
     return { error: error.message };

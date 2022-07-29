@@ -15,6 +15,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
+import lodash from "lodash";
 import { useRouter } from "next/router";
 
 import { Toolbar } from "../../components/common";
@@ -24,6 +25,7 @@ import { useResponseDialog } from "../../contexts/ResponseDialogContext";
 import useRequest from "../../hooks/useRequest";
 import {
   addStaffReq,
+  getBranchesReq,
   getStaffsReq,
   updateStaffReq,
 } from "../../modules/firebase";
@@ -43,14 +45,16 @@ const StaffsPage = () => {
   const [getStaffs] = useRequest(getStaffsReq, setBackdropLoader);
   const [addStaff] = useRequest(addStaffReq, setBackdropLoader);
   const [updateStaff] = useRequest(updateStaffReq, setBackdropLoader);
+  const [getBranches] = useRequest(getBranchesReq, setBackdropLoader);
 
   // Local States
   const [staffs, setStaffs] = useState([]);
-  // const [staffModalOpen, setStaffModalOpen] = useState(false);
   const [staffModal, setStaffModal] = useState(defaultModal);
+  const [branches, setBranches] = useState([]);
+  const [branchesMap, setBranchesMap] = useState({});
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchStaffs = async () => {
       // Get Staffs
       const { data: staffList, error: getStaffsError } = await getStaffs({
         branch: "LAKESIDE",
@@ -60,7 +64,25 @@ const StaffsPage = () => {
       setStaffs(staffList);
     };
 
-    fetch();
+    const fetchBranches = async () => {
+      // Get Branches
+      const {
+        data: branchList,
+        map: branchMap,
+        error: getBranchError,
+      } = await getBranches();
+      if (getBranchError) return openErrorDialog(getBranchError);
+
+      setBranches(
+        branchList.map((i) => ({
+          ...lodash.pick(i, ["name", "id"]),
+        }))
+      );
+      setBranchesMap(branchMap);
+    };
+
+    fetchStaffs();
+    fetchBranches();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -181,7 +203,7 @@ const StaffsPage = () => {
                     <TableRow key={id}>
                       <TableCell>{getFullName(i)}</TableCell>
                       <TableCell>{email}</TableCell>
-                      <TableCell sx={{ width: 200, maxWidth: 200 }}>
+                      <TableCell sx={{ width: 400, maxWidth: 400 }}>
                         <Typography
                           variant="caption"
                           sx={{
@@ -192,11 +214,10 @@ const StaffsPage = () => {
                           }}
                           component="div"
                         >
-                          {/* {formatTimeStamp(birthdate)} */}
                           {address}
                         </Typography>
                       </TableCell>
-                      <TableCell>{branch}</TableCell>
+                      <TableCell>{branchesMap[branch]}</TableCell>
                       <TableCell>
                         <IconButton
                           size="small"
@@ -221,6 +242,7 @@ const StaffsPage = () => {
 
       {staffModal.open && (
         <ManageStaffModal
+          branches={branches}
           open={staffModal.open}
           data={staffModal.data}
           onClose={handleStaffModalClose}

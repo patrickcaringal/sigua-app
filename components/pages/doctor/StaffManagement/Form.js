@@ -9,11 +9,8 @@ import {
   CardContent,
   CardHeader,
   Fab,
-  FormControl,
-  FormHelperText,
   Grid,
   IconButton,
-  InputLabel,
   MenuItem,
   TextField,
 } from "@mui/material";
@@ -36,6 +33,7 @@ const defaultItem = {
 };
 
 const Form = ({
+  branches,
   isCreate,
   // formik
   values,
@@ -263,9 +261,11 @@ const Form = ({
                             onBlur={handleBlur}
                             error={getError("branch")}
                           >
-                            <MenuItem value="LAKESIDE">Lakeside</MenuItem>
-                            <MenuItem value="MABUHAY">Mabuhay</MenuItem>
-                            <MenuItem value="SOUTHVILLE">Sunrise</MenuItem>
+                            {branches.map(({ id, name }) => (
+                              <MenuItem key={id} value={id} dense>
+                                {name}
+                              </MenuItem>
+                            ))}
                           </Select>
                         </Grid>
                       </Grid>

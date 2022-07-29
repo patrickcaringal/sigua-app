@@ -165,11 +165,7 @@ export const updateStaffReq = async ({ staff }) => {
     // Check fullname, birthdate duplicate
     const q = query(
       collRef,
-      where(
-        "nameBirthdate",
-        "in",
-        staffs.map((i) => getUniquePersonId(i))
-      )
+      where("nameBirthdate", "==", getUniquePersonId(staff))
     );
 
     const querySnapshot = await getDocs(q);

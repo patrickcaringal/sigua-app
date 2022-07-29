@@ -43,35 +43,6 @@ const defaultValues = {
   staffs: [],
 };
 
-// {
-//   staffs: [
-//     {
-//       firstName: "KIM",
-//       middleName: "SOYA",
-//       lastName: "JISOO",
-//       suffix: "",
-//       birthdate: "1997-07-10T13:52:43.000Z",
-//       gender: "female",
-//       address:
-//         "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUNA",
-//       email: "soya@gmail.com",
-//       branch: "LAKESIDE",
-//     },
-//     {
-//       firstName: "KIM",
-//       middleName: "SOYA",
-//       lastName: "JISOO",
-//       suffix: "",
-//       birthdate: "1997-07-11T13:52:43.000Z",
-//       gender: "female",
-//       address:
-//         "BLK 12 LOT 19 DON ONOFRE VILLAGE, BRGY. BANAY-BANAY, CABUYAO CITY, LAGUNA",
-//       email: "soya2@gmail.com",
-//       branch: "LAKESIDE",
-//     },
-//   ],
-// }
-
 const defaultStaffValue = {
   firstName: "",
   middleName: "",
@@ -89,6 +60,7 @@ export default function ManageStaffModal({
   data,
   onClose,
   onSave,
+  branches,
 }) {
   const isCreate = !data;
   const initialValues = isCreate ? defaultValues : { staffs: [data] };
@@ -104,17 +76,7 @@ export default function ManageStaffModal({
     },
   });
 
-  const {
-    handleSubmit,
-    handleChange,
-    handleBlur,
-    setFieldValue,
-    values,
-    errors,
-    touched,
-    dirty,
-    resetForm,
-  } = formik;
+  const { handleSubmit, values, dirty, resetForm } = formik;
 
   const handleClose = () => {
     onClose();
@@ -153,7 +115,7 @@ export default function ManageStaffModal({
         <Box sx={{ py: 2 }}>
           <FormikProvider value={formik}>
             <Container maxWidth="lg">
-              <Form {...formik} isCreate={isCreate} />
+              <Form {...formik} isCreate={isCreate} branches={branches} />
             </Container>
           </FormikProvider>
         </Box>
