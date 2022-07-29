@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 
+import EditIcon from "@mui/icons-material/Edit";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import {
   Box,
   Button,
   Chip,
+  IconButton,
   Paper,
   Table,
   TableBody,
@@ -26,8 +28,14 @@ import {
   addBranchReq,
   getBranchesReq,
   getServicesReq,
+  updateBranchReq,
 } from "../../modules/firebase";
 import { pluralize } from "../../modules/helper";
+
+const defaultModal = {
+  open: false,
+  data: {},
+};
 
 const BranchManagementPage = () => {
   const router = useRouter();
@@ -38,12 +46,13 @@ const BranchManagementPage = () => {
   const [getServices] = useRequest(getServicesReq, setBackdropLoader);
   const [getBranches] = useRequest(getBranchesReq, setBackdropLoader);
   const [addBranch] = useRequest(addBranchReq, setBackdropLoader);
+  const [updateBranch] = useRequest(updateBranchReq, setBackdropLoader);
 
   // Local States
   const [services, setServices] = useState([]);
   const [servicesMap, setServicesMap] = useState({});
   const [branches, setBranches] = useState([]);
-  const [branchModalOpen, setBranchModalOpen] = useState(false);
+  const [branchModal, setBranchModal] = useState(defaultModal);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -76,10 +85,6 @@ const BranchManagementPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleBranchModalOpen = () => {
-    setBranchModalOpen(true);
-  };
-
   const handleAddBranch = async (newBranch) => {
     // Add Branch
     const { data: addedBranch, error: addBranchError } = await addBranch({
@@ -99,8 +104,54 @@ const BranchManagementPage = () => {
       )} successfuly added.`,
       type: "SUCCESS",
       closeCb() {
-        setBranchModalOpen(false);
+        setBranchModal(defaultModal);
       },
+    });
+  };
+
+  const handleEditBranch = async (updatedDocs) => {
+    const updatedBranch = updatedDocs[0];
+    const index = updatedBranch.index;
+    const branchCopy = [...branches];
+
+    branchCopy[index] = {
+      ...branchCopy[index],
+      ...updatedBranch,
+    };
+
+    // Update
+    const { error: updateError } = await updateBranch({
+      branch: updatedBranch,
+    });
+    if (updateError) return openErrorDialog(updateError);
+
+    // Success
+    setBranches(branchCopy);
+    openResponseDialog({
+      autoClose: true,
+      content: "Branch successfuly updated.",
+      type: "SUCCESS",
+      closeCb() {
+        setBranchModal(defaultModal);
+      },
+    });
+  };
+
+  const handleAddBranchModalOpen = () => {
+    setBranchModal({
+      open: true,
+      data: null,
+    });
+  };
+
+  const handleBranchModalClose = () => {
+    setBranchModal(defaultModal);
+  };
+
+  const handleEditBranchModalOpen = (branch) => {
+    setBranchModal({
+      open: true,
+      data: branch,
     });
   };
 
@@ -118,7 +169,7 @@ const BranchManagementPage = () => {
         <Button
           variant="contained"
           size="small"
-          onClick={handleBranchModalOpen}
+          onClick={handleAddBranchModalOpen}
           startIcon={<GroupAddIcon />}
         >
           add branch
@@ -137,6 +188,7 @@ const BranchManagementPage = () => {
                   <TableCell sx={{ fontWeight: "bold" }}>Services</TableCell>
                   <TableCell sx={{ fontWeight: "bold" }}>Address</TableCell>
                   <TableCell sx={{ fontWeight: "bold" }}>Capacity</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
 
@@ -181,6 +233,19 @@ const BranchManagementPage = () => {
                         </Typography>
                       </TableCell>
                       <TableCell>{capacity}</TableCell>
+                      <TableCell>
+                        <IconButton
+                          size="small"
+                          onClick={() =>
+                            handleEditBranchModalOpen({
+                              ...i,
+                              services: services.map((i) => i.name),
+                            })
+                          }
+                        >
+                          <EditIcon />
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -190,12 +255,15 @@ const BranchManagementPage = () => {
         </Paper>
       </Box>
 
-      <ManageBranchModal
-        services={services}
-        open={branchModalOpen}
-        setOpen={setBranchModalOpen}
-        onAddBranch={handleAddBranch}
-      />
+      {branchModal.open && (
+        <ManageBranchModal
+          services={services}
+          open={branchModal.open}
+          data={branchModal.data}
+          onClose={handleBranchModalClose}
+          onSave={!branchModal.data ? handleAddBranch : handleEditBranch}
+        />
+      )}
     </Box>
   );
 };

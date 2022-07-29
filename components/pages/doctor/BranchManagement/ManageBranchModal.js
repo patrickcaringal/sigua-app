@@ -51,19 +51,24 @@ const defaultBranchValue = {
 };
 
 export default function ManageBranchModal({
-  open,
-  setOpen,
-  onAddBranch,
+  open = false,
+  data,
+  onClose,
+  onSave,
   services,
 }) {
   const servicesMap = services.reduce((acc, i) => {
     return { ...acc, [i.name]: i.id };
   }, {});
 
+  const isCreate = !data;
+  const initialValues = isCreate ? defaultValues : { branches: [data] };
+
   const formik = useFormik({
-    initialValues: defaultValues,
+    initialValues: initialValues,
     validationSchema: BranchesSchema,
     validateOnChange: false,
+    enableReinitialize: true,
     onSubmit: async (values) => {
       const { branches } = values;
 
@@ -75,18 +80,18 @@ export default function ManageBranchModal({
         })),
       }));
 
-      onAddBranch(mappedBranches);
+      onSave(mappedBranches);
     },
   });
 
-  const { handleSubmit, values, resetForm } = formik;
+  const { handleSubmit, values, dirty, resetForm } = formik;
 
   useEffect(() => {
     if (!open) resetForm();
   }, [open, resetForm]);
 
   const handleClose = () => {
-    setOpen(false);
+    onClose();
     resetForm();
   };
 
@@ -108,14 +113,14 @@ export default function ManageBranchModal({
           <Container maxWidth="lg">
             <Toolbar disableGutters>
               <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-                Add Branch
+                {isCreate ? "Add" : "Edit"} Branch
               </Typography>
 
               <Button
                 color="inherit"
                 sx={{ mr: 2 }}
                 type="submit"
-                disabled={values.branches.length === 0}
+                disabled={values.branches.length === 0 || !dirty}
               >
                 save
               </Button>
@@ -128,7 +133,7 @@ export default function ManageBranchModal({
         <Box sx={{ py: 2 }}>
           <FormikProvider value={formik}>
             <Container maxWidth="lg">
-              <Form {...formik} services={services} />
+              <Form {...formik} isCreate={isCreate} services={services} />
             </Container>
           </FormikProvider>
         </Box>

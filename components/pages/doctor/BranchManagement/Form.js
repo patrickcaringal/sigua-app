@@ -21,6 +21,7 @@ import {
   Select,
   TextField,
 } from "@mui/material";
+import faker from "faker";
 import { FieldArray } from "formik";
 
 const defaultItem = {
@@ -43,6 +44,7 @@ const MenuProps = {
 
 const Form = ({
   services,
+  isCreate,
   // formik
   values,
   touched,
@@ -56,16 +58,27 @@ const Form = ({
       name="branches"
       render={({ push, remove }) => (
         <>
-          <Fab
-            color="primary"
-            sx={{ position: "absolute", bottom: 16, right: 16 }}
-            onClick={() => {
-              push(defaultItem);
-            }}
-            size="small"
-          >
-            <AddIcon />
-          </Fab>
+          {isCreate && (
+            <Fab
+              color="primary"
+              sx={{ position: "absolute", bottom: 16, right: 16 }}
+              onClick={() => {
+                push(
+                  true
+                    ? {
+                        name: faker.git.branch(),
+                        services: [],
+                        address: faker.lorem.paragraph(),
+                        capacity: faker.datatype.number(),
+                      }
+                    : defaultItem
+                );
+              }}
+              size="small"
+            >
+              <AddIcon />
+            </Fab>
+          )}
           <Box
             sx={{
               display: "flex",
@@ -87,27 +100,30 @@ const Form = ({
               const getFieldName = (field) => `branches[${index}].${field}`;
 
               return (
-                <Card key={index} elevation={2}>
-                  <CardHeader
-                    avatar={
-                      <Avatar sx={{ bgcolor: "primary.main" }}>
-                        {index + 1}
-                      </Avatar>
-                    }
-                    action={
-                      <>
-                        <IconButton
-                          size="small"
-                          onClick={() => {
-                            remove(index);
-                          }}
-                        >
-                          <CloseIcon />
-                        </IconButton>
-                      </>
-                    }
-                    title={`Branch ${index + 1}`}
-                  />
+                <Card key={index} elevation={isCreate ? 2 : 0}>
+                  {isCreate && (
+                    <CardHeader
+                      avatar={
+                        <Avatar sx={{ bgcolor: "primary.main" }}>
+                          {index + 1}
+                        </Avatar>
+                      }
+                      action={
+                        <>
+                          <IconButton
+                            size="small"
+                            onClick={() => {
+                              remove(index);
+                            }}
+                          >
+                            <CloseIcon />
+                          </IconButton>
+                        </>
+                      }
+                      title={`Branch ${index + 1}`}
+                    />
+                  )}
+
                   <CardContent>
                     <Grid container spacing={2}>
                       <Grid item xs={12} sm={8}>

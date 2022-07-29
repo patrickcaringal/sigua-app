@@ -15,7 +15,7 @@ import {
   signOutReq,
   signUpReq,
 } from "./auth";
-import { addBranchReq, getBranchesReq } from "./branches";
+import { addBranchReq, getBranchesReq, updateBranchReq } from "./branches";
 import { auth, db } from "./config";
 import { addServiceReq, getServicesReq } from "./services";
 import {
@@ -55,6 +55,7 @@ export {
   // branch
   addBranchReq,
   getBranchesReq,
+  updateBranchReq,
   // storage
   uploadImageReq,
   deleteImageReq,

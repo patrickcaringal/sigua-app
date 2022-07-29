@@ -3,9 +3,11 @@ import {
   doc,
   getDocs,
   query,
+  updateDoc,
   where,
   writeBatch,
 } from "firebase/firestore";
+import lodash from "lodash";
 
 import { pluralize } from "../helper";
 import { getErrorMsg } from "./auth";
@@ -16,9 +18,9 @@ const collRef = collection(db, "branches");
 export const getBranchesReq = async () => {
   try {
     const querySnapshot = await getDocs(collRef);
-
-    const data = querySnapshot.docs.map((doc) => ({
+    const data = querySnapshot.docs.map((doc, index) => ({
       id: doc.id,
+      index,
       ...doc.data(),
     }));
 
@@ -74,6 +76,32 @@ export const addBranchReq = async ({ docs }) => {
     return { data, success: true };
   } catch (error) {
     console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const updateBranchReq = async ({ branch }) => {
+  try {
+    const { name } = branch;
+    // Check fullname, birthdate duplicate
+    const q = query(collRef, where("name", "==", name));
+    const querySnapshot = await getDocs(q);
+
+    const isDuplicate =
+      querySnapshot.docs.filter((doc) => doc.id !== branch.id).length !== 0;
+    if (isDuplicate) throw new Error(`Branch ${name} already exist`);
+
+    // Update
+    const docRef = doc(db, "branches", branch.id);
+    const finalDoc = {
+      ...lodash.omit(branch, ["id", "index", "dateCreated"]),
+      ...timestampFields({ dateUpdated: true }),
+    };
+    await updateDoc(docRef, finalDoc);
+
+    return { success: true };
+  } catch (error) {
     const errMsg = getErrorMsg(error.code);
     return { error: errMsg || error.message };
   }

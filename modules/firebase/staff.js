@@ -167,18 +167,21 @@ export const updateStaffReq = async ({ staff }) => {
       collRef,
       where("nameBirthdate", "==", getUniquePersonId(staff))
     );
-
     const querySnapshot = await getDocs(q);
 
-    const isDuplicate =
-      querySnapshot.docs.filter((doc) => doc.id !== staff.id).length !== 0;
+    const isDuplicate = querySnapshot.docs.length !== 0;
+    // .filter((doc) => doc.id !== staff.id)
     if (isDuplicate) {
       throw new Error(`Duplicate Staff. ${getFullName(staff)}`);
     }
 
     // Update
     const docRef = doc(db, "staffs", staff.id);
-    await updateDoc(docRef, { ...lodash.omit(staff, ["id", "index"]) });
+    const finalDoc = {
+      ...lodash.omit(staff, ["id", "index"]),
+      ...timestampFields({ dateUpdated: true }),
+    };
+    await updateDoc(docRef, finalDoc);
 
     return { success: true };
   } catch (error) {
