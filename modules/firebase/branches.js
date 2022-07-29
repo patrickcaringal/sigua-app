@@ -61,12 +61,14 @@ export const addBranchReq = async ({ docs }) => {
     const batch = writeBatch(db);
 
     const data = docs.map((d) => {
+      const docRef = doc(collRef);
+      const id = docRef.id;
       const mappedDoc = {
+        id,
         ...d,
         ...timestampFields({ dateCreated: true, dateUpdated: true }),
       };
-      const docRef = doc(collRef);
-      batch.set(doc(db, "branches", docRef.id), mappedDoc);
+      batch.set(doc(db, "branches", id), mappedDoc);
 
       return mappedDoc;
     });

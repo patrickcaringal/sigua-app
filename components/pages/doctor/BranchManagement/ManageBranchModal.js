@@ -1,38 +1,18 @@
 import React, { useEffect } from "react";
 
-import AddIcon from "@mui/icons-material/Add";
-import CloseIcon from "@mui/icons-material/Close";
 import {
   AppBar,
-  Avatar,
   Box,
   Button,
-  Card,
-  CardContent,
-  CardHeader,
   Container,
-  Dialog,
-  Fab,
-  FormControl,
-  FormHelperText,
-  Grid,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
   Slide,
-  TextField,
   Toolbar,
   Typography,
 } from "@mui/material";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
-import { FieldArray, FormikProvider, useFormik } from "formik";
+import { FormikProvider, useFormik } from "formik";
 
-import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
-import { getFullName, getUniquePersonId } from "../../../../modules/helper";
 import { BranchesSchema } from "../../../../modules/validation";
+import { Modal } from "../../../common";
 import Form from "./Form";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -41,13 +21,6 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const defaultValues = {
   branches: [],
-};
-
-const defaultBranchValue = {
-  name: "",
-  services: [],
-  address: "",
-  capacity: "",
 };
 
 export default function ManageBranchModal({
@@ -96,13 +69,7 @@ export default function ManageBranchModal({
   };
 
   return (
-    <Dialog
-      fullWidth
-      maxWidth="sm"
-      open={open}
-      onClose={handleClose}
-      TransitionComponent={Transition}
-    >
+    <Modal open={open} onClose={handleClose}>
       <Box
         component="form"
         noValidate
@@ -138,6 +105,6 @@ export default function ManageBranchModal({
           </FormikProvider>
         </Box>
       </Box>
-    </Dialog>
+    </Modal>
   );
 }

@@ -54,18 +54,21 @@ const Form = ({
                 color="primary"
                 sx={{ position: "absolute", bottom: 16, right: 16 }}
                 onClick={() => {
-                  // push(defaultItem);
-                  push({
-                    firstName: faker.name.firstName(),
-                    suffix: "",
-                    lastName: faker.name.lastName(),
-                    middleName: faker.name.lastName(),
-                    email: faker.internet.email(),
-                    address: faker.lorem.paragraph(),
-                    birthdate: faker.date.past(),
-                    gender: faker.random.arrayElement(["male", "female"]),
-                    branch: "",
-                  });
+                  push(
+                    true
+                      ? {
+                          firstName: faker.name.firstName(),
+                          suffix: "",
+                          lastName: faker.name.lastName(),
+                          middleName: faker.name.lastName(),
+                          email: faker.internet.email(),
+                          address: faker.lorem.paragraph(),
+                          birthdate: faker.date.past(),
+                          gender: faker.random.arrayElement(["male", "female"]),
+                          branch: "",
+                        }
+                      : defaultItem
+                  );
                 }}
                 size="small"
               >

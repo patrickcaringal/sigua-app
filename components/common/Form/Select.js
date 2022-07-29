@@ -3,6 +3,7 @@ import React from "react";
 import { FormControl, FormHelperText, InputLabel, Select } from "@mui/material";
 
 const SelectComponent = ({
+  multiple = false,
   required = false,
   label = "",
   value = "",
@@ -15,7 +16,14 @@ const SelectComponent = ({
   return (
     <FormControl fullWidth size="small" required={required} error={!!error}>
       <InputLabel>{label}</InputLabel>
-      <Select value={value} label={label} onChange={onChange} onBlur={onBlur}>
+      <Select
+        value={value}
+        label={label}
+        multiple={multiple}
+        onChange={onChange}
+        onBlur={onBlur}
+        {...rest}
+      >
         {children}
       </Select>
       {error && <FormHelperText>{error}</FormHelperText>}

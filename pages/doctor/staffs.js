@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
+import AddCircleIcon from "@mui/icons-material/AddCircle";
 import EditIcon from "@mui/icons-material/Edit";
-import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import {
   Box,
   Button,
@@ -56,9 +56,7 @@ const StaffsPage = () => {
   useEffect(() => {
     const fetchStaffs = async () => {
       // Get Staffs
-      const { data: staffList, error: getStaffsError } = await getStaffs({
-        branch: "LAKESIDE",
-      });
+      const { data: staffList, error: getStaffsError } = await getStaffs();
       if (getStaffsError) return openErrorDialog(getStaffsError);
 
       setStaffs(staffList);
@@ -102,7 +100,6 @@ const StaffsPage = () => {
 
     // Successful
     setStaffs((prev) => [...prev, ...addedStaff]);
-
     openResponseDialog({
       autoClose: true,
       content: `${pluralize("Staff", addedStaff.length)} successfuly added.`,
@@ -173,7 +170,7 @@ const StaffsPage = () => {
           variant="contained"
           size="small"
           onClick={handleStaffModalOpen}
-          startIcon={<GroupAddIcon />}
+          startIcon={<AddCircleIcon />}
         >
           add staff
         </Button>

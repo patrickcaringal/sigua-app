@@ -55,7 +55,7 @@ export const signInStaffReq = async ({ email, password }) => {
   }
 };
 
-export const getStaffsReq = async ({ branch }) => {
+export const getStaffsReq = async () => {
   try {
     // TODO: adjust when get branch needed
     // const q = query(collRef, where("branch", "==", branch));

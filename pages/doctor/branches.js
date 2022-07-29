@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
+import AddCircleIcon from "@mui/icons-material/AddCircle";
 import EditIcon from "@mui/icons-material/Edit";
-import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import {
   Box,
   Button,
@@ -94,7 +94,6 @@ const BranchManagementPage = () => {
 
     // Successful
     setBranches((prev) => [...prev, ...addedBranch]);
-
     openResponseDialog({
       autoClose: true,
       content: `${pluralize(
@@ -170,7 +169,7 @@ const BranchManagementPage = () => {
           variant="contained"
           size="small"
           onClick={handleAddBranchModalOpen}
-          startIcon={<GroupAddIcon />}
+          startIcon={<AddCircleIcon />}
         >
           add branch
         </Button>
