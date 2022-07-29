@@ -45,7 +45,6 @@ const Form = ({
   handleBlur,
   setFieldValue,
 }) => {
-  console.log(JSON.stringify({ touched, errors }, null, 4));
   return (
     <FieldArray
       name="staffs"
@@ -94,8 +93,6 @@ const Form = ({
                 const getError = (field) =>
                   touchedArr?.[field] && errorsArr?.[field];
                 const getFieldName = (field) => `staffs[${index}].${field}`;
-
-                // console.log(`staffs[${index}].branch`, getError("branch"));
 
                 return (
                   <Card key={index} elevation={isCreate ? 2 : 0}>
@@ -242,6 +239,7 @@ const Form = ({
                         </Grid>
                         <Grid item xs={12}>
                           <Input
+                            disabled={!isCreate}
                             required
                             label="Email"
                             name={getFieldName("email")}

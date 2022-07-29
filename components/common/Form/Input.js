@@ -5,6 +5,7 @@ import { TextField } from "@mui/material";
 const InputComponent = ({
   placeholder = "",
   required = false,
+  disabled = false,
   label = "",
   name = "",
   value = "",
@@ -22,6 +23,7 @@ const InputComponent = ({
       placeholder={placeholder}
       size="small"
       required={required}
+      disabled={disabled}
       fullWidth
       label={label}
       name={name}

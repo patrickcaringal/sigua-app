@@ -162,8 +162,16 @@ export const addStaffReq = async ({ staffs }) => {
 
 export const updateStaffReq = async ({ staff }) => {
   try {
-    // Check fullname duplicate
-    const q = query(collRef, where("name", "==", getFullName(staff)));
+    // Check fullname, birthdate duplicate
+    const q = query(
+      collRef,
+      where(
+        "nameBirthdate",
+        "in",
+        staffs.map((i) => getUniquePersonId(i))
+      )
+    );
+
     const querySnapshot = await getDocs(q);
 
     const isDuplicate =

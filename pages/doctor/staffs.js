@@ -101,6 +101,12 @@ const StaffsPage = () => {
       ...updatedStaff,
     };
 
+    // TODO: change email
+    // const isEmailUpdated = !lodash.isEqual(
+    //   staffs[index].email,
+    //   updatedStaff.email
+    // );
+
     // Update
     const { error: updateError } = await updateStaff({
       staff: updatedStaff,
