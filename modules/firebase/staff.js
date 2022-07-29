@@ -16,7 +16,13 @@ import {
 } from "firebase/firestore";
 import lodash from "lodash";
 
-import { formatTimeStamp, getFullName, pluralize } from "../helper";
+import {
+  arrayStringify,
+  formatFirebasetimeStamp,
+  getFullName,
+  getUniquePersonId,
+  pluralize,
+} from "../helper";
 import { getErrorMsg } from "./auth";
 import { auth, db, secondaryAuth, timestampFields } from "./config";
 
@@ -62,7 +68,7 @@ export const getStaffsReq = async ({ branch }) => {
 
     return { data, success: true };
   } catch (error) {
-    console.log(error);
+    console.log("getStaffsReq ERR", error);
     return { error: error.message };
   }
 };
@@ -87,17 +93,17 @@ export const addStaffReq = async ({ staffs }) => {
         `Duplicate ${pluralize(
           "Staff email",
           duplicates.length
-        )}. ${duplicates.join(", ")}`
+        )}. ${arrayStringify(duplicates)}`
       );
     }
 
-    // Check fullname duplicate
+    // Check fullname, birthdate duplicate
     q = query(
       collRef,
       where(
-        "name",
+        "nameBirthdate",
         "in",
-        staffs.map((i) => getFullName(i))
+        staffs.map((i) => getUniquePersonId(i))
       )
     );
     querySnapshot = await getDocs(q);
@@ -106,8 +112,8 @@ export const addStaffReq = async ({ staffs }) => {
     if (isDuplicate) {
       const duplicates = querySnapshot.docs.map((i) => i.data().name);
       throw new Error(
-        `Duplicate ${pluralize("Staff", duplicates.length)}. ${duplicates.join(
-          ", "
+        `Duplicate ${pluralize("Staff", duplicates.length)}. ${arrayStringify(
+          duplicates
         )}`
       );
     }
@@ -117,8 +123,7 @@ export const addStaffReq = async ({ staffs }) => {
     // Bulk Create Auth Account
     for (let index = 0; index < staffs.length; index++) {
       const staffdoc = { ...staffs[index] };
-      const { birthdate, email } = staffdoc;
-
+      const { birthdate: rawBirthdate, email } = staffdoc;
       const {
         user: { uid },
       } = await createUserWithEmailAndPassword(
@@ -127,12 +132,15 @@ export const addStaffReq = async ({ staffs }) => {
         "12345678"
       );
 
+      const fullName = getFullName(staffdoc);
+      const birthdate = formatFirebasetimeStamp(rawBirthdate);
+
       staffdoc = {
         ...staffdoc,
         id: uid,
-        name: getFullName(staffdoc),
-        birthdate: Timestamp.fromDate(new Date(birthdate)),
-        // formatDate(birthdate)
+        nameBirthdate: getUniquePersonId(staffdoc), // unique identifier
+        name: fullName,
+        birthdate,
         role: "staff",
         ...timestampFields({ dateCreated: true, dateUpdated: true }),
       };

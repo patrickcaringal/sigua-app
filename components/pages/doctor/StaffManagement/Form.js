@@ -15,12 +15,12 @@ import {
   IconButton,
   InputLabel,
   MenuItem,
-  Select,
   TextField,
 } from "@mui/material";
+import faker from "faker";
 import { FieldArray } from "formik";
 
-import { DatePicker, Input } from "../../../../components/common/Form";
+import { DatePicker, Input, Select } from "../../../../components/common/Form";
 import { formatTimeStamp } from "../../../../modules/helper";
 
 const defaultItem = {
@@ -45,6 +45,7 @@ const Form = ({
   handleBlur,
   setFieldValue,
 }) => {
+  console.log(JSON.stringify({ touched, errors }, null, 4));
   return (
     <FieldArray
       name="staffs"
@@ -56,7 +57,18 @@ const Form = ({
                 color="primary"
                 sx={{ position: "absolute", bottom: 16, right: 16 }}
                 onClick={() => {
-                  push(defaultItem);
+                  // push(defaultItem);
+                  push({
+                    firstName: faker.name.firstName(),
+                    suffix: "",
+                    lastName: faker.name.lastName(),
+                    middleName: faker.name.lastName(),
+                    email: faker.internet.email(),
+                    address: faker.lorem.paragraph(),
+                    birthdate: faker.date.past(),
+                    gender: faker.random.arrayElement(["male", "female"]),
+                    branch: "",
+                  });
                 }}
                 size="small"
               >
@@ -82,6 +94,8 @@ const Form = ({
                 const getError = (field) =>
                   touchedArr?.[field] && errorsArr?.[field];
                 const getFieldName = (field) => `staffs[${index}].${field}`;
+
+                // console.log(`staffs[${index}].branch`, getError("branch"));
 
                 return (
                   <Card key={index} elevation={isCreate ? 2 : 0}>
@@ -188,34 +202,23 @@ const Form = ({
                           />
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                          <FormControl
-                            fullWidth
-                            size="small"
+                          <Select
                             required
+                            label="Gender"
+                            value={valueArr.gender}
+                            onChange={(e) => {
+                              setFieldValue(
+                                getFieldName("gender"),
+                                e.target.value,
+                                false
+                              );
+                            }}
+                            onBlur={handleBlur}
                             error={getError("gender")}
                           >
-                            <InputLabel>Gender</InputLabel>
-                            <Select
-                              value={valueArr.gender}
-                              label="Gender"
-                              onChange={(e) => {
-                                setFieldValue(
-                                  getFieldName("gender"),
-                                  e.target.value,
-                                  false
-                                );
-                              }}
-                              onBlur={handleBlur}
-                            >
-                              <MenuItem value="male">Male</MenuItem>
-                              <MenuItem value="female">Female</MenuItem>
-                            </Select>
-                            {getError("gender") && (
-                              <FormHelperText>
-                                {getError("gender")}
-                              </FormHelperText>
-                            )}
-                          </FormControl>
+                            <MenuItem value="male">Male</MenuItem>
+                            <MenuItem value="female">Female</MenuItem>
+                          </Select>
                         </Grid>
                         <Grid item xs={12}>
                           <TextField
@@ -249,35 +252,23 @@ const Form = ({
                           />
                         </Grid>
                         <Grid item xs={12}>
-                          <FormControl
-                            fullWidth
-                            size="small"
-                            required
+                          <Select
+                            value={valueArr.branch}
+                            label="Branch"
+                            onChange={(e) => {
+                              setFieldValue(
+                                getFieldName("branch"),
+                                e.target.value,
+                                false
+                              );
+                            }}
+                            onBlur={handleBlur}
                             error={getError("branch")}
                           >
-                            <InputLabel>Branch</InputLabel>
-                            <Select
-                              value={valueArr.branch}
-                              label="Branch"
-                              onChange={(e) => {
-                                setFieldValue(
-                                  getFieldName("branch"),
-                                  e.target.value,
-                                  false
-                                );
-                              }}
-                              onBlur={handleBlur}
-                            >
-                              <MenuItem value="LAKESIDE">Lakeside</MenuItem>
-                              <MenuItem value="MABUHAY">Mabuhay</MenuItem>
-                              <MenuItem value="SOUTHVILLE">Sunrise</MenuItem>
-                            </Select>
-                            {getError("branch") && (
-                              <FormHelperText>
-                                {getError("branch")}
-                              </FormHelperText>
-                            )}
-                          </FormControl>
+                            <MenuItem value="LAKESIDE">Lakeside</MenuItem>
+                            <MenuItem value="MABUHAY">Mabuhay</MenuItem>
+                            <MenuItem value="SOUTHVILLE">Sunrise</MenuItem>
+                          </Select>
                         </Grid>
                       </Grid>
                     </CardContent>

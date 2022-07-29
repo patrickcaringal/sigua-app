@@ -193,7 +193,6 @@ const StaffsPage = () => {
                       <TableCell>{branch}</TableCell>
                       <TableCell>
                         <IconButton
-                          color="primary"
                           size="small"
                           onClick={() =>
                             handleEditModalOpen({
