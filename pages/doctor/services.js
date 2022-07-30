@@ -87,8 +87,8 @@ const ServicesManagementPage = () => {
 
   const handleEditService = async (updatedDocs) => {
     const updatedService = updatedDocs[0];
-    const index = updatedService.index;
     const serviceCopy = [...services];
+    const index = serviceCopy.findIndex((i) => i.id === updatedService.id);
 
     serviceCopy[index] = {
       ...serviceCopy[index],
@@ -110,24 +110,6 @@ const ServicesManagementPage = () => {
       closeCb() {
         setServiceModal(defaultModal);
       },
-    });
-  };
-
-  const handleServiceModalOpen = () => {
-    setServiceModal({
-      open: true,
-      data: null,
-    });
-  };
-
-  const handleServiceModalClose = () => {
-    setServiceModal(defaultModal);
-  };
-
-  const handleEditServiceModalOpen = (service) => {
-    setServiceModal({
-      open: true,
-      data: service,
     });
   };
 
@@ -159,6 +141,24 @@ const ServicesManagementPage = () => {
       autoClose: true,
       content: `Service(${service.name}) successfuly deleted.`,
       type: "SUCCESS",
+    });
+  };
+
+  const handleServiceModalOpen = () => {
+    setServiceModal({
+      open: true,
+      data: null,
+    });
+  };
+
+  const handleServiceModalClose = () => {
+    setServiceModal(defaultModal);
+  };
+
+  const handleEditServiceModalOpen = (service) => {
+    setServiceModal({
+      open: true,
+      data: service,
     });
   };
 
@@ -219,7 +219,6 @@ const ServicesManagementPage = () => {
                     >
                       <EditIcon />
                     </IconButton>
-
                     <IconButton
                       size="small"
                       onClick={() => handleDeleteConfirm(i)}

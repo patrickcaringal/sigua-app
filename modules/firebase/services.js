@@ -17,10 +17,10 @@ const collRef = collection(db, "services");
 
 export const getServicesReq = async () => {
   try {
-    const querySnapshot = await getDocs(collRef);
-    const data = querySnapshot.docs.map((doc, index) => ({
+    const q = query(collRef, where("deleted", "!=", true));
+    const querySnapshot = await getDocs(q);
+    const data = querySnapshot.docs.map((doc) => ({
       id: doc.id,
-      index,
       ...doc.data(),
     }));
 
@@ -67,6 +67,7 @@ export const addServiceReq = async ({ docs }) => {
         id,
         ...d,
         ...timestampFields({ dateCreated: true, dateUpdated: true }),
+        deleted: false,
       };
       batch.set(doc(db, "services", id), mappedDoc);
 
