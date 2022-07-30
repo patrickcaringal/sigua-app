@@ -15,7 +15,6 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 
-import { Toolbar } from "../../components/common";
 import { ManageServiceModal } from "../../components/pages/doctor/ServiceManagement";
 import { AdminMainContainer } from "../../components/shared";
 import { useBackdropLoader } from "../../contexts/BackdropLoaderContext";

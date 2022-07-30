@@ -174,11 +174,13 @@ const BranchManagementPage = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: "bold" }}>Branch</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Services</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Address</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Capacity</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
+              {["Branch", "Services", "Address", "Capacity", "Actions"].map(
+                (i) => (
+                  <TableCell key={i} sx={{ fontWeight: "bold" }}>
+                    {i}
+                  </TableCell>
+                )
+              )}
             </TableRow>
           </TableHead>
 
