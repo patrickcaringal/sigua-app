@@ -3,10 +3,8 @@ import React, { useEffect, useState } from "react";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import EditIcon from "@mui/icons-material/Edit";
 import {
-  Box,
   Button,
   IconButton,
-  Paper,
   Table,
   TableBody,
   TableCell,
@@ -18,8 +16,8 @@ import {
 import lodash from "lodash";
 import { useRouter } from "next/router";
 
-import { Toolbar } from "../../components/common";
 import { ManageStaffModal } from "../../components/pages/doctor/StaffManagement";
+import { AdminMainContainer } from "../../components/shared";
 import { useBackdropLoader } from "../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../contexts/ResponseDialogContext";
 import useRequest from "../../hooks/useRequest";
@@ -156,16 +154,12 @@ const StaffsPage = () => {
   };
 
   return (
-    <Box
-      sx={{
-        height: "calc(100vh - 64px)",
-        mx: 4,
+    <AdminMainContainer
+      toolbarProps={{
+        onRootClick: () => router.push("/doctor/dashboard"),
+        paths: [{ text: "Staffs" }],
       }}
-    >
-      <Toolbar
-        onRootClick={() => router.push("/doctor/dashboard")}
-        paths={[{ text: "Staffs" }]}
-      >
+      toolbarContent={
         <Button
           variant="contained"
           size="small"
@@ -174,68 +168,62 @@ const StaffsPage = () => {
         >
           add staff
         </Button>
-      </Toolbar>
-      <Box>
-        <Paper
-          elevation={2}
-          sx={{ height: "calc(100vh - 64px - 64px - 16px)" }}
-        >
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Address</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Branch</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
+      }
+    >
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Address</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Branch</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+
+          <TableBody>
+            {staffs.map((i) => {
+              const { id, name, email, branch, address, birthdate } = i;
+
+              return (
+                <TableRow key={id}>
+                  <TableCell>{getFullName(i)}</TableCell>
+                  <TableCell>{email}</TableCell>
+                  <TableCell sx={{ width: 400, maxWidth: 400 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        display: "-webkit-box",
+                        WebkitBoxOrient: "vertical",
+                        WebkitLineClamp: "2",
+                        overflow: "hidden",
+                      }}
+                      component="div"
+                    >
+                      {address}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>{branchesMap[branch]}</TableCell>
+                  <TableCell>
+                    <IconButton
+                      size="small"
+                      onClick={() =>
+                        handleEditModalOpen({
+                          ...i,
+                          birthdate: formatTimeStamp(birthdate),
+                        })
+                      }
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
-              </TableHead>
-
-              <TableBody>
-                {staffs.map((i) => {
-                  const { id, name, email, branch, address, birthdate } = i;
-
-                  return (
-                    <TableRow key={id}>
-                      <TableCell>{getFullName(i)}</TableCell>
-                      <TableCell>{email}</TableCell>
-                      <TableCell sx={{ width: 400, maxWidth: 400 }}>
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            display: "-webkit-box",
-                            WebkitBoxOrient: "vertical",
-                            WebkitLineClamp: "2",
-                            overflow: "hidden",
-                          }}
-                          component="div"
-                        >
-                          {address}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>{branchesMap[branch]}</TableCell>
-                      <TableCell>
-                        <IconButton
-                          size="small"
-                          onClick={() =>
-                            handleEditModalOpen({
-                              ...i,
-                              birthdate: formatTimeStamp(birthdate),
-                            })
-                          }
-                        >
-                          <EditIcon />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
-      </Box>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       {staffModal.open && (
         <ManageStaffModal
@@ -246,7 +234,7 @@ const StaffsPage = () => {
           onSave={!staffModal.data ? handleAddStaff : handleEditStaff}
         />
       )}
-    </Box>
+    </AdminMainContainer>
   );
 };
 

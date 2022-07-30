@@ -3,10 +3,8 @@ import React, { useEffect, useState } from "react";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import EditIcon from "@mui/icons-material/Edit";
 import {
-  Box,
   Button,
   IconButton,
-  Paper,
   Table,
   TableBody,
   TableCell,
@@ -19,6 +17,7 @@ import { useRouter } from "next/router";
 
 import { Toolbar } from "../../components/common";
 import { ManageServiceModal } from "../../components/pages/doctor/ServiceManagement";
+import { AdminMainContainer } from "../../components/shared";
 import { useBackdropLoader } from "../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../contexts/ResponseDialogContext";
 import useRequest from "../../hooks/useRequest";
@@ -130,16 +129,12 @@ const ServicesManagementPage = () => {
   };
 
   return (
-    <Box
-      sx={{
-        height: "calc(100vh - 64px)",
-        mx: 4,
+    <AdminMainContainer
+      toolbarProps={{
+        onRootClick: () => router.push("/doctor/dashboard"),
+        paths: [{ text: "Services" }],
       }}
-    >
-      <Toolbar
-        onRootClick={() => router.push("/doctor/dashboard")}
-        paths={[{ text: "Services" }]}
-      >
+      toolbarContent={
         <Button
           variant="contained"
           size="small"
@@ -148,59 +143,53 @@ const ServicesManagementPage = () => {
         >
           add service
         </Button>
-      </Toolbar>
-      <Box>
-        <Paper
-          elevation={2}
-          sx={{ height: "calc(100vh - 64px - 64px - 16px)" }}
-        >
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: "bold" }}>Service</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Description</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
+      }
+    >
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ fontWeight: "bold" }}>Service</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Description</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+
+          <TableBody>
+            {services.map((i) => {
+              const { id, name, description } = i;
+
+              return (
+                <TableRow key={id}>
+                  <TableCell sx={{ width: 250 }}>{name}</TableCell>
+                  <TableCell>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        display: "-webkit-box",
+                        WebkitBoxOrient: "vertical",
+                        WebkitLineClamp: "2",
+                        overflow: "hidden",
+                      }}
+                      component="div"
+                    >
+                      {description}
+                    </Typography>
+                  </TableCell>
+                  <TableCell sx={{ width: 150 }}>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleEditServiceModalOpen(i)}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
-              </TableHead>
-
-              <TableBody>
-                {services.map((i) => {
-                  const { id, name, description } = i;
-
-                  return (
-                    <TableRow key={id}>
-                      <TableCell sx={{ width: 250 }}>{name}</TableCell>
-                      <TableCell>
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            display: "-webkit-box",
-                            WebkitBoxOrient: "vertical",
-                            WebkitLineClamp: "2",
-                            overflow: "hidden",
-                          }}
-                          component="div"
-                        >
-                          {description}
-                        </Typography>
-                      </TableCell>
-                      <TableCell sx={{ width: 150 }}>
-                        <IconButton
-                          size="small"
-                          onClick={() => handleEditServiceModalOpen(i)}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
-      </Box>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       {serviceModal.open && (
         <ManageServiceModal
@@ -210,7 +199,7 @@ const ServicesManagementPage = () => {
           onSave={!serviceModal.data ? handleAddService : handleEditService}
         />
       )}
-    </Box>
+    </AdminMainContainer>
   );
 };
 

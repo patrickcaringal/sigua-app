@@ -7,7 +7,6 @@ import {
   Button,
   Chip,
   IconButton,
-  Paper,
   Table,
   TableBody,
   TableCell,
@@ -19,8 +18,8 @@ import {
 import { omit as omitFields } from "lodash";
 import { useRouter } from "next/router";
 
-import { Toolbar } from "../../components/common";
 import { ManageBranchModal } from "../../components/pages/doctor/BranchManagement";
+import { AdminMainContainer } from "../../components/shared";
 import { useBackdropLoader } from "../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../contexts/ResponseDialogContext";
 import useRequest from "../../hooks/useRequest";
@@ -155,16 +154,12 @@ const BranchManagementPage = () => {
   };
 
   return (
-    <Box
-      sx={{
-        height: "calc(100vh - 64px)",
-        mx: 4,
+    <AdminMainContainer
+      toolbarProps={{
+        onRootClick: () => router.push("/doctor/dashboard"),
+        paths: [{ text: "Branches" }],
       }}
-    >
-      <Toolbar
-        onRootClick={() => router.push("/doctor/dashboard")}
-        paths={[{ text: "Branches" }]}
-      >
+      toolbarContent={
         <Button
           variant="contained"
           size="small"
@@ -173,86 +168,80 @@ const BranchManagementPage = () => {
         >
           add branch
         </Button>
-      </Toolbar>
-      <Box>
-        <Paper
-          elevation={2}
-          sx={{ height: "calc(100vh - 64px - 64px - 16px)" }}
-        >
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: "bold" }}>Branch</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Services</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Address</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Capacity</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
-                </TableRow>
-              </TableHead>
+      }
+    >
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ fontWeight: "bold" }}>Branch</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Services</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Address</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Capacity</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
 
-              <TableBody>
-                {branches.map((i) => {
-                  const { id, name, address, capacity, services } = i;
+          <TableBody>
+            {branches.map((i) => {
+              const { id, name, address, capacity, services } = i;
 
-                  return (
-                    <TableRow key={id}>
-                      <TableCell>{name}</TableCell>
-                      <TableCell sx={{ maxWidth: 300 }}>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            flexDirection: "row",
-                            flexWrap: "wrap",
-                            gap: 1,
-                          }}
-                        >
-                          {services.map((s) => (
-                            <Chip
-                              key={s.id}
-                              label={servicesMap[s.id]}
-                              color="primary"
-                              size="small"
-                            />
-                          ))}
-                        </Box>
-                      </TableCell>
-                      <TableCell sx={{ maxWidth: 200 }}>
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            display: "-webkit-box",
-                            WebkitBoxOrient: "vertical",
-                            WebkitLineClamp: "2",
-                            overflow: "hidden",
-                          }}
-                          component="div"
-                        >
-                          {address}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>{capacity}</TableCell>
-                      <TableCell>
-                        <IconButton
+              return (
+                <TableRow key={id}>
+                  <TableCell>{name}</TableCell>
+                  <TableCell sx={{ maxWidth: 300 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        flexWrap: "wrap",
+                        gap: 1,
+                      }}
+                    >
+                      {services.map((s) => (
+                        <Chip
+                          key={s.id}
+                          label={servicesMap[s.id]}
+                          color="primary"
                           size="small"
-                          onClick={() =>
-                            handleEditBranchModalOpen({
-                              ...i,
-                              services: services.map((i) => i.name),
-                            })
-                          }
-                        >
-                          <EditIcon />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
-      </Box>
+                        />
+                      ))}
+                    </Box>
+                  </TableCell>
+                  <TableCell sx={{ maxWidth: 200 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        display: "-webkit-box",
+                        WebkitBoxOrient: "vertical",
+                        WebkitLineClamp: "2",
+                        overflow: "hidden",
+                      }}
+                      component="div"
+                    >
+                      {address}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>{capacity}</TableCell>
+                  <TableCell>
+                    <IconButton
+                      size="small"
+                      onClick={() =>
+                        handleEditBranchModalOpen({
+                          ...i,
+                          services: services.map((i) => i.name),
+                        })
+                      }
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       {branchModal.open && (
         <ManageBranchModal
@@ -263,7 +252,7 @@ const BranchManagementPage = () => {
           onSave={!branchModal.data ? handleAddBranch : handleEditBranch}
         />
       )}
-    </Box>
+    </AdminMainContainer>
   );
 };
 
