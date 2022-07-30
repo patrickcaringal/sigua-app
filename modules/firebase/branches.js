@@ -17,10 +17,10 @@ const collRef = collection(db, "branches");
 
 export const getBranchesReq = async () => {
   try {
-    const querySnapshot = await getDocs(collRef);
-    const data = querySnapshot.docs.map((doc, index) => ({
+    const q = query(collRef, where("deleted", "!=", true));
+    const querySnapshot = await getDocs(q);
+    const data = querySnapshot.docs.map((doc) => ({
       id: doc.id,
-      index,
       ...doc.data(),
     }));
 
@@ -67,6 +67,7 @@ export const addBranchReq = async ({ docs }) => {
         id,
         ...d,
         ...timestampFields({ dateCreated: true, dateUpdated: true }),
+        deleted: false,
       };
       batch.set(doc(db, "branches", id), mappedDoc);
 
@@ -98,6 +99,32 @@ export const updateBranchReq = async ({ branch }) => {
     const docRef = doc(db, "branches", branch.id);
     const finalDoc = {
       ...lodash.omit(branch, ["id", "index", "dateCreated"]),
+      ...timestampFields({ dateUpdated: true }),
+    };
+    await updateDoc(docRef, finalDoc);
+
+    return { success: true };
+  } catch (error) {
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const deleteBranchReq = async ({ branch }) => {
+  try {
+    const { name } = branch;
+    // // Check name duplicate
+    // const q = query(collRef, where("name", "==", name));
+    // const querySnapshot = await getDocs(q);
+
+    // const isDuplicate =
+    //   querySnapshot.docs.filter((doc) => doc.id !== branch.id).length !== 0;
+    // if (isDuplicate) throw new Error(`Service ${name} already exist`);
+
+    // Update to deleted status
+    const docRef = doc(db, "branches", branch.id);
+    const finalDoc = {
+      deleted: true,
       ...timestampFields({ dateUpdated: true }),
     };
     await updateDoc(docRef, finalDoc);

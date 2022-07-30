@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import {
   Box,
@@ -25,6 +26,7 @@ import { useResponseDialog } from "../../contexts/ResponseDialogContext";
 import useRequest from "../../hooks/useRequest";
 import {
   addBranchReq,
+  deleteBranchReq,
   getBranchesReq,
   getServicesReq,
   updateBranchReq,
@@ -46,6 +48,7 @@ const BranchManagementPage = () => {
   const [getBranches] = useRequest(getBranchesReq, setBackdropLoader);
   const [addBranch] = useRequest(addBranchReq, setBackdropLoader);
   const [updateBranch] = useRequest(updateBranchReq, setBackdropLoader);
+  const [deleteBranch] = useRequest(deleteBranchReq, setBackdropLoader);
 
   // Local States
   const [services, setServices] = useState([]);
@@ -109,8 +112,8 @@ const BranchManagementPage = () => {
 
   const handleEditBranch = async (updatedDocs) => {
     const updatedBranch = updatedDocs[0];
-    const index = updatedBranch.index;
     const branchCopy = [...branches];
+    const index = branchCopy.findIndex((i) => i.id === updatedBranch.id);
 
     branchCopy[index] = {
       ...branchCopy[index],
@@ -132,6 +135,37 @@ const BranchManagementPage = () => {
       closeCb() {
         setBranchModal(defaultModal);
       },
+    });
+  };
+
+  const handleDeleteConfirm = (branch) => {
+    openResponseDialog({
+      content: `Are you sure you want to delete Branch(${branch.name})`,
+      type: "CONFIRM",
+      actions: (
+        <Button
+          variant="outlined"
+          color="error"
+          onClick={() => handleDelete(branch)}
+          size="small"
+        >
+          delete
+        </Button>
+      ),
+    });
+  };
+
+  const handleDelete = async (branch) => {
+    // Update
+    const { error: deleteError } = await deleteBranch({ branch });
+    if (deleteError) return openErrorDialog(deleteError);
+
+    // Success
+    setBranches((prev) => prev.filter((i) => i.id !== branch.id));
+    openResponseDialog({
+      autoClose: true,
+      content: `Branch(${branch.name}) successfuly deleted.`,
+      type: "SUCCESS",
     });
   };
 
@@ -236,6 +270,12 @@ const BranchManagementPage = () => {
                       }
                     >
                       <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleDeleteConfirm(i)}
+                    >
+                      <DeleteIcon />
                     </IconButton>
                   </TableCell>
                 </TableRow>
