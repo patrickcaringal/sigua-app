@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import EditIcon from "@mui/icons-material/Edit";
 import {
   Box,
   Button,
+  IconButton,
   Paper,
   Table,
   TableBody,
@@ -20,8 +22,17 @@ import { ManageServiceModal } from "../../components/pages/doctor/ServiceManagem
 import { useBackdropLoader } from "../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../contexts/ResponseDialogContext";
 import useRequest from "../../hooks/useRequest";
-import { addServiceReq, getServicesReq } from "../../modules/firebase";
+import {
+  addServiceReq,
+  getServicesReq,
+  updateServiceReq,
+} from "../../modules/firebase";
 import { pluralize } from "../../modules/helper";
+
+const defaultModal = {
+  open: false,
+  data: {},
+};
 
 const ServicesManagementPage = () => {
   const router = useRouter();
@@ -31,10 +42,11 @@ const ServicesManagementPage = () => {
   // Requests
   const [getServices] = useRequest(getServicesReq, setBackdropLoader);
   const [addService] = useRequest(addServiceReq, setBackdropLoader);
+  const [updateService] = useRequest(updateServiceReq, setBackdropLoader);
 
   // Local States
   const [services, setServices] = useState([]);
-  const [servicehModalOpen, setServiceModalOpen] = useState(false);
+  const [serviceModal, setServiceModal] = useState(false);
 
   useEffect(() => {
     const fetch = async () => {
@@ -48,10 +60,6 @@ const ServicesManagementPage = () => {
     fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const handleServiceModalOpen = () => {
-    setServiceModalOpen(true);
-  };
 
   const handleAddService = async (newService) => {
     // Add Services
@@ -70,8 +78,54 @@ const ServicesManagementPage = () => {
       )} successfuly added.`,
       type: "SUCCESS",
       closeCb() {
-        setServiceModalOpen(false);
+        setServiceModal(defaultModal);
       },
+    });
+  };
+
+  const handleEditService = async (updatedDocs) => {
+    const updatedService = updatedDocs[0];
+    const index = updatedService.index;
+    const serviceCopy = [...services];
+
+    serviceCopy[index] = {
+      ...serviceCopy[index],
+      ...updatedService,
+    };
+
+    // Update
+    const { error: updateError } = await updateService({
+      service: updatedService,
+    });
+    if (updateError) return openErrorDialog(updateError);
+
+    // Success
+    setServices(serviceCopy);
+    openResponseDialog({
+      autoClose: true,
+      content: "Service successfuly updated.",
+      type: "SUCCESS",
+      closeCb() {
+        setServiceModal(defaultModal);
+      },
+    });
+  };
+
+  const handleServiceModalOpen = () => {
+    setServiceModal({
+      open: true,
+      data: null,
+    });
+  };
+
+  const handleServiceModalClose = () => {
+    setServiceModal(defaultModal);
+  };
+
+  const handleEditServiceModalOpen = (service) => {
+    setServiceModal({
+      open: true,
+      data: service,
     });
   };
 
@@ -106,6 +160,7 @@ const ServicesManagementPage = () => {
                 <TableRow>
                   <TableCell sx={{ fontWeight: "bold" }}>Service</TableCell>
                   <TableCell sx={{ fontWeight: "bold" }}>Description</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
 
@@ -130,6 +185,14 @@ const ServicesManagementPage = () => {
                           {description}
                         </Typography>
                       </TableCell>
+                      <TableCell sx={{ width: 150 }}>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleEditServiceModalOpen(i)}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -139,11 +202,14 @@ const ServicesManagementPage = () => {
         </Paper>
       </Box>
 
-      <ManageServiceModal
-        open={servicehModalOpen}
-        setOpen={setServiceModalOpen}
-        onAddService={handleAddService}
-      />
+      {serviceModal.open && (
+        <ManageServiceModal
+          open={serviceModal.open}
+          data={serviceModal.data}
+          onClose={handleServiceModalClose}
+          onSave={!serviceModal.data ? handleAddService : handleEditService}
+        />
+      )}
     </Box>
   );
 };

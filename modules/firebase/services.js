@@ -3,9 +3,11 @@ import {
   doc,
   getDocs,
   query,
+  updateDoc,
   where,
   writeBatch,
 } from "firebase/firestore";
+import lodash from "lodash";
 
 import { pluralize } from "../helper";
 import { getErrorMsg } from "./auth";
@@ -16,9 +18,9 @@ const collRef = collection(db, "services");
 export const getServicesReq = async () => {
   try {
     const querySnapshot = await getDocs(collRef);
-
-    const data = querySnapshot.docs.map((doc) => ({
+    const data = querySnapshot.docs.map((doc, index) => ({
       id: doc.id,
+      index,
       ...doc.data(),
     }));
 
@@ -57,13 +59,16 @@ export const addServiceReq = async ({ docs }) => {
     // Bulk Create Service Document
     const batch = writeBatch(db);
 
-    const data = docs.map((serviceDoc) => {
+    const data = docs.map((d) => {
+      const docRef = doc(collRef);
+      const id = docRef.id;
+
       const mappedDoc = {
-        ...serviceDoc,
+        id,
+        ...d,
         ...timestampFields({ dateCreated: true, dateUpdated: true }),
       };
-      const docRef = doc(collRef);
-      batch.set(doc(db, "services", docRef.id), mappedDoc);
+      batch.set(doc(db, "services", id), mappedDoc);
 
       return mappedDoc;
     });
@@ -73,6 +78,32 @@ export const addServiceReq = async ({ docs }) => {
     return { data, success: true };
   } catch (error) {
     console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const updateServiceReq = async ({ service }) => {
+  try {
+    const { name } = service;
+    // Check name duplicate
+    const q = query(collRef, where("name", "==", name));
+    const querySnapshot = await getDocs(q);
+
+    const isDuplicate =
+      querySnapshot.docs.filter((doc) => doc.id !== service.id).length !== 0;
+    if (isDuplicate) throw new Error(`Service ${name} already exist`);
+
+    // Update
+    const docRef = doc(db, "services", service.id);
+    const finalDoc = {
+      ...lodash.omit(service, ["id", "index", "dateCreated"]),
+      ...timestampFields({ dateUpdated: true }),
+    };
+    await updateDoc(docRef, finalDoc);
+
+    return { success: true };
+  } catch (error) {
     const errMsg = getErrorMsg(error.code);
     return { error: errMsg || error.message };
   }

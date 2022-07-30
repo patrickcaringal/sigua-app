@@ -11,9 +11,11 @@ import {
   Fab,
   Grid,
   IconButton,
-  TextField,
 } from "@mui/material";
+import faker from "faker";
 import { FieldArray } from "formik";
+
+import { Input } from "../../../../components/common/Form";
 
 const defaultItem = {
   name: "",
@@ -21,6 +23,8 @@ const defaultItem = {
 };
 
 const Form = ({
+  isCreate,
+  // formik
   values,
   touched,
   errors,
@@ -34,16 +38,26 @@ const Form = ({
       render={({ push, remove }) => {
         return (
           <>
-            <Fab
-              color="primary"
-              sx={{ position: "absolute", bottom: 16, right: 16 }}
-              onClick={() => {
-                push(defaultItem);
-              }}
-              size="small"
-            >
-              <AddIcon />
-            </Fab>
+            {isCreate && (
+              <Fab
+                color="primary"
+                sx={{ position: "absolute", bottom: 16, right: 16 }}
+                onClick={() => {
+                  push(
+                    true
+                      ? {
+                          name: faker.lorem.words(),
+                          description: faker.lorem.paragraph(),
+                        }
+                      : defaultItem
+                  );
+                }}
+                size="small"
+              >
+                <AddIcon />
+              </Fab>
+            )}
+
             <Box
               sx={{
                 display: "flex",
@@ -52,7 +66,7 @@ const Form = ({
                 py: 1,
                 rowGap: 3,
                 overflow: "overlay",
-                minHeight: 280,
+                minHeight: isCreate ? 280 : 0,
               }}
             >
               {values.services.map((s, index) => {
@@ -65,57 +79,53 @@ const Form = ({
                 const getFieldName = (field) => `services[${index}].${field}`;
 
                 return (
-                  <Card key={index} elevation={2}>
-                    <CardHeader
-                      avatar={
-                        <Avatar sx={{ bgcolor: "primary.main" }}>
-                          {index + 1}
-                        </Avatar>
-                      }
-                      action={
-                        <>
-                          <IconButton
-                            size="small"
-                            onClick={() => {
-                              remove(index);
-                            }}
-                          >
-                            <CloseIcon />
-                          </IconButton>
-                        </>
-                      }
-                      title={`Service ${index + 1}`}
-                    />
+                  <Card key={index} elevation={isCreate ? 2 : 0}>
+                    {isCreate && (
+                      <CardHeader
+                        avatar={
+                          <Avatar sx={{ bgcolor: "primary.main" }}>
+                            {index + 1}
+                          </Avatar>
+                        }
+                        action={
+                          <>
+                            <IconButton
+                              size="small"
+                              onClick={() => {
+                                remove(index);
+                              }}
+                            >
+                              <CloseIcon />
+                            </IconButton>
+                          </>
+                        }
+                        title={`Service ${index + 1}`}
+                      />
+                    )}
                     <CardContent>
                       <Grid container spacing={2}>
                         <Grid item xs={12} sm={12}>
-                          <TextField
-                            size="small"
+                          <Input
                             required
-                            fullWidth
                             label="Service"
                             name={getFieldName("name")}
-                            autoComplete="off"
                             value={valueArr.name}
                             onChange={handleChange}
                             onBlur={handleBlur}
                             error={getError("name")}
-                            helperText={getError("name")}
                           />
                         </Grid>
                         <Grid item xs={12}>
-                          <TextField
-                            size="small"
+                          <Input
+                            multiline
+                            rows={2}
                             required
-                            fullWidth
                             label="Description"
                             name={`services[${index}].description`}
-                            autoComplete="off"
                             value={valueArr.description}
                             onChange={handleChange}
                             onBlur={handleBlur}
                             error={getError("description")}
-                            helperText={getError("description")}
                           />
                         </Grid>
                       </Grid>

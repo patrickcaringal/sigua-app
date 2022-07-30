@@ -17,7 +17,7 @@ import {
 } from "./auth";
 import { addBranchReq, getBranchesReq, updateBranchReq } from "./branches";
 import { auth, db } from "./config";
-import { addServiceReq, getServicesReq } from "./services";
+import { addServiceReq, getServicesReq, updateServiceReq } from "./services";
 import {
   addStaffReq,
   getStaffsReq,
@@ -52,6 +52,7 @@ export {
   // service
   getServicesReq,
   addServiceReq,
+  updateServiceReq,
   // branch
   addBranchReq,
   getBranchesReq,

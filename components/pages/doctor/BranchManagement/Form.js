@@ -28,9 +28,6 @@ const defaultItem = {
   capacity: "",
 };
 
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-
 const Form = ({
   services,
   isCreate,

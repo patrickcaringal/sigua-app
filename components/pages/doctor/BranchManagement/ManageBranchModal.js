@@ -15,10 +15,6 @@ import { BranchesSchema } from "../../../../modules/validation";
 import { Modal } from "../../../common";
 import Form from "./Form";
 
-const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
-
 const defaultValues = {
   branches: [],
 };
