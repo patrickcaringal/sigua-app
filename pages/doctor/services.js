@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import {
   Button,
@@ -22,6 +23,7 @@ import { useResponseDialog } from "../../contexts/ResponseDialogContext";
 import useRequest from "../../hooks/useRequest";
 import {
   addServiceReq,
+  deleteServiceReq,
   getServicesReq,
   updateServiceReq,
 } from "../../modules/firebase";
@@ -36,11 +38,13 @@ const ServicesManagementPage = () => {
   const router = useRouter();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
+  const confirmDialog = useResponseDialog();
 
   // Requests
   const [getServices] = useRequest(getServicesReq, setBackdropLoader);
   const [addService] = useRequest(addServiceReq, setBackdropLoader);
   const [updateService] = useRequest(updateServiceReq, setBackdropLoader);
+  const [deleteService] = useRequest(deleteServiceReq, setBackdropLoader);
 
   // Local States
   const [services, setServices] = useState([]);
@@ -127,6 +131,37 @@ const ServicesManagementPage = () => {
     });
   };
 
+  const handleDeleteConfirm = (service) => {
+    openResponseDialog({
+      content: `Are you sure you want to delete Service(${service.name})`,
+      type: "CONFIRM",
+      actions: (
+        <Button
+          variant="outlined"
+          color="error"
+          onClick={() => handleDelete(service)}
+          size="small"
+        >
+          delete
+        </Button>
+      ),
+    });
+  };
+
+  const handleDelete = async (service) => {
+    // Update
+    const { error: deleteError } = await deleteService({ service });
+    if (deleteError) return openErrorDialog(deleteError);
+
+    // Success
+    setServices((prev) => prev.filter((i) => i.id !== service.id));
+    openResponseDialog({
+      autoClose: true,
+      content: `Service(${service.name}) successfuly deleted.`,
+      type: "SUCCESS",
+    });
+  };
+
   return (
     <AdminMainContainer
       toolbarProps={{
@@ -148,9 +183,11 @@ const ServicesManagementPage = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: "bold" }}>Service</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Description</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
+              {["Service", "Description", "Actions"].map((i) => (
+                <TableCell key={i} sx={{ fontWeight: "bold" }}>
+                  {i}
+                </TableCell>
+              ))}
             </TableRow>
           </TableHead>
 
@@ -181,6 +218,13 @@ const ServicesManagementPage = () => {
                       onClick={() => handleEditServiceModalOpen(i)}
                     >
                       <EditIcon />
+                    </IconButton>
+
+                    <IconButton
+                      size="small"
+                      onClick={() => handleDeleteConfirm(i)}
+                    >
+                      <DeleteIcon />
                     </IconButton>
                   </TableCell>
                 </TableRow>

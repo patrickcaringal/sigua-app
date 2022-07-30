@@ -17,6 +17,7 @@ export const ResponseDialogProvider = ({ children }) => {
   const [type, setType] = useState(DIALOG_TYPES.SUCCESS);
   const [title, setTitle] = useState(null);
   const [content, setContent] = useState(null);
+  const [actions, setActions] = useState(null);
 
   const handleClose = () => {
     setOpen(false);
@@ -26,17 +27,20 @@ export const ResponseDialogProvider = ({ children }) => {
       setType(DIALOG_TYPES.SUCCESS);
       setTitle(null);
       setContent(null);
+      setActions(null);
     }, 250);
   };
 
   const openResponseDialog = ({
     autoClose = false,
     content,
+    actions,
     type,
     closeCb = () => {},
   }) => {
     setType(type);
     setContent(content);
+    setActions(actions);
     setOpen(true);
     closeCb();
 
@@ -61,6 +65,7 @@ export const ResponseDialogProvider = ({ children }) => {
         type={type}
         title={title}
         content={content}
+        actions={actions}
         onClose={handleClose}
       />
       {children}

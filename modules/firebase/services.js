@@ -108,3 +108,29 @@ export const updateServiceReq = async ({ service }) => {
     return { error: errMsg || error.message };
   }
 };
+
+export const deleteServiceReq = async ({ service }) => {
+  try {
+    const { name } = service;
+    // // Check name duplicate
+    // const q = query(collRef, where("name", "==", name));
+    // const querySnapshot = await getDocs(q);
+
+    // const isDuplicate =
+    //   querySnapshot.docs.filter((doc) => doc.id !== service.id).length !== 0;
+    // if (isDuplicate) throw new Error(`Service ${name} already exist`);
+
+    // Update to deleted status
+    const docRef = doc(db, "services", service.id);
+    const finalDoc = {
+      deleted: true,
+      ...timestampFields({ dateUpdated: true }),
+    };
+    await updateDoc(docRef, finalDoc);
+
+    return { success: true };
+  } catch (error) {
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
