@@ -158,7 +158,7 @@ const Cards = ({ data, onEditModal, onVerificationModal, onPhoneModal }) => {
                   variant="outlined"
                   size="small"
                   startIcon={<PhoneIphoneIcon />}
-                  onClick={() => onEditModal(i)}
+                  onClick={() => onPhoneModal(i)}
                 >
                   Verify
                 </Button>
@@ -173,14 +173,14 @@ const Cards = ({ data, onEditModal, onVerificationModal, onPhoneModal }) => {
               >
                 Delete
               </Button> */}
-              <IconButton
+              {/* <IconButton
                 size="small"
                 color="error"
                 onClick={() => {}}
                 sx={{ marginLeft: "auto !important" }}
               >
                 <DeleteIcon />
-              </IconButton>
+              </IconButton> */}
             </CardActions>
           </Card>
         );

@@ -236,6 +236,7 @@ const Form = ({
                       </Grid>
                       <Grid item xs={12}>
                         <Input
+                          disabled={!isCreate}
                           value={valueArr.contactNo}
                           required
                           label="Contact Number"
