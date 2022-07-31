@@ -3,8 +3,6 @@ import { getAuth } from "firebase/auth";
 import { Timestamp, getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
-const TB = process.env.TB;
-
 const firebaseConfig = {
   apiKey: "AIzaSyCOQ8AWVbqdihlz0Uh6vmWUWexV_Js_Z7c",
   authDomain: "sigua-app.firebaseapp.com",

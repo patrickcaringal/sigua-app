@@ -20,6 +20,7 @@ import faker from "faker";
 import { FieldArray } from "formik";
 
 import { Input, Select } from "../../../../components/common/Form";
+import { isMockDataEnabled } from "../../../../modules/env";
 
 const defaultItem = {
   name: "",
@@ -50,7 +51,7 @@ const Form = ({
               sx={{ position: "absolute", bottom: 16, right: 16 }}
               onClick={() => {
                 push(
-                  true
+                  isMockDataEnabled
                     ? {
                         name: faker.git.branch(),
                         services: [],
