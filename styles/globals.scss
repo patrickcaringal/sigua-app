@@ -41,3 +41,8 @@ a {
 * {
   box-sizing: border-box;
 }
+
+// Overrides MUI
+.MuiCardHeader-avatar {
+  align-self: flex-start;
+}

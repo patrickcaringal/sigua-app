@@ -4,6 +4,7 @@ export const PATHS = {
   DOCTOR: {
     DASHBOARD: "/doctor/dashboard",
     SERVICES_MANAGEMENT: "/doctor/services",
+    SERVICES_RESTORE: "/doctor/services/restore",
     BRANCH_MANAGEMENT: "/doctor/branches",
     STAFF_MANAGEMENT: "/doctor/staffs",
   },

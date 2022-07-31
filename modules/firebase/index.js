@@ -15,10 +15,27 @@ import {
   signOutReq,
   signUpReq,
 } from "./auth";
-import { addBranchReq, getBranchesReq } from "./branches";
+import {
+  addBranchReq,
+  deleteBranchReq,
+  getBranchesReq,
+  updateBranchReq,
+} from "./branches";
 import { auth, db } from "./config";
-import { addServiceReq, getServicesReq } from "./services";
-import { addStaffReq, getStaffsReq, signInStaffReq } from "./staff";
+import {
+  addServiceReq,
+  deleteServiceReq,
+  getDeletedServicesReq,
+  getServicesReq,
+  restoreServiceReq,
+  updateServiceReq,
+} from "./services";
+import {
+  addStaffReq,
+  getStaffsReq,
+  signInStaffReq,
+  updateStaffReq,
+} from "./staff";
 import { deleteImageReq, uploadImageReq } from "./storage";
 
 export {
@@ -43,12 +60,19 @@ export {
   addStaffReq,
   getStaffsReq,
   signInStaffReq,
+  updateStaffReq,
   // service
-  getServicesReq,
   addServiceReq,
+  deleteServiceReq,
+  getServicesReq,
+  getDeletedServicesReq,
+  updateServiceReq,
+  restoreServiceReq,
   // branch
   addBranchReq,
+  deleteBranchReq,
   getBranchesReq,
+  updateBranchReq,
   // storage
   uploadImageReq,
   deleteImageReq,

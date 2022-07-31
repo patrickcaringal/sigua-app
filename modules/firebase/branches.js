@@ -3,9 +3,11 @@ import {
   doc,
   getDocs,
   query,
+  updateDoc,
   where,
   writeBatch,
 } from "firebase/firestore";
+import lodash from "lodash";
 
 import { pluralize } from "../helper";
 import { getErrorMsg } from "./auth";
@@ -15,14 +17,16 @@ const collRef = collection(db, "branches");
 
 export const getBranchesReq = async () => {
   try {
-    const querySnapshot = await getDocs(collRef);
-
+    const q = query(collRef, where("deleted", "!=", true));
+    const querySnapshot = await getDocs(q);
     const data = querySnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
 
-    return { data, success: true };
+    const map = data.reduce((acc, i) => ({ ...acc, [i.id]: i.name }), {});
+
+    return { data, map, success: true };
   } catch (error) {
     console.log(error);
     return { error: error.message };
@@ -57,12 +61,15 @@ export const addBranchReq = async ({ docs }) => {
     const batch = writeBatch(db);
 
     const data = docs.map((d) => {
+      const docRef = doc(collRef);
+      const id = docRef.id;
       const mappedDoc = {
+        id,
         ...d,
         ...timestampFields({ dateCreated: true, dateUpdated: true }),
+        deleted: false,
       };
-      const docRef = doc(collRef);
-      batch.set(doc(db, "branches", docRef.id), mappedDoc);
+      batch.set(doc(db, "branches", id), mappedDoc);
 
       return mappedDoc;
     });
@@ -72,6 +79,58 @@ export const addBranchReq = async ({ docs }) => {
     return { data, success: true };
   } catch (error) {
     console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const updateBranchReq = async ({ branch }) => {
+  try {
+    const { name } = branch;
+    // Check fullname, birthdate duplicate
+    const q = query(collRef, where("name", "==", name));
+    const querySnapshot = await getDocs(q);
+
+    const isDuplicate =
+      querySnapshot.docs.filter((doc) => doc.id !== branch.id).length !== 0;
+    if (isDuplicate) throw new Error(`Branch ${name} already exist`);
+
+    // Update
+    const docRef = doc(db, "branches", branch.id);
+    const finalDoc = {
+      ...lodash.omit(branch, ["id", "index", "dateCreated"]),
+      ...timestampFields({ dateUpdated: true }),
+    };
+    await updateDoc(docRef, finalDoc);
+
+    return { success: true };
+  } catch (error) {
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const deleteBranchReq = async ({ branch }) => {
+  try {
+    const { name } = branch;
+    // // Check name duplicate
+    // const q = query(collRef, where("name", "==", name));
+    // const querySnapshot = await getDocs(q);
+
+    // const isDuplicate =
+    //   querySnapshot.docs.filter((doc) => doc.id !== branch.id).length !== 0;
+    // if (isDuplicate) throw new Error(`Service ${name} already exist`);
+
+    // Update to deleted status
+    const docRef = doc(db, "branches", branch.id);
+    const finalDoc = {
+      deleted: true,
+      ...timestampFields({ dateUpdated: true }),
+    };
+    await updateDoc(docRef, finalDoc);
+
+    return { success: true };
+  } catch (error) {
     const errMsg = getErrorMsg(error.code);
     return { error: errMsg || error.message };
   }

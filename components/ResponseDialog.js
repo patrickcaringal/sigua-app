@@ -2,6 +2,7 @@ import React from "react";
 
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import DangerousIcon from "@mui/icons-material/Dangerous";
+import HelpIcon from "@mui/icons-material/Help";
 import WarningIcon from "@mui/icons-material/Warning";
 import {
   Box,
@@ -17,6 +18,7 @@ export const DIALOG_TYPES = {
   SUCCESS: "SUCCESS",
   WARNING: "WARNING",
   ERROR: "ERROR",
+  CONFIRM: "CONFIRM",
 };
 
 const dialogIcons = {
@@ -29,6 +31,9 @@ const dialogIcons = {
   [DIALOG_TYPES.ERROR]: (
     <DangerousIcon sx={{ mr: 3, fontSize: 60 }} color="error" />
   ),
+  [DIALOG_TYPES.CONFIRM]: (
+    <HelpIcon sx={{ mr: 3, fontSize: 60 }} color="primary" />
+  ),
 };
 
 export default function AlertDialog({
@@ -36,6 +41,7 @@ export default function AlertDialog({
   type = DIALOG_TYPES.SUCCESS,
   title,
   content,
+  actions,
   onClose,
 }) {
   const handleClose = () => {
@@ -64,11 +70,12 @@ export default function AlertDialog({
           }}
         >
           {getDialogIcon()}
-          <Box sx={{ wordBreak: "break-all" }}>{content}</Box>
+          <Box sx={{ wordBreak: "break-word" }}>{content}</Box>
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} autoFocus>
+        {actions}
+        <Button onClick={handleClose} size="small">
           close
         </Button>
       </DialogActions>

@@ -14,7 +14,7 @@ export const MEMBER_STATUS = {
 export const icons = {
   [MEMBER_STATUS.VERFIED]: (
     <>
-      <IconButton size="small" sx={{ pointerEvents: "none" }}>
+      <IconButton size="small" sx={{ pointerEvents: "none", pl: 0 }}>
         <VerifiedUserIcon color="success" />
       </IconButton>
       Verified
@@ -22,7 +22,7 @@ export const icons = {
   ),
   [MEMBER_STATUS.FOR_VERIFICATION]: (
     <>
-      <IconButton size="small" sx={{ pointerEvents: "none" }}>
+      <IconButton size="small" sx={{ pointerEvents: "none", pl: 0 }}>
         <NoAccountsIcon color="error" />
       </IconButton>
       To Verifiy
@@ -30,7 +30,7 @@ export const icons = {
   ),
   [MEMBER_STATUS.FOR_APPROVAL]: (
     <>
-      <IconButton size="small" sx={{ pointerEvents: "none" }}>
+      <IconButton size="small" sx={{ pointerEvents: "none", pl: 0 }}>
         <FlakyIcon color="warning" />
       </IconButton>
       For Staff Approval
@@ -38,7 +38,7 @@ export const icons = {
   ),
   [MEMBER_STATUS.REJECTED]: (
     <>
-      <IconButton size="small" sx={{ pointerEvents: "none" }}>
+      <IconButton size="small" sx={{ pointerEvents: "none", pl: 0 }}>
         <HighlightOffIcon color="error" />
       </IconButton>
       Rejected

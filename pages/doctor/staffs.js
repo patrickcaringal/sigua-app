@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 
-import GroupAddIcon from "@mui/icons-material/GroupAdd";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import EditIcon from "@mui/icons-material/Edit";
 import {
-  Box,
   Button,
-  Paper,
+  IconButton,
   Table,
   TableBody,
   TableCell,
@@ -13,17 +13,28 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
+import lodash from "lodash";
 import { useRouter } from "next/router";
 
-import { Toolbar } from "../../components/common";
 import { ManageStaffModal } from "../../components/pages/doctor/StaffManagement";
+import { AdminMainContainer } from "../../components/shared";
 import { useBackdropLoader } from "../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../contexts/ResponseDialogContext";
 import useRequest from "../../hooks/useRequest";
-import { addStaffReq, getStaffsReq } from "../../modules/firebase";
-import { getFullName, getUniquePersonId } from "../../modules/helper";
+import {
+  addStaffReq,
+  getBranchesReq,
+  getStaffsReq,
+  updateStaffReq,
+} from "../../modules/firebase";
+import { formatTimeStamp, getFullName, pluralize } from "../../modules/helper";
 
-const DashboardPage = () => {
+const defaultModal = {
+  open: false,
+  data: {},
+};
+
+const StaffsPage = () => {
   const router = useRouter();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
@@ -31,163 +42,200 @@ const DashboardPage = () => {
   // Requests
   const [getStaffs] = useRequest(getStaffsReq, setBackdropLoader);
   const [addStaff] = useRequest(addStaffReq, setBackdropLoader);
+  const [updateStaff] = useRequest(updateStaffReq, setBackdropLoader);
+  const [getBranches] = useRequest(getBranchesReq, setBackdropLoader);
 
   // Local States
   const [staffs, setStaffs] = useState([]);
-  const [staffModalOpen, setStaffModalOpen] = useState(false);
-
-  const staffsUniqueId = staffs.map((i) => {
-    const { firstName, middleName, lastName, birthdate } = i;
-    const m = getUniquePersonId({ firstName, middleName, lastName, birthdate });
-    return m;
-  });
+  const [staffModal, setStaffModal] = useState(defaultModal);
+  const [branches, setBranches] = useState([]);
+  const [branchesMap, setBranchesMap] = useState({});
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchStaffs = async () => {
       // Get Staffs
-      const { data: staffList, error: getStaffsError } = await getStaffs({
-        branch: "LAKESIDE",
-      });
+      const { data: staffList, error: getStaffsError } = await getStaffs();
       if (getStaffsError) return openErrorDialog(getStaffsError);
 
       setStaffs(staffList);
     };
 
-    fetch();
+    const fetchBranches = async () => {
+      // Get Branches
+      const {
+        data: branchList,
+        map: branchMap,
+        error: getBranchError,
+      } = await getBranches();
+      if (getBranchError) return openErrorDialog(getBranchError);
+
+      setBranches(
+        branchList.map((i) => ({
+          ...lodash.pick(i, ["name", "id"]),
+        }))
+      );
+      setBranchesMap(branchMap);
+    };
+
+    fetchStaffs();
+    fetchBranches();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleStaffModalOpen = () => {
-    setStaffModalOpen(true);
+    setStaffModal({
+      open: true,
+      data: null,
+    });
   };
-
-  const handleCheckDuplicate = (newStaff) => staffsUniqueId.includes(newStaff);
 
   const handleAddStaff = async (newStaff) => {
     // Add Staff
-    const { error: addStaffError } = await addStaff({
+    const { data: addedStaff, error: addStaffError } = await addStaff({
       staffs: newStaff,
     });
     if (addStaffError) return openErrorDialog(addStaffError);
 
     // Successful
-    const allStaffs = [...staffs, ...newStaff];
-    setStaffs(allStaffs);
-
+    setStaffs((prev) => [...prev, ...addedStaff]);
     openResponseDialog({
       autoClose: true,
-      content: "Staff successfuly added.",
+      content: `${pluralize("Staff", addedStaff.length)} successfuly added.`,
       type: "SUCCESS",
       closeCb() {
-        setStaffModalOpen(false);
+        setStaffModal(defaultModal);
       },
     });
   };
 
-  const handleSendEmail = () => {};
+  const handleEditStaff = async (updatedDocs) => {
+    const updatedStaff = updatedDocs[0];
+    const index = updatedStaff.index;
+    const staffCopy = [...staffs];
+
+    staffCopy[index] = {
+      ...staffCopy[index],
+      ...updatedStaff,
+    };
+
+    // TODO: change email
+    // const isEmailUpdated = !lodash.isEqual(
+    //   staffs[index].email,
+    //   updatedStaff.email
+    // );
+
+    // Update
+    const { error: updateError } = await updateStaff({
+      staff: updatedStaff,
+    });
+    if (updateError) return openErrorDialog(updateError);
+
+    // Success
+    setStaffs(staffCopy);
+    openResponseDialog({
+      autoClose: true,
+      content: "Staff successfuly updated.",
+      type: "SUCCESS",
+      closeCb() {
+        setStaffModal(defaultModal);
+      },
+    });
+  };
+
+  const handleStaffModalClose = () => {
+    setStaffModal(defaultModal);
+  };
+
+  const handleEditModalOpen = (staff) => {
+    setStaffModal({
+      open: true,
+      data: staff,
+    });
+  };
 
   return (
-    <Box
-      sx={{
-        height: "calc(100vh - 64px)",
-        mx: 4,
+    <AdminMainContainer
+      toolbarProps={{
+        onRootClick: () => router.push("/doctor/dashboard"),
+        paths: [{ text: "Staffs" }],
       }}
-    >
-      <Toolbar
-        onRootClick={() => router.push("/doctor/dashboard")}
-        paths={[{ text: "Staffs" }]}
-      >
+      toolbarContent={
         <Button
           variant="contained"
           size="small"
           onClick={handleStaffModalOpen}
-          startIcon={<GroupAddIcon />}
+          startIcon={<AddCircleIcon />}
         >
           add staff
         </Button>
-      </Toolbar>
-      <Box>
-        <Paper
-          elevation={2}
-          sx={{ height: "calc(100vh - 64px - 64px - 16px)" }}
-        >
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Address</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Branch</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
+      }
+    >
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Address</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Branch</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+
+          <TableBody>
+            {staffs.map((i) => {
+              const { id, name, email, branch, address, birthdate } = i;
+
+              return (
+                <TableRow key={id}>
+                  <TableCell>{getFullName(i)}</TableCell>
+                  <TableCell>{email}</TableCell>
+                  <TableCell sx={{ width: 400, maxWidth: 400 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        display: "-webkit-box",
+                        WebkitBoxOrient: "vertical",
+                        WebkitLineClamp: "2",
+                        overflow: "hidden",
+                      }}
+                      component="div"
+                    >
+                      {address}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>{branchesMap[branch]}</TableCell>
+                  <TableCell>
+                    <IconButton
+                      size="small"
+                      onClick={() =>
+                        handleEditModalOpen({
+                          ...i,
+                          birthdate: formatTimeStamp(birthdate),
+                        })
+                      }
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
-              </TableHead>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
-              <TableBody>
-                {staffs.map((i) => {
-                  const {
-                    id,
-                    firstName,
-                    suffix,
-                    lastName,
-                    middleName,
-                    email,
-                    branch,
-                    address,
-                  } = i;
-
-                  return (
-                    <TableRow key={id}>
-                      <TableCell>
-                        {getFullName({
-                          firstName,
-                          suffix,
-                          lastName,
-                          middleName,
-                        })}
-                      </TableCell>
-                      <TableCell>{email}</TableCell>
-                      <TableCell sx={{ maxWidth: 200 }}>
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            display: "-webkit-box",
-                            WebkitBoxOrient: "vertical",
-                            WebkitLineClamp: "2",
-                            overflow: "hidden",
-                          }}
-                          component="div"
-                        >
-                          {address}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>{branch}</TableCell>
-                      <TableCell>
-                        {/* <IconButton
-                            color="primary"
-                            component="span"
-                            onClick={handleSendEmail}
-                          >
-                            <MailIcon />
-                          </IconButton> */}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
-      </Box>
-
-      <ManageStaffModal
-        open={staffModalOpen}
-        setOpen={setStaffModalOpen}
-        onCheckDuplicate={handleCheckDuplicate}
-        onAddStaff={handleAddStaff}
-      />
-    </Box>
+      {staffModal.open && (
+        <ManageStaffModal
+          branches={branches}
+          open={staffModal.open}
+          data={staffModal.data}
+          onClose={handleStaffModalClose}
+          onSave={!staffModal.data ? handleAddStaff : handleEditStaff}
+        />
+      )}
+    </AdminMainContainer>
   );
 };
 
-export default DashboardPage;
+export default StaffsPage;

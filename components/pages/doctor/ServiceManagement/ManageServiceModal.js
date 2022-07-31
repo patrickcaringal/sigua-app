@@ -5,56 +5,52 @@ import {
   Box,
   Button,
   Container,
-  Dialog,
-  Slide,
   Toolbar,
   Typography,
 } from "@mui/material";
 import { FormikProvider, useFormik } from "formik";
 
 import { ServicesSchema } from "../../../../modules/validation";
+import { Modal } from "../../../common";
 import Form from "./Form";
-
-const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
 
 const defaultValues = {
   services: [],
 };
 
-export default function ManageServiceModal({ open, setOpen, onAddService }) {
+export default function ManageServiceModal({
+  open = false,
+  data,
+  onClose,
+  onSave,
+}) {
+  const isCreate = !data;
+  const initialValues = isCreate ? defaultValues : { services: [data] };
+
   const formik = useFormik({
-    initialValues: defaultValues,
+    initialValues: initialValues,
     validationSchema: ServicesSchema,
     validateOnChange: false,
+    enableReinitialize: true,
     onSubmit: async (values) => {
       const { services } = values;
-
-      // Add Serivce
-      onAddService(services);
+      onSave(services);
     },
   });
 
-  const { handleSubmit, values, resetForm } = formik;
+  const { handleSubmit, values, dirty, resetForm } = formik;
 
   useEffect(() => {
     if (!open) resetForm();
   }, [open, resetForm]);
 
   const handleClose = () => {
-    setOpen(false);
+    onClose();
     resetForm();
   };
 
   return (
-    <Dialog
-      fullWidth
-      maxWidth="sm"
-      open={open}
-      onClose={handleClose}
-      TransitionComponent={Transition}
-    >
+    <Modal open={open} onClose={handleClose}>
       <Box
         component="form"
         noValidate
@@ -65,14 +61,14 @@ export default function ManageServiceModal({ open, setOpen, onAddService }) {
           <Container maxWidth="lg">
             <Toolbar disableGutters>
               <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-                Add Service
+                {isCreate ? "Add" : "Edit"} Service
               </Typography>
 
               <Button
                 color="inherit"
                 sx={{ mr: 2 }}
                 type="submit"
-                disabled={values.services.length === 0}
+                disabled={values.services.length === 0 || !dirty}
               >
                 save
               </Button>
@@ -85,11 +81,11 @@ export default function ManageServiceModal({ open, setOpen, onAddService }) {
         <Box sx={{ py: 2 }}>
           <FormikProvider value={formik}>
             <Container maxWidth="lg">
-              <Form {...formik} />
+              <Form {...formik} isCreate={isCreate} />
             </Container>
           </FormikProvider>
         </Box>
       </Box>
-    </Dialog>
+    </Modal>
   );
 }

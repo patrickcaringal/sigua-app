@@ -3,11 +3,13 @@ import {
   doc,
   getDocs,
   query,
+  updateDoc,
   where,
   writeBatch,
 } from "firebase/firestore";
+import lodash from "lodash";
 
-import { pluralize } from "../helper";
+import { arrayStringify, pluralize } from "../helper";
 import { getErrorMsg } from "./auth";
 import { db, timestampFields } from "./config";
 
@@ -15,8 +17,26 @@ const collRef = collection(db, "services");
 
 export const getServicesReq = async () => {
   try {
-    const querySnapshot = await getDocs(collRef);
+    const q = query(collRef, where("deleted", "!=", true));
+    const querySnapshot = await getDocs(q);
+    const data = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
+    const map = data.reduce((acc, i) => ({ ...acc, [i.id]: i.name }), {});
+
+    return { data, map, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
+export const getDeletedServicesReq = async () => {
+  try {
+    const q = query(collRef, where("deleted", "==", true));
+    const querySnapshot = await getDocs(q);
     const data = querySnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
@@ -57,13 +77,17 @@ export const addServiceReq = async ({ docs }) => {
     // Bulk Create Service Document
     const batch = writeBatch(db);
 
-    const data = docs.map((serviceDoc) => {
-      const mappedDoc = {
-        ...serviceDoc,
-        ...timestampFields({ dateCreated: true, dateUpdated: true }),
-      };
+    const data = docs.map((d) => {
       const docRef = doc(collRef);
-      batch.set(doc(db, "services", docRef.id), mappedDoc);
+      const id = docRef.id;
+
+      const mappedDoc = {
+        id,
+        ...d,
+        ...timestampFields({ dateCreated: true, dateUpdated: true }),
+        deleted: false,
+      };
+      batch.set(doc(db, "services", id), mappedDoc);
 
       return mappedDoc;
     });
@@ -73,6 +97,89 @@ export const addServiceReq = async ({ docs }) => {
     return { data, success: true };
   } catch (error) {
     console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const updateServiceReq = async ({ service }) => {
+  try {
+    const { name } = service;
+    // Check name duplicate
+    const q = query(collRef, where("name", "==", name));
+    const querySnapshot = await getDocs(q);
+
+    const isDuplicate =
+      querySnapshot.docs.filter((doc) => doc.id !== service.id).length !== 0;
+    if (isDuplicate) throw new Error(`Service ${name} already exist`);
+
+    // Update
+    const docRef = doc(db, "services", service.id);
+    const finalDoc = {
+      ...lodash.omit(service, ["id", "index", "dateCreated"]),
+      ...timestampFields({ dateUpdated: true }),
+    };
+    await updateDoc(docRef, finalDoc);
+
+    return { success: true };
+  } catch (error) {
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const deleteServiceReq = async ({ service }) => {
+  try {
+    // Check Branches associated
+    const collRef = collection(db, "branches");
+    const q = query(collRef, where("servicesId", "array-contains", service.id));
+    const querySnapshot = await getDocs(q);
+
+    const isUsed = querySnapshot.docs.length !== 0;
+    if (isUsed) {
+      const assoc = querySnapshot.docs.map((i) => i.data().name);
+      throw new Error(
+        `Unable to delete ${
+          service.name
+        }, associated with following ${pluralize(
+          "branch",
+          assoc.length,
+          "es"
+        )}:  ${arrayStringify(assoc)}`
+      );
+    }
+
+    // Update to deleted status
+    const docRef = doc(db, "services", service.id);
+    const finalDoc = {
+      deleted: true,
+      ...timestampFields({ dateUpdated: true }),
+    };
+    await updateDoc(docRef, finalDoc);
+
+    return { success: true };
+  } catch (error) {
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const restoreServiceReq = async ({ docs }) => {
+  try {
+    // Bulk Create Service Document
+    const batch = writeBatch(db);
+
+    docs.forEach((d) => {
+      const updatedFields = {
+        deleted: false,
+      };
+      batch.update(doc(db, "services", d.id), updatedFields);
+    });
+
+    await batch.commit();
+
+    return { success: true };
+  } catch (error) {
     const errMsg = getErrorMsg(error.code);
     return { error: errMsg || error.message };
   }

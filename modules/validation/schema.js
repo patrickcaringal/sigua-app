@@ -17,10 +17,10 @@ export const SignupSchema = Yup.object().shape({
 });
 
 export const VerificationCodeSchema = Yup.object().shape({
-  digit1: Yup.string().required("Required"),
-  digit2: Yup.string().required("Required"),
-  digit3: Yup.string().required("Required"),
-  digit4: Yup.string().required("Required"),
+  digit1: Yup.number().required("Required"),
+  digit2: Yup.number().required("Required"),
+  digit3: Yup.number().required("Required"),
+  digit4: Yup.number().required("Required"),
 });
 
 export const SigninSchema = Yup.object().shape({
@@ -53,6 +53,9 @@ export const FamilyMemberSchema = Yup.object().shape({
       birthdate: Yup.string().nullable().required("Required"),
       gender: Yup.string().required("Required"),
       address: Yup.string().required("Required"),
+      contactNo: Yup.string()
+        .matches(/^(09)\d{9}$/, "Invalid Contact Number")
+        .required("Required"),
     })
   ),
 });

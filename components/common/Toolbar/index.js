@@ -22,8 +22,14 @@ const ToolbarComponent = ({ children, onRootClick, paths = [] }) => {
             <HomeIcon sx={{ mt: "4px" }} />
           </Link>
 
-          {paths.map(({ text }, index) => (
-            <Typography key={index} color="text.primary">
+          {paths.map(({ text, onClick }, index) => (
+            <Typography
+              key={index}
+              {...(!!onClick && {
+                onClick,
+                sx: { cursor: "pointer" },
+              })}
+            >
               {text}
             </Typography>
           ))}
