@@ -33,6 +33,24 @@ export const getServicesReq = async () => {
   }
 };
 
+export const getDeletedServicesReq = async () => {
+  try {
+    const q = query(collRef, where("deleted", "==", true));
+    const querySnapshot = await getDocs(q);
+    const data = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    const map = data.reduce((acc, i) => ({ ...acc, [i.id]: i.name }), {});
+
+    return { data, map, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
 export const addServiceReq = async ({ docs }) => {
   try {
     const q = query(
@@ -112,7 +130,6 @@ export const updateServiceReq = async ({ service }) => {
 
 export const deleteServiceReq = async ({ service }) => {
   try {
-    const { name } = service;
     // Check Branches associated
     const collRef = collection(db, "branches");
     const q = query(collRef, where("servicesId", "array-contains", service.id));
@@ -122,9 +139,13 @@ export const deleteServiceReq = async ({ service }) => {
     if (isUsed) {
       const assoc = querySnapshot.docs.map((i) => i.data().name);
       throw new Error(
-        `Unable to delete ${service.name}. Associated with ${arrayStringify(
-          assoc
-        )} ${pluralize("branch", assoc.length, "es")}.`
+        `Unable to delete ${
+          service.name
+        }, associated with following ${pluralize(
+          "branch",
+          assoc.length,
+          "es"
+        )}:  ${arrayStringify(assoc)}`
       );
     }
 
@@ -135,6 +156,27 @@ export const deleteServiceReq = async ({ service }) => {
       ...timestampFields({ dateUpdated: true }),
     };
     await updateDoc(docRef, finalDoc);
+
+    return { success: true };
+  } catch (error) {
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const restoreServiceReq = async ({ docs }) => {
+  try {
+    // Bulk Create Service Document
+    const batch = writeBatch(db);
+
+    docs.forEach((d) => {
+      const updatedFields = {
+        deleted: false,
+      };
+      batch.update(doc(db, "services", d.id), updatedFields);
+    });
+
+    await batch.commit();
 
     return { success: true };
   } catch (error) {

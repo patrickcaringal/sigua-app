@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import RestoreIcon from "@mui/icons-material/Restore";
 import {
   Button,
   IconButton,
@@ -16,18 +17,19 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 
-import { ManageServiceModal } from "../../components/pages/doctor/ServiceManagement";
-import { AdminMainContainer } from "../../components/shared";
-import { useBackdropLoader } from "../../contexts/BackdropLoaderContext";
-import { useResponseDialog } from "../../contexts/ResponseDialogContext";
-import useRequest from "../../hooks/useRequest";
+import { PATHS } from "../../../components/common";
+import { ManageServiceModal } from "../../../components/pages/doctor/ServiceManagement";
+import { AdminMainContainer } from "../../../components/shared";
+import { useBackdropLoader } from "../../../contexts/BackdropLoaderContext";
+import { useResponseDialog } from "../../../contexts/ResponseDialogContext";
+import useRequest from "../../../hooks/useRequest";
 import {
   addServiceReq,
   deleteServiceReq,
   getServicesReq,
   updateServiceReq,
-} from "../../modules/firebase";
-import { pluralize } from "../../modules/helper";
+} from "../../../modules/firebase";
+import { pluralize } from "../../../modules/helper";
 
 const defaultModal = {
   open: false,
@@ -38,7 +40,6 @@ const ServicesManagementPage = () => {
   const router = useRouter();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
-  const confirmDialog = useResponseDialog();
 
   // Requests
   const [getServices] = useRequest(getServicesReq, setBackdropLoader);
@@ -139,7 +140,7 @@ const ServicesManagementPage = () => {
     setServices((prev) => prev.filter((i) => i.id !== service.id));
     openResponseDialog({
       autoClose: true,
-      content: `Service(${service.name}) successfuly deleted.`,
+      content: `Service successfuly deleted.`,
       type: "SUCCESS",
     });
   };
@@ -162,21 +163,36 @@ const ServicesManagementPage = () => {
     });
   };
 
+  const handleRestoreRedirect = () => {
+    router.push(PATHS.DOCTOR.SERVICES_RESTORE);
+  };
+
   return (
     <AdminMainContainer
       toolbarProps={{
-        onRootClick: () => router.push("/doctor/dashboard"),
+        onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
         paths: [{ text: "Services" }],
       }}
       toolbarContent={
-        <Button
-          variant="contained"
-          size="small"
-          onClick={handleServiceModalOpen}
-          startIcon={<AddCircleIcon />}
-        >
-          add service
-        </Button>
+        <>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={handleRestoreRedirect}
+            startIcon={<RestoreIcon />}
+            sx={{ mr: 2 }}
+          >
+            restore
+          </Button>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={handleServiceModalOpen}
+            startIcon={<AddCircleIcon />}
+          >
+            add service
+          </Button>
+        </>
       }
     >
       <TableContainer>
