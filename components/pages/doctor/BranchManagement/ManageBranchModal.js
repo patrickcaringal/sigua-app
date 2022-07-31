@@ -47,6 +47,7 @@ export default function ManageBranchModal({
           id: servicesMap[j],
           name: j,
         })),
+        servicesId: i.services.map((j) => servicesMap[j]),
       }));
 
       onSave(mappedBranches);

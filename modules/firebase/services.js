@@ -9,7 +9,7 @@ import {
 } from "firebase/firestore";
 import lodash from "lodash";
 
-import { pluralize } from "../helper";
+import { arrayStringify, pluralize } from "../helper";
 import { getErrorMsg } from "./auth";
 import { db, timestampFields } from "./config";
 
@@ -113,13 +113,20 @@ export const updateServiceReq = async ({ service }) => {
 export const deleteServiceReq = async ({ service }) => {
   try {
     const { name } = service;
-    // // Check name duplicate
-    // const q = query(collRef, where("name", "==", name));
-    // const querySnapshot = await getDocs(q);
+    // Check Branches associated
+    const collRef = collection(db, "branches");
+    const q = query(collRef, where("servicesId", "array-contains", service.id));
+    const querySnapshot = await getDocs(q);
 
-    // const isDuplicate =
-    //   querySnapshot.docs.filter((doc) => doc.id !== service.id).length !== 0;
-    // if (isDuplicate) throw new Error(`Service ${name} already exist`);
+    const isUsed = querySnapshot.docs.length !== 0;
+    if (isUsed) {
+      const assoc = querySnapshot.docs.map((i) => i.data().name);
+      throw new Error(
+        `Unable to delete ${service.name}. Associated with ${arrayStringify(
+          assoc
+        )} ${pluralize("branch", assoc.length, "es")}.`
+      );
+    }
 
     // Update to deleted status
     const docRef = doc(db, "services", service.id);

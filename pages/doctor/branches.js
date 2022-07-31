@@ -164,7 +164,7 @@ const BranchManagementPage = () => {
     setBranches((prev) => prev.filter((i) => i.id !== branch.id));
     openResponseDialog({
       autoClose: true,
-      content: `Branch(${branch.name}) successfuly deleted.`,
+      content: `${branch.name} successfuly deleted.`,
       type: "SUCCESS",
     });
   };

@@ -115,7 +115,7 @@ const ServicesManagementPage = () => {
 
   const handleDeleteConfirm = (service) => {
     openResponseDialog({
-      content: `Are you sure you want to delete Service(${service.name})`,
+      content: `Are you sure you want to delete ${service.name}.`,
       type: "CONFIRM",
       actions: (
         <Button
