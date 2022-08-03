@@ -1,26 +1,8 @@
 import React, { useState } from "react";
 
-import InfoIcon from "@mui/icons-material/Info";
-import { LoadingButton } from "@mui/lab";
-import {
-  Box,
-  Container,
-  FormHelperText,
-  Grid,
-  Link,
-  TextField,
-  Typography,
-} from "@mui/material";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-// import Select from "@mui/material/Select";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
+import { Box, Container } from "@mui/material";
 import faker from "faker";
 import { useFormik } from "formik";
-import { useRouter } from "next/router";
 
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
@@ -32,12 +14,9 @@ import {
   createAccountReq,
   signInAnonymouslyReq,
 } from "../../../../modules/firebase";
-import { formatTimeStamp } from "../../../../modules/helper";
 import { SignupSchema } from "../../../../modules/validation";
-import { DatePicker, Input, Select } from "../../../common/Form";
 import { MobileNumberVerificationModal } from "../../../shared";
 import Form from "./Form";
-import VerificationPage from "./VerificationPage";
 
 const STEPS = {
   DETAILS: "details",
