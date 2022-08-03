@@ -20,6 +20,7 @@ import {
 
 import {
   formatDate,
+  formatTimeStamp,
   getFullName,
   getInitials,
 } from "../../../../modules/helper";
@@ -103,7 +104,7 @@ const Cards = ({ data, onEditModal, onVerificationModal, onPhoneModal }) => {
                   sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
                 />
                 <Typography variant="body2" color="text.secondary">
-                  {formatDate(birthdate, "MMMM dd, yyyy")}
+                  {formatTimeStamp(birthdate, "MMMM dd, yyyy")}
                 </Typography>
                 <Divider
                   orientation="vertical"

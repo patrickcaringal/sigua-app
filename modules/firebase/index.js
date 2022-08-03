@@ -3,7 +3,6 @@ import {
   checkAccountCredentialReq,
   checkAccountDuplicateReq,
   createAccountReq,
-  getFamilyMembersReq,
   getMemberForApprovalReq,
   updateFamilyMembersReq,
 } from "./account";
@@ -24,6 +23,7 @@ import {
   updateBranchReq,
 } from "./branches";
 import { auth, db } from "./config";
+import { getFamilyMembersReq } from "./patients";
 import {
   addServiceReq,
   deleteServiceReq,
