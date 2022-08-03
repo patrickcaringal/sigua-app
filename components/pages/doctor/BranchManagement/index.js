@@ -5,9 +5,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import RestoreIcon from "@mui/icons-material/Restore";
 import {
-  Box,
   Button,
-  Chip,
   IconButton,
   Table,
   TableBody,
@@ -15,7 +13,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
 } from "@mui/material";
 import { omit as omitFields } from "lodash";
 import { useRouter } from "next/router";
@@ -34,6 +31,7 @@ import {
 } from "../../../../modules/firebase";
 import { pluralize } from "../../../../modules/helper";
 import ManageBranchModal from "./ManageBranchModal";
+import TableCells from "./TableCells";
 
 const defaultModal = {
   open: false,
@@ -246,45 +244,15 @@ const BranchManagementPage = () => {
 
           <TableBody>
             {branches.map((i) => {
-              const { id, name, address, capacity, services } = i;
+              const { id, services } = i;
+              const data = {
+                ...i,
+                services: services.map((s) => servicesMap[s.id]),
+              };
 
               return (
                 <TableRow key={id}>
-                  <TableCell>{name}</TableCell>
-                  <TableCell>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                        flexWrap: "wrap",
-                        gap: 1,
-                      }}
-                    >
-                      {services.map((s) => (
-                        <Chip
-                          key={s.id}
-                          label={servicesMap[s.id]}
-                          color="primary"
-                          size="small"
-                        />
-                      ))}
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        display: "-webkit-box",
-                        WebkitBoxOrient: "vertical",
-                        WebkitLineClamp: "2",
-                        overflow: "hidden",
-                      }}
-                      component="div"
-                    >
-                      {address}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="center">{capacity}</TableCell>
+                  <TableCells data={data} />
                   <TableCell align="center">
                     <IconButton
                       size="small"

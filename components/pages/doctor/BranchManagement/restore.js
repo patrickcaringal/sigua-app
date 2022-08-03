@@ -2,10 +2,8 @@ import React, { useEffect, useState } from "react";
 
 import RestoreIcon from "@mui/icons-material/Restore";
 import {
-  Box,
   Button,
   Checkbox,
-  Chip,
   Table,
   TableBody,
   TableCell,
@@ -27,6 +25,7 @@ import {
   restoreBranchReq,
 } from "../../../../modules/firebase";
 import { arrayStringify, pluralize } from "../../../../modules/helper";
+import TableCells from "./TableCells";
 
 const BranchesRestorePage = () => {
   const router = useRouter();
@@ -159,56 +158,25 @@ const BranchesRestorePage = () => {
 
           <TableBody>
             {branches.map((i) => {
-              const { id, name, address, capacity, services } = i;
+              const { id, services } = i;
               const isItemSelected = selected.isItemSelected(id);
+              const data = {
+                ...i,
+                services: services.map((s) => servicesMap[s.id]),
+              };
 
               return (
                 <TableRow key={id}>
                   <TableCell padding="checkbox">
                     <Checkbox
                       color="primary"
-                      // indeterminate={numSelected > 0 && numSelected < rowCount}
                       checked={isItemSelected}
                       onChange={(e) => {
                         selected.select([{ id, checked: e.target.checked }]);
                       }}
                     />
                   </TableCell>
-                  <TableCell>{name}</TableCell>
-                  <TableCell>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                        flexWrap: "wrap",
-                        gap: 1,
-                      }}
-                    >
-                      {services.map((s) => (
-                        <Chip
-                          key={s.id}
-                          label={servicesMap[s.id]}
-                          color="primary"
-                          size="small"
-                        />
-                      ))}
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        display: "-webkit-box",
-                        WebkitBoxOrient: "vertical",
-                        WebkitLineClamp: "2",
-                        overflow: "hidden",
-                      }}
-                      component="div"
-                    >
-                      {address}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="center">{capacity}</TableCell>
+                  <TableCells data={data} />
                 </TableRow>
               );
             })}
