@@ -11,10 +11,22 @@ import {
 } from "firebase/firestore";
 import { omit as omitFields } from "lodash";
 
-import { formatDate, getFullName, pluralize } from "../helper";
-import { db } from "./config";
+import {
+  formatDate,
+  formatFirebasetimeStamp,
+  getFullName,
+  getUniquePersonId,
+  pluralize,
+} from "../helper";
+import { db, timestampFields } from "./config";
 
 const collRef = collection(db, "accounts");
+
+const transformedFields = (doc) => ({
+  name: getFullName(doc),
+  birthdate: formatFirebasetimeStamp(doc.birthdate),
+  nameBirthdate: getUniquePersonId(doc),
+});
 
 export const hashPassword = (password) => {
   const salt = bcrypt.genSaltSync(6);
@@ -27,44 +39,57 @@ export const comparePassword = (password, hashedPassword) => {
   return isMatched;
 };
 
-export const createAccountReq = async (newDocument) => {
+export const createAccountReq = async (account) => {
   try {
     const docRef = doc(collRef);
 
     // Transform Document
-    const { birthdate, password } = newDocument;
-    let mappedNewDocument = {
-      ...newDocument,
-      birthdate: formatDate(birthdate),
-      password: hashPassword(password),
-      familyMembers: [],
-      hasVerificationForApproval: false,
+    let accountDocument = {
+      ...account,
+      id: docRef.id,
+      password: hashPassword(account.password),
       role: "patient",
+      deleted: false,
+      ...transformedFields(account),
+      ...timestampFields({ dateCreated: true, dateUpdated: true }),
+      // familyMembers: [],
+      // hasVerificationForApproval: false,
     };
-    // Add Default Memeber
-    mappedNewDocument.familyMembers = [
-      {
-        id: doc(collRef).id,
-        accountId: docRef.id,
-        verified: true,
-        verifiedContactNo: true,
-        verificationAttachment: null,
-        ...omitFields(mappedNewDocument, [
-          "password",
-          "familyMembers",
-          "role",
-          "hasVerificationForApproval",
-        ]),
-      },
-    ];
+    // // Add Default Memeber
+    // mappedNewDocument.familyMembers = [
+    //   {
+    //     id: doc(collRef).id,
+    //     accountId: docRef.id,
+    //     verified: true,
+    //     verifiedContactNo: true,
+    //     verificationAttachment: null,
+    //     ...omitFields(mappedNewDocument, [
+    //       "password",
+    //       "familyMembers",
+    //       "role",
+    //       "hasVerificationForApproval",
+    //     ]),
+    //   },
+    // ];
 
-    // Create Document
-    await setDoc(docRef, mappedNewDocument);
+    // Create Account Document
+    await setDoc(docRef, accountDocument);
 
-    // Remove password field
-    delete document.password;
+    // Patient Document
+    const docRef2 = doc(collection(db, "patients"));
+    const patientDocument = {
+      ...omitFields(accountDocument, ["password", "role"]),
+      id: docRef2.id,
+      accountId: accountDocument.id,
+      verified: true,
+      verifiedContactNo: true,
+      verificationAttachment: null,
+    };
+    // Create Patient Document
+    await setDoc(docRef2, patientDocument);
 
-    const data = { id: docRef.id, ...mappedNewDocument };
+    delete accountDocument.password; // Remove password field
+    const data = accountDocument;
     return { data, success: true };
   } catch (error) {
     console.log(error);
