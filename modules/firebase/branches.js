@@ -33,6 +33,22 @@ export const getBranchesReq = async () => {
   }
 };
 
+export const getDeletedBranchesReq = async () => {
+  try {
+    const q = query(collRef, where("deleted", "==", true));
+    const querySnapshot = await getDocs(q);
+    const data = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
 export const addBranchReq = async ({ docs }) => {
   try {
     const q = query(
@@ -138,6 +154,27 @@ export const deleteBranchReq = async ({ branch }) => {
       ...timestampFields({ dateUpdated: true }),
     };
     await updateDoc(docRef, finalDoc);
+
+    return { success: true };
+  } catch (error) {
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const restoreBranchReq = async ({ docs }) => {
+  try {
+    // Bulk Update Document
+    const batch = writeBatch(db);
+
+    docs.forEach((d) => {
+      const updatedFields = {
+        deleted: false,
+      };
+      batch.update(doc(db, "branches", d.id), updatedFields);
+    });
+
+    await batch.commit();
 
     return { success: true };
   } catch (error) {

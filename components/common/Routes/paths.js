@@ -6,6 +6,7 @@ export const PATHS = {
     SERVICES_MANAGEMENT: "/doctor/services",
     SERVICES_RESTORE: "/doctor/services/restore",
     BRANCH_MANAGEMENT: "/doctor/branches",
+    BRANCH_RESTORE: "/doctor/branches/restore",
     STAFF_MANAGEMENT: "/doctor/staffs",
   },
   STAFF: {

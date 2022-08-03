@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import RestoreIcon from "@mui/icons-material/Restore";
 import {
   Box,
   Button,
@@ -19,19 +20,20 @@ import {
 import { omit as omitFields } from "lodash";
 import { useRouter } from "next/router";
 
-import { ManageBranchModal } from "../../components/pages/doctor/BranchManagement";
-import { AdminMainContainer } from "../../components/shared";
-import { useBackdropLoader } from "../../contexts/BackdropLoaderContext";
-import { useResponseDialog } from "../../contexts/ResponseDialogContext";
-import useRequest from "../../hooks/useRequest";
+import { PATHS } from "../../../components/common";
+import { ManageBranchModal } from "../../../components/pages/doctor/BranchManagement";
+import { AdminMainContainer } from "../../../components/shared";
+import { useBackdropLoader } from "../../../contexts/BackdropLoaderContext";
+import { useResponseDialog } from "../../../contexts/ResponseDialogContext";
+import useRequest from "../../../hooks/useRequest";
 import {
   addBranchReq,
   deleteBranchReq,
   getBranchesReq,
   getServicesReq,
   updateBranchReq,
-} from "../../modules/firebase";
-import { pluralize } from "../../modules/helper";
+} from "../../../modules/firebase";
+import { pluralize } from "../../../modules/helper";
 
 const defaultModal = {
   open: false,
@@ -187,21 +189,37 @@ const BranchManagementPage = () => {
     });
   };
 
+  const handleRestoreRedirect = () => {
+    router.push(PATHS.DOCTOR.BRANCH_RESTORE);
+  };
+
   return (
     <AdminMainContainer
       toolbarProps={{
-        onRootClick: () => router.push("/doctor/dashboard"),
+        onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
         paths: [{ text: "Branches" }],
       }}
       toolbarContent={
-        <Button
-          variant="contained"
-          size="small"
-          onClick={handleAddBranchModalOpen}
-          startIcon={<AddCircleIcon />}
-        >
-          add branch
-        </Button>
+        <>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={handleRestoreRedirect}
+            startIcon={<RestoreIcon />}
+            sx={{ mr: 2 }}
+            color="warning"
+          >
+            restore
+          </Button>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={handleAddBranchModalOpen}
+            startIcon={<AddCircleIcon />}
+          >
+            add branch
+          </Button>
+        </>
       }
     >
       <TableContainer>

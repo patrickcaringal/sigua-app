@@ -19,6 +19,8 @@ import {
   addBranchReq,
   deleteBranchReq,
   getBranchesReq,
+  getDeletedBranchesReq,
+  restoreBranchReq,
   updateBranchReq,
 } from "./branches";
 import { auth, db } from "./config";
@@ -72,6 +74,8 @@ export {
   addBranchReq,
   deleteBranchReq,
   getBranchesReq,
+  getDeletedBranchesReq,
+  restoreBranchReq,
   updateBranchReq,
   // storage
   uploadImageReq,
