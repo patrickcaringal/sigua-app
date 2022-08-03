@@ -1,5 +1,11 @@
 import Modal from "./Modal";
 import {
+  ResponseDialog,
+  associationMessage,
+  duplicateMessage,
+  successMessage,
+} from "./ResponseDialog";
+import {
   LOGGED_IN_INACCESSIBLE_ROUTES,
   PATHS,
   PROTECTED_ROUTES,
@@ -15,4 +21,9 @@ export {
   PATHS,
   PROTECTED_ROUTES,
   getRoleRoutes,
+  // ResponseDialog
+  ResponseDialog,
+  associationMessage,
+  duplicateMessage,
+  successMessage,
 };

@@ -7,9 +7,9 @@ import {
   where,
   writeBatch,
 } from "firebase/firestore";
-import lodash from "lodash";
 
-import { pluralize } from "../helper";
+import { duplicateMessage } from "../../components/common";
+import { arrayStringify, pluralize } from "../helper";
 import { getErrorMsg } from "./auth";
 import { db, timestampFields } from "./config";
 
@@ -49,11 +49,9 @@ export const addBranchReq = async ({ docs }) => {
     if (isDuplicate) {
       const duplicates = querySnapshot.docs.map((i) => i.data().name);
       throw new Error(
-        `Duplicate ${pluralize(
-          "Branch",
-          duplicates.length,
-          "es"
-        )}. ${duplicates.join(", ")}`
+        duplicateMessage({
+          item: arrayStringify(duplicates),
+        })
       );
     }
 
@@ -87,18 +85,24 @@ export const addBranchReq = async ({ docs }) => {
 export const updateBranchReq = async ({ branch }) => {
   try {
     const { name } = branch;
-    // Check fullname, birthdate duplicate
+    // Check name duplicate
     const q = query(collRef, where("name", "==", name));
     const querySnapshot = await getDocs(q);
 
     const isDuplicate =
       querySnapshot.docs.filter((doc) => doc.id !== branch.id).length !== 0;
-    if (isDuplicate) throw new Error(`Branch ${name} already exist`);
+    if (isDuplicate) {
+      throw new Error(
+        duplicateMessage({
+          item: name,
+        })
+      );
+    }
 
     // Update
     const docRef = doc(db, "branches", branch.id);
     const finalDoc = {
-      ...lodash.omit(branch, ["id", "index", "dateCreated"]),
+      ...branch,
       ...timestampFields({ dateUpdated: true }),
     };
     await updateDoc(docRef, finalDoc);
@@ -112,14 +116,20 @@ export const updateBranchReq = async ({ branch }) => {
 
 export const deleteBranchReq = async ({ branch }) => {
   try {
-    const { name } = branch;
-    // // Check name duplicate
-    // const q = query(collRef, where("name", "==", name));
-    // const querySnapshot = await getDocs(q);
+    // Check Staff associated
+    const collRef = collection(db, "staffs");
+    const q = query(collRef, where("branch", "==", branch.id));
+    const querySnapshot = await getDocs(q);
 
-    // const isDuplicate =
-    //   querySnapshot.docs.filter((doc) => doc.id !== branch.id).length !== 0;
-    // if (isDuplicate) throw new Error(`Service ${name} already exist`);
+    const isUsed = querySnapshot.docs.length !== 0;
+    if (isUsed) {
+      const assoc = querySnapshot.docs.map((i) => i.data().name);
+      throw new Error(
+        `Unable to delete ${branch.name}. Associated with ${
+          assoc.length
+        } ${pluralize("Staff", assoc.length)}`
+      );
+    }
 
     // Update to deleted status
     const docRef = doc(db, "branches", branch.id);

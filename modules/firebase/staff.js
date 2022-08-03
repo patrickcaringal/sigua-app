@@ -28,6 +28,12 @@ import { auth, db, secondaryAuth, timestampFields } from "./config";
 
 const collRef = collection(db, "staffs");
 
+const transformedFields = (doc) => ({
+  name: getFullName(doc),
+  birthdate: formatFirebasetimeStamp(doc.birthdate),
+  nameBirthdate: getUniquePersonId(doc),
+});
+
 export const signInStaffReq = async ({ email, password }) => {
   try {
     // Authenticate
@@ -138,10 +144,9 @@ export const addStaffReq = async ({ staffs }) => {
       staffdoc = {
         ...staffdoc,
         id: uid,
-        nameBirthdate: getUniquePersonId(staffdoc), // unique identifier
-        name: fullName,
-        birthdate,
         role: "staff",
+        deleted: false,
+        ...transformedFields(staffdoc),
         ...timestampFields({ dateCreated: true, dateUpdated: true }),
       };
 
@@ -162,6 +167,7 @@ export const addStaffReq = async ({ staffs }) => {
 
 export const updateStaffReq = async ({ staff }) => {
   try {
+    // ADd transform fields
     // Check fullname, birthdate duplicate
     const q = query(
       collRef,
@@ -169,7 +175,8 @@ export const updateStaffReq = async ({ staff }) => {
     );
     const querySnapshot = await getDocs(q);
 
-    const isDuplicate = querySnapshot.docs.length !== 0;
+    const isDuplicate =
+      querySnapshot.docs.filter((doc) => doc.id !== staff.id).length !== 0;
     // .filter((doc) => doc.id !== staff.id)
     if (isDuplicate) {
       throw new Error(`Duplicate Staff. ${getFullName(staff)}`);
@@ -178,7 +185,8 @@ export const updateStaffReq = async ({ staff }) => {
     // Update
     const docRef = doc(db, "staffs", staff.id);
     const finalDoc = {
-      ...lodash.omit(staff, ["id", "index"]),
+      ...staff,
+      ...transformedFields(staff),
       ...timestampFields({ dateUpdated: true }),
     };
     await updateDoc(docRef, finalDoc);
