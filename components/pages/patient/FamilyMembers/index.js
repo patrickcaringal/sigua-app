@@ -3,8 +3,6 @@ import React, { useEffect, useState } from "react";
 import { Box, Button, Container, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 
-import { Toolbar, successMessage } from "../../../../components/common";
-import { MobileNumberVerificationModal } from "../../../../components/shared";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
@@ -20,9 +18,12 @@ import {
 import {
   compareObj,
   formatTimeStamp,
+  localUpdateDocs,
   personBuiltInFields,
   pluralize,
 } from "../../../../modules/helper";
+import { Toolbar, successMessage } from "../../../common";
+import { MobileNumberVerificationModal } from "../../../shared";
 import Cards from "./Cards";
 import ManageFamilyMemberModal from "./ManageFamilyMemberModal";
 import UploadAttachmentModal from "./UploadAttachmentModal";
@@ -98,24 +99,33 @@ const FamilyMemberPage = () => {
       ...personBuiltInFields(updatedDocs[0]),
     };
     const membersCopy = [...members];
-    const index = membersCopy.findIndex((i) => i.id === updatedPatient.id);
-
-    const { diff } = compareObj({
-      latest: updatedPatient,
-      old: membersCopy[index],
-      fields: Object.keys(members[index]),
-      retainFields: ["id"],
+    const { latestDocs, updates } = localUpdateDocs({
+      updatedDoc: updatedPatient,
+      oldDocs: membersCopy,
+      additionalDiffFields(diff) {
+        return {
+          ...(diff.contactNo && { verifiedContactNo: false }),
+        };
+      },
     });
+    // const index = membersCopy.findIndex((i) => i.id === updatedPatient.id);
 
-    const updates = {
-      ...diff,
-      ...(diff.contactNo && { verifiedContactNo: false }),
-    };
+    // const { diff } = compareObj({
+    //   latest: updatedPatient,
+    //   old: membersCopy[index],
+    //   fields: Object.keys(members[index]),
+    //   retainFields: ["id"],
+    // });
 
-    membersCopy[index] = {
-      ...membersCopy[index],
-      ...updates,
-    };
+    // const updates = {
+    //   ...diff,
+    //   ...(diff.contactNo && { verifiedContactNo: false }),
+    // };
+
+    // membersCopy[index] = {
+    //   ...membersCopy[index],
+    //   ...updates,
+    // };
 
     // Update
     const { error: updateError } = await updateFamilyMember({
@@ -124,7 +134,7 @@ const FamilyMemberPage = () => {
     if (updateError) return openErrorDialog(updateError);
 
     // Success
-    setMembers(membersCopy);
+    setMembers(latestDocs);
     openResponseDialog({
       autoClose: true,
       content: successMessage({ noun: "Family member", verb: "updated" }),
@@ -146,21 +156,15 @@ const FamilyMemberPage = () => {
     }
 
     // Update
-    const membersCopy = [...members];
-    const index = membersCopy.findIndex(
-      (i) => i.id === verificationModal.data.id
-    );
-
-    const updates = {
+    const updatedDoc = {
       id: verificationModal.data.id,
       verificationAttachment: url,
       verificationRejectReason: null,
     };
-
-    membersCopy[index] = {
-      ...membersCopy[index],
-      ...updates,
-    };
+    const { latestDocs, updates } = localUpdateDocs({
+      updatedDoc,
+      oldDocs: [...members],
+    });
 
     const { error: updateError } = await updateFamilyMember({
       patient: updates,
@@ -171,7 +175,7 @@ const FamilyMemberPage = () => {
     }
 
     // Success
-    setMembers(membersCopy);
+    setMembers(latestDocs);
     setBackdropLoader(false);
     openResponseDialog({
       autoClose: true,

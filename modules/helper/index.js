@@ -76,3 +76,34 @@ export const personBuiltInFields = (doc) => ({
   birthdate: formatFirebasetimeStamp(doc.birthdate),
   nameBirthdate: getUniquePersonId(doc),
 });
+
+export const localUpdateDocs = ({
+  updatedDoc,
+  oldDocs,
+  additionalDiffFields,
+}) => {
+  const index = oldDocs.findIndex((i) => i.id === updatedDoc.id);
+  const oldDoc = oldDocs[index];
+
+  const { diff } = compareObj({
+    latest: updatedDoc,
+    old: oldDoc,
+    fields: Object.keys(oldDoc),
+    retainFields: ["id"],
+  });
+
+  const updates = {
+    ...diff,
+    ...(!!additionalDiffFields && additionalDiffFields(diff)),
+  };
+
+  oldDocs[index] = {
+    ...oldDocs[index],
+    ...updates,
+  };
+
+  return {
+    latestDocs: oldDocs,
+    updates,
+  };
+};
