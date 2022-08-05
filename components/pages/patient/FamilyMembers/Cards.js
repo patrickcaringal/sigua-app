@@ -140,7 +140,9 @@ const Cards = ({ data, onEditModal, onVerificationModal, onPhoneModal }) => {
                 variant="outlined"
                 size="small"
                 startIcon={<EditIcon />}
-                onClick={() => onEditModal(i)}
+                onClick={() =>
+                  onEditModal({ ...i, birthdate: formatTimeStamp(birthdate) })
+                }
               >
                 Edit
               </Button>

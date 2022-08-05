@@ -167,7 +167,6 @@ export const addStaffReq = async ({ staffs }) => {
 
 export const updateStaffReq = async ({ staff }) => {
   try {
-    // ADd transform fields
     // Check fullname, birthdate duplicate
     const q = query(
       collRef,

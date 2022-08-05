@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Box, Button, Container, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 
-import { Toolbar } from "../components/common";
+import { Toolbar, successMessage } from "../components/common";
 import {
   Cards,
   ManageFamilyMemberModal,
@@ -18,6 +18,7 @@ import {
   addFamilyMembersReq,
   getFamilyMembersReq,
   updateFamilyMembersReq,
+  updatePatientReq,
   uploadImageReq,
 } from "../modules/firebase";
 
@@ -36,7 +37,7 @@ const FamilyMemberPage = () => {
   const [getFamilyMembers] = useRequest(getFamilyMembersReq, setBackdropLoader);
   const [addFamilyMembers] = useRequest(addFamilyMembersReq, setBackdropLoader);
   const [uploadImage] = useRequest(uploadImageReq);
-  const [updateFamilyMember] = useRequest(updateFamilyMembersReq);
+  const [updateFamilyMember] = useRequest(updatePatientReq, setBackdropLoader);
 
   // Local States
   const [members, setMembers] = useState([]);
@@ -68,7 +69,7 @@ const FamilyMemberPage = () => {
     });
   };
 
-  const handleEditMemberModalOpen = (member) => {
+  const handleEditModalOpen = (member) => {
     setFamilyMemberModal({
       open: true,
       data: member,
@@ -104,38 +105,31 @@ const FamilyMemberPage = () => {
   };
 
   const handleEditMemeber = async (updatedDocs) => {
-    setBackdropLoader(true);
-
-    const updatedMember = updatedDocs[0];
-    const index = updatedMember.index;
+    const updatedPatient = updatedDocs[0];
     const membersCopy = [...members];
+    const index = membersCopy.findIndex((i) => i.id === updatedPatient.id);
 
     const isContactUpdated =
-      membersCopy[index].contactNo !== updatedMember.contactNo;
+      membersCopy[index].contactNo !== updatedPatient.contactNo;
 
     membersCopy[index] = {
       ...membersCopy[index],
-      ...updatedMember,
+      ...updatedPatient,
       ...(isContactUpdated && { verifiedContactNo: false }),
     };
 
     // Update
-    const { error: updateFamMemberError } = await updateFamilyMember({
-      id: user.id,
-      familyMembers: membersCopy,
+    const { error: updateError } = await updateFamilyMember({
+      patient: updatedPatient,
     });
 
-    if (updateFamMemberError) {
-      setBackdropLoader(false);
-      return openErrorDialog(updateFamMemberError);
-    }
+    if (updateError) return openErrorDialog(updateError);
 
-    // Success
-    setBackdropLoader(false);
+    // // Success
     setMembers(membersCopy);
     openResponseDialog({
       autoClose: true,
-      content: "Family member successfuly updated.",
+      content: successMessage({ noun: "Family member", verb: "updated" }),
       type: "SUCCESS",
       closeCb() {
         setFamilyMemberModal(defaultModal);
@@ -273,7 +267,7 @@ const FamilyMemberPage = () => {
       >
         <Cards
           data={members}
-          onEditModal={handleEditMemberModalOpen}
+          onEditModal={handleEditModalOpen}
           onVerificationModal={handleAttachmentModalOpen}
           onPhoneModal={handlePhoneModalOpen}
         />

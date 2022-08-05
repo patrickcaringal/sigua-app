@@ -20,6 +20,7 @@ import {
 import { FieldArray } from "formik";
 
 import { DatePicker, Input } from "../../../../components/common/Form";
+import { formatTimeStamp } from "../../../../modules/helper";
 
 const defaultItem = {
   firstName: "",
@@ -180,7 +181,7 @@ const Form = ({
                           onChange={(value) => {
                             setFieldValue(
                               getFieldName("birthdate"),
-                              value,
+                              formatTimeStamp(value),
                               false
                             );
                           }}
