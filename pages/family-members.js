@@ -16,11 +16,13 @@ import { useResponseDialog } from "../contexts/ResponseDialogContext";
 import useRequest from "../hooks/useRequest";
 import {
   addFamilyMembersReq,
+  addPatientReq,
   getFamilyMembersReq,
   updateFamilyMembersReq,
   updatePatientReq,
   uploadImageReq,
 } from "../modules/firebase";
+import { pluralize } from "../modules/helper";
 
 const defaultModal = {
   open: false,
@@ -35,7 +37,7 @@ const FamilyMemberPage = () => {
 
   // Requests
   const [getFamilyMembers] = useRequest(getFamilyMembersReq, setBackdropLoader);
-  const [addFamilyMembers] = useRequest(addFamilyMembersReq, setBackdropLoader);
+  const [addFamilyMembers] = useRequest(addPatientReq, setBackdropLoader);
   const [uploadImage] = useRequest(uploadImageReq);
   const [updateFamilyMember] = useRequest(updatePatientReq, setBackdropLoader);
 
@@ -83,20 +85,23 @@ const FamilyMemberPage = () => {
     });
   };
 
-  const handleAddMemeber = async (newMembers) => {
+  const handleAddMemeber = async (docs) => {
+    docs = docs.map((i) => ({ ...i, accountId: user.id }));
+
     // Add
-    const { data: addedMembers, error: addFamMemberError } =
-      await addFamilyMembers({
-        id: user.id,
-        familyMembers: newMembers,
-      });
-    if (addFamMemberError) return openErrorDialog(addFamMemberError);
+    const { data: newDocs, error: addError } = await addFamilyMembers({
+      docs,
+    });
+    if (addError) return openErrorDialog(addError);
 
     // Successful
-    setMembers((prev) => [...prev, ...addedMembers]);
+    setMembers((prev) => [...prev, ...newDocs]);
     openResponseDialog({
       autoClose: true,
-      content: "Family members successfuly added.",
+      content: successMessage({
+        noun: pluralize("Family member", newDocs.length),
+        verb: "added",
+      }),
       type: "SUCCESS",
       closeCb() {
         setFamilyMemberModal(defaultModal);

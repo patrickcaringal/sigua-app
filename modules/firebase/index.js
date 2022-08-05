@@ -23,7 +23,11 @@ import {
   updateBranchReq,
 } from "./branches";
 import { auth, db } from "./config";
-import { getFamilyMembersReq, updatePatientReq } from "./patients";
+import {
+  addPatientReq,
+  getFamilyMembersReq,
+  updatePatientReq,
+} from "./patients";
 import {
   addServiceReq,
   deleteServiceReq,
@@ -58,6 +62,7 @@ export {
   updateFamilyMembersReq,
   getMemberForApprovalReq,
   // patient
+  addPatientReq,
   getFamilyMembersReq,
   updatePatientReq,
   // staff
