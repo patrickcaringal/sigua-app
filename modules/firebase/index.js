@@ -26,6 +26,7 @@ import { auth, db } from "./config";
 import {
   addPatientReq,
   getFamilyMembersReq,
+  getPatientsForApprovalReq,
   updatePatientReq,
 } from "./patients";
 import {
@@ -64,6 +65,7 @@ export {
   // patient
   addPatientReq,
   getFamilyMembersReq,
+  getPatientsForApprovalReq,
   updatePatientReq,
   // staff
   addStaffReq,

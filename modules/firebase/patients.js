@@ -50,6 +50,26 @@ export const getFamilyMembersReq = async (id) => {
   }
 };
 
+export const getPatientsForApprovalReq = async ({}) => {
+  try {
+    const q = query(
+      collRef,
+      where("verified", "==", false),
+      where("deleted", "==", false)
+    );
+    const querySnapshot = await getDocs(q);
+
+    const data = querySnapshot.docs.map((doc) => ({
+      ...doc.data(),
+    }));
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
 export const addPatientReq = async ({ docs }) => {
   try {
     // const docRef = doc(db, "accounts", id);

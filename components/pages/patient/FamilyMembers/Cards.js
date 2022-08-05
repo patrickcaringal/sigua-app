@@ -43,12 +43,12 @@ const Cards = ({ data, onEditModal, onVerificationModal, onPhoneModal }) => {
         } = i;
 
         const status = verified
-          ? MEMBER_STATUS.VERFIED
+          ? MEMBER_STATUS.VERFIED // by staff approval
           : !verificationAttachment
-          ? MEMBER_STATUS.FOR_VERIFICATION
+          ? MEMBER_STATUS.FOR_VERIFICATION // no attachment
           : verificationAttachment && verificationRejectReason
-          ? MEMBER_STATUS.REJECTED
-          : MEMBER_STATUS.FOR_APPROVAL;
+          ? MEMBER_STATUS.REJECTED // has attachment and has reject
+          : MEMBER_STATUS.FOR_APPROVAL; //
         return (
           <Card
             key={index}
