@@ -22,7 +22,12 @@ import {
   updatePatientReq,
   uploadImageReq,
 } from "../modules/firebase";
-import { compareObj, personBuiltInFields, pluralize } from "../modules/helper";
+import {
+  compareObj,
+  formatTimeStamp,
+  personBuiltInFields,
+  pluralize,
+} from "../modules/helper";
 
 const defaultModal = {
   open: false,
@@ -63,27 +68,6 @@ const FamilyMemberPage = () => {
     if (user.id) fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user.id]);
-
-  const handleMemberModalOpen = () => {
-    setFamilyMemberModal({
-      open: true,
-      data: null,
-    });
-  };
-
-  const handleEditModalOpen = (member) => {
-    setFamilyMemberModal({
-      open: true,
-      data: member,
-    });
-  };
-
-  const handlePhoneModalOpen = (member) => {
-    setPhoneModal({
-      open: true,
-      data: member,
-    });
-  };
 
   const handleAddMemeber = async (docs) => {
     docs = docs.map((i) => ({ ...i, accountId: user.id }));
@@ -150,21 +134,6 @@ const FamilyMemberPage = () => {
         setFamilyMemberModal(defaultModal);
       },
     });
-  };
-
-  const handleAttachmentModalOpen = (member) => {
-    setVerificationModal({
-      open: true,
-      data: member,
-    });
-  };
-
-  const handleAttachmentModalClose = () => {
-    setVerificationModal(defaultModal);
-  };
-
-  const handlePhoneModalClose = () => {
-    setPhoneModal(defaultModal);
   };
 
   const handleUploadAttachment = async (file) => {
@@ -259,6 +228,42 @@ const FamilyMemberPage = () => {
     } else {
       openErrorDialog("Incorrect Verification code");
     }
+  };
+
+  const handleMemberModalOpen = () => {
+    setFamilyMemberModal({
+      open: true,
+      data: null,
+    });
+  };
+
+  const handleEditModalOpen = (member) => {
+    setFamilyMemberModal({
+      open: true,
+      data: { ...member, birthdate: formatTimeStamp(member.birthdate) },
+    });
+  };
+
+  const handleAttachmentModalOpen = (member) => {
+    setVerificationModal({
+      open: true,
+      data: member,
+    });
+  };
+
+  const handlePhoneModalOpen = (member) => {
+    setPhoneModal({
+      open: true,
+      data: member,
+    });
+  };
+
+  const handleAttachmentModalClose = () => {
+    setVerificationModal(defaultModal);
+  };
+
+  const handlePhoneModalClose = () => {
+    setPhoneModal(defaultModal);
   };
 
   return (
