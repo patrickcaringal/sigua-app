@@ -163,7 +163,6 @@ export const updatePatientReq = async ({ patient }) => {
     const docRef = doc(db, "patients", patient.id);
     const finalDoc = {
       ...patient,
-      ...transformedFields(patient),
       ...timestampFields({ dateUpdated: true }),
     };
     await updateDoc(docRef, finalDoc);

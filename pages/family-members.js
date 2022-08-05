@@ -22,7 +22,7 @@ import {
   updatePatientReq,
   uploadImageReq,
 } from "../modules/firebase";
-import { pluralize } from "../modules/helper";
+import { compareObj, personBuiltInFields, pluralize } from "../modules/helper";
 
 const defaultModal = {
   open: false,
@@ -110,27 +110,37 @@ const FamilyMemberPage = () => {
   };
 
   const handleEditMemeber = async (updatedDocs) => {
-    const updatedPatient = updatedDocs[0];
+    const updatedPatient = {
+      ...updatedDocs[0],
+      ...personBuiltInFields(updatedDocs[0]),
+    };
     const membersCopy = [...members];
     const index = membersCopy.findIndex((i) => i.id === updatedPatient.id);
 
-    const isContactUpdated =
-      membersCopy[index].contactNo !== updatedPatient.contactNo;
+    const { diff } = compareObj({
+      latest: updatedPatient,
+      old: membersCopy[index],
+      fields: Object.keys(members[index]),
+      retainFields: ["id"],
+    });
+
+    const updates = {
+      ...diff,
+      ...(diff.contactNo && { verifiedContactNo: false }),
+    };
 
     membersCopy[index] = {
       ...membersCopy[index],
-      ...updatedPatient,
-      ...(isContactUpdated && { verifiedContactNo: false }),
+      ...updates,
     };
 
     // Update
     const { error: updateError } = await updateFamilyMember({
-      patient: updatedPatient,
+      patient: updates,
     });
-
     if (updateError) return openErrorDialog(updateError);
 
-    // // Success
+    // Success
     setMembers(membersCopy);
     openResponseDialog({
       autoClose: true,
@@ -143,10 +153,9 @@ const FamilyMemberPage = () => {
   };
 
   const handleAttachmentModalOpen = (member) => {
-    const { firstName, lastName, middleName, index } = member;
     setVerificationModal({
       open: true,
-      data: { index, firstName, lastName, middleName },
+      data: member,
     });
   };
 
@@ -169,22 +178,28 @@ const FamilyMemberPage = () => {
     }
 
     // Update
-    const index = verificationModal.data.index;
     const membersCopy = [...members];
-    membersCopy[index] = {
-      ...membersCopy[index],
+    const index = membersCopy.findIndex(
+      (i) => i.id === verificationModal.data.id
+    );
+
+    const updates = {
+      id: verificationModal.data.id,
       verificationAttachment: url,
       verificationRejectReason: null,
     };
 
-    const { error: updateFamMemberError } = await updateFamilyMember({
-      id: user.id,
-      familyMembers: membersCopy,
-      hasVerificationForApproval: true,
+    membersCopy[index] = {
+      ...membersCopy[index],
+      ...updates,
+    };
+
+    const { error: updateError } = await updateFamilyMember({
+      patient: updates,
     });
-    if (updateFamMemberError) {
+    if (updateError) {
       setBackdropLoader(false);
-      return openErrorDialog(updateFamMemberError);
+      return openErrorDialog(updateError);
     }
 
     // Success
