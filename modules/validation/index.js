@@ -7,6 +7,7 @@ import {
   SignupSchema,
   StaffSchema,
   VerificationCodeSchema,
+  VerificationRejectSchema,
 } from "./schema";
 
 export {
@@ -18,4 +19,5 @@ export {
   SignupSchema,
   StaffSchema,
   VerificationCodeSchema,
+  VerificationRejectSchema,
 };

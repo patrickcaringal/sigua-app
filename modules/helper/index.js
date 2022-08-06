@@ -24,6 +24,20 @@ export const formatFirebasetimeStamp = (timestamp) => {
   return Timestamp.fromDate(new Date(timestamp));
 };
 
+export const convertToDate = (timestamp) => {
+  if (typeof timestamp === "string") return new Date(timestamp);
+
+  if ("seconds" in timestamp && "nanoseconds" in timestamp) {
+    return new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
+  } else {
+    return new Date(timestamp);
+  }
+};
+
+export const sortBy = (key) => (a, b) => {
+  return new Date(convertToDate(a[key])) - new Date(convertToDate(b[key]));
+};
+
 export const getInitials = (str = "") => {
   return str.toUpperCase().charAt(0);
 };

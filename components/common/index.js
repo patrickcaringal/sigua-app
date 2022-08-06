@@ -1,3 +1,4 @@
+import { DatePicker, Input, Select } from "./Form";
 import Modal from "./Modal";
 import {
   ResponseDialog,
@@ -21,6 +22,10 @@ export {
   PATHS,
   PROTECTED_ROUTES,
   getRoleRoutes,
+  // Form
+  DatePicker,
+  Input,
+  Select,
   // ResponseDialog
   ResponseDialog,
   associationMessage,

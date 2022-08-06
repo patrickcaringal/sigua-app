@@ -105,3 +105,9 @@ export const BranchesSchema = Yup.object().shape({
     })
   ),
 });
+
+export const VerificationRejectSchema = Yup.object().shape({
+  verificationRejectReason: Yup.string()
+    .required("Required")
+    .max(250, "Reason too long"),
+});

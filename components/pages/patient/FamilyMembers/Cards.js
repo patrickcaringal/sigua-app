@@ -18,13 +18,14 @@ import {
   Typography,
 } from "@mui/material";
 
+import { MEMBER_STATUS } from "../../../../modules/firebase";
 import {
   formatDate,
   formatTimeStamp,
   getFullName,
   getInitials,
 } from "../../../../modules/helper";
-import { MEMBER_STATUS, icons, statusUploadAllowed } from "./utils";
+import { icons, statusUploadAllowed } from "./utils";
 
 const Cards = ({ data, onEditModal, onVerificationModal, onPhoneModal }) => {
   return (
@@ -45,10 +46,10 @@ const Cards = ({ data, onEditModal, onVerificationModal, onPhoneModal }) => {
         const status = verified
           ? MEMBER_STATUS.VERFIED // by staff approval
           : !verificationAttachment
-          ? MEMBER_STATUS.FOR_VERIFICATION // no attachment
+          ? MEMBER_STATUS.FOR_VERIFICATION // no attachment, on add
           : verificationAttachment && verificationRejectReason
-          ? MEMBER_STATUS.REJECTED // has attachment and has reject
-          : MEMBER_STATUS.FOR_APPROVAL; //
+          ? MEMBER_STATUS.REJECTED // has attachment and has reject, by staff approval
+          : MEMBER_STATUS.FOR_APPROVAL; // has attachment
         return (
           <Card
             key={index}

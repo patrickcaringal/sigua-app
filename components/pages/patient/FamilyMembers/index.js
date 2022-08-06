@@ -8,6 +8,7 @@ import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
 import {
+  MEMBER_STATUS,
   addFamilyMembersReq,
   addPatientReq,
   getFamilyMembersReq,
@@ -27,7 +28,7 @@ import { MobileNumberVerificationModal } from "../../../shared";
 import Cards from "./Cards";
 import ManageFamilyMemberModal from "./ManageFamilyMemberModal";
 import UploadAttachmentModal from "./UploadAttachmentModal";
-import { MEMBER_STATUS, icons, statusUploadAllowed } from "./utils";
+import { icons, statusUploadAllowed } from "./utils";
 
 const defaultModal = {
   open: false,
@@ -70,7 +71,15 @@ const FamilyMemberPage = () => {
   }, [user.id]);
 
   const handleAddMemeber = async (docs) => {
-    docs = docs.map((i) => ({ ...i, accountId: user.id }));
+    docs = docs.map((i) => ({
+      ...i,
+      accountId: user.id,
+      verified: false,
+      verifiedContactNo: false,
+      verificationAttachment: null,
+      status: MEMBER_STATUS.FOR_VERIFICATION,
+      ...personBuiltInFields(i),
+    }));
 
     // Add
     const { data: newDocs, error: addError } = await addFamilyMembers({
@@ -102,11 +111,11 @@ const FamilyMemberPage = () => {
     const { latestDocs, updates } = localUpdateDocs({
       updatedDoc: updatedPatient,
       oldDocs: membersCopy,
-      additionalDiffFields(diff) {
-        return {
-          ...(diff.contactNo && { verifiedContactNo: false }),
-        };
-      },
+      // additionalDiffFields(diff) {
+      //   return {
+      //     ...(diff.contactNo && { verifiedContactNo: false }),
+      //   };
+      // },
     });
     // const index = membersCopy.findIndex((i) => i.id === updatedPatient.id);
 
@@ -160,6 +169,7 @@ const FamilyMemberPage = () => {
       id: verificationModal.data.id,
       verificationAttachment: url,
       verificationRejectReason: null,
+      status: MEMBER_STATUS.FOR_APPROVAL,
     };
     const { latestDocs, updates } = localUpdateDocs({
       updatedDoc,

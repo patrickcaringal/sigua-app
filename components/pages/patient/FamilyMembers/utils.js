@@ -4,12 +4,7 @@ import NoAccountsIcon from "@mui/icons-material/NoAccounts";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import { IconButton } from "@mui/material";
 
-export const MEMBER_STATUS = {
-  VERFIED: "VERFIED",
-  FOR_VERIFICATION: "FOR_VERIFICATION",
-  FOR_APPROVAL: "FOR_APPROVAL",
-  REJECTED: "REJECTED",
-};
+import { MEMBER_STATUS } from "../../../../modules/firebase";
 
 export const icons = {
   [MEMBER_STATUS.VERFIED]: (

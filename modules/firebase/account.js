@@ -9,7 +9,7 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { omit as omitFields } from "lodash";
+import lodash from "lodash";
 
 import {
   formatDate,
@@ -44,7 +44,7 @@ export const createAccountReq = async (account) => {
     const docRef = doc(collRef);
 
     // Transform Document
-    let accountDocument = {
+    let accountDoc = {
       ...account,
       id: docRef.id,
       password: hashPassword(account.password),
@@ -55,41 +55,29 @@ export const createAccountReq = async (account) => {
       // familyMembers: [],
       // hasVerificationForApproval: false,
     };
-    // // Add Default Memeber
-    // mappedNewDocument.familyMembers = [
-    //   {
-    //     id: doc(collRef).id,
-    //     accountId: docRef.id,
-    //     verified: true,
-    //     verifiedContactNo: true,
-    //     verificationAttachment: null,
-    //     ...omitFields(mappedNewDocument, [
-    //       "password",
-    //       "familyMembers",
-    //       "role",
-    //       "hasVerificationForApproval",
-    //     ]),
-    //   },
-    // ];
 
     // Create Account Document
-    await setDoc(docRef, accountDocument);
+    await setDoc(docRef, accountDoc);
 
     // Patient Document
     const docRef2 = doc(collection(db, "patients"));
-    const patientDocument = {
-      ...omitFields(accountDocument, ["password", "role"]),
+    const patientDoc = {
+      ...lodash.omit(accountDoc, ["password", "role"]),
       id: docRef2.id,
-      accountId: accountDocument.id,
+      accountId: accountDoc.id,
       verified: true,
       verifiedContactNo: true,
       verificationAttachment: null,
     };
     // Create Patient Document
-    await setDoc(docRef2, patientDocument);
+    await setDoc(docRef2, patientDoc);
 
-    delete accountDocument.password; // Remove password field
-    const data = accountDocument;
+    // register name
+    const docRef3 = doc(db, "accounts", "list");
+    await updateDoc(docRef3, { [accountDoc.id]: accountDoc.name });
+
+    delete accountDoc.password; // Remove password field
+    const data = accountDoc;
     return { data, success: true };
   } catch (error) {
     console.log(error);

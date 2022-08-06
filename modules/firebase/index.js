@@ -24,6 +24,7 @@ import {
 } from "./branches";
 import { auth, db } from "./config";
 import {
+  MEMBER_STATUS,
   addPatientReq,
   getFamilyMembersReq,
   getPatientsForApprovalReq,
@@ -67,6 +68,7 @@ export {
   getFamilyMembersReq,
   getPatientsForApprovalReq,
   updatePatientReq,
+  MEMBER_STATUS,
   // staff
   addStaffReq,
   getStaffsReq,

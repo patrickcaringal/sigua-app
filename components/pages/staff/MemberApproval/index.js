@@ -19,12 +19,13 @@ import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
 import {
+  MEMBER_STATUS,
   deleteImageReq,
-  getMemberForApprovalReq,
-  updateFamilyMembersReq,
+  getPatientsForApprovalReq,
+  updatePatientReq,
 } from "../../../../modules/firebase";
-import { getFullName } from "../../../../modules/helper";
-import { Toolbar } from "../../../common";
+import { getFullName, localUpdateDocs } from "../../../../modules/helper";
+import { Toolbar, successMessage } from "../../../common";
 import MemberApprovalModal from "./MemberApprovalModal";
 
 const MemberApprovalPage = () => {
@@ -34,143 +35,90 @@ const MemberApprovalPage = () => {
 
   // Requests
   const [getMemberForApproval] = useRequest(
-    getMemberForApprovalReq,
+    getPatientsForApprovalReq,
     setBackdropLoader
   );
-  const [updateFamilyMembers] = useRequest(updateFamilyMembersReq);
+  const [updatePatient] = useRequest(updatePatientReq);
   const [deleteImage] = useRequest(deleteImageReq);
 
   // Local States
-  const [accounts, setAccounts] = useState([]); // used to pull Family members
   const [members, setMembers] = useState([]);
-  const [memberApprovalModalState, setMemberApprovalModalState] = useState({
+  const [memberApprovalModal, setMemberApprovalModal] = useState({
     open: false,
     data: null,
   });
 
   useEffect(() => {
     const fetch = async () => {
-      // Get Members
-      const { data: accountList, error: getMembersError } =
+      // Get Patients
+      const { data: patientList, error: getPatientsError } =
         await getMemberForApproval({});
-      if (getMembersError) return openErrorDialog(getMembersError);
+      if (getPatientsError) return openErrorDialog(getPatientsError);
 
-      setAccounts(accountList);
-      const memberList = getMemberList(accountList);
-      setMembers(memberList);
+      setMembers(patientList);
     };
 
     fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getMemberList = (accountList) => {
-    const memberList = accountList.reduce((acc, m) => {
-      let notVerifiedMember = m.familyMembers.filter(
-        (i) =>
-          !i.verified && i.verificationAttachment && !i.verificationRejectReason
-      );
-
-      // No Not Verified member, exit
-      if (notVerifiedMember.length === 0) return acc;
-
-      const requester = getFullName(m);
-      notVerifiedMember = notVerifiedMember.map((i) => ({ ...i, requester }));
-
-      return [...acc, ...notVerifiedMember];
-    }, []);
-
-    return memberList;
-  };
-
-  const updateMember = (
-    accountId,
-    memberName,
-    approved,
-    verificationRejectReason = ""
-  ) => {
-    const accountIndex = accounts.findIndex((i) => i.id === accountId);
-    const updatedAccount = { ...accounts[accountIndex] };
-
-    const memberIndex = updatedAccount.familyMembers.findIndex(
-      (i) => getFullName(i) === memberName
-    );
-
-    const imageUrl =
-      updatedAccount.familyMembers[memberIndex].verificationAttachment;
-
-    updatedAccount.familyMembers[memberIndex].verified = approved;
-
-    if (!approved) {
-      updatedAccount.familyMembers[memberIndex].verificationRejectReason =
-        verificationRejectReason;
-    } else {
-      delete updatedAccount.familyMembers[memberIndex].verificationRejectReason;
-    }
-
-    return { updatedAccount, accountIndex, imageUrl };
-  };
-
   const handleMemberModalOpen = (m) => {
-    const { verificationAttachment, requester, accountId } = m;
-    setMemberApprovalModalState({
+    setMemberApprovalModal({
       open: true,
-      data: {
-        src: verificationAttachment,
-        accountId,
-        requester,
-        member: getFullName(m),
-      },
+      data: m,
     });
   };
 
   const handleMemberModalClose = () => {
-    setMemberApprovalModalState({
+    setMemberApprovalModal({
       open: false,
       data: null,
     });
   };
 
-  const handleApprove = async ({ memberName, accountId }) => {
+  const handleApprove = async (patient) => {
     setBackdropLoader(true);
+    const updatedPatient = {
+      id: patient.id,
+      verified: true,
+      verificationAttachment: null,
+      verificationRejectReason: null,
+      status: MEMBER_STATUS.FOR_PHONE_VERIFICATION,
+    };
 
-    const { updatedAccount, accountIndex, imageUrl } = updateMember(
-      accountId,
-      memberName,
-      true
-    );
-
-    // Update Family Member to verified
-    const { error: updateFamMemberError } = await updateFamilyMembers({
-      id: accountId,
-      familyMembers: updatedAccount.familyMembers,
+    const { latestDocs, updates } = localUpdateDocs({
+      updatedDoc: updatedPatient,
+      oldDocs: [...members],
     });
-    if (updateFamMemberError) {
+
+    // Update
+    const { error: updateError } = await updatePatient({
+      patient: updates,
+    });
+    if (updateError) {
       setBackdropLoader(false);
-      return openErrorDialog(updateFamMemberError);
+      return openErrorDialog(updateError);
     }
 
-    // Delete Image from Storage
+    // Delete Image
+    const url = patient.verificationAttachment;
     const { error: deleteImageError } = await deleteImage({
-      url: imageUrl,
+      url,
     });
     if (deleteImageError) {
       setBackdropLoader(false);
       return openErrorDialog(deleteImageError);
     }
 
-    // Update Local State
-    const accountsCopy = [...accounts];
-    accountsCopy[accountIndex] = updatedAccount;
-    setAccounts(accountsCopy);
-
-    const memberList = getMemberList(accountsCopy);
-    setMembers(memberList);
-
+    // Success
     setBackdropLoader(false);
+    setMembers(latestDocs);
     openResponseDialog({
       autoClose: true,
-      content: "Member Verification approved.",
+      content: successMessage({
+        noun: "Family Member Verification",
+        verb: "approved",
+      }),
       type: "SUCCESS",
       closeCb() {
         handleMemberModalClose();
@@ -178,51 +126,52 @@ const MemberApprovalPage = () => {
     });
   };
 
-  const handleReject = async ({
-    memberName,
-    accountId,
-    verificationRejectReason,
-  }) => {
+  const handleReject = async (patient) => {
     setBackdropLoader(true);
+    const updatedPatient = {
+      id: patient.id,
+      verificationAttachment: null,
+      status: MEMBER_STATUS.REJECTED,
+    };
 
-    const { updatedAccount, accountIndex, imageUrl } = updateMember(
-      accountId,
-      memberName,
-      false,
-      verificationRejectReason
-    );
-
-    // Update Family Member to verified
-    const { error: updateFamMemberError } = await updateFamilyMembers({
-      id: accountId,
-      familyMembers: updatedAccount.familyMembers,
+    const { updates } = localUpdateDocs({
+      updatedDoc: updatedPatient,
+      oldDocs: [...members],
+      additionalDiffFields() {
+        return {
+          verificationRejectReason: patient.verificationRejectReason,
+        };
+      },
     });
-    if (updateFamMemberError) {
+
+    // Update
+    const { error: updateError } = await updatePatient({
+      patient: updates,
+    });
+    if (updateError) {
       setBackdropLoader(false);
-      return openErrorDialog(updateFamMemberError);
+      return openErrorDialog(updateError);
     }
 
-    // Delete Image from Storage
+    // Delete Image
+    const url = patient.verificationAttachment;
     const { error: deleteImageError } = await deleteImage({
-      url: imageUrl,
+      url,
     });
     if (deleteImageError) {
       setBackdropLoader(false);
       return openErrorDialog(deleteImageError);
     }
 
-    // Update Local State
-    const accountsCopy = [...accounts];
-    accountsCopy[accountIndex] = updatedAccount;
-    setAccounts(accountsCopy);
-
-    const memberList = getMemberList(accountsCopy);
-    setMembers(memberList);
-
+    // Success
     setBackdropLoader(false);
+    setMembers((prev) => prev.filter((i) => i.id !== updatedPatient.id));
     openResponseDialog({
       autoClose: true,
-      content: "Member Verification rejected.",
+      content: successMessage({
+        noun: "Family Member Verification",
+        verb: "rejected",
+      }),
       type: "SUCCESS",
       closeCb() {
         handleMemberModalClose();
@@ -265,8 +214,8 @@ const MemberApprovalPage = () => {
                     suffix,
                     lastName,
                     middleName,
-                    requester,
                     address,
+                    accountName,
                   } = m;
 
                   return (
@@ -279,7 +228,7 @@ const MemberApprovalPage = () => {
                           middleName,
                         })}
                       </TableCell>
-                      <TableCell>{requester}</TableCell>
+                      <TableCell>{accountName}</TableCell>
                       <TableCell sx={{ maxWidth: 200 }}>
                         <Typography
                           variant="caption"
@@ -312,13 +261,15 @@ const MemberApprovalPage = () => {
         </Paper>
       </Box>
 
-      <MemberApprovalModal
-        open={memberApprovalModalState.open}
-        data={memberApprovalModalState.data}
-        onClose={handleMemberModalClose}
-        onApprove={handleApprove}
-        onReject={handleReject}
-      />
+      {memberApprovalModal.open && (
+        <MemberApprovalModal
+          open={memberApprovalModal.open}
+          data={memberApprovalModal.data}
+          onClose={handleMemberModalClose}
+          onApprove={handleApprove}
+          onReject={handleReject}
+        />
+      )}
     </Box>
   );
 };
