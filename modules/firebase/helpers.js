@@ -8,7 +8,8 @@ export const checkDuplicate = async ({
   collectionName,
   whereClause,
   duplicateOutputField = "name",
-  errorMsg: { noun },
+  customErrorMsg,
+  errorMsg,
 }) => {
   const collRef = collection(db, collectionName);
   const q = query(collRef, whereClause);
@@ -18,12 +19,14 @@ export const checkDuplicate = async ({
     (i) => i.data()?.[duplicateOutputField]
   );
   if (duplicates.length) {
-    throw new Error(
+    const error =
+      customErrorMsg ||
       duplicateMessage({
-        noun: pluralize(noun, duplicates.length),
+        noun: pluralize(errorMsg.noun, duplicates.length),
         item: arrayStringify(duplicates),
-      })
-    );
+      });
+
+    throw new Error(error);
   }
 };
 

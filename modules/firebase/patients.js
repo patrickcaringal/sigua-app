@@ -97,6 +97,7 @@ export const addPatientReq = async ({ docs }) => {
         noun: "Patient",
       },
     });
+
     // Bulk Create Document
     const batch = writeBatch(db);
 

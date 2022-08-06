@@ -14,6 +14,7 @@ import {
   createAccountReq,
   signInAnonymouslyReq,
 } from "../../../../modules/firebase";
+import { getUniquePersonId } from "../../../../modules/helper";
 import { SignupSchema } from "../../../../modules/validation";
 import { MobileNumberVerificationModal } from "../../../shared";
 import Form from "./Form";
@@ -80,13 +81,12 @@ const SignUpPage = () => {
     validateOnChange: false,
     onSubmit: async (values) => {
       // Check Account Duplicate
-      const { error: checkAccDupliError } = await checkAccountDuplicate(
-        values.contactNo
-      );
+      const { error: checkAccDupliError } = await checkAccountDuplicate({
+        contactNo: values.contactNo,
+        name: getUniquePersonId(values),
+      });
       if (checkAccDupliError) return openErrorDialog(checkAccDupliError);
 
-      //   // Move to contact no verification
-      //   setStep(STEPS.VERIFICATION);
       handlePhoneModalOpen(values);
     },
   });
