@@ -9,9 +9,9 @@ import {
   writeBatch,
 } from "firebase/firestore";
 
-import { duplicateMessage } from "../../components/common";
-import { arrayStringify, pluralize, sortBy } from "../helper";
+import { sortBy } from "../helper";
 import { db, timestampFields } from "./config";
+import { checkDuplicate, registerNames } from "./helpers";
 
 export const MEMBER_STATUS = {
   VERFIED: "VERFIED",
@@ -85,27 +85,18 @@ export const getPatientsForApprovalReq = async ({}) => {
 
 export const addPatientReq = async ({ docs }) => {
   try {
-    // Check fullname, birthdate duplicate
-    const q = query(
-      collRef,
-      where(
+    // Check duplicate
+    await checkDuplicate({
+      collectionName: "patients",
+      whereClause: where(
         "nameBirthdate",
         "in",
         docs.map((i) => i.nameBirthdate)
-      )
-    );
-    const querySnapshot = await getDocs(q);
-
-    const duplicates = querySnapshot.docs.map((i) => i.data().name);
-    if (duplicates.length) {
-      throw new Error(
-        duplicateMessage({
-          noun: pluralize("Patient", duplicates.length),
-          item: arrayStringify(duplicates),
-        })
-      );
-    }
-
+      ),
+      errorMsg: {
+        noun: "Patient",
+      },
+    });
     // Bulk Create Document
     const batch = writeBatch(db);
 
@@ -124,9 +115,11 @@ export const addPatientReq = async ({ docs }) => {
     });
 
     // Register Patient name
-    const docRef2 = doc(db, "patients", "list");
-    const names = data.reduce((acc, i) => ({ ...acc, [i.id]: i.name }), {});
-    batch.update(docRef2, { ...names });
+    const { namesDocRef, names } = await registerNames({
+      collectionName: "patients",
+      names: data.reduce((acc, i) => ({ ...acc, [i.id]: i.name }), {}),
+    });
+    batch.update(namesDocRef, names);
 
     await batch.commit();
 
@@ -139,25 +132,15 @@ export const addPatientReq = async ({ docs }) => {
 
 export const updatePatientReq = async ({ patient }) => {
   try {
-    // Check fullname, birthdate duplicate
+    // Check duplicate
     if (patient.name || patient.birthdate) {
-      const q = query(
-        collRef,
-        where("nameBirthdate", "==", patient.nameBirthdate)
-      );
-      const querySnapshot = await getDocs(q);
-
-      const duplicates = querySnapshot.docs
-        .filter((doc) => doc.id !== patient.id)
-        .map((i) => i.data().name);
-      if (duplicates.length) {
-        throw new Error(
-          duplicateMessage({
-            noun: "Patient",
-            item: arrayStringify(duplicates),
-          })
-        );
-      }
+      await checkDuplicate({
+        collectionName: "patients",
+        whereClause: where("nameBirthdate", "==", patient.nameBirthdate),
+        errorMsg: {
+          noun: "Patient",
+        },
+      });
     }
 
     // Update
@@ -170,9 +153,11 @@ export const updatePatientReq = async ({ patient }) => {
 
     // Register Patient name
     if (patient.name) {
-      const docRef2 = doc(db, "patients", "list");
-      const names = { [patient.id]: patient.name };
-      await updateDoc(docRef2, { ...names });
+      await registerNames({
+        collectionName: "patients",
+        names: { [patient.id]: patient.name },
+        update: true,
+      });
     }
 
     return { success: true };
