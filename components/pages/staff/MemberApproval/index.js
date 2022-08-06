@@ -78,7 +78,7 @@ const MemberApprovalPage = () => {
 
   const handleApprove = async (patient) => {
     setBackdropLoader(true);
-    const updatedPatient = {
+    const updatedDoc = {
       id: patient.id,
       verified: true,
       verificationAttachment: null,
@@ -86,8 +86,8 @@ const MemberApprovalPage = () => {
       status: MEMBER_STATUS.FOR_PHONE_VERIFICATION,
     };
 
-    const { latestDocs, updates } = localUpdateDocs({
-      updatedDoc: updatedPatient,
+    const { updates } = localUpdateDocs({
+      updatedDoc,
       oldDocs: [...members],
     });
 
@@ -112,7 +112,7 @@ const MemberApprovalPage = () => {
 
     // Success
     setBackdropLoader(false);
-    setMembers(latestDocs);
+    setMembers((prev) => prev.filter((i) => i.id !== updatedDoc.id));
     openResponseDialog({
       autoClose: true,
       content: successMessage({
@@ -128,14 +128,14 @@ const MemberApprovalPage = () => {
 
   const handleReject = async (patient) => {
     setBackdropLoader(true);
-    const updatedPatient = {
+    const updatedDoc = {
       id: patient.id,
       verificationAttachment: null,
       status: MEMBER_STATUS.REJECTED,
     };
 
     const { updates } = localUpdateDocs({
-      updatedDoc: updatedPatient,
+      updatedDoc,
       oldDocs: [...members],
       additionalDiffFields() {
         return {
@@ -165,7 +165,7 @@ const MemberApprovalPage = () => {
 
     // Success
     setBackdropLoader(false);
-    setMembers((prev) => prev.filter((i) => i.id !== updatedPatient.id));
+    setMembers((prev) => prev.filter((i) => i.id !== updatedDoc.id));
     openResponseDialog({
       autoClose: true,
       content: successMessage({

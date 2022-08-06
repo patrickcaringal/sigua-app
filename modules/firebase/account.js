@@ -19,6 +19,7 @@ import {
   pluralize,
 } from "../helper";
 import { db, timestampFields } from "./config";
+import { MEMBER_STATUS } from "./patients";
 
 const collRef = collection(db, "accounts");
 
@@ -68,6 +69,8 @@ export const createAccountReq = async (account) => {
       verified: true,
       verifiedContactNo: true,
       verificationAttachment: null,
+      verificationRejectReason: null,
+      status: MEMBER_STATUS.VERFIED,
     };
     // Create Patient Document
     await setDoc(docRef2, patientDoc);

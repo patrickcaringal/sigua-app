@@ -1,6 +1,7 @@
 import FlakyIcon from "@mui/icons-material/Flaky";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import NoAccountsIcon from "@mui/icons-material/NoAccounts";
+import SendToMobileIcon from "@mui/icons-material/SendToMobile";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import { IconButton } from "@mui/material";
 
@@ -21,6 +22,14 @@ export const icons = {
         <NoAccountsIcon color="error" />
       </IconButton>
       To Verifiy
+    </>
+  ),
+  [MEMBER_STATUS.FOR_PHONE_VERIFICATION]: (
+    <>
+      <IconButton size="small" sx={{ pointerEvents: "none", pl: 0 }}>
+        <SendToMobileIcon color="success" />
+      </IconButton>
+      Verifiy Contact no
     </>
   ),
   [MEMBER_STATUS.FOR_APPROVAL]: (

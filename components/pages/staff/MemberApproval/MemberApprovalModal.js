@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import ImageSearchIcon from "@mui/icons-material/ImageSearch";
 import {
@@ -7,10 +7,8 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   Fab,
-  TextField,
   Typography,
 } from "@mui/material";
 import { useFormik } from "formik";

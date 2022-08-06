@@ -9,15 +9,12 @@ import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
 import {
   MEMBER_STATUS,
-  addFamilyMembersReq,
   addPatientReq,
   getFamilyMembersReq,
-  updateFamilyMembersReq,
   updatePatientReq,
   uploadImageReq,
 } from "../../../../modules/firebase";
 import {
-  compareObj,
   formatTimeStamp,
   localUpdateDocs,
   personBuiltInFields,
@@ -28,7 +25,6 @@ import { MobileNumberVerificationModal } from "../../../shared";
 import Cards from "./Cards";
 import ManageFamilyMemberModal from "./ManageFamilyMemberModal";
 import UploadAttachmentModal from "./UploadAttachmentModal";
-import { icons, statusUploadAllowed } from "./utils";
 
 const defaultModal = {
   open: false,
@@ -77,6 +73,7 @@ const FamilyMemberPage = () => {
       verified: false,
       verifiedContactNo: false,
       verificationAttachment: null,
+      verificationRejectReason: null,
       status: MEMBER_STATUS.FOR_VERIFICATION,
       ...personBuiltInFields(i),
     }));
@@ -111,30 +108,7 @@ const FamilyMemberPage = () => {
     const { latestDocs, updates } = localUpdateDocs({
       updatedDoc: updatedPatient,
       oldDocs: membersCopy,
-      // additionalDiffFields(diff) {
-      //   return {
-      //     ...(diff.contactNo && { verifiedContactNo: false }),
-      //   };
-      // },
     });
-    // const index = membersCopy.findIndex((i) => i.id === updatedPatient.id);
-
-    // const { diff } = compareObj({
-    //   latest: updatedPatient,
-    //   old: membersCopy[index],
-    //   fields: Object.keys(members[index]),
-    //   retainFields: ["id"],
-    // });
-
-    // const updates = {
-    //   ...diff,
-    //   ...(diff.contactNo && { verifiedContactNo: false }),
-    // };
-
-    // membersCopy[index] = {
-    //   ...membersCopy[index],
-    //   ...updates,
-    // };
 
     // Update
     const { error: updateError } = await updateFamilyMember({
@@ -185,8 +159,8 @@ const FamilyMemberPage = () => {
     }
 
     // Success
-    setMembers(latestDocs);
     setBackdropLoader(false);
+    setMembers(latestDocs);
     openResponseDialog({
       autoClose: true,
       content: (
@@ -202,37 +176,38 @@ const FamilyMemberPage = () => {
     });
   };
 
-  const handleVerifyPhone = async (member) => {
-    const { code } = member;
+  const handleVerifyPhone = async (patient) => {
+    const { code } = patient;
 
     // TODO: Verify code legit
     if (code === "1234") {
       setBackdropLoader(true);
 
-      const index = member.index;
-      const membersCopy = [...members];
-
-      membersCopy[index] = {
-        ...membersCopy[index],
+      const updatedDoc = {
+        id: patient.id,
         verifiedContactNo: true,
+        status: MEMBER_STATUS.VERFIED,
       };
+      const { latestDocs, updates } = localUpdateDocs({
+        updatedDoc,
+        oldDocs: [...members],
+      });
 
       // Update
-      const { error: updateFamMemberError } = await updateFamilyMember({
-        id: user.id,
-        familyMembers: membersCopy,
+      const { error: updateError } = await updateFamilyMember({
+        patient: updates,
       });
-      if (updateFamMemberError) {
+      if (updateError) {
         setBackdropLoader(false);
-        return openErrorDialog(updateFamMemberError);
+        return openErrorDialog(updateError);
       }
 
       // Success
       setBackdropLoader(false);
-      setMembers(membersCopy);
+      setMembers(latestDocs);
       openResponseDialog({
         autoClose: true,
-        content: "Contact No successfuly verified.",
+        content: successMessage({ noun: "Contact No", verb: "verified" }),
         type: "SUCCESS",
         closeCb() {
           setPhoneModal(defaultModal);

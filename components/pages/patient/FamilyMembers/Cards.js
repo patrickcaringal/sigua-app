@@ -37,19 +37,11 @@ const Cards = ({ data, onEditModal, onVerificationModal, onPhoneModal }) => {
           birthdate,
           address,
           gender,
-          verified,
           verifiedContactNo,
-          verificationAttachment,
           verificationRejectReason,
+          status,
         } = i;
 
-        const status = verified
-          ? MEMBER_STATUS.VERFIED // by staff approval
-          : !verificationAttachment
-          ? MEMBER_STATUS.FOR_VERIFICATION // no attachment, on add
-          : verificationAttachment && verificationRejectReason
-          ? MEMBER_STATUS.REJECTED // has attachment and has reject, by staff approval
-          : MEMBER_STATUS.FOR_APPROVAL; // has attachment
         return (
           <Card
             key={index}
@@ -155,16 +147,17 @@ const Cards = ({ data, onEditModal, onVerificationModal, onPhoneModal }) => {
                   Upload
                 </Button>
               )}
-              {status === MEMBER_STATUS.VERFIED && !verifiedContactNo && (
-                <Button
-                  variant="outlined"
-                  size="small"
-                  startIcon={<PhoneIphoneIcon />}
-                  onClick={() => onPhoneModal(i)}
-                >
-                  Verify
-                </Button>
-              )}
+              {status === MEMBER_STATUS.FOR_PHONE_VERIFICATION &&
+                !verifiedContactNo && (
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<PhoneIphoneIcon />}
+                    onClick={() => onPhoneModal(i)}
+                  >
+                    Verify
+                  </Button>
+                )}
               {/* <Button
                 variant="outlined"
                 size="small"

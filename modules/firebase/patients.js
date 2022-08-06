@@ -36,19 +36,12 @@ export const MEMBER_STATUS = {
 
 const collRef = collection(db, "patients");
 
-const transformedFields = (doc) => ({
-  name: getFullName(doc),
-  birthdate: formatFirebasetimeStamp(doc.birthdate),
-  nameBirthdate: getUniquePersonId(doc),
-});
-
 export const getFamilyMembersReq = async (id) => {
   try {
     const q = query(
       collRef,
       where("accountId", "==", id),
       where("deleted", "==", false)
-      // orderBy("dateCreated")
     );
     const querySnapshot = await getDocs(q);
 
