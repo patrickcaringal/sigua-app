@@ -53,8 +53,6 @@ export const createAccountReq = async (account) => {
       deleted: false,
       ...transformedFields(account),
       ...timestampFields({ dateCreated: true, dateUpdated: true }),
-      // familyMembers: [],
-      // hasVerificationForApproval: false,
     };
 
     // Create Account Document
@@ -75,9 +73,13 @@ export const createAccountReq = async (account) => {
     // Create Patient Document
     await setDoc(docRef2, patientDoc);
 
-    // register name
+    // Register Account name
     const docRef3 = doc(db, "accounts", "list");
     await updateDoc(docRef3, { [accountDoc.id]: accountDoc.name });
+
+    // Register Patient name
+    const docRef4 = doc(db, "patients", "list");
+    await updateDoc(docRef4, { [docRef2.id]: accountDoc.name });
 
     delete accountDoc.password; // Remove password field
     const data = accountDoc;

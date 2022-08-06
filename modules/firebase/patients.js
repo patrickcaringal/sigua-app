@@ -1,29 +1,16 @@
-import bcrypt from "bcryptjs";
 import {
   collection,
   doc,
   getDoc,
   getDocs,
-  orderBy,
   query,
-  setDoc,
   updateDoc,
   where,
   writeBatch,
 } from "firebase/firestore";
-import { omit as omitFields } from "lodash";
 
 import { duplicateMessage } from "../../components/common";
-import {
-  convertToDate,
-  formatDate,
-  formatFirebasetimeStamp,
-  formatTimeStamp,
-  getFullName,
-  getUniquePersonId,
-  pluralize,
-  sortBy,
-} from "../helper";
+import { arrayStringify, pluralize, sortBy } from "../helper";
 import { db, timestampFields } from "./config";
 
 export const MEMBER_STATUS = {
@@ -79,13 +66,15 @@ export const getPatientsForApprovalReq = async ({}) => {
 
     // Map fields
     const accounts = docSnap.data();
-    const data = querySnapshot.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        ...data,
-        accountName: accounts[data.accountId],
-      };
-    });
+    const data = querySnapshot.docs
+      .map((doc) => {
+        const data = doc.data();
+        return {
+          ...data,
+          accountName: accounts[data.accountId],
+        };
+      })
+      .sort(sortBy("dateCreated"));
 
     return { data, success: true };
   } catch (error) {
@@ -96,68 +85,29 @@ export const getPatientsForApprovalReq = async ({}) => {
 
 export const addPatientReq = async ({ docs }) => {
   try {
-    // const docRef = doc(db, "accounts", id);
-    // const docSnap = await getDoc(docRef);
+    // Check fullname, birthdate duplicate
+    const q = query(
+      collRef,
+      where(
+        "nameBirthdate",
+        "in",
+        docs.map((i) => i.nameBirthdate)
+      )
+    );
+    const querySnapshot = await getDocs(q);
 
-    // // Check Duplicates
-    // let duplicates = [];
-    // if (docSnap.exists()) {
-    //   const old = docSnap.data().familyMembers;
-    //   familyMembers.forEach((n) => {
-    //     const exist = old.filter((o) => getFullName(o) === getFullName(n));
-
-    //     if (exist.length) duplicates.push(getFullName(n));
-    //   });
-    // }
-
-    // if (duplicates.length) {
-    //   throw new Error(
-    //     `Duplicate ${pluralize(
-    //       "Family Member",
-    //       duplicates.length
-    //     )}. ${duplicates.join(", ")}`
-    //   );
-    // }
-
-    // // Insert default fields
-    // familyMembers = familyMembers.map((i) => ({
-    //   ...i,
-    //   id: doc(collRef).id,
-    //   accountId: id,
-    //   birthdate: formatDate(i.birthdate),
-    //   verified: false,
-    //   verifiedContactNo: false,
-    //   verificationAttachment: null,
-    // }));
-
-    // // Update document
-    // await updateDoc(docRef, {
-    //   familyMembers: [...docSnap.data().familyMembers, ...familyMembers],
-    // });
+    const duplicates = querySnapshot.docs.map((i) => i.data().name);
+    if (duplicates.length) {
+      throw new Error(
+        duplicateMessage({
+          noun: pluralize("Patient", duplicates.length),
+          item: arrayStringify(duplicates),
+        })
+      );
+    }
 
     // Bulk Create Document
     const batch = writeBatch(db);
-
-    // // Bulk Create Auth Account
-    // for (let index = 0; index < patients.length; index++) {
-    //   const doc = { ...patients[index] };
-
-    //   const docRef = doc(collection(db, "patients"));
-    //   doc = {
-    //     ...doc,
-    //     id: uid,
-    //     verified: false,
-    //     verifiedContactNo: false,
-    //     verificationAttachment: null,
-    //     deleted: false,
-    //     ...transformedFields(doc),
-    //     ...timestampFields({ dateCreated: true, dateUpdated: true }),
-    //   };
-
-    //   batch.set(docRef, doc);
-
-    //   patients[index] = { ...doc };
-    // }
 
     const data = docs.map((d) => {
       const docRef = doc(collRef);
@@ -173,6 +123,11 @@ export const addPatientReq = async ({ docs }) => {
       return mappedDoc;
     });
 
+    // Register Patient name
+    const docRef2 = doc(db, "patients", "list");
+    const names = data.reduce((acc, i) => ({ ...acc, [i.id]: i.name }), {});
+    batch.update(docRef2, { ...names });
+
     await batch.commit();
 
     return { data, success: true };
@@ -184,20 +139,26 @@ export const addPatientReq = async ({ docs }) => {
 
 export const updatePatientReq = async ({ patient }) => {
   try {
-    // // Check fullname, birthdate duplicate
-    // const q = query(
-    //   collRef,
-    //   where("nameBirthdate", "==", getUniquePersonId(patient))
-    // );
-    // const querySnapshot = await getDocs(q);
+    // Check fullname, birthdate duplicate
+    if (patient.name || patient.birthdate) {
+      const q = query(
+        collRef,
+        where("nameBirthdate", "==", patient.nameBirthdate)
+      );
+      const querySnapshot = await getDocs(q);
 
-    // const isDuplicate =
-    //   querySnapshot.docs.filter((doc) => doc.id !== patient.id).length !== 0;
-    // if (isDuplicate) {
-    //   throw new Error(
-    //     duplicateMessage({ noun: "Patient", item: getFullName(patient) })
-    //   );
-    // }
+      const duplicates = querySnapshot.docs
+        .filter((doc) => doc.id !== patient.id)
+        .map((i) => i.data().name);
+      if (duplicates.length) {
+        throw new Error(
+          duplicateMessage({
+            noun: "Patient",
+            item: arrayStringify(duplicates),
+          })
+        );
+      }
+    }
 
     // Update
     const docRef = doc(db, "patients", patient.id);
@@ -206,6 +167,13 @@ export const updatePatientReq = async ({ patient }) => {
       ...timestampFields({ dateUpdated: true }),
     };
     await updateDoc(docRef, finalDoc);
+
+    // Register Patient name
+    if (patient.name) {
+      const docRef2 = doc(db, "patients", "list");
+      const names = { [patient.id]: patient.name };
+      await updateDoc(docRef2, { ...names });
+    }
 
     return { success: true };
   } catch (error) {
