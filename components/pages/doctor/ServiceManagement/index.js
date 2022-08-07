@@ -30,6 +30,7 @@ import { localUpdateDocs, pluralize } from "../../../../modules/helper";
 import { PATHS, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import ManageServiceModal from "./ManageServiceModal";
+import TableCells from "./TableCells";
 
 const defaultModal = {
   open: false,
@@ -194,9 +195,17 @@ const ServicesManagementPage = () => {
         <Table>
           <TableHead>
             <TableRow>
-              {["Service", "Description", "Actions"].map((i) => (
-                <TableCell key={i} sx={{ fontWeight: "bold" }}>
-                  {i}
+              {[
+                { text: "Service", sx: { width: 200 } },
+                { text: "Description" },
+                { text: "Actions", align: "center", sx: { width: 110 } },
+              ].map(({ text, align, sx }) => (
+                <TableCell
+                  key={text}
+                  {...(align && { align })}
+                  {...(sx && { sx: { ...sx, fontWeight: "bold" } })}
+                >
+                  {text}
                 </TableCell>
               ))}
             </TableRow>
@@ -204,26 +213,10 @@ const ServicesManagementPage = () => {
 
           <TableBody>
             {services.map((i) => {
-              const { id, name, description } = i;
-
               return (
-                <TableRow key={id}>
-                  <TableCell sx={{ width: 250 }}>{name}</TableCell>
-                  <TableCell>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        display: "-webkit-box",
-                        WebkitBoxOrient: "vertical",
-                        WebkitLineClamp: "2",
-                        overflow: "hidden",
-                      }}
-                      component="div"
-                    >
-                      {description}
-                    </Typography>
-                  </TableCell>
-                  <TableCell sx={{ width: 150 }}>
+                <TableRow key={i.id}>
+                  <TableCells data={i} />
+                  <TableCell align="center">
                     <IconButton
                       size="small"
                       onClick={() => handleEditServiceModalOpen(i)}

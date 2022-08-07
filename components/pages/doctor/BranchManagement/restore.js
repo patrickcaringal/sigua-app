@@ -49,7 +49,6 @@ const BranchesRestorePage = () => {
       setBranches(branchList);
     };
 
-    // fetchServices();
     fetchBranches();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -127,7 +126,7 @@ const BranchesRestorePage = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell />
+              <TableCell sx={{ width: 50 }} />
               {[
                 { text: "Branch", sx: { width: 200 } },
                 { text: "Services" },

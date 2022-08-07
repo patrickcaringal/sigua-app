@@ -239,10 +239,8 @@ const BranchManagementPage = () => {
 
           <TableBody>
             {branches.map((i) => {
-              const { id } = i;
-
               return (
-                <TableRow key={id}>
+                <TableRow key={i.id}>
                   <TableCells data={i} />
                   <TableCell align="center">
                     <IconButton

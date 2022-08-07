@@ -24,6 +24,7 @@ import {
 import { arrayStringify, pluralize } from "../../../../modules/helper";
 import { PATHS } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
+import TableCells from "./TableCells";
 
 const ServicesManagementPage = () => {
   const router = useRouter();
@@ -122,10 +123,17 @@ const ServicesManagementPage = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell />
-              {["Service", "Description"].map((i) => (
-                <TableCell key={i} sx={{ fontWeight: "bold" }}>
-                  {i}
+              <TableCell sx={{ width: 50 }} />
+              {[
+                { text: "Service", sx: { width: 200 } },
+                { text: "Description" },
+              ].map(({ text, align, sx }) => (
+                <TableCell
+                  key={text}
+                  {...(align && { align })}
+                  {...(sx && { sx: { ...sx, fontWeight: "bold" } })}
+                >
+                  {text}
                 </TableCell>
               ))}
             </TableRow>
@@ -133,7 +141,7 @@ const ServicesManagementPage = () => {
 
           <TableBody>
             {services.map((i) => {
-              const { id, name, description } = i;
+              const { id } = i;
               const isItemSelected = selected.isItemSelected(id);
 
               return (
@@ -141,28 +149,13 @@ const ServicesManagementPage = () => {
                   <TableCell padding="checkbox">
                     <Checkbox
                       color="primary"
-                      // indeterminate={numSelected > 0 && numSelected < rowCount}
                       checked={isItemSelected}
                       onChange={(e) => {
                         selected.select([{ id, checked: e.target.checked }]);
                       }}
                     />
                   </TableCell>
-                  <TableCell sx={{ width: 250 }}>{name}</TableCell>
-                  <TableCell>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        display: "-webkit-box",
-                        WebkitBoxOrient: "vertical",
-                        WebkitLineClamp: "2",
-                        overflow: "hidden",
-                      }}
-                      component="div"
-                    >
-                      {description}
-                    </Typography>
-                  </TableCell>
+                  <TableCells data={i} />
                 </TableRow>
               );
             })}
