@@ -17,8 +17,6 @@ import {
 import { omit as omitFields } from "lodash";
 import { useRouter } from "next/router";
 
-import { PATHS } from "../../../../components/common";
-import { AdminMainContainer } from "../../../../components/shared";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
@@ -30,6 +28,8 @@ import {
   updateBranchReq,
 } from "../../../../modules/firebase";
 import { pluralize } from "../../../../modules/helper";
+import { PATHS } from "../../../common";
+import { AdminMainContainer } from "../../../shared";
 import ManageBranchModal from "./ManageBranchModal";
 import TableCells from "./TableCells";
 

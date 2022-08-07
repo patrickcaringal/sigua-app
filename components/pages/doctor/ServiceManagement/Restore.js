@@ -18,50 +18,37 @@ import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useRequest, useSelect } from "../../../../hooks";
 import {
-  getDeletedBranchesReq,
-  getServicesReq,
-  restoreBranchReq,
+  getDeletedServicesReq,
+  restoreServiceReq,
 } from "../../../../modules/firebase";
 import { arrayStringify, pluralize } from "../../../../modules/helper";
-import { PATHS, successMessage } from "../../../common";
+import { PATHS } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
-import TableCells from "./TableCells";
 
-const BranchesRestorePage = () => {
+const ServicesManagementPage = () => {
   const router = useRouter();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   // Requests
-  const [getBranches] = useRequest(getDeletedBranchesReq, setBackdropLoader);
-  const [getServices] = useRequest(getServicesReq, setBackdropLoader);
-  const [restoreBranch] = useRequest(restoreBranchReq, setBackdropLoader);
+  const [getServices] = useRequest(getDeletedServicesReq, setBackdropLoader);
+  const [restoreService] = useRequest(restoreServiceReq, setBackdropLoader);
 
   // Local States
-  const [branches, setBranches] = useState([]);
-  const [servicesMap, setServicesMap] = useState({});
+  const [services, setServices] = useState([]);
   const selected = useSelect("id");
-  const selectedItems = selected.getSelected(branches);
+  const selectedItems = selected.getSelected(services);
 
   useEffect(() => {
-    const fetchServices = async () => {
+    const fetch = async () => {
       // Get Services
-      const { map: serviceMap, error: getServiceError } = await getServices();
-      if (getServiceError) return openErrorDialog(getServiceError);
+      const { data: serviceList, error: getServicesError } =
+        await getServices();
+      if (getServicesError) return openErrorDialog(getServicesError);
 
-      setServicesMap(serviceMap);
+      setServices(serviceList);
     };
-
-    const fetchBranches = async () => {
-      // Get Services
-      const { data: branchList, error: getBranchesError } = await getBranches();
-      if (getBranchesError) return openErrorDialog(getBranchesError);
-
-      setBranches(branchList);
-    };
-
-    fetchServices();
-    fetchBranches();
+    fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -95,17 +82,14 @@ const BranchesRestorePage = () => {
     const ids = selectedItems.map((i) => i.id);
 
     // Update
-    const { error: restoreError } = await restoreBranch({ docs: items });
+    const { error: restoreError } = await restoreService({ docs: items });
     if (restoreError) return openErrorDialog(restoreError);
 
     // Success
-    setBranches((prev) => prev.filter((i) => !ids.includes(i.id)));
+    setServices((prev) => prev.filter((i) => !ids.includes(i.id)));
     openResponseDialog({
       autoClose: true,
-      content: successMessage({
-        noun: pluralize("Branch", items.length),
-        verb: "restored",
-      }),
+      content: `${pluralize("Service", items.length)} successfuly restored.`,
       type: "SUCCESS",
     });
   };
@@ -116,8 +100,8 @@ const BranchesRestorePage = () => {
         onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
         paths: [
           {
-            text: "Branches",
-            onClick: () => router.push(PATHS.DOCTOR.BRANCH_MANAGEMENT),
+            text: "Services",
+            onClick: () => router.push(PATHS.DOCTOR.SERVICES_MANAGEMENT),
           },
           { text: "Restore" },
         ],
@@ -139,44 +123,46 @@ const BranchesRestorePage = () => {
           <TableHead>
             <TableRow>
               <TableCell />
-              {[
-                { text: "Branch", sx: { width: 200 } },
-                { text: "Services" },
-                { text: "Address", sx: { width: 400 } },
-                { text: "Capacity", align: "center", sx: { width: 110 } },
-              ].map(({ text, align, sx }) => (
-                <TableCell
-                  key={text}
-                  {...(align && { align })}
-                  {...(sx && { sx: { ...sx, fontWeight: "bold" } })}
-                >
-                  {text}
+              {["Service", "Description"].map((i) => (
+                <TableCell key={i} sx={{ fontWeight: "bold" }}>
+                  {i}
                 </TableCell>
               ))}
             </TableRow>
           </TableHead>
 
           <TableBody>
-            {branches.map((i) => {
-              const { id, services } = i;
+            {services.map((i) => {
+              const { id, name, description } = i;
               const isItemSelected = selected.isItemSelected(id);
-              const data = {
-                ...i,
-                services: services.map((s) => servicesMap[s.id]),
-              };
 
               return (
                 <TableRow key={id}>
                   <TableCell padding="checkbox">
                     <Checkbox
                       color="primary"
+                      // indeterminate={numSelected > 0 && numSelected < rowCount}
                       checked={isItemSelected}
                       onChange={(e) => {
                         selected.select([{ id, checked: e.target.checked }]);
                       }}
                     />
                   </TableCell>
-                  <TableCells data={data} />
+                  <TableCell sx={{ width: 250 }}>{name}</TableCell>
+                  <TableCell>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        display: "-webkit-box",
+                        WebkitBoxOrient: "vertical",
+                        WebkitLineClamp: "2",
+                        overflow: "hidden",
+                      }}
+                      component="div"
+                    >
+                      {description}
+                    </Typography>
+                  </TableCell>
                 </TableRow>
               );
             })}
@@ -187,4 +173,4 @@ const BranchesRestorePage = () => {
   );
 };
 
-export default BranchesRestorePage;
+export default ServicesManagementPage;
