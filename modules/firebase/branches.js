@@ -12,6 +12,7 @@ import { duplicateMessage } from "../../components/common";
 import { arrayStringify, pluralize } from "../helper";
 import { getErrorMsg } from "./auth";
 import { db, timestampFields } from "./config";
+import { checkDuplicate, registerNames } from "./helpers";
 
 const collRef = collection(db, "branches");
 
@@ -51,25 +52,19 @@ export const getDeletedBranchesReq = async () => {
 
 export const addBranchReq = async ({ docs }) => {
   try {
-    const q = query(
-      collRef,
-      where(
+    // Check duplicate
+    await checkDuplicate({
+      collectionName: "branches",
+      whereClause: where(
         "name",
         "in",
         docs.map((i) => i.name)
-      )
-    );
-    const querySnapshot = await getDocs(q);
-
-    const isDuplicate = querySnapshot.docs.length !== 0;
-    if (isDuplicate) {
-      const duplicates = querySnapshot.docs.map((i) => i.data().name);
-      throw new Error(
-        duplicateMessage({
-          item: arrayStringify(duplicates),
-        })
-      );
-    }
+      ),
+      errorMsg: {
+        noun: "Branch",
+        suffix: "es",
+      },
+    });
 
     // Bulk Create Document
     const batch = writeBatch(db);
@@ -80,13 +75,20 @@ export const addBranchReq = async ({ docs }) => {
       const mappedDoc = {
         id,
         ...d,
-        ...timestampFields({ dateCreated: true, dateUpdated: true }),
         deleted: false,
+        ...timestampFields({ dateCreated: true, dateUpdated: true }),
       };
       batch.set(doc(db, "branches", id), mappedDoc);
 
       return mappedDoc;
     });
+
+    // Register branch name
+    const { namesDocRef, names } = await registerNames({
+      collectionName: "branches",
+      names: data.reduce((acc, i) => ({ ...acc, [i.id]: i.name }), {}),
+    });
+    batch.update(namesDocRef, names);
 
     await batch.commit();
 
@@ -100,20 +102,17 @@ export const addBranchReq = async ({ docs }) => {
 
 export const updateBranchReq = async ({ branch }) => {
   try {
-    const { name } = branch;
-    // Check name duplicate
-    const q = query(collRef, where("name", "==", name));
-    const querySnapshot = await getDocs(q);
-
-    const isDuplicate =
-      querySnapshot.docs.filter((doc) => doc.id !== branch.id).length !== 0;
-    if (isDuplicate) {
-      throw new Error(
-        duplicateMessage({
-          item: name,
-        })
-      );
+    // Check duplicate
+    if (branch.name) {
+      await checkDuplicate({
+        collectionName: "branches",
+        whereClause: where("name", "==", branch.name),
+        errorMsg: {
+          noun: "Branch",
+        },
+      });
     }
+    const batch = writeBatch(db);
 
     // Update
     const docRef = doc(db, "branches", branch.id);
@@ -121,7 +120,18 @@ export const updateBranchReq = async ({ branch }) => {
       ...branch,
       ...timestampFields({ dateUpdated: true }),
     };
-    await updateDoc(docRef, finalDoc);
+    batch.update(docRef, finalDoc);
+
+    // Register branch name
+    if (branch.name) {
+      const { namesDocRef, names } = await registerNames({
+        collectionName: "branches",
+        names: { [branch.id]: branch.name },
+      });
+      batch.update(namesDocRef, names);
+    }
+
+    await batch.commit();
 
     return { success: true };
   } catch (error) {

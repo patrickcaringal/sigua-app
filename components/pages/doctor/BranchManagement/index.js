@@ -27,8 +27,8 @@ import {
   getServicesReq,
   updateBranchReq,
 } from "../../../../modules/firebase";
-import { pluralize } from "../../../../modules/helper";
-import { PATHS } from "../../../common";
+import { localUpdateDocs, pluralize } from "../../../../modules/helper";
+import { PATHS, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import ManageBranchModal from "./ManageBranchModal";
 import TableCells from "./TableCells";
@@ -87,20 +87,20 @@ const BranchManagementPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleAddBranch = async (newBranch) => {
-    // Add Branch
-    const { data: addedBranch, error: addBranchError } = await addBranch({
-      docs: newBranch,
+  const handleAddBranch = async (docs) => {
+    // Add
+    const { data: newDocs, error: addError } = await addBranch({
+      docs,
     });
-    if (addBranchError) return openErrorDialog(addBranchError);
+    if (addError) return openErrorDialog(addError);
 
     // Successful
-    setBranches((prev) => [...prev, ...addedBranch]);
+    setBranches((prev) => [...prev, ...newDocs]);
     openResponseDialog({
       autoClose: true,
       content: `${pluralize(
         "Branch",
-        addedBranch.length,
+        newDocs.length,
         "es"
       )} successfuly added.`,
       type: "SUCCESS",
@@ -113,24 +113,22 @@ const BranchManagementPage = () => {
   const handleEditBranch = async (updatedDocs) => {
     const updatedBranch = updatedDocs[0];
     const branchCopy = [...branches];
-    const index = branchCopy.findIndex((i) => i.id === updatedBranch.id);
-
-    branchCopy[index] = {
-      ...branchCopy[index],
-      ...updatedBranch,
-    };
+    const { latestDocs, updates } = localUpdateDocs({
+      updatedDoc: updatedBranch,
+      oldDocs: branchCopy,
+    });
 
     // Update
     const { error: updateError } = await updateBranch({
-      branch: updatedBranch,
+      branch: updates,
     });
     if (updateError) return openErrorDialog(updateError);
 
     // Success
-    setBranches(branchCopy);
+    setBranches(latestDocs);
     openResponseDialog({
       autoClose: true,
-      content: "Branch successfuly updated.",
+      content: successMessage({ noun: "Branch", verb: "updated" }),
       type: "SUCCESS",
       closeCb() {
         setBranchModal(defaultModal);
@@ -205,7 +203,6 @@ const BranchManagementPage = () => {
             onClick={handleRestoreRedirect}
             startIcon={<RestoreIcon />}
             sx={{ mr: 2 }}
-            color="warning"
           >
             restore
           </Button>
@@ -244,10 +241,10 @@ const BranchManagementPage = () => {
 
           <TableBody>
             {branches.map((i) => {
-              const { id, services } = i;
+              const { id, servicesId } = i;
               const data = {
                 ...i,
-                services: services.map((s) => servicesMap[s.id]),
+                services: servicesId.map((s) => servicesMap[s]),
               };
 
               return (
@@ -259,7 +256,7 @@ const BranchManagementPage = () => {
                       onClick={() =>
                         handleEditBranchModalOpen({
                           ...i,
-                          services: services.map((i) => i.name),
+                          services: servicesId.map((s) => servicesMap[s]),
                         })
                       }
                     >

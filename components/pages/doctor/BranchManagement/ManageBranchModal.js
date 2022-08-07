@@ -43,10 +43,6 @@ export default function ManageBranchModal({
 
       const mappedBranches = branches.map((i) => ({
         ...i,
-        services: i.services.map((j) => ({
-          id: servicesMap[j],
-          name: j,
-        })),
         servicesId: i.services.map((j) => servicesMap[j]),
       }));
 

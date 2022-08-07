@@ -1,6 +1,5 @@
 import bcrypt from "bcryptjs";
 import {
-  batch,
   collection,
   doc,
   getDoc,

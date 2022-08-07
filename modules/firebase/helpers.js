@@ -22,7 +22,7 @@ export const checkDuplicate = async ({
     const error =
       customErrorMsg ||
       duplicateMessage({
-        noun: pluralize(errorMsg.noun, duplicates.length),
+        noun: pluralize(errorMsg.noun, duplicates.length, errorMsg.suffix),
         item: arrayStringify(duplicates),
       });
 
