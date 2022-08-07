@@ -26,8 +26,8 @@ import {
   getServicesReq,
   updateServiceReq,
 } from "../../../../modules/firebase";
-import { pluralize } from "../../../../modules/helper";
-import { PATHS } from "../../../common";
+import { localUpdateDocs, pluralize } from "../../../../modules/helper";
+import { PATHS, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import ManageServiceModal from "./ManageServiceModal";
 
@@ -64,21 +64,18 @@ const ServicesManagementPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleAddService = async (newService) => {
-    // Add Services
-    const { data: addedService, error: addServicesError } = await addService({
-      docs: newService,
+  const handleAddService = async (docs) => {
+    // Add
+    const { data: newDocs, error: addError } = await addService({
+      docs,
     });
-    if (addServicesError) return openErrorDialog(addServicesError);
+    if (addError) return openErrorDialog(addError);
 
     // Successful
-    setServices((prev) => [...prev, ...addedService]);
+    setServices((prev) => [...prev, ...newDocs]);
     openResponseDialog({
       autoClose: true,
-      content: `${pluralize(
-        "Service",
-        addedService.length
-      )} successfuly added.`,
+      content: `${pluralize("Service", newDocs.length)} successfuly added.`,
       type: "SUCCESS",
       closeCb() {
         setServiceModal(defaultModal);
@@ -89,24 +86,22 @@ const ServicesManagementPage = () => {
   const handleEditService = async (updatedDocs) => {
     const updatedService = updatedDocs[0];
     const serviceCopy = [...services];
-    const index = serviceCopy.findIndex((i) => i.id === updatedService.id);
-
-    serviceCopy[index] = {
-      ...serviceCopy[index],
-      ...updatedService,
-    };
+    const { latestDocs, updates } = localUpdateDocs({
+      updatedDoc: updatedService,
+      oldDocs: serviceCopy,
+    });
 
     // Update
     const { error: updateError } = await updateService({
-      service: updatedService,
+      service: updates,
     });
     if (updateError) return openErrorDialog(updateError);
 
     // Success
-    setServices(serviceCopy);
+    setServices(latestDocs);
     openResponseDialog({
       autoClose: true,
-      content: "Service successfuly updated.",
+      content: successMessage({ noun: "Service", verb: "updated" }),
       type: "SUCCESS",
       closeCb() {
         setServiceModal(defaultModal);
