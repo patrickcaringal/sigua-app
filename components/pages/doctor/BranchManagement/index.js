@@ -52,7 +52,6 @@ const BranchManagementPage = () => {
 
   // Local States
   const [services, setServices] = useState([]);
-  const [servicesMap, setServicesMap] = useState({});
   const [branches, setBranches] = useState([]);
   const [branchModal, setBranchModal] = useState(defaultModal);
 
@@ -71,7 +70,6 @@ const BranchManagementPage = () => {
           ...omitFields(i, ["dateCreated", "dateUpdated", "description"]),
         }))
       );
-      setServicesMap(serviceMap);
     };
 
     const fetchBranches = async () => {
@@ -241,24 +239,15 @@ const BranchManagementPage = () => {
 
           <TableBody>
             {branches.map((i) => {
-              const { id, servicesId } = i;
-              const data = {
-                ...i,
-                services: servicesId.map((s) => servicesMap[s]),
-              };
+              const { id } = i;
 
               return (
                 <TableRow key={id}>
-                  <TableCells data={data} />
+                  <TableCells data={i} />
                   <TableCell align="center">
                     <IconButton
                       size="small"
-                      onClick={() =>
-                        handleEditBranchModalOpen({
-                          ...i,
-                          services: servicesId.map((s) => servicesMap[s]),
-                        })
-                      }
+                      onClick={() => handleEditBranchModalOpen(i)}
                     >
                       <EditIcon />
                     </IconButton>

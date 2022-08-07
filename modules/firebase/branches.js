@@ -1,6 +1,7 @@
 import {
   collection,
   doc,
+  getDoc,
   getDocs,
   query,
   updateDoc,
@@ -9,7 +10,7 @@ import {
 } from "firebase/firestore";
 
 import { duplicateMessage } from "../../components/common";
-import { arrayStringify, pluralize } from "../helper";
+import { arrayStringify, pluralize, sortBy } from "../helper";
 import { getErrorMsg } from "./auth";
 import { db, timestampFields } from "./config";
 import { checkDuplicate, registerNames } from "./helpers";
@@ -20,10 +21,26 @@ export const getBranchesReq = async () => {
   try {
     const q = query(collRef, where("deleted", "!=", true));
     const querySnapshot = await getDocs(q);
-    const data = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+
+    // Get Account list
+    const docRef = doc(db, "services", "list");
+    const docSnap = await getDoc(docRef);
+
+    if (!docSnap.exists()) {
+      throw new Error("Unable to get Account list doc");
+    }
+
+    // Map fields
+    const services = docSnap.data();
+    const data = querySnapshot.docs
+      .map((doc) => {
+        const data = doc.data();
+        return {
+          ...data,
+          services: data.servicesId.map((i) => services[i]),
+        };
+      })
+      .sort(sortBy("dateCreated"));
 
     const map = data.reduce((acc, i) => ({ ...acc, [i.id]: i.name }), {});
 

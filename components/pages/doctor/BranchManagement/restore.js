@@ -19,7 +19,6 @@ import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useRequest, useSelect } from "../../../../hooks";
 import {
   getDeletedBranchesReq,
-  getServicesReq,
   restoreBranchReq,
 } from "../../../../modules/firebase";
 import { arrayStringify, pluralize } from "../../../../modules/helper";
@@ -34,33 +33,23 @@ const BranchesRestorePage = () => {
 
   // Requests
   const [getBranches] = useRequest(getDeletedBranchesReq, setBackdropLoader);
-  const [getServices] = useRequest(getServicesReq, setBackdropLoader);
   const [restoreBranch] = useRequest(restoreBranchReq, setBackdropLoader);
 
   // Local States
   const [branches, setBranches] = useState([]);
-  const [servicesMap, setServicesMap] = useState({});
   const selected = useSelect("id");
   const selectedItems = selected.getSelected(branches);
 
   useEffect(() => {
-    const fetchServices = async () => {
-      // Get Services
-      const { map: serviceMap, error: getServiceError } = await getServices();
-      if (getServiceError) return openErrorDialog(getServiceError);
-
-      setServicesMap(serviceMap);
-    };
-
     const fetchBranches = async () => {
-      // Get Services
+      // Get Branches
       const { data: branchList, error: getBranchesError } = await getBranches();
       if (getBranchesError) return openErrorDialog(getBranchesError);
 
       setBranches(branchList);
     };
 
-    fetchServices();
+    // fetchServices();
     fetchBranches();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -158,12 +147,8 @@ const BranchesRestorePage = () => {
 
           <TableBody>
             {branches.map((i) => {
-              const { id, services } = i;
+              const { id } = i;
               const isItemSelected = selected.isItemSelected(id);
-              const data = {
-                ...i,
-                services: services.map((s) => servicesMap[s.id]),
-              };
 
               return (
                 <TableRow key={id}>
@@ -176,7 +161,7 @@ const BranchesRestorePage = () => {
                       }}
                     />
                   </TableCell>
-                  <TableCells data={data} />
+                  <TableCells data={i} />
                 </TableRow>
               );
             })}
