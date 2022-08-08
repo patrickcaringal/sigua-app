@@ -58,7 +58,9 @@ const StaffsPage = () => {
   useEffect(() => {
     const fetchStaffs = async () => {
       // Get Staffs
-      const { data: staffList, error: getStaffsError } = await getStaffs();
+      const { data: staffList, error: getStaffsError } = await getStaffs({
+        mapBranch: false,
+      });
       if (getStaffsError) return openErrorDialog(getStaffsError);
 
       setStaffs(staffList);
@@ -70,7 +72,7 @@ const StaffsPage = () => {
         data: branchList,
         map: branchMap,
         error: getBranchError,
-      } = await getBranches({ mapService: true });
+      } = await getBranches({ mapService: false });
       if (getBranchError) return openErrorDialog(getBranchError);
 
       setBranches(

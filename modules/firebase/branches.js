@@ -31,7 +31,6 @@ export const getBranchesReq = async ({ mapService }) => {
       if (!docSnap.exists()) {
         throw new Error("Unable to get Account list doc");
       }
-
       services = docSnap.data();
     }
 

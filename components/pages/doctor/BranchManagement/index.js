@@ -14,7 +14,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { omit as omitFields } from "lodash";
+import lodash from "lodash";
 import { useRouter } from "next/router";
 
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
@@ -52,25 +52,34 @@ const BranchManagementPage = () => {
 
   // Local States
   const [services, setServices] = useState([]);
+  const [servicesMap, setServicesMap] = useState({});
+
   const [branches, setBranches] = useState([]);
   const [branchModal, setBranchModal] = useState(defaultModal);
 
   useEffect(() => {
     const fetchServices = async () => {
       // Get Services
-      const { data: serviceList, error: getServiceError } = await getServices();
+      const {
+        data: serviceList,
+        map: serviceMap,
+        error: getServiceError,
+      } = await getServices();
       if (getServiceError) return openErrorDialog(getServiceError);
 
       setServices(
         serviceList.map((i) => ({
-          ...omitFields(i, ["dateCreated", "dateUpdated", "description"]),
+          ...lodash.pick(i, ["name", "id"]),
         }))
       );
+      setServicesMap(serviceMap);
     };
 
     const fetchBranches = async () => {
       // Get Branches
-      const { data: branchList, error: getBranchError } = await getBranches();
+      const { data: branchList, error: getBranchError } = await getBranches({
+        mapService: false,
+      });
       if (getBranchError) return openErrorDialog(getBranchError);
 
       setBranches(branchList);
@@ -235,13 +244,17 @@ const BranchManagementPage = () => {
 
           <TableBody>
             {branches.map((i) => {
+              const data = {
+                ...i,
+                services: i.servicesId.map((s) => servicesMap[s]),
+              };
               return (
                 <TableRow key={i.id}>
-                  <TableCells data={i} />
+                  <TableCells data={data} />
                   <TableCell align="center">
                     <IconButton
                       size="small"
-                      onClick={() => handleEditBranchModalOpen(i)}
+                      onClick={() => handleEditBranchModalOpen(data)}
                     >
                       <EditIcon />
                     </IconButton>

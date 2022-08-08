@@ -62,30 +62,34 @@ export const signInStaffReq = async ({ email, password }) => {
   }
 };
 
-export const getStaffsReq = async () => {
+export const getStaffsReq = async ({ mapBranch }) => {
   try {
     // TODO: adjust when get branch needed
     // const q = query(collRef, where("branch", "==", branch));
     const q = query(collRef, where("deleted", "!=", true));
     const querySnapshot = await getDocs(q);
 
-    // Get Account list
-    const docRef = doc(db, "branches", "list");
-    const docSnap = await getDoc(docRef);
+    let branches = {};
+    if (mapBranch) {
+      // Get Account list
+      const docRef = doc(db, "branches", "list");
+      const docSnap = await getDoc(docRef);
 
-    if (!docSnap.exists()) {
-      throw new Error("Unable to get Account list doc");
+      if (!docSnap.exists()) {
+        throw new Error("Unable to get Account list doc");
+      }
+      branches = docSnap.data();
     }
 
-    // Map fields
-    const branches = docSnap.data();
     const data = querySnapshot.docs
       .map((doc) => {
         const data = doc.data();
-        return {
-          ...data,
-          branchName: branches[data.branch],
-        };
+        return mapBranch
+          ? {
+              ...data,
+              branchName: branches[data.branch],
+            }
+          : data;
       })
       .sort(sortBy("dateCreated"));
 
