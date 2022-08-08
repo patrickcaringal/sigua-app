@@ -28,10 +28,12 @@ import {
 import {
   formatTimeStamp,
   getFullName,
+  personBuiltInFields,
   pluralize,
 } from "../../../../modules/helper";
 import { AdminMainContainer } from "../../../shared";
 import ManageStaffModal from "./ManageStaffModal";
+import TableCells from "./TableCells";
 
 const defaultModal = {
   open: false,
@@ -95,18 +97,23 @@ const StaffsPage = () => {
     });
   };
 
-  const handleAddStaff = async (newStaff) => {
-    // Add Staff
-    const { data: addedStaff, error: addStaffError } = await addStaff({
-      staffs: newStaff,
+  const handleAddStaff = async (docs) => {
+    docs = docs.map((i) => ({
+      ...i,
+      ...personBuiltInFields(i),
+    }));
+
+    // Add
+    const { data: newDocs, error: addError } = await addStaff({
+      docs,
     });
-    if (addStaffError) return openErrorDialog(addStaffError);
+    if (addError) return openErrorDialog(addError);
 
     // Successful
-    setStaffs((prev) => [...prev, ...addedStaff]);
+    setStaffs((prev) => [...prev, ...newDocs]);
     openResponseDialog({
       autoClose: true,
-      content: `${pluralize("Staff", addedStaff.length)} successfuly added.`,
+      content: `${pluralize("Staff", newDocs.length)} successfuly added.`,
       type: "SUCCESS",
       closeCb() {
         setStaffModal(defaultModal);
@@ -180,37 +187,35 @@ const StaffsPage = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Address</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Branch</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
+              {[
+                { text: "Name", sx: { width: 200 } },
+                { text: "Email" },
+                { text: "Address", sx: { width: 400 } },
+                { text: "Branch", align: "center", sx: { width: 110 } },
+                { text: "Actions", align: "center", sx: { width: 110 } },
+              ].map(({ text, align, sx }) => (
+                <TableCell
+                  key={text}
+                  {...(align && { align })}
+                  {...(sx && { sx: { ...sx, fontWeight: "bold" } })}
+                >
+                  {text}
+                </TableCell>
+              ))}
             </TableRow>
           </TableHead>
 
           <TableBody>
             {staffs.map((i) => {
-              const { id, name, email, branch, address, birthdate } = i;
+              const { id, branch, birthdate } = i;
+              const data = {
+                ...i,
+                branchName: branchesMap[branch],
+              };
 
               return (
                 <TableRow key={id}>
-                  <TableCell>{getFullName(i)}</TableCell>
-                  <TableCell>{email}</TableCell>
-                  <TableCell sx={{ width: 400, maxWidth: 400 }}>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        display: "-webkit-box",
-                        WebkitBoxOrient: "vertical",
-                        WebkitLineClamp: "2",
-                        overflow: "hidden",
-                      }}
-                      component="div"
-                    >
-                      {address}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>{branchesMap[branch]}</TableCell>
+                  <TableCells data={data} />
                   <TableCell>
                     <IconButton
                       size="small"

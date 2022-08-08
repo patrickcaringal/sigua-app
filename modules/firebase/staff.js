@@ -26,6 +26,7 @@ import {
 } from "../helper";
 import { getErrorMsg } from "./auth";
 import { auth, db, secondaryAuth, timestampFields } from "./config";
+import { checkDuplicate, registerNames } from "./helpers";
 
 const collRef = collection(db, "staffs");
 
@@ -100,86 +101,75 @@ export const getStaffsReq = async ({ mapBranch }) => {
   }
 };
 
-export const addStaffReq = async ({ staffs }) => {
+export const addStaffReq = async ({ docs }) => {
   try {
     // Check email duplicate
-    let q = query(
-      collRef,
-      where(
+    await checkDuplicate({
+      collectionName: "staffs",
+      whereClause: where(
         "email",
         "in",
-        staffs.map((i) => i.email)
-      )
-    );
-    let querySnapshot = await getDocs(q);
+        docs.map((i) => i.email)
+      ),
+      duplicateOutputField: "email",
+      errorMsg: {
+        noun: "Email",
+      },
+    });
 
-    let isDuplicate = querySnapshot.docs.length !== 0;
-    if (isDuplicate) {
-      const duplicates = querySnapshot.docs.map((i) => i.data().email);
-      throw new Error(
-        `Duplicate ${pluralize(
-          "Staff email",
-          duplicates.length
-        )}. ${arrayStringify(duplicates)}`
-      );
-    }
-
-    // Check fullname, birthdate duplicate
-    q = query(
-      collRef,
-      where(
+    // Check name duplicate
+    await checkDuplicate({
+      collectionName: "staffs",
+      whereClause: where(
         "nameBirthdate",
         "in",
-        staffs.map((i) => getUniquePersonId(i))
-      )
-    );
-    querySnapshot = await getDocs(q);
-
-    isDuplicate = querySnapshot.docs.length !== 0;
-    if (isDuplicate) {
-      const duplicates = querySnapshot.docs.map((i) => i.data().name);
-      throw new Error(
-        `Duplicate ${pluralize("Staff", duplicates.length)}. ${arrayStringify(
-          duplicates
-        )}`
-      );
-    }
+        docs.map((i) => i.nameBirthdate)
+      ),
+      errorMsg: {
+        noun: "Staff",
+      },
+    });
 
     const batch = writeBatch(db);
 
     // Bulk Create Auth Account
-    for (let index = 0; index < staffs.length; index++) {
-      const staffdoc = { ...staffs[index] };
-      const { birthdate: rawBirthdate, email } = staffdoc;
+    for (let index = 0; index < docs.length; index++) {
+      const staffDoc = { ...docs[index] };
       const {
         user: { uid },
       } = await createUserWithEmailAndPassword(
         secondaryAuth,
-        email,
-        "12345678"
+        staffDoc.email,
+        "12345678" // TODO: random generate
       );
 
-      const fullName = getFullName(staffdoc);
-      const birthdate = formatFirebasetimeStamp(rawBirthdate);
-
-      staffdoc = {
-        ...staffdoc,
-        id: uid,
+      const docRef = doc(collRef);
+      const id = docRef.id;
+      staffDoc = {
+        ...staffDoc,
+        id,
+        authId: uid,
         role: "staff",
         deleted: false,
-        ...transformedFields(staffdoc),
         ...timestampFields({ dateCreated: true, dateUpdated: true }),
       };
 
-      batch.set(doc(db, "staffs", uid), staffdoc);
+      batch.set(doc(db, "staffs", id), staffDoc);
 
-      staffs[index] = { ...staffdoc };
+      docs[index] = { ...staffDoc };
     }
+
+    // Register staff name
+    const { namesDocRef, names } = await registerNames({
+      collectionName: "staffs",
+      names: docs.reduce((acc, i) => ({ ...acc, [i.id]: i.name }), {}),
+    });
+    batch.update(namesDocRef, names);
 
     // Bulk Create Account Document
     await batch.commit();
 
-    return { data: staffs, success: true };
+    return { data: docs, success: true };
   } catch (error) {
     const errMsg = getErrorMsg(error.code);
     return { error: errMsg || error.message };
