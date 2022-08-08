@@ -175,7 +175,7 @@ export const deleteServiceReq = async ({ service }) => {
 
 export const restoreServiceReq = async ({ docs }) => {
   try {
-    // Bulk Create Service Document
+    // Bulk Update Document
     const batch = writeBatch(db);
 
     docs.forEach((d) => {

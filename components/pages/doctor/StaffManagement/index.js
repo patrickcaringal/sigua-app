@@ -70,7 +70,7 @@ const StaffsPage = () => {
         data: branchList,
         map: branchMap,
         error: getBranchError,
-      } = await getBranches();
+      } = await getBranches({ mapService: true });
       if (getBranchError) return openErrorDialog(getBranchError);
 
       setBranches(

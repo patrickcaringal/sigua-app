@@ -22,7 +22,7 @@ import {
   restoreServiceReq,
 } from "../../../../modules/firebase";
 import { arrayStringify, pluralize } from "../../../../modules/helper";
-import { PATHS } from "../../../common";
+import { PATHS, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import TableCells from "./TableCells";
 
@@ -90,7 +90,10 @@ const ServicesManagementPage = () => {
     setServices((prev) => prev.filter((i) => !ids.includes(i.id)));
     openResponseDialog({
       autoClose: true,
-      content: `${pluralize("Service", items.length)} successfuly restored.`,
+      content: successMessage({
+        noun: pluralize("Service", items.length),
+        verb: "restored",
+      }),
       type: "SUCCESS",
     });
   };

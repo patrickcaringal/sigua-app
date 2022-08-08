@@ -22,6 +22,7 @@ import {
   getFullName,
   getUniquePersonId,
   pluralize,
+  sortBy,
 } from "../helper";
 import { getErrorMsg } from "./auth";
 import { auth, db, secondaryAuth, timestampFields } from "./config";
@@ -65,16 +66,32 @@ export const getStaffsReq = async () => {
   try {
     // TODO: adjust when get branch needed
     // const q = query(collRef, where("branch", "==", branch));
-    const querySnapshot = await getDocs(collRef);
+    const q = query(collRef, where("deleted", "!=", true));
+    const querySnapshot = await getDocs(q);
 
-    const data = querySnapshot.docs.map((doc, index) => ({
-      index,
-      ...doc.data(),
-    }));
+    // Get Account list
+    const docRef = doc(db, "branches", "list");
+    const docSnap = await getDoc(docRef);
+
+    if (!docSnap.exists()) {
+      throw new Error("Unable to get Account list doc");
+    }
+
+    // Map fields
+    const branches = docSnap.data();
+    const data = querySnapshot.docs
+      .map((doc) => {
+        const data = doc.data();
+        return {
+          ...data,
+          branchName: branches[data.branch],
+        };
+      })
+      .sort(sortBy("dateCreated"));
 
     return { data, success: true };
   } catch (error) {
-    console.log("getStaffsReq ERR", error);
+    console.log(error);
     return { error: error.message };
   }
 };

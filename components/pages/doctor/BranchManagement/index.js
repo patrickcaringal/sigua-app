@@ -58,11 +58,7 @@ const BranchManagementPage = () => {
   useEffect(() => {
     const fetchServices = async () => {
       // Get Services
-      const {
-        data: serviceList,
-        map: serviceMap,
-        error: getServiceError,
-      } = await getServices();
+      const { data: serviceList, error: getServiceError } = await getServices();
       if (getServiceError) return openErrorDialog(getServiceError);
 
       setServices(

@@ -17,28 +17,33 @@ import { checkDuplicate, registerNames } from "./helpers";
 
 const collRef = collection(db, "branches");
 
-export const getBranchesReq = async () => {
+export const getBranchesReq = async ({ mapService }) => {
   try {
     const q = query(collRef, where("deleted", "!=", true));
     const querySnapshot = await getDocs(q);
 
-    // Get Account list
-    const docRef = doc(db, "services", "list");
-    const docSnap = await getDoc(docRef);
+    let services = {};
+    if (mapService) {
+      // Get Account list
+      const docRef = doc(db, "services", "list");
+      const docSnap = await getDoc(docRef);
 
-    if (!docSnap.exists()) {
-      throw new Error("Unable to get Account list doc");
+      if (!docSnap.exists()) {
+        throw new Error("Unable to get Account list doc");
+      }
+
+      services = docSnap.data();
     }
 
-    // Map fields
-    const services = docSnap.data();
     const data = querySnapshot.docs
       .map((doc) => {
         const data = doc.data();
-        return {
-          ...data,
-          services: data.servicesId.map((i) => services[i]),
-        };
+        return mapService
+          ? {
+              ...data,
+              services: data.servicesId.map((i) => services[i]),
+            }
+          : data;
       })
       .sort(sortBy("dateCreated"));
 
