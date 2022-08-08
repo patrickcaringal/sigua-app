@@ -178,28 +178,36 @@ export const addStaffReq = async ({ docs }) => {
 
 export const updateStaffReq = async ({ staff }) => {
   try {
-    // Check fullname, birthdate duplicate
-    const q = query(
-      collRef,
-      where("nameBirthdate", "==", getUniquePersonId(staff))
-    );
-    const querySnapshot = await getDocs(q);
-
-    const isDuplicate =
-      querySnapshot.docs.filter((doc) => doc.id !== staff.id).length !== 0;
-    // .filter((doc) => doc.id !== staff.id)
-    if (isDuplicate) {
-      throw new Error(`Duplicate Staff. ${getFullName(staff)}`);
+    // Check duplicate
+    if (staff.name || staff.birthdate) {
+      await checkDuplicate({
+        collectionName: "staffs",
+        whereClause: where("nameBirthdate", "==", staff.nameBirthdate),
+        errorMsg: {
+          noun: "Staff",
+        },
+      });
     }
 
     // Update
+    const batch = writeBatch(db);
     const docRef = doc(db, "staffs", staff.id);
     const finalDoc = {
       ...staff,
-      ...transformedFields(staff),
       ...timestampFields({ dateUpdated: true }),
     };
-    await updateDoc(docRef, finalDoc);
+    batch.update(docRef, finalDoc);
+
+    // Register staff name
+    if (staff.name) {
+      const { namesDocRef, names } = await registerNames({
+        collectionName: "staffs",
+        names: { [staff.id]: staff.name },
+      });
+      batch.update(namesDocRef, names);
+    }
+
+    await batch.commit();
 
     return { success: true };
   } catch (error) {

@@ -75,7 +75,10 @@ const ServicesManagementPage = () => {
     setServices((prev) => [...prev, ...newDocs]);
     openResponseDialog({
       autoClose: true,
-      content: `${pluralize("Service", newDocs.length)} successfuly added.`,
+      content: successMessage({
+        noun: pluralize("Service", newDocs.length),
+        verb: "added",
+      }),
       type: "SUCCESS",
       closeCb() {
         setServiceModal(defaultModal);

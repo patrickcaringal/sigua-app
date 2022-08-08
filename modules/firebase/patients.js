@@ -145,21 +145,24 @@ export const updatePatientReq = async ({ patient }) => {
     }
 
     // Update
+    const batch = writeBatch(db);
     const docRef = doc(db, "patients", patient.id);
     const finalDoc = {
       ...patient,
       ...timestampFields({ dateUpdated: true }),
     };
-    await updateDoc(docRef, finalDoc);
+    batch.update(docRef, finalDoc);
 
     // Register Patient name
     if (patient.name) {
-      await registerNames({
+      const { namesDocRef, names } = await registerNames({
         collectionName: "patients",
         names: { [patient.id]: patient.name },
-        update: true,
       });
+      batch.update(namesDocRef, names);
     }
+
+    await batch.commit();
 
     return { success: true };
   } catch (error) {

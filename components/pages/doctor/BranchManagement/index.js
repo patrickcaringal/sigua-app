@@ -101,11 +101,10 @@ const BranchManagementPage = () => {
     setBranches((prev) => [...prev, ...newDocs]);
     openResponseDialog({
       autoClose: true,
-      content: `${pluralize(
-        "Branch",
-        newDocs.length,
-        "es"
-      )} successfuly added.`,
+      content: successMessage({
+        noun: pluralize("Branch", newDocs.length, "es"),
+        verb: "added",
+      }),
       type: "SUCCESS",
       closeCb() {
         setBranchModal(defaultModal);

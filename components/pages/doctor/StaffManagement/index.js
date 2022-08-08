@@ -27,10 +27,11 @@ import {
 } from "../../../../modules/firebase";
 import {
   formatTimeStamp,
-  getFullName,
+  localUpdateDocs,
   personBuiltInFields,
   pluralize,
 } from "../../../../modules/helper";
+import { successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import ManageStaffModal from "./ManageStaffModal";
 import TableCells from "./TableCells";
@@ -113,7 +114,10 @@ const StaffsPage = () => {
     setStaffs((prev) => [...prev, ...newDocs]);
     openResponseDialog({
       autoClose: true,
-      content: `${pluralize("Staff", newDocs.length)} successfuly added.`,
+      content: successMessage({
+        noun: pluralize("Staff", newDocs.length),
+        verb: "added",
+      }),
       type: "SUCCESS",
       closeCb() {
         setStaffModal(defaultModal);
@@ -122,14 +126,15 @@ const StaffsPage = () => {
   };
 
   const handleEditStaff = async (updatedDocs) => {
-    const updatedStaff = updatedDocs[0];
-    const index = updatedStaff.index;
-    const staffCopy = [...staffs];
-
-    staffCopy[index] = {
-      ...staffCopy[index],
-      ...updatedStaff,
+    const updatedStaff = {
+      ...updatedDocs[0],
+      ...personBuiltInFields(updatedDocs[0]),
     };
+    const staffCopy = [...staffs];
+    const { latestDocs, updates } = localUpdateDocs({
+      updatedDoc: updatedStaff,
+      oldDocs: staffCopy,
+    });
 
     // TODO: change email
     // const isEmailUpdated = !lodash.isEqual(
@@ -139,15 +144,15 @@ const StaffsPage = () => {
 
     // Update
     const { error: updateError } = await updateStaff({
-      staff: updatedStaff,
+      staff: updates,
     });
     if (updateError) return openErrorDialog(updateError);
 
     // Success
-    setStaffs(staffCopy);
+    setStaffs(latestDocs);
     openResponseDialog({
       autoClose: true,
-      content: "Staff successfuly updated.",
+      content: successMessage({ noun: "Staff", verb: "updated" }),
       type: "SUCCESS",
       closeCb() {
         setStaffModal(defaultModal);
