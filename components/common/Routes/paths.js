@@ -8,6 +8,7 @@ export const PATHS = {
     BRANCH_MANAGEMENT: "/doctor/branches",
     BRANCH_RESTORE: "/doctor/branches/restore",
     STAFF_MANAGEMENT: "/doctor/staffs",
+    STAFF_RESTORE: "/doctor/staffs/restore",
   },
   STAFF: {
     DASHBOARD: "/staff/dashboard",

@@ -40,7 +40,10 @@ import {
 } from "./services";
 import {
   addStaffReq,
+  deleteStaffReq,
+  getDeletedStaffsReq,
   getStaffsReq,
+  restoreStaffReq,
   signInStaffReq,
   updateStaffReq,
 } from "./staff";
@@ -71,7 +74,10 @@ export {
   MEMBER_STATUS,
   // staff
   addStaffReq,
+  deleteStaffReq,
+  getDeletedStaffsReq,
   getStaffsReq,
+  restoreStaffReq,
   signInStaffReq,
   updateStaffReq,
   // service

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import RestoreIcon from "@mui/icons-material/Restore";
 import {
   Button,
   IconButton,
@@ -11,7 +13,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
 } from "@mui/material";
 import lodash from "lodash";
 import { useRouter } from "next/router";
@@ -21,6 +22,7 @@ import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
 import {
   addStaffReq,
+  deleteStaffReq,
   getBranchesReq,
   getStaffsReq,
   updateStaffReq,
@@ -31,7 +33,7 @@ import {
   personBuiltInFields,
   pluralize,
 } from "../../../../modules/helper";
-import { successMessage } from "../../../common";
+import { PATHS, confirmMessage, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import ManageStaffModal from "./ManageStaffModal";
 import TableCells from "./TableCells";
@@ -48,9 +50,10 @@ const StaffsPage = () => {
 
   // Requests
   const [getStaffs] = useRequest(getStaffsReq, setBackdropLoader);
+  const [getBranches] = useRequest(getBranchesReq, setBackdropLoader);
   const [addStaff] = useRequest(addStaffReq, setBackdropLoader);
   const [updateStaff] = useRequest(updateStaffReq, setBackdropLoader);
-  const [getBranches] = useRequest(getBranchesReq, setBackdropLoader);
+  const [deleteStaff] = useRequest(deleteStaffReq, setBackdropLoader);
 
   // Local States
   const [staffs, setStaffs] = useState([]);
@@ -160,6 +163,37 @@ const StaffsPage = () => {
     });
   };
 
+  const handleDeleteConfirm = (staff) => {
+    openResponseDialog({
+      content: confirmMessage({ noun: "Staff", item: staff.name }),
+      type: "CONFIRM",
+      actions: (
+        <Button
+          variant="outlined"
+          color="error"
+          onClick={() => handleDelete(staff)}
+          size="small"
+        >
+          delete
+        </Button>
+      ),
+    });
+  };
+
+  const handleDelete = async (staff) => {
+    // Delete
+    const { error: deleteError } = await deleteStaff({ staff });
+    if (deleteError) return openErrorDialog(deleteError);
+
+    // Success
+    setStaffs((prev) => prev.filter((i) => i.id !== staff.id));
+    openResponseDialog({
+      autoClose: true,
+      content: successMessage({ noun: "Staff", verb: "deleted" }),
+      type: "SUCCESS",
+    });
+  };
+
   const handleStaffModalClose = () => {
     setStaffModal(defaultModal);
   };
@@ -171,21 +205,36 @@ const StaffsPage = () => {
     });
   };
 
+  const handleRestoreRedirect = () => {
+    router.push(PATHS.DOCTOR.STAFF_RESTORE);
+  };
+
   return (
     <AdminMainContainer
       toolbarProps={{
-        onRootClick: () => router.push("/doctor/dashboard"),
+        onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
         paths: [{ text: "Staffs" }],
       }}
       toolbarContent={
-        <Button
-          variant="contained"
-          size="small"
-          onClick={handleStaffModalOpen}
-          startIcon={<AddCircleIcon />}
-        >
-          add staff
-        </Button>
+        <>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={handleRestoreRedirect}
+            startIcon={<RestoreIcon />}
+            sx={{ mr: 2 }}
+          >
+            restore
+          </Button>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={handleStaffModalOpen}
+            startIcon={<AddCircleIcon />}
+          >
+            add staff
+          </Button>
+        </>
       }
     >
       <TableContainer>
@@ -196,7 +245,7 @@ const StaffsPage = () => {
                 { text: "Name", sx: { width: 200 } },
                 { text: "Email" },
                 { text: "Address", sx: { width: 400 } },
-                { text: "Branch", align: "center", sx: { width: 110 } },
+                { text: "Branch", sx: { width: 110 } },
                 { text: "Actions", align: "center", sx: { width: 110 } },
               ].map(({ text, align, sx }) => (
                 <TableCell
@@ -221,7 +270,7 @@ const StaffsPage = () => {
               return (
                 <TableRow key={id}>
                   <TableCells data={data} />
-                  <TableCell>
+                  <TableCell align="center">
                     <IconButton
                       size="small"
                       onClick={() =>
@@ -232,6 +281,12 @@ const StaffsPage = () => {
                       }
                     >
                       <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleDeleteConfirm(i)}
+                    >
+                      <DeleteIcon />
                     </IconButton>
                   </TableCell>
                 </TableRow>

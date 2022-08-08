@@ -101,6 +101,47 @@ export const getStaffsReq = async ({ mapBranch }) => {
   }
 };
 
+export const getDeletedStaffsReq = async () => {
+  try {
+    // TODO: adjust when get branch needed
+    // const q = query(collRef, where("branch", "==", branch));
+    const q = query(collRef, where("deleted", "==", true));
+    const querySnapshot = await getDocs(q);
+
+    // Get Account list
+    const docRef = doc(db, "branches", "list");
+    const docSnap = await getDoc(docRef);
+
+    if (!docSnap.exists()) {
+      throw new Error("Unable to get Account list doc");
+    }
+
+    const branches = docSnap.data();
+
+    const data = querySnapshot.docs
+      .map((doc) => {
+        const data = doc.data();
+        return {
+          ...data,
+          branchName: branches[data.branch],
+        };
+      })
+      .sort(sortBy("dateCreated"));
+
+    // const data = querySnapshot.docs
+    //   .map((doc) => ({
+    //     id: doc.id,
+    //     ...doc.data(),
+    //   }))
+    //   .sort(sortBy("dateCreated"));
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
 export const addStaffReq = async ({ docs }) => {
   try {
     // Check email duplicate
@@ -206,6 +247,47 @@ export const updateStaffReq = async ({ staff }) => {
       });
       batch.update(namesDocRef, names);
     }
+
+    await batch.commit();
+
+    return { success: true };
+  } catch (error) {
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const deleteStaffReq = async ({ staff }) => {
+  try {
+    // NOTE: check delete assoc for staff
+
+    // Update to deleted status
+    const docRef = doc(db, "staffs", staff.id);
+    const finalDoc = {
+      deleted: true,
+      ...timestampFields({ dateUpdated: true }),
+    };
+    await updateDoc(docRef, finalDoc);
+
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const restoreStaffReq = async ({ docs }) => {
+  try {
+    // Bulk Update Document
+    const batch = writeBatch(db);
+
+    docs.forEach((d) => {
+      const updatedFields = {
+        deleted: false,
+      };
+      batch.update(doc(db, "staffs", d.id), updatedFields);
+    });
 
     await batch.commit();
 
