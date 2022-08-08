@@ -28,7 +28,7 @@ import {
   updateBranchReq,
 } from "../../../../modules/firebase";
 import { localUpdateDocs, pluralize } from "../../../../modules/helper";
-import { PATHS, successMessage } from "../../../common";
+import { PATHS, confirmMessage, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import ManageBranchModal from "./ManageBranchModal";
 import TableCells from "./TableCells";
@@ -136,7 +136,7 @@ const BranchManagementPage = () => {
 
   const handleDeleteConfirm = (branch) => {
     openResponseDialog({
-      content: `Are you sure you want to delete Branch(${branch.name})`,
+      content: confirmMessage({ noun: "Branch", item: branch.name }),
       type: "CONFIRM",
       actions: (
         <Button
@@ -152,7 +152,7 @@ const BranchManagementPage = () => {
   };
 
   const handleDelete = async (branch) => {
-    // Update
+    // Delete
     const { error: deleteError } = await deleteBranch({ branch });
     if (deleteError) return openErrorDialog(deleteError);
 
@@ -160,7 +160,7 @@ const BranchManagementPage = () => {
     setBranches((prev) => prev.filter((i) => i.id !== branch.id));
     openResponseDialog({
       autoClose: true,
-      content: `${branch.name} successfuly deleted.`,
+      content: successMessage({ noun: "Branch", verb: "deleted" }),
       type: "SUCCESS",
     });
   };

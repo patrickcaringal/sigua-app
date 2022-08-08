@@ -1,4 +1,15 @@
 import ResponseDialog from "./ResponseDialog";
-import { associationMessage, duplicateMessage, successMessage } from "./utils";
+import {
+  associationMessage,
+  confirmMessage,
+  duplicateMessage,
+  successMessage,
+} from "./utils";
 
-export { ResponseDialog, associationMessage, duplicateMessage, successMessage };
+export {
+  ResponseDialog,
+  associationMessage,
+  confirmMessage,
+  duplicateMessage,
+  successMessage,
+};

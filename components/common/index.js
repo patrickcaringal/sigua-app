@@ -3,6 +3,7 @@ import Modal from "./Modal";
 import {
   ResponseDialog,
   associationMessage,
+  confirmMessage,
   duplicateMessage,
   successMessage,
 } from "./ResponseDialog";
@@ -29,6 +30,7 @@ export {
   // ResponseDialog
   ResponseDialog,
   associationMessage,
+  confirmMessage,
   duplicateMessage,
   successMessage,
 };

@@ -9,8 +9,8 @@ import {
   writeBatch,
 } from "firebase/firestore";
 
-import { duplicateMessage } from "../../components/common";
-import { arrayStringify, pluralize, sortBy } from "../helper";
+import { associationMessage } from "../../components/common";
+import { sortBy } from "../helper";
 import { getErrorMsg } from "./auth";
 import { db, timestampFields } from "./config";
 import { checkDuplicate, registerNames } from "./helpers";
@@ -159,20 +159,16 @@ export const updateBranchReq = async ({ branch }) => {
 
 export const deleteBranchReq = async ({ branch }) => {
   try {
-    // Check Staff associated
-    const collRef = collection(db, "staffs");
-    const q = query(collRef, where("branch", "==", branch.id));
-    const querySnapshot = await getDocs(q);
-
-    const isUsed = querySnapshot.docs.length !== 0;
-    if (isUsed) {
-      const assoc = querySnapshot.docs.map((i) => i.data().name);
-      throw new Error(
-        `Unable to delete ${branch.name}. Associated with ${
-          assoc.length
-        } ${pluralize("Staff", assoc.length)}`
-      );
-    }
+    // Check Branches associated
+    await checkDuplicate({
+      collectionName: "staffs",
+      whereClause: where("branch", "==", branch.id),
+      customErrorMsg: associationMessage({
+        verb: "delete",
+        item: branch.name,
+        noun: `some Staffs`,
+      }),
+    });
 
     // Update to deleted status
     const docRef = doc(db, "branches", branch.id);
@@ -184,6 +180,7 @@ export const deleteBranchReq = async ({ branch }) => {
 
     return { success: true };
   } catch (error) {
+    console.log(error);
     const errMsg = getErrorMsg(error.code);
     return { error: errMsg || error.message };
   }

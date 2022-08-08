@@ -10,3 +10,8 @@ export const duplicateMessage = ({ noun, item }) => {
 export const associationMessage = ({ noun = "Item", item, verb = "" }) => {
   return `Unable to ${verb} ${item}. Associated with ${noun}.`;
 };
+
+export const confirmMessage = ({ noun, item }) => {
+  let str = noun ? `${noun} ${item}` : item;
+  return `Are you sure you want to delete ${str}.`;
+};

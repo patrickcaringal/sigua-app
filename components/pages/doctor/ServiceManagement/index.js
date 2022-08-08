@@ -13,7 +13,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
 } from "@mui/material";
 import { useRouter } from "next/router";
 
@@ -27,7 +26,7 @@ import {
   updateServiceReq,
 } from "../../../../modules/firebase";
 import { localUpdateDocs, pluralize } from "../../../../modules/helper";
-import { PATHS, successMessage } from "../../../common";
+import { PATHS, confirmMessage, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import ManageServiceModal from "./ManageServiceModal";
 import TableCells from "./TableCells";
@@ -112,7 +111,7 @@ const ServicesManagementPage = () => {
 
   const handleDeleteConfirm = (service) => {
     openResponseDialog({
-      content: `Are you sure you want to delete ${service.name}.`,
+      content: confirmMessage({ noun: "Service", item: service.name }),
       type: "CONFIRM",
       actions: (
         <Button
@@ -128,7 +127,7 @@ const ServicesManagementPage = () => {
   };
 
   const handleDelete = async (service) => {
-    // Update
+    // Delete
     const { error: deleteError } = await deleteService({ service });
     if (deleteError) return openErrorDialog(deleteError);
 
@@ -136,7 +135,7 @@ const ServicesManagementPage = () => {
     setServices((prev) => prev.filter((i) => i.id !== service.id));
     openResponseDialog({
       autoClose: true,
-      content: `Service successfuly deleted.`,
+      content: successMessage({ noun: "Service", verb: "deleted" }),
       type: "SUCCESS",
     });
   };

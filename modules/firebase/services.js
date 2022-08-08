@@ -7,9 +7,9 @@ import {
   where,
   writeBatch,
 } from "firebase/firestore";
-import lodash from "lodash";
 
-import { arrayStringify, pluralize, sortBy } from "../helper";
+import { associationMessage } from "../../components/common";
+import { sortBy } from "../helper";
 import { getErrorMsg } from "./auth";
 import { db, timestampFields } from "./config";
 import { checkDuplicate, registerNames } from "./helpers";
@@ -147,23 +147,15 @@ export const updateServiceReq = async ({ service }) => {
 export const deleteServiceReq = async ({ service }) => {
   try {
     // Check Branches associated
-    const collRef = collection(db, "branches");
-    const q = query(collRef, where("servicesId", "array-contains", service.id));
-    const querySnapshot = await getDocs(q);
-
-    const isUsed = querySnapshot.docs.length !== 0;
-    if (isUsed) {
-      const assoc = querySnapshot.docs.map((i) => i.data().name);
-      throw new Error(
-        `Unable to delete ${
-          service.name
-        }, associated with following ${pluralize(
-          "branch",
-          assoc.length,
-          "es"
-        )}:  ${arrayStringify(assoc)}`
-      );
-    }
+    await checkDuplicate({
+      collectionName: "branches",
+      whereClause: where("servicesId", "array-contains", service.id),
+      customErrorMsg: associationMessage({
+        verb: "delete",
+        item: service.name,
+        noun: `some Branches`,
+      }),
+    });
 
     // Update to deleted status
     const docRef = doc(db, "services", service.id);
@@ -175,6 +167,7 @@ export const deleteServiceReq = async ({ service }) => {
 
     return { success: true };
   } catch (error) {
+    console.log(error);
     const errMsg = getErrorMsg(error.code);
     return { error: errMsg || error.message };
   }
