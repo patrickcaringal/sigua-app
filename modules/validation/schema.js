@@ -111,3 +111,11 @@ export const VerificationRejectSchema = Yup.object().shape({
     .required("Required")
     .max(250, "Reason too long"),
 });
+
+export const QueueSchema = Yup.object().shape({
+  date: Yup.string().nullable().required("Required"),
+  branchId: Yup.string().required("Required"),
+  capacity: Yup.number()
+    .required("Required")
+    .test("Is positive?", "Positive number only", (value) => value >= 0),
+});

@@ -34,9 +34,16 @@ export const convertToDate = (timestamp) => {
   }
 };
 
-export const sortBy = (key) => (a, b) => {
-  return new Date(convertToDate(a[key])) - new Date(convertToDate(b[key]));
-};
+export const today = formatTimeStamp(new Date());
+
+export const sortBy =
+  (key, sortBy = "asc") =>
+  (a, b) => {
+    if (sortBy === "asc")
+      return new Date(convertToDate(a[key])) - new Date(convertToDate(b[key]));
+
+    return new Date(convertToDate(b[key])) - new Date(convertToDate(a[key]));
+  };
 
 export const getInitials = (str = "") => {
   return str.toUpperCase().charAt(0);

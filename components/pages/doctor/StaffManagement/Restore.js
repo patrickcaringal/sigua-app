@@ -4,7 +4,6 @@ import RestoreIcon from "@mui/icons-material/Restore";
 import {
   Button,
   Checkbox,
-  IconButton,
   Table,
   TableBody,
   TableCell,
@@ -13,25 +12,16 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import lodash from "lodash";
 import { useRouter } from "next/router";
 
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useRequest, useSelect } from "../../../../hooks";
 import {
-  addStaffReq,
-  getBranchesReq,
   getDeletedStaffsReq,
   restoreStaffReq,
 } from "../../../../modules/firebase";
-import {
-  arrayStringify,
-  formatTimeStamp,
-  localUpdateDocs,
-  personBuiltInFields,
-  pluralize,
-} from "../../../../modules/helper";
+import { arrayStringify, pluralize } from "../../../../modules/helper";
 import { PATHS, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import TableCells from "./TableCells";
