@@ -50,10 +50,15 @@ const LeftSidebar = () => {
         },
       ]
     : [
+        // {
+        //   text: "Queue",
+        //   icon: <QueueIcon />,
+        //   onClick: () => router.push(PATHS.STAFF.QUEUE_MANAGEMENT),
+        // },
         {
-          text: "Queue",
+          text: "Queue Today",
           icon: <QueueIcon />,
-          onClick: () => router.push(PATHS.STAFF.QUEUE_MANAGEMENT),
+          onClick: () => router.push(PATHS.STAFF.QUEUE_TODAY),
         },
         {
           text: "Member Approval",

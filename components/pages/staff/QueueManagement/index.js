@@ -14,6 +14,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
+import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
 import lodash from "lodash";
 import { useRouter } from "next/router";
 
@@ -23,6 +24,7 @@ import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
 import {
   addQueueReq,
+  db,
   deleteServiceReq,
   getBranchesReq,
   getQueuesReq,
@@ -49,8 +51,6 @@ const QueueManagementPage = () => {
   const router = useRouter();
   const { user, isStaff } = useAuth();
 
-  // console.log({ user, isStaff });
-
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
@@ -61,6 +61,7 @@ const QueueManagementPage = () => {
 
   // Local States
   const [queues, setQueues] = useState([]);
+  const [queueToday, setQueueToday] = useState();
   const [branches, setBranches] = useState([]);
   const [branchesMap, setBranchesMap] = useState({});
   const [queueModal, setQueueModal] = useState(defaultModal);
@@ -71,15 +72,16 @@ const QueueManagementPage = () => {
       const { data: queueList, error: getQueuesError } = await getQueues();
       if (getQueuesError) return openErrorDialog(getQueuesError);
 
-      const mappedQueue = queueList.map((i) => ({
-        ...i,
-        isToday: formatTimeStamp(i.date) === today,
-      }));
+      const mappedQueue = queueList.map((i) => {
+        const isToday = formatTimeStamp(i.date) === today;
+        if (isToday) {
+          setQueueToday(i);
+        }
 
-      setQueues(mappedQueue);
-      // queues.some(
-      //   (i) => formatTimeStamp(i.date) === formatTimeStamp(new Date())
-      // )
+        return i;
+      });
+
+      setQueues(queueList);
     };
 
     const fetchBranches = async () => {
@@ -104,10 +106,34 @@ const QueueManagementPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // useEffect(() => {
+  //   console.log("went here");
+  //   const q = query(
+  //     collection(db, "queues"),
+  //     where("branchId", "==", user.branch),
+  //     where("queueDate", "==", today)
+  //   );
+  //   const unsub = onSnapshot(q, (querySnapshot) => {
+  //     if (querySnapshot.docs.length === 1) {
+  //       const realtimeData = querySnapshot.docs[0].data();
+
+  //       const { latestDocs, updates } = localUpdateDocs({
+  //         updatedDoc: realtimeData,
+  //         oldDocs: [...queues],
+  //       });
+
+  //       // setQueues(latestDocs);
+  //     }
+  //   });
+
+  //   return () => unsub();
+  // }, [user.branch, queues]);
+
   const handleAddQueue = async (docs) => {
     docs = {
       ...docs,
       date: formatFirebasetimeStamp(docs.date),
+      queueDate: formatTimeStamp(docs.date),
       queue: [],
       counters: [
         // {
@@ -121,8 +147,6 @@ const QueueManagementPage = () => {
       openForRegistration: false,
     };
 
-    console.log(JSON.stringify(docs, null, 4));
-    return;
     // Add
     const { data: newDoc, error: addError } = await addQueue({
       docs,
@@ -130,7 +154,7 @@ const QueueManagementPage = () => {
     if (addError) return openErrorDialog(addError);
 
     // Successful
-    setQueues((prev) => [...prev, newDoc]);
+    setQueues((prev) => [newDoc, ...prev]);
     openResponseDialog({
       autoClose: true,
       content: successMessage({
@@ -173,7 +197,7 @@ const QueueManagementPage = () => {
             size="small"
             onClick={handleQueueModalOpen}
             startIcon={<AddCircleIcon />}
-            disabled={queues.some((i) => i.isToday)}
+            disabled={!!queueToday}
           >
             add queue
           </Button>
@@ -203,7 +227,6 @@ const QueueManagementPage = () => {
 
           <TableBody>
             {queues.map((i) => {
-              console.log(queues);
               return (
                 <TableRow key={i.id}>
                   <TableCells data={i} />

@@ -55,3 +55,20 @@ export const addQueueReq = async ({ docs }) => {
     return { error: errMsg || error.message };
   }
 };
+
+export const openQueueReq = async ({ document }) => {
+  try {
+    const docRef = doc(db, "queues", document.id);
+    const data = {
+      openForRegistration: document.openForRegistration,
+      ...timestampFields({ dateUpdated: true }),
+    };
+    await updateDoc(docRef, data);
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
