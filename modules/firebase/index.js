@@ -30,7 +30,12 @@ import {
   getPatientsForApprovalReq,
   updatePatientReq,
 } from "./patients";
-import { addQueueReq, getQueuesReq, openQueueReq } from "./queues";
+import {
+  addQueueReq,
+  getQueuesReq,
+  updateQueueRegStatusReq,
+  updateQueueStatusReq,
+} from "./queues";
 import {
   addServiceReq,
   deleteServiceReq,
@@ -98,7 +103,8 @@ export {
   // queue
   addQueueReq,
   getQueuesReq,
-  openQueueReq,
+  updateQueueRegStatusReq,
+  updateQueueStatusReq,
   // storage
   uploadImageReq,
   deleteImageReq,

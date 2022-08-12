@@ -56,11 +56,28 @@ export const addQueueReq = async ({ docs }) => {
   }
 };
 
-export const openQueueReq = async ({ document }) => {
+export const updateQueueRegStatusReq = async ({ document }) => {
   try {
     const docRef = doc(db, "queues", document.id);
     const data = {
       openForRegistration: document.openForRegistration,
+      ...timestampFields({ dateUpdated: true }),
+    };
+    await updateDoc(docRef, data);
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const updateQueueStatusReq = async ({ document }) => {
+  try {
+    const docRef = doc(db, "queues", document.id);
+    const data = {
+      openQueue: document.openQueue,
       ...timestampFields({ dateUpdated: true }),
     };
     await updateDoc(docRef, data);

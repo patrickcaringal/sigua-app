@@ -3,8 +3,10 @@ import React, { Fragment, useEffect, useState } from "react";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import QueueIcon from "@mui/icons-material/Queue";
 import RestoreIcon from "@mui/icons-material/Restore";
+import StopIcon from "@mui/icons-material/Stop";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import {
@@ -40,8 +42,8 @@ import {
   deleteServiceReq,
   getBranchesReq,
   getQueuesReq,
-  openQueueReq,
-  updateServiceReq,
+  updateQueueRegStatusReq,
+  updateQueueStatusReq,
 } from "../../../../modules/firebase";
 import {
   formatFirebasetimeStamp,
@@ -71,7 +73,14 @@ const QueueManagementPage = () => {
   const [getQueues] = useRequest(getQueuesReq, setBackdropLoader);
   const [getBranches] = useRequest(getBranchesReq, setBackdropLoader);
   const [addQueue] = useRequest(addQueueReq, setBackdropLoader);
-  const [openQueue] = useRequest(openQueueReq, setBackdropLoader);
+  const [updateQueueRegStatus] = useRequest(
+    updateQueueRegStatusReq,
+    setBackdropLoader
+  );
+  const [updateQueueStatus] = useRequest(
+    updateQueueStatusReq,
+    setBackdropLoader
+  );
 
   // Local States
   // const [queues, setQueues] = useState([]);
@@ -81,7 +90,8 @@ const QueueManagementPage = () => {
   const [queueModal, setQueueModal] = useState(defaultModal);
 
   const hasQueueToday = !!lodash.keys(queueToday).length;
-  const isOpen = hasQueueToday ? queueToday.openForRegistration : false;
+  const isRegOpen = hasQueueToday ? queueToday.openForRegistration : false;
+  const isQueueOpen = hasQueueToday ? queueToday.openQueue : false;
 
   useEffect(() => {
     const fetchBranches = async () => {
@@ -98,7 +108,7 @@ const QueueManagementPage = () => {
           ...lodash.pick(i, ["name", "id", "capacity"]),
         }))
       );
-      // setBranchesMap(branchMap);
+      setBranchesMap(branchMap);
     };
 
     fetchBranches();
@@ -109,7 +119,7 @@ const QueueManagementPage = () => {
     console.log("went here");
     const q = query(
       collection(db, "queues"),
-      where("branchId", "==", user.branch),
+      where("branchId", "==", user.branch), // prob
       where("queueDate", "==", today)
     );
 
@@ -132,6 +142,7 @@ const QueueManagementPage = () => {
   const handleAddQueue = async (docs) => {
     docs = {
       ...docs,
+      branchName: branchesMap[docs.branchId],
       date: formatFirebasetimeStamp(docs.date),
       queueDate: formatTimeStamp(docs.date),
       queue: [],
@@ -167,7 +178,7 @@ const QueueManagementPage = () => {
     });
   };
 
-  const handleQueueStatus = async () => {
+  const handleRegStatus = async () => {
     const document = {
       id: queueToday.id,
       openForRegistration: !queueToday.openForRegistration,
@@ -175,7 +186,19 @@ const QueueManagementPage = () => {
 
     // Update status
     const payload = { document };
-    const { error: updateError } = await openQueue(payload);
+    const { error: updateError } = await updateQueueRegStatus(payload);
+    if (updateError) return openErrorDialog(updateError);
+  };
+
+  const handleQueueStatus = async () => {
+    const document = {
+      id: queueToday.id,
+      openQueue: !queueToday.openQueue,
+    };
+
+    // Update status
+    const payload = { document };
+    const { error: updateError } = await updateQueueStatus(payload);
     if (updateError) return openErrorDialog(updateError);
   };
 
@@ -204,15 +227,29 @@ const QueueManagementPage = () => {
       toolbarContent={
         <>
           {hasQueueToday && (
-            <Button
-              variant={isOpen ? "outlined" : "contained"}
-              size="small"
-              onClick={handleQueueStatus}
-              startIcon={isOpen ? <VisibilityOffIcon /> : <VisibilityIcon />}
-              sx={{ mr: 2 }}
-            >
-              {`${isOpen ? "close" : "open"}`} queue
-            </Button>
+            <>
+              <Button
+                variant={isRegOpen ? "outlined" : "contained"}
+                size="small"
+                onClick={handleRegStatus}
+                startIcon={
+                  isRegOpen ? <VisibilityOffIcon /> : <VisibilityIcon />
+                }
+                sx={{ mr: 2 }}
+              >
+                {`${isRegOpen ? "close" : "open"}`} registration
+              </Button>
+
+              <Button
+                variant={isQueueOpen ? "outlined" : "contained"}
+                size="small"
+                onClick={handleQueueStatus}
+                startIcon={isQueueOpen ? <StopIcon /> : <PlayArrowIcon />}
+                sx={{ mr: 2 }}
+              >
+                {`${isQueueOpen ? "stop" : "start"}`} queue
+              </Button>
+            </>
           )}
           <Button
             variant="contained"
@@ -237,21 +274,16 @@ const QueueManagementPage = () => {
                 grid: "auto-flow / 0fr 1fr",
                 alignItems: "center",
                 rowGap: 1,
-                // border: "1px solid red",
               }}
             >
               {[
                 {
-                  label: "Date",
-                  value: formatTimeStamp(queueToday.date, "MMM dd, yyyy (eee)"),
+                  label: "Branch",
+                  value: branchesMap[user.branch],
                 },
                 {
-                  label: "Status",
-                  value: isOpen ? (
-                    <Chip label="Open" color="primary" size="small" />
-                  ) : (
-                    <Chip label="Not Open" color="warning" size="small" />
-                  ), // queueToday.openForRegistration
+                  label: "Date",
+                  value: formatTimeStamp(queueToday.date, "MMM dd, yyyy (eee)"),
                 },
               ].map(({ label, value }, index) => (
                 <Fragment key={index}>
@@ -267,26 +299,46 @@ const QueueManagementPage = () => {
                 grid: "auto-flow / 0fr 1fr",
                 alignItems: "center",
                 rowGap: 1,
-                // border: "1px solid red",
               }}
             >
               {[
                 {
-                  label: "Capacity",
-                  value: queueToday.capacity,
+                  label: "Status",
+                  value: (
+                    <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
+                      {isRegOpen ? (
+                        <Chip
+                          label="Registration Open"
+                          color="primary"
+                          size="small"
+                        />
+                      ) : (
+                        <Chip
+                          label="Registration Close"
+                          color="warning"
+                          size="small"
+                        />
+                      )}
+                      {isQueueOpen ? (
+                        <Chip
+                          label="Queue Ongoing"
+                          color="primary"
+                          size="small"
+                        />
+                      ) : (
+                        <Chip
+                          label="Queue Close"
+                          color="warning"
+                          size="small"
+                        />
+                      )}
+                    </Box>
+                  ),
                 },
                 {
-                  label: "Progress",
+                  label: "Capacity",
                   value: `0 / ${queueToday.capacity}`,
                 },
-                // {
-                //   label: "Capacity",
-                //   value: queueToday.capacity,
-                // },
-                // {
-                //   label: "Progress",
-                //   value: `0 / ${queueToday.capacity}`,
-                // },
               ].map(({ label, value }, index) => (
                 <Fragment key={index}>
                   <Box sx={{ minWidth: 100 }}>{label}</Box>
@@ -296,7 +348,7 @@ const QueueManagementPage = () => {
             </Box>
           </Box>
 
-          <Box>
+          {/* <Box>
             <List
               sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
             >
@@ -342,7 +394,7 @@ const QueueManagementPage = () => {
                 />
               </ListItem>
             </List>
-          </Box>
+          </Box> */}
         </>
       ) : (
         <Box
