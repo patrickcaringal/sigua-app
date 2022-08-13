@@ -1,6 +1,6 @@
 import React from "react";
 
-import BranchRestorePage from "../../../components/pages/doctor/BranchManagement/Restore";
+import RestorePage from "../../../components/pages/doctor/BranchManagement/Restore";
 
-const BranchRestore = () => <BranchRestorePage />;
+const BranchRestore = () => <RestorePage />;
 export default BranchRestore;
