@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import {
   Box,
@@ -8,17 +8,54 @@ import {
   CardMedia,
   Typography,
 } from "@mui/material";
+import lodash from "lodash";
 import { useRouter } from "next/router";
+
+import { BranchesDialog } from "../components/shared";
+import { useBackdropLoader } from "../contexts/BackdropLoaderContext";
+import useRequest from "../hooks/useRequest";
+import { getBranchesReq } from "../modules/firebase";
+
+const defaultModal = {
+  open: false,
+  data: {},
+};
 
 const DashboardPage = () => {
   const router = useRouter();
+  const { setBackdropLoader } = useBackdropLoader();
 
-  // 296 * 208
-  // Manage family members
-  // View family records
-  //
+  // Requests
+  const [getBranches] = useRequest(getBranchesReq, setBackdropLoader);
 
-  // sx={{ mt: 300 }}
+  // Local States
+  const [branchesModal, setBranchesModal] = useState(defaultModal);
+
+  const handleBranchModalOpen = async () => {
+    // Get Branches
+    const { data: branchList, error: getBranchError } = await getBranches({
+      mapService: false,
+    });
+    if (getBranchError) return openErrorDialog(getBranchError);
+
+    const data = branchList.map((i) => ({
+      ...lodash.pick(i, ["name", "id"]),
+    }));
+
+    setBranchesModal({
+      open: true,
+      data,
+    });
+  };
+
+  const handleBranchModalClose = () => {
+    setBranchesModal(defaultModal);
+  };
+
+  const handleBranchQueue = (branchId) => {
+    router.push(`/queue/${branchId}`);
+  };
+
   return (
     <Box
       sx={{
@@ -83,7 +120,10 @@ const DashboardPage = () => {
       </Card>
 
       <Card sx={{ width: 296, height: 208 }}>
-        <CardActionArea sx={{ width: "inherit", height: "inherit" }}>
+        <CardActionArea
+          sx={{ width: "inherit", height: "inherit" }}
+          onClick={handleBranchModalOpen}
+        >
           <CardContent
             sx={{
               display: "flex",
@@ -97,13 +137,22 @@ const DashboardPage = () => {
               component="div"
               sx={{ textAlign: "center" }}
             >
-              Get Queue
+              Queue
               <br />
-              Number
+              Today
             </Typography>
           </CardContent>
         </CardActionArea>
       </Card>
+
+      {branchesModal.open && (
+        <BranchesDialog
+          open={branchesModal.open}
+          data={branchesModal.data}
+          onBranchClick={handleBranchQueue}
+          onClose={handleBranchModalClose}
+        />
+      )}
     </Box>
   );
 };

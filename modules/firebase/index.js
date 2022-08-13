@@ -3,7 +3,6 @@ import {
   checkAccountCredentialReq,
   checkAccountDuplicateReq,
   createAccountReq,
-  getFamilyMembersReq,
   getMemberForApprovalReq,
   updateFamilyMembersReq,
 } from "./account";
@@ -19,9 +18,24 @@ import {
   addBranchReq,
   deleteBranchReq,
   getBranchesReq,
+  getDeletedBranchesReq,
+  restoreBranchReq,
   updateBranchReq,
 } from "./branches";
 import { auth, db } from "./config";
+import {
+  MEMBER_STATUS,
+  addPatientReq,
+  getFamilyMembersReq,
+  getPatientsForApprovalReq,
+  updatePatientReq,
+} from "./patients";
+import {
+  addQueueReq,
+  getQueuesReq,
+  updateQueueRegStatusReq,
+  updateQueueStatusReq,
+} from "./queues";
 import {
   addServiceReq,
   deleteServiceReq,
@@ -32,7 +46,10 @@ import {
 } from "./services";
 import {
   addStaffReq,
+  deleteStaffReq,
+  getDeletedStaffsReq,
   getStaffsReq,
+  restoreStaffReq,
   signInStaffReq,
   updateStaffReq,
 } from "./staff";
@@ -52,13 +69,21 @@ export {
   createAccountReq,
   checkAccountDuplicateReq,
   checkAccountCredentialReq,
-  getFamilyMembersReq,
   addFamilyMembersReq,
   updateFamilyMembersReq,
   getMemberForApprovalReq,
+  // patient
+  addPatientReq,
+  getFamilyMembersReq,
+  getPatientsForApprovalReq,
+  updatePatientReq,
+  MEMBER_STATUS,
   // staff
   addStaffReq,
+  deleteStaffReq,
+  getDeletedStaffsReq,
   getStaffsReq,
+  restoreStaffReq,
   signInStaffReq,
   updateStaffReq,
   // service
@@ -72,7 +97,14 @@ export {
   addBranchReq,
   deleteBranchReq,
   getBranchesReq,
+  getDeletedBranchesReq,
+  restoreBranchReq,
   updateBranchReq,
+  // queue
+  addQueueReq,
+  getQueuesReq,
+  updateQueueRegStatusReq,
+  updateQueueStatusReq,
   // storage
   uploadImageReq,
   deleteImageReq,

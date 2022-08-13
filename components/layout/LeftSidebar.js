@@ -4,6 +4,7 @@ import FactCheckIcon from "@mui/icons-material/FactCheck";
 import GroupIcon from "@mui/icons-material/Group";
 import MapsHomeWorkIcon from "@mui/icons-material/MapsHomeWork";
 import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
+import QueueIcon from "@mui/icons-material/Queue";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import {
   Box,
@@ -49,10 +50,20 @@ const LeftSidebar = () => {
         },
       ]
     : [
+        // {
+        //   text: "Queue",
+        //   icon: <QueueIcon />,
+        //   onClick: () => router.push(PATHS.STAFF.QUEUE_MANAGEMENT),
+        // },
+        {
+          text: "Queue Today",
+          icon: <QueueIcon />,
+          onClick: () => router.push(PATHS.STAFF.QUEUE_TODAY),
+        },
         {
           text: "Member Approval",
           icon: <FactCheckIcon />,
-          onClick: () => router.push("/staff/member/approval"),
+          onClick: () => router.push(PATHS.STAFF.MEMBER_APPROVAL),
         },
       ];
 

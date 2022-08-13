@@ -8,13 +8,28 @@ import {
   setDoc,
   updateDoc,
   where,
+  writeBatch,
 } from "firebase/firestore";
-import { omit as omitFields } from "lodash";
+import lodash from "lodash";
 
-import { formatDate, getFullName, pluralize } from "../helper";
-import { db } from "./config";
+import {
+  formatDate,
+  formatFirebasetimeStamp,
+  getFullName,
+  getUniquePersonId,
+  pluralize,
+} from "../helper";
+import { db, timestampFields } from "./config";
+import { checkDuplicate, registerNames } from "./helpers";
+import { MEMBER_STATUS } from "./patients";
 
 const collRef = collection(db, "accounts");
+
+const transformedFields = (doc) => ({
+  name: getFullName(doc),
+  birthdate: formatFirebasetimeStamp(doc.birthdate),
+  nameBirthdate: getUniquePersonId(doc),
+});
 
 export const hashPassword = (password) => {
   const salt = bcrypt.genSaltSync(6);
@@ -27,44 +42,57 @@ export const comparePassword = (password, hashedPassword) => {
   return isMatched;
 };
 
-export const createAccountReq = async (newDocument) => {
+export const createAccountReq = async (account) => {
   try {
-    const docRef = doc(collRef);
+    const batch = writeBatch(db);
 
     // Transform Document
-    const { birthdate, password } = newDocument;
-    let mappedNewDocument = {
-      ...newDocument,
-      birthdate: formatDate(birthdate),
-      password: hashPassword(password),
-      familyMembers: [],
-      hasVerificationForApproval: false,
+    const docRef = doc(collRef);
+    let accountDoc = {
+      ...account,
+      id: docRef.id,
+      password: hashPassword(account.password),
       role: "patient",
+      deleted: false,
+      ...transformedFields(account),
+      ...timestampFields({ dateCreated: true, dateUpdated: true }),
     };
-    // Add Default Memeber
-    mappedNewDocument.familyMembers = [
-      {
-        id: doc(collRef).id,
-        accountId: docRef.id,
-        verified: true,
-        verifiedContactNo: true,
-        verificationAttachment: null,
-        ...omitFields(mappedNewDocument, [
-          "password",
-          "familyMembers",
-          "role",
-          "hasVerificationForApproval",
-        ]),
-      },
-    ];
+    // Create Account Document
+    batch.set(docRef, accountDoc);
 
-    // Create Document
-    await setDoc(docRef, mappedNewDocument);
+    // Patient Document
+    const docRef2 = doc(collection(db, "patients"));
+    const patientDoc = {
+      ...lodash.omit(accountDoc, ["password", "role"]),
+      id: docRef2.id,
+      accountId: accountDoc.id,
+      verified: true,
+      verifiedContactNo: true,
+      verificationAttachment: null,
+      verificationRejectReason: null,
+      status: MEMBER_STATUS.VERFIED,
+    };
+    // Create Patient Document
+    batch.set(docRef2, patientDoc);
 
-    // Remove password field
-    delete document.password;
+    // Register Account name
+    const regAccount = await registerNames({
+      collectionName: "accounts",
+      names: { [accountDoc.id]: accountDoc.name },
+    });
+    batch.update(regAccount.namesDocRef, regAccount.names);
 
-    const data = { id: docRef.id, ...mappedNewDocument };
+    // Register Patient name
+    const regPatients = await registerNames({
+      collectionName: "patients",
+      names: { [docRef2.id]: accountDoc.name },
+    });
+    batch.update(regPatients.namesDocRef, regPatients.names);
+
+    await batch.commit();
+
+    delete accountDoc.password; // Remove password field
+    const data = accountDoc;
     return { data, success: true };
   } catch (error) {
     console.log(error);
@@ -72,16 +100,24 @@ export const createAccountReq = async (newDocument) => {
   }
 };
 
-export const checkAccountDuplicateReq = async (contactNo) => {
+export const checkAccountDuplicateReq = async ({ contactNo, name }) => {
   try {
-    const q = query(collRef, where("contactNo", "==", contactNo));
+    // Check contactNo duplicate
+    await checkDuplicate({
+      collectionName: "accounts",
+      whereClause: where("contactNo", "==", contactNo),
+      duplicateOutputField: "contactNo",
+      customErrorMsg: "Contact No. already used.",
+    });
 
-    const querySnapshot = await getDocs(q);
-
-    const isDuplicate = querySnapshot.docs.length !== 0;
-    if (isDuplicate) throw new Error("Contact No already used.");
-
-    // TODO: check duplication on patient
+    // Check patient name duplicate
+    await checkDuplicate({
+      collectionName: "patients",
+      whereClause: where("nameBirthdate", "==", name),
+      errorMsg: {
+        noun: "Patient",
+      },
+    });
 
     return { success: true };
   } catch (error) {

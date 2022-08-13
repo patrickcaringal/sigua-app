@@ -17,9 +17,12 @@ import {
   MenuItem,
   Select,
 } from "@mui/material";
+import faker from "faker";
 import { FieldArray } from "formik";
 
 import { DatePicker, Input } from "../../../../components/common/Form";
+import { isMockDataEnabled } from "../../../../modules/env";
+import { formatTimeStamp } from "../../../../modules/helper";
 
 const defaultItem = {
   firstName: "",
@@ -53,7 +56,25 @@ const Form = ({
               size="small"
               sx={{ position: "absolute", bottom: 16, right: 16 }}
               onClick={() => {
-                push(defaultItem);
+                push(
+                  isMockDataEnabled
+                    ? {
+                        firstName: faker.name.firstName(),
+                        suffix: "",
+                        lastName: faker.name.lastName(),
+                        middleName: faker.name.lastName(),
+                        address: faker.lorem.paragraph(),
+                        birthdate: faker.date.past(
+                          faker.datatype.number({
+                            min: 10,
+                            max: 50,
+                          })
+                        ),
+                        gender: faker.random.arrayElement(["male", "female"]),
+                        contactNo: faker.phone.phoneNumber("09#########"),
+                      }
+                    : defaultItem
+                );
               }}
             >
               <AddIcon />
@@ -180,7 +201,7 @@ const Form = ({
                           onChange={(value) => {
                             setFieldValue(
                               getFieldName("birthdate"),
-                              value,
+                              formatTimeStamp(value),
                               false
                             );
                           }}

@@ -7,11 +7,12 @@ import {
   where,
   writeBatch,
 } from "firebase/firestore";
-import lodash from "lodash";
 
-import { arrayStringify, pluralize } from "../helper";
+import { associationMessage } from "../../components/common";
+import { sortBy } from "../helper";
 import { getErrorMsg } from "./auth";
 import { db, timestampFields } from "./config";
+import { checkDuplicate, registerNames } from "./helpers";
 
 const collRef = collection(db, "services");
 
@@ -19,10 +20,12 @@ export const getServicesReq = async () => {
   try {
     const q = query(collRef, where("deleted", "!=", true));
     const querySnapshot = await getDocs(q);
-    const data = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const data = querySnapshot.docs
+      .map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }))
+      .sort(sortBy("dateCreated"));
 
     const map = data.reduce((acc, i) => ({ ...acc, [i.id]: i.name }), {});
 
@@ -53,44 +56,42 @@ export const getDeletedServicesReq = async () => {
 
 export const addServiceReq = async ({ docs }) => {
   try {
-    const q = query(
-      collRef,
-      where(
+    // Check duplicate
+    await checkDuplicate({
+      collectionName: "services",
+      whereClause: where(
         "name",
         "in",
         docs.map((i) => i.name)
-      )
-    );
-    const querySnapshot = await getDocs(q);
+      ),
+      errorMsg: {
+        noun: "Service",
+      },
+    });
 
-    const isDuplicate = querySnapshot.docs.length !== 0;
-    if (isDuplicate) {
-      const duplicates = querySnapshot.docs.map((i) => i.data().name);
-      throw new Error(
-        `Duplicate ${pluralize(
-          "Service",
-          duplicates.length
-        )}. ${duplicates.join(", ")}`
-      );
-    }
-
-    // Bulk Create Service Document
+    // Bulk Create Document
     const batch = writeBatch(db);
 
     const data = docs.map((d) => {
       const docRef = doc(collRef);
       const id = docRef.id;
-
       const mappedDoc = {
         id,
         ...d,
-        ...timestampFields({ dateCreated: true, dateUpdated: true }),
         deleted: false,
+        ...timestampFields({ dateCreated: true, dateUpdated: true }),
       };
       batch.set(doc(db, "services", id), mappedDoc);
 
       return mappedDoc;
     });
+
+    // Register Patient name
+    const { namesDocRef, names } = await registerNames({
+      collectionName: "services",
+      names: data.reduce((acc, i) => ({ ...acc, [i.id]: i.name }), {}),
+    });
+    batch.update(namesDocRef, names);
 
     await batch.commit();
 
@@ -104,22 +105,37 @@ export const addServiceReq = async ({ docs }) => {
 
 export const updateServiceReq = async ({ service }) => {
   try {
-    const { name } = service;
-    // Check name duplicate
-    const q = query(collRef, where("name", "==", name));
-    const querySnapshot = await getDocs(q);
+    // Check duplicate
+    if (service.name) {
+      await checkDuplicate({
+        collectionName: "services",
+        whereClause: where("name", "==", service.name),
+        errorMsg: {
+          noun: "Service",
+        },
+      });
+    }
 
-    const isDuplicate =
-      querySnapshot.docs.filter((doc) => doc.id !== service.id).length !== 0;
-    if (isDuplicate) throw new Error(`Service ${name} already exist`);
+    const batch = writeBatch(db);
 
     // Update
     const docRef = doc(db, "services", service.id);
     const finalDoc = {
-      ...lodash.omit(service, ["id", "index", "dateCreated"]),
+      ...service,
       ...timestampFields({ dateUpdated: true }),
     };
-    await updateDoc(docRef, finalDoc);
+    batch.update(docRef, finalDoc);
+
+    // Register service name
+    if (service.name) {
+      const { namesDocRef, names } = await registerNames({
+        collectionName: "services",
+        names: { [service.id]: service.name },
+      });
+      batch.update(namesDocRef, names);
+    }
+
+    await batch.commit();
 
     return { success: true };
   } catch (error) {
@@ -131,23 +147,15 @@ export const updateServiceReq = async ({ service }) => {
 export const deleteServiceReq = async ({ service }) => {
   try {
     // Check Branches associated
-    const collRef = collection(db, "branches");
-    const q = query(collRef, where("servicesId", "array-contains", service.id));
-    const querySnapshot = await getDocs(q);
-
-    const isUsed = querySnapshot.docs.length !== 0;
-    if (isUsed) {
-      const assoc = querySnapshot.docs.map((i) => i.data().name);
-      throw new Error(
-        `Unable to delete ${
-          service.name
-        }, associated with following ${pluralize(
-          "branch",
-          assoc.length,
-          "es"
-        )}:  ${arrayStringify(assoc)}`
-      );
-    }
+    await checkDuplicate({
+      collectionName: "branches",
+      whereClause: where("servicesId", "array-contains", service.id),
+      customErrorMsg: associationMessage({
+        verb: "delete",
+        item: service.name,
+        noun: `some Branches`,
+      }),
+    });
 
     // Update to deleted status
     const docRef = doc(db, "services", service.id);
@@ -159,6 +167,7 @@ export const deleteServiceReq = async ({ service }) => {
 
     return { success: true };
   } catch (error) {
+    console.log(error);
     const errMsg = getErrorMsg(error.code);
     return { error: errMsg || error.message };
   }
@@ -166,7 +175,7 @@ export const deleteServiceReq = async ({ service }) => {
 
 export const restoreServiceReq = async ({ docs }) => {
   try {
-    // Bulk Create Service Document
+    // Bulk Update Document
     const batch = writeBatch(db);
 
     docs.forEach((d) => {

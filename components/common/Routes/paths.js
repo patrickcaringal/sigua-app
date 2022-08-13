@@ -6,15 +6,20 @@ export const PATHS = {
     SERVICES_MANAGEMENT: "/doctor/services",
     SERVICES_RESTORE: "/doctor/services/restore",
     BRANCH_MANAGEMENT: "/doctor/branches",
+    BRANCH_RESTORE: "/doctor/branches/restore",
     STAFF_MANAGEMENT: "/doctor/staffs",
+    STAFF_RESTORE: "/doctor/staffs/restore",
   },
   STAFF: {
     DASHBOARD: "/staff/dashboard",
+    QUEUE_MANAGEMENT: "/staff/queue",
+    QUEUE_TODAY: "/staff/queue/today",
     MEMBER_APPROVAL: "/staff/member/approval",
   },
   PATIENT: {
     DASHBOARD: "/dashboard",
     FAMILY: "/family-members",
+    QUEUE: "/queue/today",
   },
   PUBLIC: {
     ROOT: "/",

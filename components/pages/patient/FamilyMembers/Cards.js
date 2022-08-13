@@ -18,12 +18,14 @@ import {
   Typography,
 } from "@mui/material";
 
+import { MEMBER_STATUS } from "../../../../modules/firebase";
 import {
   formatDate,
+  formatTimeStamp,
   getFullName,
   getInitials,
 } from "../../../../modules/helper";
-import { MEMBER_STATUS, icons, statusUploadAllowed } from "./utils";
+import { icons, statusUploadAllowed } from "./utils";
 
 const Cards = ({ data, onEditModal, onVerificationModal, onPhoneModal }) => {
   return (
@@ -35,19 +37,11 @@ const Cards = ({ data, onEditModal, onVerificationModal, onPhoneModal }) => {
           birthdate,
           address,
           gender,
-          verified,
           verifiedContactNo,
-          verificationAttachment,
           verificationRejectReason,
+          status,
         } = i;
 
-        const status = verified
-          ? MEMBER_STATUS.VERFIED
-          : !verificationAttachment
-          ? MEMBER_STATUS.FOR_VERIFICATION
-          : verificationAttachment && verificationRejectReason
-          ? MEMBER_STATUS.REJECTED
-          : MEMBER_STATUS.FOR_APPROVAL;
         return (
           <Card
             key={index}
@@ -103,7 +97,7 @@ const Cards = ({ data, onEditModal, onVerificationModal, onPhoneModal }) => {
                   sx={{ mx: 1, my: 0, borderColor: "grey.A400" }}
                 />
                 <Typography variant="body2" color="text.secondary">
-                  {formatDate(birthdate, "MMMM dd, yyyy")}
+                  {formatTimeStamp(birthdate, "MMMM dd, yyyy")}
                 </Typography>
                 <Divider
                   orientation="vertical"
@@ -153,16 +147,17 @@ const Cards = ({ data, onEditModal, onVerificationModal, onPhoneModal }) => {
                   Upload
                 </Button>
               )}
-              {status === MEMBER_STATUS.VERFIED && !verifiedContactNo && (
-                <Button
-                  variant="outlined"
-                  size="small"
-                  startIcon={<PhoneIphoneIcon />}
-                  onClick={() => onPhoneModal(i)}
-                >
-                  Verify
-                </Button>
-              )}
+              {status === MEMBER_STATUS.FOR_PHONE_VERIFICATION &&
+                !verifiedContactNo && (
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<PhoneIphoneIcon />}
+                    onClick={() => onPhoneModal(i)}
+                  >
+                    Verify
+                  </Button>
+                )}
               {/* <Button
                 variant="outlined"
                 size="small"

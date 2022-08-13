@@ -160,7 +160,7 @@ const Form = ({
                             );
                           }}
                           onBlur={handleBlur}
-                          error={getError("gender")}
+                          error={getError("services")}
                         >
                           {services.map(({ id, name }) => (
                             <MenuItem key={id} value={name}>

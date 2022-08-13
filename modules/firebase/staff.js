@@ -22,11 +22,19 @@ import {
   getFullName,
   getUniquePersonId,
   pluralize,
+  sortBy,
 } from "../helper";
 import { getErrorMsg } from "./auth";
 import { auth, db, secondaryAuth, timestampFields } from "./config";
+import { checkDuplicate, registerNames } from "./helpers";
 
 const collRef = collection(db, "staffs");
+
+const transformedFields = (doc) => ({
+  name: getFullName(doc),
+  birthdate: formatFirebasetimeStamp(doc.birthdate),
+  nameBirthdate: getUniquePersonId(doc),
+});
 
 export const signInStaffReq = async ({ email, password }) => {
   try {
@@ -55,105 +63,154 @@ export const signInStaffReq = async ({ email, password }) => {
   }
 };
 
-export const getStaffsReq = async () => {
+export const getStaffsReq = async ({ mapBranch }) => {
   try {
     // TODO: adjust when get branch needed
     // const q = query(collRef, where("branch", "==", branch));
-    const querySnapshot = await getDocs(collRef);
+    const q = query(collRef, where("deleted", "!=", true));
+    const querySnapshot = await getDocs(q);
 
-    const data = querySnapshot.docs.map((doc, index) => ({
-      index,
-      ...doc.data(),
-    }));
+    let branches = {};
+    if (mapBranch) {
+      // Get Account list
+      const docRef = doc(db, "branches", "list");
+      const docSnap = await getDoc(docRef);
+
+      if (!docSnap.exists()) {
+        throw new Error("Unable to get Account list doc");
+      }
+      branches = docSnap.data();
+    }
+
+    const data = querySnapshot.docs
+      .map((doc) => {
+        const data = doc.data();
+        return mapBranch
+          ? {
+              ...data,
+              branchName: branches[data.branch],
+            }
+          : data;
+      })
+      .sort(sortBy("dateCreated"));
 
     return { data, success: true };
   } catch (error) {
-    console.log("getStaffsReq ERR", error);
+    console.log(error);
     return { error: error.message };
   }
 };
 
-export const addStaffReq = async ({ staffs }) => {
+export const getDeletedStaffsReq = async () => {
+  try {
+    // TODO: adjust when get branch needed
+    // const q = query(collRef, where("branch", "==", branch));
+    const q = query(collRef, where("deleted", "==", true));
+    const querySnapshot = await getDocs(q);
+
+    // Get Account list
+    const docRef = doc(db, "branches", "list");
+    const docSnap = await getDoc(docRef);
+
+    if (!docSnap.exists()) {
+      throw new Error("Unable to get Account list doc");
+    }
+
+    const branches = docSnap.data();
+
+    const data = querySnapshot.docs
+      .map((doc) => {
+        const data = doc.data();
+        return {
+          ...data,
+          branchName: branches[data.branch],
+        };
+      })
+      .sort(sortBy("dateCreated"));
+
+    // const data = querySnapshot.docs
+    //   .map((doc) => ({
+    //     id: doc.id,
+    //     ...doc.data(),
+    //   }))
+    //   .sort(sortBy("dateCreated"));
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
+export const addStaffReq = async ({ docs }) => {
   try {
     // Check email duplicate
-    let q = query(
-      collRef,
-      where(
+    await checkDuplicate({
+      collectionName: "staffs",
+      whereClause: where(
         "email",
         "in",
-        staffs.map((i) => i.email)
-      )
-    );
-    let querySnapshot = await getDocs(q);
+        docs.map((i) => i.email)
+      ),
+      duplicateOutputField: "email",
+      errorMsg: {
+        noun: "Email",
+      },
+    });
 
-    let isDuplicate = querySnapshot.docs.length !== 0;
-    if (isDuplicate) {
-      const duplicates = querySnapshot.docs.map((i) => i.data().email);
-      throw new Error(
-        `Duplicate ${pluralize(
-          "Staff email",
-          duplicates.length
-        )}. ${arrayStringify(duplicates)}`
-      );
-    }
-
-    // Check fullname, birthdate duplicate
-    q = query(
-      collRef,
-      where(
+    // Check name duplicate
+    await checkDuplicate({
+      collectionName: "staffs",
+      whereClause: where(
         "nameBirthdate",
         "in",
-        staffs.map((i) => getUniquePersonId(i))
-      )
-    );
-    querySnapshot = await getDocs(q);
-
-    isDuplicate = querySnapshot.docs.length !== 0;
-    if (isDuplicate) {
-      const duplicates = querySnapshot.docs.map((i) => i.data().name);
-      throw new Error(
-        `Duplicate ${pluralize("Staff", duplicates.length)}. ${arrayStringify(
-          duplicates
-        )}`
-      );
-    }
+        docs.map((i) => i.nameBirthdate)
+      ),
+      errorMsg: {
+        noun: "Staff",
+      },
+    });
 
     const batch = writeBatch(db);
 
     // Bulk Create Auth Account
-    for (let index = 0; index < staffs.length; index++) {
-      const staffdoc = { ...staffs[index] };
-      const { birthdate: rawBirthdate, email } = staffdoc;
+    for (let index = 0; index < docs.length; index++) {
+      const staffDoc = { ...docs[index] };
       const {
         user: { uid },
       } = await createUserWithEmailAndPassword(
         secondaryAuth,
-        email,
-        "12345678"
+        staffDoc.email,
+        "12345678" // TODO: random generate
       );
 
-      const fullName = getFullName(staffdoc);
-      const birthdate = formatFirebasetimeStamp(rawBirthdate);
-
-      staffdoc = {
-        ...staffdoc,
-        id: uid,
-        nameBirthdate: getUniquePersonId(staffdoc), // unique identifier
-        name: fullName,
-        birthdate,
+      const docRef = doc(collRef);
+      const id = docRef.id;
+      staffDoc = {
+        ...staffDoc,
+        id,
+        authId: uid,
         role: "staff",
+        deleted: false,
         ...timestampFields({ dateCreated: true, dateUpdated: true }),
       };
 
-      batch.set(doc(db, "staffs", uid), staffdoc);
+      batch.set(doc(db, "staffs", id), staffDoc);
 
-      staffs[index] = { ...staffdoc };
+      docs[index] = { ...staffDoc };
     }
+
+    // Register staff name
+    const { namesDocRef, names } = await registerNames({
+      collectionName: "staffs",
+      names: docs.reduce((acc, i) => ({ ...acc, [i.id]: i.name }), {}),
+    });
+    batch.update(namesDocRef, names);
 
     // Bulk Create Account Document
     await batch.commit();
 
-    return { data: staffs, success: true };
+    return { data: docs, success: true };
   } catch (error) {
     const errMsg = getErrorMsg(error.code);
     return { error: errMsg || error.message };
@@ -162,26 +219,77 @@ export const addStaffReq = async ({ staffs }) => {
 
 export const updateStaffReq = async ({ staff }) => {
   try {
-    // Check fullname, birthdate duplicate
-    const q = query(
-      collRef,
-      where("nameBirthdate", "==", getUniquePersonId(staff))
-    );
-    const querySnapshot = await getDocs(q);
-
-    const isDuplicate = querySnapshot.docs.length !== 0;
-    // .filter((doc) => doc.id !== staff.id)
-    if (isDuplicate) {
-      throw new Error(`Duplicate Staff. ${getFullName(staff)}`);
+    // Check duplicate
+    if (staff.name || staff.birthdate) {
+      await checkDuplicate({
+        collectionName: "staffs",
+        whereClause: where("nameBirthdate", "==", staff.nameBirthdate),
+        errorMsg: {
+          noun: "Staff",
+        },
+      });
     }
 
     // Update
+    const batch = writeBatch(db);
     const docRef = doc(db, "staffs", staff.id);
     const finalDoc = {
-      ...lodash.omit(staff, ["id", "index"]),
+      ...staff,
+      ...timestampFields({ dateUpdated: true }),
+    };
+    batch.update(docRef, finalDoc);
+
+    // Register staff name
+    if (staff.name) {
+      const { namesDocRef, names } = await registerNames({
+        collectionName: "staffs",
+        names: { [staff.id]: staff.name },
+      });
+      batch.update(namesDocRef, names);
+    }
+
+    await batch.commit();
+
+    return { success: true };
+  } catch (error) {
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const deleteStaffReq = async ({ staff }) => {
+  try {
+    // NOTE: check delete assoc for staff
+
+    // Update to deleted status
+    const docRef = doc(db, "staffs", staff.id);
+    const finalDoc = {
+      deleted: true,
       ...timestampFields({ dateUpdated: true }),
     };
     await updateDoc(docRef, finalDoc);
+
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const restoreStaffReq = async ({ docs }) => {
+  try {
+    // Bulk Update Document
+    const batch = writeBatch(db);
+
+    docs.forEach((d) => {
+      const updatedFields = {
+        deleted: false,
+      };
+      batch.update(doc(db, "staffs", d.id), updatedFields);
+    });
+
+    await batch.commit();
 
     return { success: true };
   } catch (error) {

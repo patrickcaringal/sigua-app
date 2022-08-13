@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import ImageSearchIcon from "@mui/icons-material/ImageSearch";
 import {
@@ -7,26 +7,49 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   Fab,
-  Input,
-  TextField,
   Typography,
 } from "@mui/material";
+import { useFormik } from "formik";
 import dynamic from "next/dynamic";
 import Image from "next/image";
+
+import { VerificationRejectSchema } from "../../../../modules/validation";
+import { Input } from "../../../common";
+
 const ReactViewer = dynamic(() => import("react-viewer"), { ssr: false });
 
 const MemberApprovalModal = ({ data, open, onClose, onApprove, onReject }) => {
-  const { src = "", requester, member, accountId } = data || {};
+  const { verificationAttachment: src, accountName: requester, name } = data;
+
+  const formik = useFormik({
+    initialValues: {
+      verificationRejectReason: "",
+    },
+    validationSchema: VerificationRejectSchema,
+    validateOnChange: false,
+    onSubmit: async (values) => {
+      const { verificationRejectReason } = values;
+
+      onReject({
+        ...data,
+        verificationRejectReason,
+      });
+    },
+  });
+  const {
+    handleChange,
+    handleBlur,
+    values,
+    errors,
+    touched,
+    resetForm,
+    submitForm,
+  } = formik;
 
   const [viewerOpen, setViewerOpen] = useState(false);
   const [rejectInputShown, setRejectInputShown] = useState(false);
-  const [rejectReason, setRejectReason] = useState({
-    value: "",
-    error: "",
-  });
 
   const dialogOpen = viewerOpen ? false : open;
   const image = [
@@ -35,13 +58,6 @@ const MemberApprovalModal = ({ data, open, onClose, onApprove, onReject }) => {
       alt: "",
     },
   ];
-
-  const validateInput = (value) => {
-    setRejectReason((prev) => ({
-      ...prev,
-      error: value.trim() === "" ? "Rejection reason is required" : "",
-    }));
-  };
 
   const handleViewerOpen = () => {
     setViewerOpen(true);
@@ -57,27 +73,16 @@ const MemberApprovalModal = ({ data, open, onClose, onApprove, onReject }) => {
   };
 
   const handleApprove = () => {
-    onApprove({ memberName: member, accountId });
+    onApprove(data);
   };
 
   const handleReject = () => {
     setRejectInputShown(true);
   };
 
-  const handleProceedReject = () => {
-    validateInput(rejectReason.value);
-    if (rejectReason.value === "") return;
-
-    onReject({
-      memberName: member,
-      accountId,
-      verificationRejectReason: rejectReason.value,
-    });
-  };
-
   const handleCancelReject = () => {
     setRejectInputShown(false);
-    setRejectReason("");
+    resetForm();
   };
 
   return (
@@ -98,7 +103,7 @@ const MemberApprovalModal = ({ data, open, onClose, onApprove, onReject }) => {
               Member
             </Typography>
             <Typography variant="caption" display="block">
-              {member}
+              {name}
             </Typography>
           </Box>
           <Box
@@ -119,22 +124,18 @@ const MemberApprovalModal = ({ data, open, onClose, onApprove, onReject }) => {
             )}
           </Box>
           {rejectInputShown && (
-            <TextField
-              size="small"
+            <Input
+              sx={{ mt: 2 }}
               required
-              fullWidth
               label="Rejection reason"
-              autoComplete="off"
-              value={rejectReason.value}
-              onChange={(e) =>
-                setRejectReason((prev) => ({
-                  ...prev,
-                  value: e.target.value,
-                }))
+              value={values.verificationRejectReason}
+              name="verificationRejectReason"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={
+                touched.verificationRejectReason &&
+                errors.verificationRejectReason
               }
-              onBlur={(e) => validateInput(e.target.value)}
-              error={rejectReason.error}
-              helperText={rejectReason.error}
             />
           )}
           <Fab
@@ -165,11 +166,7 @@ const MemberApprovalModal = ({ data, open, onClose, onApprove, onReject }) => {
           {rejectInputShown && (
             <>
               <Button onClick={handleCancelReject}>Cancel</Button>
-              <Button
-                onClick={handleProceedReject}
-                variant="outlined"
-                color="error"
-              >
+              <Button onClick={submitForm} variant="outlined" color="error">
                 Proceed Reject
               </Button>
             </>
