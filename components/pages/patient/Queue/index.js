@@ -11,7 +11,7 @@ import {
   Container,
   Typography,
 } from "@mui/material";
-import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import lodash from "lodash";
 import { useRouter } from "next/router";
 
@@ -19,14 +19,7 @@ import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
-import {
-  MEMBER_STATUS,
-  addPatientReq,
-  db,
-  getFamilyMembersReq,
-  updatePatientReq,
-  uploadImageReq,
-} from "../../../../modules/firebase";
+import { db, getFamilyMembersReq } from "../../../../modules/firebase";
 import {
   formatTimeStamp,
   localUpdateDocs,
@@ -35,10 +28,7 @@ import {
   today,
 } from "../../../../modules/helper";
 import { Toolbar, successMessage } from "../../../common";
-import { MobileNumberVerificationModal } from "../../../shared";
-// import Cards from "./Cards";
-// import ManageFamilyMemberModal from "./ManageFamilyMemberModal";
-// import UploadAttachmentModal from "./UploadAttachmentModal";
+import Placeholder from "./Placeholder";
 
 const defaultModal = {
   open: false,
@@ -85,8 +75,6 @@ const PatientQueuePage = () => {
     return () => unsub();
   }, [branchId]);
 
-  if (!hasQueueToday) return null;
-
   return (
     <Container maxWidth="lg">
       <Toolbar
@@ -111,38 +99,42 @@ const PatientQueuePage = () => {
           mt: 1,
         }}
       >
-        <Box sx={{ display: "flex", gap: 2 }}>
-          <Typography
-            variant="h5"
-            color="text.secondary"
-            sx={{ fontWeight: "bold" }}
-          >
-            {queueToday.branchName}
-          </Typography>
-          <Typography
-            variant="h6"
-            color="text.secondary"
-            sx={{ fontWeight: "semibold" }}
-          >
-            {formatTimeStamp(queueToday.date, "MMM dd, yyyy (eee)")}
-          </Typography>
-        </Box>
+        {hasQueueToday ? (
+          <>
+            <Box sx={{ display: "flex", gap: 2 }}>
+              <Typography
+                variant="h5"
+                color="text.secondary"
+                sx={{ fontWeight: "bold" }}
+              >
+                {queueToday.branchName}
+              </Typography>
+              <Typography
+                variant="h6"
+                color="text.secondary"
+                sx={{ fontWeight: "semibold" }}
+              >
+                {formatTimeStamp(queueToday.date, "MMM dd, yyyy (eee)")}
+              </Typography>
+            </Box>
 
-        <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
-          {isRegOpen ? (
-            <Chip label="Registration Open" color="primary" size="large" />
-          ) : (
-            <Chip label="Registration Close" color="warning" size="large" />
-          )}
-          {isQueueOpen ? (
-            <Chip label="Queue Ongoing" color="primary" size="large" />
-          ) : (
-            <Chip label="Queue Close" color="warning" size="large" />
-          )}
-        </Box>
+            <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
+              {isRegOpen ? (
+                <Chip label="Registration Open" color="primary" size="large" />
+              ) : (
+                <Chip label="Registration Close" color="warning" size="large" />
+              )}
+              {isQueueOpen ? (
+                <Chip label="Queue Ongoing" color="primary" size="large" />
+              ) : (
+                <Chip label="Queue Close" color="warning" size="large" />
+              )}
+            </Box>
 
-        <Box sx={{ pt: 5, display: "flex", flexDirection: "column", gap: 3 }}>
-          {/* <Card
+            <Box
+              sx={{ pt: 5, display: "flex", flexDirection: "column", gap: 3 }}
+            >
+              {/* <Card
             sx={{
               width: 296,
               height: 208,
@@ -177,7 +169,7 @@ const PatientQueuePage = () => {
             </CardActionArea>
           </Card> */}
 
-          <Card
+              {/* <Card
             sx={{
               width: 296,
               height: 208,
@@ -213,8 +205,52 @@ const PatientQueuePage = () => {
                 </Typography>
               </CardContent>
             </CardActionArea>
-          </Card>
-        </Box>
+          </Card> */}
+
+              {isRegOpen && (
+                <Card
+                  sx={{
+                    width: 296,
+                    height: 208,
+                    color: "primary.main",
+                  }}
+                >
+                  <CardActionArea
+                    sx={{
+                      width: "inherit",
+                      height: "inherit",
+                      border: "6px solid #009FFE",
+                    }}
+                  >
+                    <CardContent
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Typography variant="h6" sx={{ fontWeight: "semibold" }}>
+                        Current Available
+                      </Typography>
+                      <Typography variant="h6" sx={{ fontWeight: "semibold" }}>
+                        Number
+                      </Typography>
+                      <Typography
+                        variant="h2"
+                        component="div"
+                        sx={{ fontWeight: "bold" }}
+                      >
+                        {queueToday.nextQueueNo}
+                      </Typography>
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
+              )}
+            </Box>
+          </>
+        ) : (
+          <Placeholder />
+        )}
       </Box>
     </Container>
   );

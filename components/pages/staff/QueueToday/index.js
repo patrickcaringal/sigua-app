@@ -54,8 +54,8 @@ import {
 } from "../../../../modules/helper";
 import { PATHS, confirmMessage, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
+import Placeholder from "./Placeholder";
 import ManageQueueModal from "./QueueModal";
-import TableCells from "./TableCells";
 
 const defaultModal = {
   open: false,
@@ -154,8 +154,10 @@ const QueueManagementPage = () => {
       ],
       done: [],
       skipped: [],
+      nextQueueNo: 1,
       createdBy: user.id,
       openForRegistration: false,
+      openQueue: false,
     };
 
     // Add
@@ -263,8 +265,6 @@ const QueueManagementPage = () => {
         </>
       }
     >
-      {/* {queueToday.id} */}
-      {/* {queueToday.queueDate} */}
       {hasQueueToday ? (
         <>
           <Box sx={{ m: 2, display: "flex", flexDirection: "row", gap: 6 }}>
@@ -397,35 +397,7 @@ const QueueManagementPage = () => {
           </Box> */}
         </>
       ) : (
-        <Box
-          sx={{
-            height: "100%",
-            display: "flex",
-            flexDirection: " column",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Typography gutterBottom>
-            <QueueIcon fontSize="large" />
-          </Typography>
-
-          <Typography
-            variant="h4"
-            gutterBottom
-            color="text.secondary"
-            sx={{ fontWeight: "semibold" }}
-          >
-            No Queue Today
-          </Typography>
-          <Typography
-            variant="h6"
-            color="text.secondary"
-            sx={{ fontWeight: "normal" }}
-          >
-            Add now
-          </Typography>
-        </Box>
+        <Placeholder />
       )}
 
       {queueModal.open && (
