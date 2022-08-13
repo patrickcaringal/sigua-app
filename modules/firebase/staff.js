@@ -44,7 +44,7 @@ export const signInStaffReq = async ({ email, password }) => {
     // Get User Document
     const id = res?.user?.uid;
     const collRef = collection(db, "staffs");
-    const q = query(collRef, where("id", "==", id));
+    const q = query(collRef, where("authId", "==", id));
     const querySnapshot = await getDocs(q);
 
     const exist = querySnapshot.docs.length === 1;
