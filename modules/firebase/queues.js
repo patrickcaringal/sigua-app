@@ -1,7 +1,10 @@
 import {
+  arrayUnion,
   collection,
   doc,
+  getDoc,
   getDocs,
+  increment,
   query,
   setDoc,
   updateDoc,
@@ -49,6 +52,36 @@ export const addQueueReq = async ({ docs }) => {
     await setDoc(docRef, data);
 
     return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const registerToQueueReq = async ({ id, document }) => {
+  try {
+    // Get latest queue
+    const docRef = doc(db, "queues", id);
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) {
+      throw new Error("Unable to get Queue doc");
+    }
+
+    const data = docSnap.data();
+    document = {
+      ...document,
+      queueNo: data.nextQueueNo,
+    };
+
+    // Add to queue
+    const docRef2 = doc(db, "queues", id);
+    await updateDoc(docRef2, {
+      queue: arrayUnion(document),
+      nextQueueNo: increment(1),
+    });
+
+    return { success: true };
   } catch (error) {
     console.log(error);
     const errMsg = getErrorMsg(error.code);

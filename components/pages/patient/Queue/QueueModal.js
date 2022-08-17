@@ -15,7 +15,7 @@ import { Modal } from "../../../common";
 import Form from "./Form";
 
 const defaultValues = {
-  branchId: "",
+  // branchId: "",
   serviceId: "",
   serviceName: "",
   patientId: "",
