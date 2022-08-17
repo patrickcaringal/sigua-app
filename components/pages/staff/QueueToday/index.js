@@ -1,8 +1,7 @@
 import React, { Fragment, useEffect, useState } from "react";
 
 import AddCircleIcon from "@mui/icons-material/AddCircle";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
+import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import QueueIcon from "@mui/icons-material/Queue";
 import RestoreIcon from "@mui/icons-material/Restore";
@@ -39,9 +38,9 @@ import useRequest from "../../../../hooks/useRequest";
 import {
   addQueueReq,
   db,
-  deleteServiceReq,
   getBranchesReq,
   getQueuesReq,
+  resetQueueReq,
   updateQueueRegStatusReq,
   updateQueueStatusReq,
 } from "../../../../modules/firebase";
@@ -54,7 +53,9 @@ import {
 } from "../../../../modules/helper";
 import { PATHS, confirmMessage, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
+import Header from "./Header";
 import Placeholder from "./Placeholder";
+import QueueList from "./QueueList";
 import ManageQueueModal from "./QueueModal";
 
 const defaultModal = {
@@ -70,7 +71,6 @@ const QueueManagementPage = () => {
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   // Requests
-  const [getQueues] = useRequest(getQueuesReq, setBackdropLoader);
   const [getBranches] = useRequest(getBranchesReq, setBackdropLoader);
   const [addQueue] = useRequest(addQueueReq, setBackdropLoader);
   const [updateQueueRegStatus] = useRequest(
@@ -81,9 +81,9 @@ const QueueManagementPage = () => {
     updateQueueStatusReq,
     setBackdropLoader
   );
+  const [resetQueue] = useRequest(resetQueueReq, setBackdropLoader);
 
   // Local States
-  // const [queues, setQueues] = useState([]);
   const [queueToday, setQueueToday] = useState({});
   const [branches, setBranches] = useState([]);
   const [branchesMap, setBranchesMap] = useState({});
@@ -219,6 +219,12 @@ const QueueManagementPage = () => {
     setQueueModal(defaultModal);
   };
 
+  const handleResetQueue = async () => {
+    const payload = { id: queueToday.id };
+    const { error: resetError } = await resetQueue(payload);
+    if (resetError) return openErrorDialog(resetError);
+  };
+
   return (
     <AdminMainContainer
       toolbarProps={{
@@ -240,7 +246,6 @@ const QueueManagementPage = () => {
               >
                 {`${isRegOpen ? "close" : "open"}`} registration
               </Button>
-
               <Button
                 variant={isQueueOpen ? "outlined" : "contained"}
                 size="small"
@@ -252,6 +257,16 @@ const QueueManagementPage = () => {
               </Button>
             </>
           )}
+
+          <Button
+            variant="contained"
+            color="warning"
+            size="small"
+            onClick={handleResetQueue}
+            sx={{ mr: 2 }}
+          >
+            Reset
+          </Button>
           <Button
             variant="contained"
             size="small"
@@ -266,134 +281,15 @@ const QueueManagementPage = () => {
     >
       {hasQueueToday ? (
         <>
-          <Box sx={{ m: 2, display: "flex", flexDirection: "row", gap: 6 }}>
-            <Box
-              sx={{
-                display: "grid",
-                grid: "auto-flow / 0fr 1fr",
-                alignItems: "center",
-                rowGap: 1,
-              }}
-            >
-              {[
-                {
-                  label: "Branch",
-                  value: branchesMap[user.branch],
-                },
-                {
-                  label: "Date",
-                  value: formatTimeStamp(queueToday.date, "MMM dd, yyyy (eee)"),
-                },
-              ].map(({ label, value }, index) => (
-                <Fragment key={index}>
-                  <Box sx={{ minWidth: 100 }}>{label}</Box>
-                  <Box sx={{ fontWeight: "500" }}>{value}</Box>
-                </Fragment>
-              ))}
-            </Box>
-
-            <Box
-              sx={{
-                display: "grid",
-                grid: "auto-flow / 0fr 1fr",
-                alignItems: "center",
-                rowGap: 1,
-              }}
-            >
-              {[
-                {
-                  label: "Status",
-                  value: (
-                    <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
-                      {isRegOpen ? (
-                        <Chip
-                          label="Registration Open"
-                          color="primary"
-                          size="small"
-                        />
-                      ) : (
-                        <Chip
-                          label="Registration Close"
-                          color="warning"
-                          size="small"
-                        />
-                      )}
-                      {isQueueOpen ? (
-                        <Chip
-                          label="Queue Ongoing"
-                          color="primary"
-                          size="small"
-                        />
-                      ) : (
-                        <Chip
-                          label="Queue Close"
-                          color="warning"
-                          size="small"
-                        />
-                      )}
-                    </Box>
-                  ),
-                },
-                {
-                  label: "Capacity",
-                  value: `0 / ${queueToday.capacity}`,
-                },
-              ].map(({ label, value }, index) => (
-                <Fragment key={index}>
-                  <Box sx={{ minWidth: 100 }}>{label}</Box>
-                  <Box sx={{ fontWeight: "500" }}>{value}</Box>
-                </Fragment>
-              ))}
-            </Box>
-          </Box>
-
-          {/* <Box>
-            <List
-              sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
-            >
-              <ListItem alignItems="flex-start">
-                <ListItemAvatar>
-                  <Avatar alt="1" src="/static/images/avatar/1.jpg" />
-                </ListItemAvatar>
-                <ListItemText
-                  primary="Patrick Angelo Caringal"
-                  secondary={
-                    <React.Fragment>
-                      <Typography
-                        sx={{ display: "inline" }}
-                        component="span"
-                        variant="body2"
-                        color="text.primary"
-                      >
-                        Blood sugar count
-                      </Typography>
-                    </React.Fragment>
-                  }
-                />
-              </ListItem>
-              <Divider component="li" />
-              <ListItem alignItems="flex-start">
-                <ListItemAvatar>
-                  <Avatar alt="2" src="/static/images/avatar/1.jpg" />
-                </ListItemAvatar>
-                <ListItemText
-                  primary="Allyza Choie Denise Cos"
-                  secondary={
-                    <React.Fragment>
-                      <Typography
-                        sx={{ display: "inline" }}
-                        component="span"
-                        variant="body2"
-                        color="text.primary"
-                      >
-                        ECG
-                      </Typography>
-                    </React.Fragment>
-                  }
-                />
-              </ListItem>
-            </List>
-          </Box> */}
+          <Header
+            branch={branchesMap[user.branch]}
+            date={queueToday.date}
+            registered={queueToday.nextQueueNo - 1}
+            capacity={queueToday.capacity}
+            isRegOpen={isRegOpen}
+            isQueueOpen={isQueueOpen}
+          />
+          <QueueList queue={queueToday.queue} />
         </>
       ) : (
         <Placeholder />

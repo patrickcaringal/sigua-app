@@ -122,3 +122,20 @@ export const updateQueueStatusReq = async ({ document }) => {
     return { error: errMsg || error.message };
   }
 };
+
+// Dev func
+export const resetQueueReq = async ({ id }) => {
+  try {
+    const docRef = doc(db, "queues", id);
+    await updateDoc(docRef, {
+      queue: [],
+      nextQueueNo: 1,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};

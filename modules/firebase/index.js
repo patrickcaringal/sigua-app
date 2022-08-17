@@ -35,6 +35,7 @@ import {
   addQueueReq,
   getQueuesReq,
   registerToQueueReq,
+  resetQueueReq,
   updateQueueRegStatusReq,
   updateQueueStatusReq,
 } from "./queues";
@@ -107,6 +108,7 @@ export {
   addQueueReq,
   getQueuesReq,
   registerToQueueReq,
+  resetQueueReq,
   updateQueueRegStatusReq,
   updateQueueStatusReq,
   // storage

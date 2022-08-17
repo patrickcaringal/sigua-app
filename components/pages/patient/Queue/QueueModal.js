@@ -15,7 +15,6 @@ import { Modal } from "../../../common";
 import Form from "./Form";
 
 const defaultValues = {
-  // branchId: "",
   serviceId: "",
   serviceName: "",
   patientId: "",
@@ -40,7 +39,6 @@ const ManageFamilyMemberModal = ({
     validateOnChange: false,
     enableReinitialize: true,
     onSubmit: async (values) => {
-      // console.log(JSON.stringify(values, null, 4));
       onSave(values);
     },
   });
