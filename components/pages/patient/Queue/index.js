@@ -1,16 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import {
-  Badge,
-  Box,
-  Button,
-  Card,
-  CardActionArea,
-  CardContent,
-  Chip,
-  Container,
-  Typography,
-} from "@mui/material";
+import { Badge, Box, Button, Chip, Container, Typography } from "@mui/material";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import lodash from "lodash";
 import { useRouter } from "next/router";
@@ -33,6 +23,7 @@ import {
   today,
 } from "../../../../modules/helper";
 import { Toolbar, successMessage } from "../../../common";
+import QueueCard, { CARD_TYPES } from "./Card";
 import Placeholder from "./Placeholder";
 import QueueModal from "./QueueModal";
 
@@ -85,6 +76,9 @@ const PatientQueuePage = () => {
   const hasQueueToday = !!lodash.keys(queueToday).length;
   const isRegOpen = hasQueueToday ? queueToday.openForRegistration : false;
   const isQueueOngoing = hasQueueToday ? queueToday.openQueue : false;
+  const myQueueItems = (queueToday?.queue || []).filter(
+    (i) => i.accountId === user.id
+  );
 
   useEffect(() => {
     const q = query(
@@ -110,6 +104,19 @@ const PatientQueuePage = () => {
   }, [branchId]);
 
   const handleAddQueue = async (document) => {
+    // Validate
+    const patientAlreadyHasQueue = !!myQueueItems.filter(
+      (i) => i.patientId === document.patientId
+    ).length;
+
+    if (patientAlreadyHasQueue) {
+      return openResponseDialog({
+        autoClose: true,
+        content: `${document.patientName} is already registered on today's queue.`,
+        type: "WARNING",
+      });
+    }
+
     // Register
     const payload = { id: queueToday.id, document };
     const { error: regError } = await registerToQueue(payload);
@@ -119,7 +126,7 @@ const PatientQueuePage = () => {
     openResponseDialog({
       autoClose: true,
       content: successMessage({
-        noun: document.name,
+        noun: document.patientName,
         verb: "registered to the Queue",
       }),
       type: "SUCCESS",
@@ -143,12 +150,6 @@ const PatientQueuePage = () => {
     setQueueModal(defaultModal);
   };
 
-  const myQueueItems = (queueToday?.queue || []).filter(
-    (i) => i.accountId === user.id
-  );
-  // console.log(JSON.stringify(queueToday, null, 4));
-  // console.log(JSON.stringify(myQueueItems, null, 4));
-
   return (
     <Container maxWidth="lg">
       <Toolbar
@@ -171,27 +172,12 @@ const PatientQueuePage = () => {
           alignItems: "center",
           gap: 2,
           mt: 1,
+          pb: 3,
           // border: "1px solid khaki",
         }}
       >
         {hasQueueToday ? (
           <>
-            {/* <Box sx={{ display: "flex", gap: 2 }}>
-              <Typography
-                variant="h5"
-                color="text.secondary"
-                sx={{ fontWeight: "bold" }}
-              >
-                {queueToday.branchName}
-              </Typography>
-              <Typography
-                variant="h6"
-                color="text.secondary"
-                sx={{ fontWeight: "semibold" }}
-              >
-                {formatTimeStamp(queueToday.date, "MMM dd, yyyy (eee)")}
-              </Typography>
-            </Box> */}
             <TodayHeader
               date={queueToday.date}
               branch={queueToday.branchName}
@@ -214,10 +200,12 @@ const PatientQueuePage = () => {
               sx={{
                 pt: 5,
                 display: "flex",
-                flexDirection: "row",
+                flexDirection: { xs: "column", sm: "row" },
                 width: "100%",
+                gap: { xs: 3 },
               }}
             >
+              {/* Others Cards */}
               <Box
                 sx={{
                   flex: 1,
@@ -229,97 +217,22 @@ const PatientQueuePage = () => {
                 }}
               >
                 {isRegOpen && (
-                  <Card
-                    sx={{
-                      width: 240,
-                      height: 250,
-                      color: "primary.main",
-                    }}
-                  >
-                    <CardActionArea
-                      sx={{
-                        width: "inherit",
-                        height: "inherit",
-                        border: "6px solid #009FFE",
-                      }}
-                    >
-                      <CardContent
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Typography
-                          variant="h6"
-                          sx={{ fontWeight: "semibold" }}
-                        >
-                          Current Available
-                        </Typography>
-                        <Typography
-                          variant="h6"
-                          sx={{ fontWeight: "semibold" }}
-                        >
-                          Number
-                        </Typography>
-                        <Typography
-                          variant="h2"
-                          component="div"
-                          sx={{ fontWeight: "bold" }}
-                        >
-                          {queueToday.nextQueueNo}
-                        </Typography>
-                      </CardContent>
-                    </CardActionArea>
-                  </Card>
+                  <QueueCard
+                    queueNo={queueToday.nextQueueNo}
+                    title="Current Available Number"
+                    type={CARD_TYPES.OTHERS}
+                  />
                 )}
                 {isQueueOngoing && (
-                  <Card
-                    sx={{
-                      width: 240,
-                      height: 250,
-                      color: "primary.main",
-                    }}
-                  >
-                    <CardActionArea
-                      sx={{
-                        width: "inherit",
-                        height: "inherit",
-                        border: "6px solid #009FFE",
-                      }}
-                    >
-                      <CardContent
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Typography
-                          variant="h6"
-                          sx={{ fontWeight: "semibold" }}
-                        >
-                          Serving
-                        </Typography>
-                        <Typography
-                          variant="h6"
-                          sx={{ fontWeight: "semibold" }}
-                        >
-                          Number
-                        </Typography>
-                        <Typography
-                          variant="h2"
-                          component="div"
-                          sx={{ fontWeight: "bold" }}
-                        >
-                          {/* {queueToday.nextQueueNo} */}-
-                        </Typography>
-                      </CardContent>
-                    </CardActionArea>
-                  </Card>
+                  <QueueCard
+                    queueNo={undefined}
+                    title="Serving Number"
+                    type={CARD_TYPES.OTHERS}
+                  />
                 )}
               </Box>
 
+              {/* Own Cards */}
               <Box
                 sx={{
                   flex: 1,
@@ -331,44 +244,12 @@ const PatientQueuePage = () => {
                 }}
               >
                 {myQueueItems.map((i) => (
-                  <Card
+                  <QueueCard
                     key={i.queueNo}
-                    sx={{
-                      width: 240,
-                      height: 250,
-                      color: "warning.light",
-                    }}
-                  >
-                    <CardActionArea
-                      sx={{
-                        width: "inherit",
-                        height: "inherit",
-                        border: "6px solid #ff9800",
-                      }}
-                    >
-                      <CardContent
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Typography
-                          variant="body1"
-                          sx={{ fontWeight: "bold", textAlign: "center" }}
-                        >
-                          {i.patientName}
-                        </Typography>
-                        <Typography
-                          variant="h2"
-                          component="div"
-                          sx={{ fontWeight: "bold" }}
-                        >
-                          {i.queueNo}
-                        </Typography>
-                      </CardContent>
-                    </CardActionArea>
-                  </Card>
+                    queueNo={i.queueNo}
+                    title={i.patientName}
+                    type={CARD_TYPES.OWNED}
+                  />
                 ))}
               </Box>
             </Box>
@@ -379,7 +260,6 @@ const PatientQueuePage = () => {
 
         {queueModal.open && (
           <QueueModal
-            // branches={branches}
             open={queueModal.open}
             data={queueModal.data}
             onClose={handleQueueModalClose}
