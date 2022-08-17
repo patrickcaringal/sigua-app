@@ -21,6 +21,7 @@ import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
 import { db, getFamilyMembersReq } from "../../../../modules/firebase";
 import {
+  formatFirebasetimeStamp,
   formatTimeStamp,
   localUpdateDocs,
   personBuiltInFields,
@@ -29,10 +30,38 @@ import {
 } from "../../../../modules/helper";
 import { Toolbar, successMessage } from "../../../common";
 import Placeholder from "./Placeholder";
+import QueueModal from "./QueueModal";
 
 const defaultModal = {
   open: false,
   data: {},
+};
+
+const TodayHeader = ({ date, branch }) => {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        gap: 2,
+        justifyContent: "center",
+      }}
+    >
+      <Typography
+        variant="h5"
+        color="text.secondary"
+        sx={{ fontWeight: "bold" }}
+      >
+        {branch}
+      </Typography>
+      <Typography
+        variant="h6"
+        color="text.secondary"
+        sx={{ fontWeight: "semibold" }}
+      >
+        {formatTimeStamp(date, "MMM dd, yyyy (eee)")}
+      </Typography>
+    </Box>
+  );
 };
 
 const PatientQueuePage = () => {
@@ -47,6 +76,7 @@ const PatientQueuePage = () => {
 
   // Local States
   const [queueToday, setQueueToday] = useState({});
+  const [queueModal, setQueueModal] = useState(defaultModal);
 
   const hasQueueToday = !!lodash.keys(queueToday).length;
   const isRegOpen = hasQueueToday ? queueToday.openForRegistration : false;
@@ -75,6 +105,30 @@ const PatientQueuePage = () => {
     return () => unsub();
   }, [branchId]);
 
+  const handleAddQueue = async (document) => {
+    document = {
+      ...document,
+      date: today,
+      dateTimestamp: formatFirebasetimeStamp(today),
+    };
+    console.log(JSON.stringify(document, null, 4));
+    // CONTINUE
+  };
+
+  const handleQueueModalOpen = () => {
+    setQueueModal({
+      open: true,
+      data: {
+        branchId,
+        accountId: user.id,
+      },
+    });
+  };
+
+  const handleQueueModalClose = () => {
+    setQueueModal(defaultModal);
+  };
+
   return (
     <Container maxWidth="lg">
       <Toolbar
@@ -84,7 +138,7 @@ const PatientQueuePage = () => {
         <Button
           variant="contained"
           size="small"
-          // onClick={handleMemberModalOpen}
+          onClick={handleQueueModalOpen}
           disabled={!isRegOpen}
         >
           Get Queue Number
@@ -101,7 +155,7 @@ const PatientQueuePage = () => {
       >
         {hasQueueToday ? (
           <>
-            <Box sx={{ display: "flex", gap: 2 }}>
+            {/* <Box sx={{ display: "flex", gap: 2 }}>
               <Typography
                 variant="h5"
                 color="text.secondary"
@@ -116,7 +170,11 @@ const PatientQueuePage = () => {
               >
                 {formatTimeStamp(queueToday.date, "MMM dd, yyyy (eee)")}
               </Typography>
-            </Box>
+            </Box> */}
+            <TodayHeader
+              date={queueToday.date}
+              branch={queueToday.branchName}
+            />
 
             <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
               {isRegOpen ? (
@@ -250,6 +308,22 @@ const PatientQueuePage = () => {
           </>
         ) : (
           <Placeholder />
+        )}
+
+        {queueModal.open && (
+          <QueueModal
+            // branches={branches}
+            open={queueModal.open}
+            data={queueModal.data}
+            onClose={handleQueueModalClose}
+            onSave={!queueModal.data?.id ? handleAddQueue : () => {}}
+            header={
+              <TodayHeader
+                date={queueToday.date}
+                branch={queueToday.branchName}
+              />
+            }
+          />
         )}
       </Box>
     </Container>

@@ -116,7 +116,6 @@ const QueueManagementPage = () => {
   }, []);
 
   useEffect(() => {
-    console.log("went here");
     const q = query(
       collection(db, "queues"),
       where("branchId", "==", user.branch), // prob
