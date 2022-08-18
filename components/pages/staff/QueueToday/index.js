@@ -14,8 +14,8 @@ import {
   addQueueReq,
   db,
   getBranchesReq,
-  getQueuesReq,
   resetQueueReq,
+  transferQueueItemReq,
   updateQueueRegStatusReq,
   updateQueueStatusReq,
 } from "../../../../modules/firebase";
@@ -34,6 +34,7 @@ import Placeholder from "./Placeholder";
 import QueueList from "./QueueList";
 import ManageQueueModal from "./QueueModal";
 import ToolbarButtons from "./ToolbarButtons";
+import TransferModal from "./TransferModal";
 
 const defaultModal = {
   open: false,
@@ -59,6 +60,11 @@ const QueueManagementPage = () => {
     setBackdropLoader
   );
   const [addQueueCounter] = useRequest(addQueueCounterReq, setBackdropLoader);
+  const [transferQueueItem] = useRequest(
+    transferQueueItemReq,
+    setBackdropLoader
+  );
+
   const [resetQueue] = useRequest(resetQueueReq, setBackdropLoader);
 
   // Local States
@@ -67,10 +73,12 @@ const QueueManagementPage = () => {
   const [branchesMap, setBranchesMap] = useState({});
   const [queueModal, setQueueModal] = useState(defaultModal);
   const [doctorModal, setDoctorModal] = useState(defaultModal);
+  const [transferModal, setTransferModal] = useState(defaultModal);
 
   const hasQueueToday = !!lodash.keys(queueToday).length;
   const isRegOpen = hasQueueToday ? queueToday.openForRegistration : false;
   const isQueueOpen = hasQueueToday ? queueToday.openQueue : false;
+  const doctorCounters = lodash.values(queueToday?.counters);
 
   useEffect(() => {
     const fetchBranches = async () => {
@@ -176,15 +184,22 @@ const QueueManagementPage = () => {
     if (updateError) return openErrorDialog(updateError);
   };
 
-  const handleDoctorSelect = async (doctor) => {
+  const handleAddDoctorCounter = async (doctor) => {
     doctor = {
       ...doctor,
       queue: [],
     };
 
-    // Update status
+    // Update
     const payload = { id: queueToday.id, document: doctor };
     const { error: updateError } = await addQueueCounter(payload);
+    if (updateError) return openErrorDialog(updateError);
+  };
+
+  const handleTransferSelect = async ({ patient, from, to }) => {
+    // Update
+    const payload = { id: queueToday.id, document: patient, from, to };
+    const { error: updateError } = await transferQueueItem(payload);
     if (updateError) return openErrorDialog(updateError);
   };
 
@@ -211,6 +226,17 @@ const QueueManagementPage = () => {
 
   const handleDoctorModalClose = () => {
     setDoctorModal(defaultModal);
+  };
+
+  const handleTransferModalOpen = (data) => {
+    setTransferModal({
+      open: true,
+      data,
+    });
+  };
+
+  const handleTransferModalClose = () => {
+    setTransferModal(defaultModal);
   };
 
   const handleResetQueue = async () => {
@@ -257,7 +283,10 @@ const QueueManagementPage = () => {
               // border: "1px solid red",
             }}
           >
-            <QueueList queue={queueToday.queue} />
+            <QueueList
+              queue={queueToday.queue}
+              onTransferClick={handleTransferModalOpen}
+            />
             {/* Doctor List */}
             <Box
               sx={{
@@ -266,7 +295,7 @@ const QueueManagementPage = () => {
                 flexDirection: "column",
               }}
             >
-              {queueToday.counters.map((i) => (
+              {doctorCounters.map((i) => (
                 <DoctorList key={i.id} data={i} />
               ))}
             </Box>
@@ -291,9 +320,19 @@ const QueueManagementPage = () => {
         <DoctorsModal
           open={doctorModal.open}
           branchId={user.branch}
-          queueDoctors={queueToday.counters.map((i) => i.id)}
-          onDoctorSelect={handleDoctorSelect}
+          queueDoctors={lodash.keys(queueToday?.counters)}
+          onDoctorSelect={handleAddDoctorCounter}
           onClose={handleDoctorModalClose}
+        />
+      )}
+
+      {transferModal.open && (
+        <TransferModal
+          open={transferModal.open}
+          data={transferModal.data}
+          doctors={doctorCounters}
+          onTransferSelect={handleTransferSelect}
+          onClose={handleTransferModalClose}
         />
       )}
     </AdminMainContainer>

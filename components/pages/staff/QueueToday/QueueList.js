@@ -13,7 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 
-const QueueList = ({ queue }) => {
+const QueueList = ({ queue, onTransferClick }) => {
   return (
     <Box sx={{ flex: 1, mx: 2, mt: 3 }}>
       <List
@@ -56,7 +56,12 @@ const QueueList = ({ queue }) => {
                 key={queueNo}
                 alignItems="flex-start"
                 secondaryAction={
-                  <IconButton edge="end">
+                  <IconButton
+                    edge="end"
+                    onClick={() =>
+                      onTransferClick({ patient: i, from: "queue" })
+                    }
+                  >
                     <ArrowRightIcon />
                   </IconButton>
                 }

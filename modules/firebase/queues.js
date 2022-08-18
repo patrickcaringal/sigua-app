@@ -1,4 +1,5 @@
 import {
+  arrayRemove,
   arrayUnion,
   collection,
   doc,
@@ -94,7 +95,7 @@ export const addQueueCounterReq = async ({ id, document }) => {
     // Add
     const docRef = doc(db, "queues", id);
     await updateDoc(docRef, {
-      counters: arrayUnion(document),
+      [`counters.${document.id}`]: document,
     });
 
     return { success: true };
@@ -132,6 +133,23 @@ export const updateQueueStatusReq = async ({ document }) => {
     await updateDoc(docRef, data);
 
     return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const transferQueueItemReq = async ({ id, from, to, document }) => {
+  try {
+    // Update
+    const docRef = doc(db, "queues", id);
+    await updateDoc(docRef, {
+      [to]: arrayUnion(document),
+      [from]: arrayRemove(document),
+    });
+
+    return { success: true };
   } catch (error) {
     console.log(error);
     const errMsg = getErrorMsg(error.code);
