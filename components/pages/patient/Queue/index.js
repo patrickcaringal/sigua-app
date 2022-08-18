@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { Badge, Box, Button, Chip, Container, Typography } from "@mui/material";
+import { Box, Button, Container, Typography } from "@mui/material";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import lodash from "lodash";
 import { useRouter } from "next/router";
@@ -9,11 +9,7 @@ import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
-import {
-  db,
-  getFamilyMembersReq,
-  registerToQueueReq,
-} from "../../../../modules/firebase";
+import { db, registerToQueueReq } from "../../../../modules/firebase";
 import {
   formatFirebasetimeStamp,
   formatTimeStamp,
@@ -23,9 +19,10 @@ import {
   today,
 } from "../../../../modules/helper";
 import { Toolbar, successMessage } from "../../../common";
-import QueueCard, { CARD_TYPES } from "./Card";
+import { AdminCards, OwnCards } from "./Cards";
 import Placeholder from "./Placeholder";
 import QueueModal from "./QueueModal";
+import StatusChips from "./StatusChips";
 
 const defaultModal = {
   open: false,
@@ -76,7 +73,20 @@ const PatientQueuePage = () => {
   const hasQueueToday = !!lodash.keys(queueToday).length;
   const isRegOpen = hasQueueToday ? queueToday.openForRegistration : false;
   const isQueueOngoing = hasQueueToday ? queueToday.openQueue : false;
-  const myQueueItems = (queueToday?.queue || []).filter(
+  const doctorCounters = lodash.values(queueToday?.counters);
+
+  const mergedQueueItems = () => {
+    const queue = (queueToday.queue || []).filter(
+      (i) => i.accountId === user.id
+    );
+
+    const counters = doctorCounters.reduce((acc, i) => {
+      return [...acc, ...i.queue];
+    }, []);
+
+    return [...queue, ...counters];
+  };
+  const myQueueItems = mergedQueueItems().filter(
     (i) => i.accountId === user.id
   );
 
@@ -165,6 +175,7 @@ const PatientQueuePage = () => {
           Get Queue Number
         </Button>
       </Toolbar>
+
       <Box
         sx={{
           display: "flex",
@@ -182,19 +193,10 @@ const PatientQueuePage = () => {
               date={queueToday.date}
               branch={queueToday.branchName}
             />
-            {/* Status chips */}
-            <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
-              {isRegOpen ? (
-                <Chip label="Registration Open" color="primary" size="large" />
-              ) : (
-                <Chip label="Registration Close" color="error" size="large" />
-              )}
-              {isQueueOngoing ? (
-                <Chip label="Queue Ongoing" color="primary" size="large" />
-              ) : (
-                <Chip label="Queue Close" color="error" size="large" />
-              )}
-            </Box>
+            <StatusChips
+              isRegOpen={isRegOpen}
+              isQueueOngoing={isQueueOngoing}
+            />
 
             <Box
               sx={{
@@ -205,53 +207,13 @@ const PatientQueuePage = () => {
                 gap: { xs: 3 },
               }}
             >
-              {/* Others Cards */}
-              <Box
-                sx={{
-                  flex: 1,
-                  // border: "1px solid red",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 3,
-                }}
-              >
-                {isRegOpen && (
-                  <QueueCard
-                    queueNo={queueToday.nextQueueNo}
-                    title="Current Available Number"
-                    type={CARD_TYPES.OTHERS}
-                  />
-                )}
-                {isQueueOngoing && (
-                  <QueueCard
-                    queueNo={undefined}
-                    title="Serving Number"
-                    type={CARD_TYPES.OTHERS}
-                  />
-                )}
-              </Box>
-
-              {/* Own Cards */}
-              <Box
-                sx={{
-                  flex: 1,
-                  // border: "1px solid blue",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 3,
-                }}
-              >
-                {myQueueItems.map((i) => (
-                  <QueueCard
-                    key={i.queueNo}
-                    queueNo={i.queueNo}
-                    title={i.patientName}
-                    type={CARD_TYPES.OWNED}
-                  />
-                ))}
-              </Box>
+              <AdminCards
+                isRegOpen={isRegOpen}
+                isQueueOngoing={isQueueOngoing}
+                currentRegNo={queueToday.nextQueueNo}
+                counters={doctorCounters}
+              />
+              <OwnCards myQueueItems={myQueueItems} />
             </Box>
           </>
         ) : (

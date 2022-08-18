@@ -196,7 +196,15 @@ const QueueManagementPage = () => {
     if (updateError) return openErrorDialog(updateError);
   };
 
-  const handleTransferSelect = async ({ patient, from, to }) => {
+  const handleTransferSelect = async ({ patient, doctor, from, to }) => {
+    if (queueToday.counters[doctor.id].queue.length) {
+      return openResponseDialog({
+        autoClose: true,
+        content: `Dr. ${doctor.name} not yet available.`,
+        type: "WARNING",
+      });
+    }
+
     // Update
     const payload = { id: queueToday.id, document: patient, from, to };
     const { error: updateError } = await transferQueueItem(payload);
