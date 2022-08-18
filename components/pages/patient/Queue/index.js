@@ -78,7 +78,7 @@ const PatientQueuePage = () => {
     (acc, i) => [...acc, ...i.queue.map((j) => j.queueNo)],
     []
   );
-  const skippedNumbers = queueToday.skipped.map((i) => i.queueNo);
+  const skippedNumbers = queueToday?.skipped?.map((i) => i.queueNo);
 
   const mergedQueueItems = () => {
     const queue = (queueToday.queue || []).filter(
@@ -193,7 +193,6 @@ const PatientQueuePage = () => {
           gap: 2,
           mt: 1,
           pb: 3,
-          // border: "1px solid khaki",
         }}
       >
         {hasQueueToday ? (
@@ -206,7 +205,6 @@ const PatientQueuePage = () => {
               isRegOpen={isRegOpen}
               isQueueOngoing={isQueueOngoing}
             />
-
             <Box
               sx={{
                 pt: 5,

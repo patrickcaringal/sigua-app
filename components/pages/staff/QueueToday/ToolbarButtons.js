@@ -17,36 +17,8 @@ const ToolbarButtons = ({
   onDoctorModalOpen,
   onQueueModalOpen,
 }) => {
-  return (
-    <>
-      {hasQueueToday && (
-        <>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={onRegStatus}
-            startIcon={isRegOpen ? <VisibilityOffIcon /> : <VisibilityIcon />}
-          >
-            {`${isRegOpen ? "close" : "open"}`} registration
-          </Button>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={onQueueStatus}
-            startIcon={isQueueOpen ? <StopIcon /> : <PlayArrowIcon />}
-          >
-            {`${isQueueOpen ? "stop" : "start"}`} queue
-          </Button>
-        </>
-      )}
-      <Button
-        variant="contained"
-        size="small"
-        onClick={onDoctorModalOpen}
-        startIcon={<AddCircleIcon />}
-      >
-        add doctor
-      </Button>
+  if (!hasQueueToday)
+    return (
       <Button
         variant="contained"
         size="small"
@@ -56,7 +28,34 @@ const ToolbarButtons = ({
       >
         add queue
       </Button>
+    );
 
+  return (
+    <>
+      <Button
+        variant="outlined"
+        size="small"
+        onClick={onRegStatus}
+        startIcon={isRegOpen ? <VisibilityOffIcon /> : <VisibilityIcon />}
+      >
+        {`${isRegOpen ? "close" : "open"}`} registration
+      </Button>
+      <Button
+        variant="outlined"
+        size="small"
+        onClick={onQueueStatus}
+        startIcon={isQueueOpen ? <StopIcon /> : <PlayArrowIcon />}
+      >
+        {`${isQueueOpen ? "stop" : "start"}`} queue
+      </Button>
+      <Button
+        variant="contained"
+        size="small"
+        onClick={onDoctorModalOpen}
+        startIcon={<AddCircleIcon />}
+      >
+        add doctor
+      </Button>
       <Button
         variant="contained"
         color="warning"

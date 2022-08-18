@@ -14,7 +14,7 @@ const Placeholder = () => {
         justifyContent: "center",
       }}
     >
-      <Typography gutterBottom>
+      <Typography color="text.secondary" gutterBottom>
         <QueueIcon fontSize="large" />
       </Typography>
 
@@ -29,7 +29,7 @@ const Placeholder = () => {
       <Typography
         variant="h6"
         color="text.secondary"
-        sx={{ fontWeight: "normal" }}
+        sx={{ fontWeight: "semibold" }}
       >
         Add now
       </Typography>

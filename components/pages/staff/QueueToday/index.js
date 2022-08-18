@@ -44,7 +44,6 @@ const defaultModal = {
 const QueueManagementPage = () => {
   const router = useRouter();
   const { user, isStaff } = useAuth();
-
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
@@ -64,7 +63,6 @@ const QueueManagementPage = () => {
     transferQueueItemReq,
     setBackdropLoader
   );
-
   const [resetQueue] = useRequest(resetQueueReq, setBackdropLoader);
 
   // Local States
@@ -291,7 +289,6 @@ const QueueManagementPage = () => {
             sx={{
               display: "flex",
               flexDirection: "row",
-              // border: "1px solid red",
             }}
           >
             <QueueList
