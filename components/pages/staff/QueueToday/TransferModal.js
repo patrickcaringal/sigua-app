@@ -1,74 +1,24 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React from "react";
 
-import AddCircleIcon from "@mui/icons-material/AddCircle";
-import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import QueueIcon from "@mui/icons-material/Queue";
-import RestoreIcon from "@mui/icons-material/Restore";
-import StopIcon from "@mui/icons-material/Stop";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import {
-  Box,
-  Button,
-  Chip,
   Dialog,
   DialogTitle,
-  IconButton,
+  Divider,
   List,
   ListItem,
   ListItemText,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
+  ListSubheader,
 } from "@mui/material";
-import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
-import lodash from "lodash";
-import { useRouter } from "next/router";
 
-import { useAuth } from "../../../../contexts/AuthContext";
-import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
-import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
-import useRequest from "../../../../hooks/useRequest";
-import {
-  addQueueReq,
-  db,
-  getBranchDoctorsReq,
-  getQueuesReq,
-  resetQueueReq,
-  updateQueueRegStatusReq,
-  updateQueueStatusReq,
-} from "../../../../modules/firebase";
-import {
-  formatFirebasetimeStamp,
-  formatTimeStamp,
-  localUpdateDocs,
-  pluralize,
-  today,
-} from "../../../../modules/helper";
-import { PATHS, confirmMessage, successMessage } from "../../../common";
-import { AdminMainContainer, DoctorDialog } from "../../../shared";
-import Header from "./Header";
-import Placeholder from "./Placeholder";
-import QueueList from "./QueueList";
-import ManageQueueModal from "./QueueModal";
-import ToolbarButtons from "./ToolbarButtons";
+export const QUEUE_FLOW = {
+  QUEUE_DOCTOR: "QUEUE_DOCTOR",
+  QUEUE_SKIPPED: "QUEUE_SKIPPED",
+  DOCTOR_DONE: "DOCTOR_DONE",
+};
 
-const TransferModal = ({
-  open,
-  data,
-  doctors,
-  //   branchId,
-  //   queueDoctors,
-  //   onDoctorSelect,
-  onTransferSelect,
-  onClose,
-}) => {
-  const { patient, from } = data;
+const TransferModal = ({ open, data, doctors, onTransferSelect, onClose }) => {
+  const showDoctors = data.from !== "doctor";
+  const showSkipped = data.from === "queue";
 
   const handleClose = () => {
     onClose();
@@ -77,28 +27,52 @@ const TransferModal = ({
   return (
     <Dialog onClose={handleClose} open={open}>
       <DialogTitle>TRANSFER PATIENT TO</DialogTitle>
-      <List sx={{ pt: 0 }}>
-        {doctors.map((i) => {
-          const { id, name } = i;
+      {showDoctors && (
+        <List sx={{ pt: 0 }}>
+          {/* Doctors */}
+          {doctors.map((i) => {
+            const { id, name } = i;
+            return (
+              <ListItem
+                button
+                onClick={() => {
+                  onTransferSelect({
+                    ...data,
+                    doctor: i,
+                    to: `counters.${id}.queue`,
+                    flow: QUEUE_FLOW.QUEUE_DOCTOR,
+                  });
+                  handleClose();
+                }}
+                key={id}
+              >
+                <ListItemText primary={name} sx={{ textAlign: "center" }} />
+              </ListItem>
+            );
+          })}
+        </List>
+      )}
 
-          return (
+      {showSkipped && (
+        <>
+          <Divider />
+          <List sx={{ pt: 0 }}>
             <ListItem
               button
               onClick={() => {
                 onTransferSelect({
                   ...data,
-                  doctor: i,
-                  to: `counters.${id}.queue`,
+                  to: "skipped",
+                  flow: QUEUE_FLOW.QUEUE_SKIPPED,
                 });
                 handleClose();
               }}
-              key={id}
             >
-              <ListItemText primary={name} sx={{ textAlign: "center" }} />
+              <ListItemText primary="Skipped" sx={{ textAlign: "center" }} />
             </ListItem>
-          );
-        })}
-      </List>
+          </List>
+        </>
+      )}
     </Dialog>
   );
 };

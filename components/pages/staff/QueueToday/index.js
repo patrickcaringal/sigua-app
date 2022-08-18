@@ -34,7 +34,7 @@ import Placeholder from "./Placeholder";
 import QueueList from "./QueueList";
 import ManageQueueModal from "./QueueModal";
 import ToolbarButtons from "./ToolbarButtons";
-import TransferModal from "./TransferModal";
+import TransferModal, { QUEUE_FLOW } from "./TransferModal";
 
 const defaultModal = {
   open: false,
@@ -196,8 +196,11 @@ const QueueManagementPage = () => {
     if (updateError) return openErrorDialog(updateError);
   };
 
-  const handleTransferSelect = async ({ patient, doctor, from, to }) => {
-    if (queueToday.counters[doctor.id].queue.length) {
+  const handleTransferSelect = async ({ patient, doctor, from, to, flow }) => {
+    if (
+      flow === QUEUE_FLOW.QUEUE_DOCTOR &&
+      queueToday.counters[doctor.id].queue.length
+    ) {
       return openResponseDialog({
         autoClose: true,
         content: `Dr. ${doctor.name} not yet available.`,
@@ -304,7 +307,11 @@ const QueueManagementPage = () => {
               }}
             >
               {doctorCounters.map((i) => (
-                <DoctorList key={i.id} data={i} />
+                <DoctorList
+                  key={i.id}
+                  data={i}
+                  onTransferClick={handleTransferModalOpen}
+                />
               ))}
             </Box>
           </Box>

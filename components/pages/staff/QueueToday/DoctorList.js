@@ -13,7 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 
-const DoctorList = ({ data }) => {
+const DoctorList = ({ data, onTransferClick }) => {
   const { name, queue } = data;
 
   return (
@@ -44,7 +44,7 @@ const DoctorList = ({ data }) => {
                 fontWeight="medium"
                 color="common.white"
               >
-                {name}
+                Dr. {name}
               </Typography>
             }
           />
@@ -58,7 +58,12 @@ const DoctorList = ({ data }) => {
                 key={queueNo}
                 alignItems="flex-start"
                 // secondaryAction={
-                //   <IconButton edge="end">
+                //   <IconButton
+                //     edge="end"
+                //     onClick={() =>
+                //       onTransferClick({ patient: i, from: "doctor" })
+                //     }
+                //   >
                 //     <ArrowRightIcon />
                 //   </IconButton>
                 // }

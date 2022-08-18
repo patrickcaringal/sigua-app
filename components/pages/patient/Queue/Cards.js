@@ -43,7 +43,19 @@ export const AdminCards = ({
   );
 };
 
-export const OwnCards = ({ myQueueItems }) => {
+export const OwnCards = ({ servingNumbers, skippedNumbers, myQueueItems }) => {
+  const getCardType = (queueNo) => {
+    if (servingNumbers.includes(queueNo)) {
+      return CARD_TYPES.OWNED_SERVING;
+    }
+
+    if (skippedNumbers.includes(queueNo)) {
+      return CARD_TYPES.OWNED_SKIPPED;
+    }
+
+    return CARD_TYPES.OWNED;
+  };
+
   return (
     <Box
       sx={{
@@ -57,14 +69,16 @@ export const OwnCards = ({ myQueueItems }) => {
     >
       {myQueueItems
         .sort((a, b) => a.queueNo - b.queueNo)
-        .map((i) => (
-          <QueueCard
-            key={i.queueNo}
-            queueNo={i.queueNo}
-            title={i.patientName}
-            type={CARD_TYPES.OWNED}
-          />
-        ))}
+        .map((i) => {
+          return (
+            <QueueCard
+              key={i.queueNo}
+              queueNo={i.queueNo}
+              title={i.patientName}
+              type={getCardType(i.queueNo)}
+            />
+          );
+        })}
     </Box>
   );
 };
