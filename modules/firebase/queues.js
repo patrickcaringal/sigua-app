@@ -89,6 +89,22 @@ export const registerToQueueReq = async ({ id, document }) => {
   }
 };
 
+export const addQueueCounterReq = async ({ id, document }) => {
+  try {
+    // Add
+    const docRef = doc(db, "queues", id);
+    await updateDoc(docRef, {
+      counters: arrayUnion(document),
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
 export const updateQueueRegStatusReq = async ({ document }) => {
   try {
     const docRef = doc(db, "queues", document.id);

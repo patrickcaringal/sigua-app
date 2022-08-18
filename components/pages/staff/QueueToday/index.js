@@ -36,6 +36,7 @@ import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
 import {
+  addQueueCounterReq,
   addQueueReq,
   db,
   getBranchesReq,
@@ -53,10 +54,12 @@ import {
 } from "../../../../modules/helper";
 import { PATHS, confirmMessage, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
+import DoctorsModal from "./DoctorsModal";
 import Header from "./Header";
 import Placeholder from "./Placeholder";
 import QueueList from "./QueueList";
 import ManageQueueModal from "./QueueModal";
+import ToolbarButtons from "./ToolbarButtons";
 
 const defaultModal = {
   open: false,
@@ -81,6 +84,7 @@ const QueueManagementPage = () => {
     updateQueueStatusReq,
     setBackdropLoader
   );
+  const [addQueueCounter] = useRequest(addQueueCounterReq, setBackdropLoader);
   const [resetQueue] = useRequest(resetQueueReq, setBackdropLoader);
 
   // Local States
@@ -88,6 +92,7 @@ const QueueManagementPage = () => {
   const [branches, setBranches] = useState([]);
   const [branchesMap, setBranchesMap] = useState({});
   const [queueModal, setQueueModal] = useState(defaultModal);
+  const [doctorModal, setDoctorModal] = useState(defaultModal);
 
   const hasQueueToday = !!lodash.keys(queueToday).length;
   const isRegOpen = hasQueueToday ? queueToday.openForRegistration : false;
@@ -130,7 +135,6 @@ const QueueManagementPage = () => {
         alert("detected more than 1 queue today");
         setQueueToday({});
       } else {
-        // console.log("no queue");
         setQueueToday({});
       }
     });
@@ -203,6 +207,13 @@ const QueueManagementPage = () => {
     if (updateError) return openErrorDialog(updateError);
   };
 
+  const handleDoctorSelect = async (doctor) => {
+    // Update status
+    const payload = { id: queueToday.id, document: doctor };
+    const { error: updateError } = await addQueueCounter(payload);
+    if (updateError) return openErrorDialog(updateError);
+  };
+
   const handleEditQueue = async (updatedDocs) => {};
 
   const handleQueueModalOpen = () => {
@@ -219,6 +230,17 @@ const QueueManagementPage = () => {
     setQueueModal(defaultModal);
   };
 
+  const handleDoctorModalOpen = () => {
+    setDoctorModal({
+      open: true,
+      data: null,
+    });
+  };
+
+  const handleDoctorModalClose = () => {
+    setDoctorModal(defaultModal);
+  };
+
   const handleResetQueue = async () => {
     const payload = { id: queueToday.id };
     const { error: resetError } = await resetQueue(payload);
@@ -233,48 +255,21 @@ const QueueManagementPage = () => {
       }}
       toolbarContent={
         <>
-          {hasQueueToday && (
-            <>
-              <Button
-                variant={isRegOpen ? "outlined" : "contained"}
-                size="small"
-                onClick={handleRegStatus}
-                startIcon={
-                  isRegOpen ? <VisibilityOffIcon /> : <VisibilityIcon />
-                }
-                sx={{ mr: 2 }}
-              >
-                {`${isRegOpen ? "close" : "open"}`} registration
-              </Button>
-              <Button
-                variant={isQueueOpen ? "outlined" : "contained"}
-                size="small"
-                onClick={handleQueueStatus}
-                startIcon={isQueueOpen ? <StopIcon /> : <PlayArrowIcon />}
-                sx={{ mr: 2 }}
-              >
-                {`${isQueueOpen ? "stop" : "start"}`} queue
-              </Button>
-            </>
-          )}
-
-          <Button
-            variant="contained"
-            color="warning"
-            size="small"
-            onClick={handleResetQueue}
-            sx={{ mr: 2 }}
-          >
-            Reset
-          </Button>
+          <ToolbarButtons
+            hasQueueToday={hasQueueToday}
+            isRegOpen={isRegOpen}
+            isQueueOpen={isQueueOpen}
+            onRegStatus={handleRegStatus}
+            onQueueStatus={handleQueueStatus}
+            onResetQueue={handleResetQueue}
+            onQueueModalOpen={handleQueueModalOpen}
+          />
           <Button
             variant="contained"
             size="small"
-            onClick={handleQueueModalOpen}
-            startIcon={<AddCircleIcon />}
-            disabled={hasQueueToday}
+            onClick={handleDoctorModalOpen}
           >
-            add queue
+            add doctor
           </Button>
         </>
       }
@@ -303,6 +298,16 @@ const QueueManagementPage = () => {
           data={queueModal.data}
           onClose={handleQueueModalClose}
           onSave={!queueModal.data?.id ? handleAddQueue : handleEditQueue}
+        />
+      )}
+
+      {doctorModal.open && (
+        <DoctorsModal
+          open={doctorModal.open}
+          branchId={user.branch}
+          queueDoctors={queueToday.counters.map((i) => i.id)}
+          onDoctorSelect={handleDoctorSelect}
+          onClose={handleDoctorModalClose}
         />
       )}
     </AdminMainContainer>

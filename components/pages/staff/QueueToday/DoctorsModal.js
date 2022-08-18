@@ -1,0 +1,112 @@
+import React, { Fragment, useEffect, useState } from "react";
+
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import ArrowRightIcon from "@mui/icons-material/ArrowRight";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import QueueIcon from "@mui/icons-material/Queue";
+import RestoreIcon from "@mui/icons-material/Restore";
+import StopIcon from "@mui/icons-material/Stop";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import {
+  Box,
+  Button,
+  Chip,
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
+import Avatar from "@mui/material/Avatar";
+import Divider from "@mui/material/Divider";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemAvatar from "@mui/material/ListItemAvatar";
+import ListItemText from "@mui/material/ListItemText";
+import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
+import lodash from "lodash";
+import { useRouter } from "next/router";
+
+import { useAuth } from "../../../../contexts/AuthContext";
+import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
+import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
+import useRequest from "../../../../hooks/useRequest";
+import {
+  addQueueReq,
+  db,
+  getBranchDoctorsReq,
+  getQueuesReq,
+  resetQueueReq,
+  updateQueueRegStatusReq,
+  updateQueueStatusReq,
+} from "../../../../modules/firebase";
+import {
+  formatFirebasetimeStamp,
+  formatTimeStamp,
+  localUpdateDocs,
+  pluralize,
+  today,
+} from "../../../../modules/helper";
+import { PATHS, confirmMessage, successMessage } from "../../../common";
+import { AdminMainContainer, DoctorDialog } from "../../../shared";
+import Header from "./Header";
+import Placeholder from "./Placeholder";
+import QueueList from "./QueueList";
+import ManageQueueModal from "./QueueModal";
+import ToolbarButtons from "./ToolbarButtons";
+
+const DoctorsModal = ({
+  open,
+  branchId,
+  queueDoctors,
+  onDoctorSelect,
+  onClose,
+}) => {
+  const { setBackdropLoader } = useBackdropLoader();
+  const { openErrorDialog } = useResponseDialog();
+
+  // Requests
+  const [getBranchDoctor] = useRequest(getBranchDoctorsReq, setBackdropLoader);
+
+  // Local States
+  const [doctors, setDoctors] = useState([]);
+
+  useEffect(() => {
+    if (open) {
+      const fetchDoctors = async () => {
+        // Get Doctors
+        const payload = { branchId };
+        const { data: doctorList, error: getError } = await getBranchDoctor(
+          payload
+        );
+        if (getError) return openErrorDialog(getError);
+
+        const mapped = doctorList.reduce((acc, i) => {
+          if (queueDoctors.includes(i.id)) return acc;
+          const d = { ...lodash.pick(i, ["name", "id"]) };
+          return [...acc, d];
+        }, []);
+
+        setDoctors(mapped);
+      };
+
+      fetchDoctors();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  return (
+    <DoctorDialog
+      open={open}
+      data={doctors}
+      onItemClick={onDoctorSelect}
+      onClose={onClose}
+    />
+  );
+};
+
+export default DoctorsModal;
