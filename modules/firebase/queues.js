@@ -145,6 +145,7 @@ export const resetQueueReq = async ({ id }) => {
     const docRef = doc(db, "queues", id);
     await updateDoc(docRef, {
       queue: [],
+      counters: [],
       nextQueueNo: 1,
     });
 

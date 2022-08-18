@@ -13,7 +13,9 @@ import {
   Typography,
 } from "@mui/material";
 
-const QueueList = ({ queue }) => {
+const DoctorList = ({ data }) => {
+  const { name, queue } = data;
+
   return (
     <Box sx={{ flex: 1, mx: 2, mt: 3 }}>
       <List
@@ -42,7 +44,7 @@ const QueueList = ({ queue }) => {
                 fontWeight="medium"
                 color="common.white"
               >
-                QUEUE
+                {name}
               </Typography>
             }
           />
@@ -55,11 +57,11 @@ const QueueList = ({ queue }) => {
               <ListItem
                 key={queueNo}
                 alignItems="flex-start"
-                secondaryAction={
-                  <IconButton edge="end">
-                    <ArrowRightIcon />
-                  </IconButton>
-                }
+                // secondaryAction={
+                //   <IconButton edge="end">
+                //     <ArrowRightIcon />
+                //   </IconButton>
+                // }
               >
                 <ListItemAvatar sx={{ minWidth: 48 }}>
                   <Avatar
@@ -107,7 +109,7 @@ const QueueList = ({ queue }) => {
                   variant="caption"
                   fontWeight="medium"
                 >
-                  No Registered Patient
+                  Open
                 </Typography>
               }
             />
@@ -118,4 +120,4 @@ const QueueList = ({ queue }) => {
   );
 };
 
-export default QueueList;
+export default DoctorList;

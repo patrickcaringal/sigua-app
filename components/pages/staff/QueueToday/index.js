@@ -1,33 +1,7 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import AddCircleIcon from "@mui/icons-material/AddCircle";
-import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import QueueIcon from "@mui/icons-material/Queue";
-import RestoreIcon from "@mui/icons-material/Restore";
-import StopIcon from "@mui/icons-material/Stop";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import {
-  Box,
-  Button,
-  Chip,
-  IconButton,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-} from "@mui/material";
-import Avatar from "@mui/material/Avatar";
-import Divider from "@mui/material/Divider";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
-import ListItemText from "@mui/material/ListItemText";
-import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
+import { Box, Button } from "@mui/material";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import lodash from "lodash";
 import { useRouter } from "next/router";
 
@@ -48,12 +22,12 @@ import {
 import {
   formatFirebasetimeStamp,
   formatTimeStamp,
-  localUpdateDocs,
   pluralize,
   today,
 } from "../../../../modules/helper";
 import { PATHS, confirmMessage, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
+import DoctorList from "./DoctorList";
 import DoctorsModal from "./DoctorsModal";
 import Header from "./Header";
 import Placeholder from "./Placeholder";
@@ -149,12 +123,7 @@ const QueueManagementPage = () => {
       date: formatFirebasetimeStamp(docs.date),
       queueDate: formatTimeStamp(docs.date),
       queue: [],
-      counters: [
-        // {
-        //   id: 'docId',
-        //   ongoing: {}
-        // }
-      ],
+      counters: [],
       done: [],
       skipped: [],
       nextQueueNo: 1,
@@ -208,13 +177,16 @@ const QueueManagementPage = () => {
   };
 
   const handleDoctorSelect = async (doctor) => {
+    doctor = {
+      ...doctor,
+      queue: [],
+    };
+
     // Update status
     const payload = { id: queueToday.id, document: doctor };
     const { error: updateError } = await addQueueCounter(payload);
     if (updateError) return openErrorDialog(updateError);
   };
-
-  const handleEditQueue = async (updatedDocs) => {};
 
   const handleQueueModalOpen = () => {
     setQueueModal({
@@ -262,15 +234,9 @@ const QueueManagementPage = () => {
             onRegStatus={handleRegStatus}
             onQueueStatus={handleQueueStatus}
             onResetQueue={handleResetQueue}
+            onDoctorModalOpen={handleDoctorModalOpen}
             onQueueModalOpen={handleQueueModalOpen}
           />
-          <Button
-            variant="contained"
-            size="small"
-            onClick={handleDoctorModalOpen}
-          >
-            add doctor
-          </Button>
         </>
       }
     >
@@ -284,7 +250,27 @@ const QueueManagementPage = () => {
             isRegOpen={isRegOpen}
             isQueueOpen={isQueueOpen}
           />
-          <QueueList queue={queueToday.queue} />
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              // border: "1px solid red",
+            }}
+          >
+            <QueueList queue={queueToday.queue} />
+            {/* Doctor List */}
+            <Box
+              sx={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              {queueToday.counters.map((i) => (
+                <DoctorList key={i.id} data={i} />
+              ))}
+            </Box>
+          </Box>
         </>
       ) : (
         <Placeholder />

@@ -14,6 +14,7 @@ const ToolbarButtons = ({
   onRegStatus,
   onQueueStatus,
   onResetQueue,
+  onDoctorModalOpen,
   onQueueModalOpen,
 }) => {
   return (
@@ -21,7 +22,7 @@ const ToolbarButtons = ({
       {hasQueueToday && (
         <>
           <Button
-            variant={isRegOpen ? "outlined" : "contained"}
+            variant="outlined"
             size="small"
             onClick={onRegStatus}
             startIcon={isRegOpen ? <VisibilityOffIcon /> : <VisibilityIcon />}
@@ -29,7 +30,7 @@ const ToolbarButtons = ({
             {`${isRegOpen ? "close" : "open"}`} registration
           </Button>
           <Button
-            variant={isQueueOpen ? "outlined" : "contained"}
+            variant="outlined"
             size="small"
             onClick={onQueueStatus}
             startIcon={isQueueOpen ? <StopIcon /> : <PlayArrowIcon />}
@@ -38,7 +39,14 @@ const ToolbarButtons = ({
           </Button>
         </>
       )}
-
+      <Button
+        variant="contained"
+        size="small"
+        onClick={onDoctorModalOpen}
+        startIcon={<AddCircleIcon />}
+      >
+        add doctor
+      </Button>
       <Button
         variant="contained"
         size="small"
