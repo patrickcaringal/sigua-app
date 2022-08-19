@@ -12,7 +12,11 @@ const AdminMainContainer = ({ children, toolbarProps, toolbarContent }) => {
         mx: 4,
       }}
     >
-      <Toolbar {...toolbarProps}>{toolbarContent}</Toolbar>
+      <Toolbar {...toolbarProps}>
+        <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
+          {toolbarContent}
+        </Box>
+      </Toolbar>
       <Box>
         <Paper
           elevation={2}

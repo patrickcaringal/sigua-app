@@ -1,34 +1,7 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import AddCircleIcon from "@mui/icons-material/AddCircle";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import QueueIcon from "@mui/icons-material/Queue";
-import RestoreIcon from "@mui/icons-material/Restore";
-import StopIcon from "@mui/icons-material/Stop";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import {
-  Box,
-  Button,
-  Chip,
-  IconButton,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-} from "@mui/material";
-import Avatar from "@mui/material/Avatar";
-import Divider from "@mui/material/Divider";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
-import ListItemText from "@mui/material/ListItemText";
-import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
+import { Box, Button } from "@mui/material";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import lodash from "lodash";
 import { useRouter } from "next/router";
 
@@ -37,25 +10,31 @@ import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
 import {
+  addQueueCounterReq,
   addQueueReq,
   db,
-  deleteServiceReq,
   getBranchesReq,
-  getQueuesReq,
+  resetQueueReq,
+  transferQueueItemReq,
   updateQueueRegStatusReq,
   updateQueueStatusReq,
 } from "../../../../modules/firebase";
 import {
   formatFirebasetimeStamp,
   formatTimeStamp,
-  localUpdateDocs,
   pluralize,
   today,
 } from "../../../../modules/helper";
 import { PATHS, confirmMessage, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
+import DoctorList from "./DoctorList";
+import DoctorsModal from "./DoctorsModal";
+import Header from "./Header";
 import Placeholder from "./Placeholder";
+import QueueList from "./QueueList";
 import ManageQueueModal from "./QueueModal";
+import ToolbarButtons from "./ToolbarButtons";
+import TransferModal, { QUEUE_FLOW } from "./TransferModal";
 
 const defaultModal = {
   open: false,
@@ -65,12 +44,10 @@ const defaultModal = {
 const QueueManagementPage = () => {
   const router = useRouter();
   const { user, isStaff } = useAuth();
-
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   // Requests
-  const [getQueues] = useRequest(getQueuesReq, setBackdropLoader);
   const [getBranches] = useRequest(getBranchesReq, setBackdropLoader);
   const [addQueue] = useRequest(addQueueReq, setBackdropLoader);
   const [updateQueueRegStatus] = useRequest(
@@ -81,17 +58,25 @@ const QueueManagementPage = () => {
     updateQueueStatusReq,
     setBackdropLoader
   );
+  const [addQueueCounter] = useRequest(addQueueCounterReq, setBackdropLoader);
+  const [transferQueueItem] = useRequest(
+    transferQueueItemReq,
+    setBackdropLoader
+  );
+  const [resetQueue] = useRequest(resetQueueReq, setBackdropLoader);
 
   // Local States
-  // const [queues, setQueues] = useState([]);
   const [queueToday, setQueueToday] = useState({});
   const [branches, setBranches] = useState([]);
   const [branchesMap, setBranchesMap] = useState({});
   const [queueModal, setQueueModal] = useState(defaultModal);
+  const [doctorModal, setDoctorModal] = useState(defaultModal);
+  const [transferModal, setTransferModal] = useState(defaultModal);
 
   const hasQueueToday = !!lodash.keys(queueToday).length;
   const isRegOpen = hasQueueToday ? queueToday.openForRegistration : false;
   const isQueueOpen = hasQueueToday ? queueToday.openQueue : false;
+  const doctorCounters = lodash.values(queueToday?.counters);
 
   useEffect(() => {
     const fetchBranches = async () => {
@@ -116,7 +101,6 @@ const QueueManagementPage = () => {
   }, []);
 
   useEffect(() => {
-    console.log("went here");
     const q = query(
       collection(db, "queues"),
       where("branchId", "==", user.branch), // prob
@@ -131,7 +115,6 @@ const QueueManagementPage = () => {
         alert("detected more than 1 queue today");
         setQueueToday({});
       } else {
-        // console.log("no queue");
         setQueueToday({});
       }
     });
@@ -146,12 +129,7 @@ const QueueManagementPage = () => {
       date: formatFirebasetimeStamp(docs.date),
       queueDate: formatTimeStamp(docs.date),
       queue: [],
-      counters: [
-        // {
-        //   id: 'docId',
-        //   ongoing: {}
-        // }
-      ],
+      counters: [],
       done: [],
       skipped: [],
       nextQueueNo: 1,
@@ -204,7 +182,35 @@ const QueueManagementPage = () => {
     if (updateError) return openErrorDialog(updateError);
   };
 
-  const handleEditQueue = async (updatedDocs) => {};
+  const handleAddDoctorCounter = async (doctor) => {
+    doctor = {
+      ...doctor,
+      queue: [],
+    };
+
+    // Update
+    const payload = { id: queueToday.id, document: doctor };
+    const { error: updateError } = await addQueueCounter(payload);
+    if (updateError) return openErrorDialog(updateError);
+  };
+
+  const handleTransferSelect = async ({ patient, doctor, from, to, flow }) => {
+    if (
+      flow === QUEUE_FLOW.QUEUE_DOCTOR &&
+      queueToday.counters[doctor.id].queue.length
+    ) {
+      return openResponseDialog({
+        autoClose: true,
+        content: `Dr. ${doctor.name} not yet available.`,
+        type: "WARNING",
+      });
+    }
+
+    // Update
+    const payload = { id: queueToday.id, document: patient, from, to };
+    const { error: updateError } = await transferQueueItem(payload);
+    if (updateError) return openErrorDialog(updateError);
+  };
 
   const handleQueueModalOpen = () => {
     setQueueModal({
@@ -220,6 +226,34 @@ const QueueManagementPage = () => {
     setQueueModal(defaultModal);
   };
 
+  const handleDoctorModalOpen = () => {
+    setDoctorModal({
+      open: true,
+      data: null,
+    });
+  };
+
+  const handleDoctorModalClose = () => {
+    setDoctorModal(defaultModal);
+  };
+
+  const handleTransferModalOpen = (data) => {
+    setTransferModal({
+      open: true,
+      data,
+    });
+  };
+
+  const handleTransferModalClose = () => {
+    setTransferModal(defaultModal);
+  };
+
+  const handleResetQueue = async () => {
+    const payload = { id: queueToday.id };
+    const { error: resetError } = await resetQueue(payload);
+    if (resetError) return openErrorDialog(resetError);
+  };
+
   return (
     <AdminMainContainer
       toolbarProps={{
@@ -228,173 +262,56 @@ const QueueManagementPage = () => {
       }}
       toolbarContent={
         <>
-          {hasQueueToday && (
-            <>
-              <Button
-                variant={isRegOpen ? "outlined" : "contained"}
-                size="small"
-                onClick={handleRegStatus}
-                startIcon={
-                  isRegOpen ? <VisibilityOffIcon /> : <VisibilityIcon />
-                }
-                sx={{ mr: 2 }}
-              >
-                {`${isRegOpen ? "close" : "open"}`} registration
-              </Button>
-
-              <Button
-                variant={isQueueOpen ? "outlined" : "contained"}
-                size="small"
-                onClick={handleQueueStatus}
-                startIcon={isQueueOpen ? <StopIcon /> : <PlayArrowIcon />}
-                sx={{ mr: 2 }}
-              >
-                {`${isQueueOpen ? "stop" : "start"}`} queue
-              </Button>
-            </>
-          )}
-          <Button
-            variant="contained"
-            size="small"
-            onClick={handleQueueModalOpen}
-            startIcon={<AddCircleIcon />}
-            disabled={hasQueueToday}
-          >
-            add queue
-          </Button>
+          <ToolbarButtons
+            hasQueueToday={hasQueueToday}
+            isRegOpen={isRegOpen}
+            isQueueOpen={isQueueOpen}
+            onRegStatus={handleRegStatus}
+            onQueueStatus={handleQueueStatus}
+            onResetQueue={handleResetQueue}
+            onDoctorModalOpen={handleDoctorModalOpen}
+            onQueueModalOpen={handleQueueModalOpen}
+          />
         </>
       }
     >
       {hasQueueToday ? (
         <>
-          <Box sx={{ m: 2, display: "flex", flexDirection: "row", gap: 6 }}>
+          <Header
+            branch={branchesMap[user.branch]}
+            date={queueToday.date}
+            registered={queueToday.nextQueueNo - 1}
+            capacity={queueToday.capacity}
+            isRegOpen={isRegOpen}
+            isQueueOpen={isQueueOpen}
+          />
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+            }}
+          >
+            <QueueList
+              queue={queueToday.queue}
+              onTransferClick={handleTransferModalOpen}
+            />
+            {/* Doctor List */}
             <Box
               sx={{
-                display: "grid",
-                grid: "auto-flow / 0fr 1fr",
-                alignItems: "center",
-                rowGap: 1,
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
               }}
             >
-              {[
-                {
-                  label: "Branch",
-                  value: branchesMap[user.branch],
-                },
-                {
-                  label: "Date",
-                  value: formatTimeStamp(queueToday.date, "MMM dd, yyyy (eee)"),
-                },
-              ].map(({ label, value }, index) => (
-                <Fragment key={index}>
-                  <Box sx={{ minWidth: 100 }}>{label}</Box>
-                  <Box sx={{ fontWeight: "500" }}>{value}</Box>
-                </Fragment>
-              ))}
-            </Box>
-
-            <Box
-              sx={{
-                display: "grid",
-                grid: "auto-flow / 0fr 1fr",
-                alignItems: "center",
-                rowGap: 1,
-              }}
-            >
-              {[
-                {
-                  label: "Status",
-                  value: (
-                    <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
-                      {isRegOpen ? (
-                        <Chip
-                          label="Registration Open"
-                          color="primary"
-                          size="small"
-                        />
-                      ) : (
-                        <Chip
-                          label="Registration Close"
-                          color="warning"
-                          size="small"
-                        />
-                      )}
-                      {isQueueOpen ? (
-                        <Chip
-                          label="Queue Ongoing"
-                          color="primary"
-                          size="small"
-                        />
-                      ) : (
-                        <Chip
-                          label="Queue Close"
-                          color="warning"
-                          size="small"
-                        />
-                      )}
-                    </Box>
-                  ),
-                },
-                {
-                  label: "Capacity",
-                  value: `0 / ${queueToday.capacity}`,
-                },
-              ].map(({ label, value }, index) => (
-                <Fragment key={index}>
-                  <Box sx={{ minWidth: 100 }}>{label}</Box>
-                  <Box sx={{ fontWeight: "500" }}>{value}</Box>
-                </Fragment>
+              {doctorCounters.map((i) => (
+                <DoctorList
+                  key={i.id}
+                  data={i}
+                  onTransferClick={handleTransferModalOpen}
+                />
               ))}
             </Box>
           </Box>
-
-          {/* <Box>
-            <List
-              sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
-            >
-              <ListItem alignItems="flex-start">
-                <ListItemAvatar>
-                  <Avatar alt="1" src="/static/images/avatar/1.jpg" />
-                </ListItemAvatar>
-                <ListItemText
-                  primary="Patrick Angelo Caringal"
-                  secondary={
-                    <React.Fragment>
-                      <Typography
-                        sx={{ display: "inline" }}
-                        component="span"
-                        variant="body2"
-                        color="text.primary"
-                      >
-                        Blood sugar count
-                      </Typography>
-                    </React.Fragment>
-                  }
-                />
-              </ListItem>
-              <Divider component="li" />
-              <ListItem alignItems="flex-start">
-                <ListItemAvatar>
-                  <Avatar alt="2" src="/static/images/avatar/1.jpg" />
-                </ListItemAvatar>
-                <ListItemText
-                  primary="Allyza Choie Denise Cos"
-                  secondary={
-                    <React.Fragment>
-                      <Typography
-                        sx={{ display: "inline" }}
-                        component="span"
-                        variant="body2"
-                        color="text.primary"
-                      >
-                        ECG
-                      </Typography>
-                    </React.Fragment>
-                  }
-                />
-              </ListItem>
-            </List>
-          </Box> */}
         </>
       ) : (
         <Placeholder />
@@ -408,6 +325,26 @@ const QueueManagementPage = () => {
           data={queueModal.data}
           onClose={handleQueueModalClose}
           onSave={!queueModal.data?.id ? handleAddQueue : handleEditQueue}
+        />
+      )}
+
+      {doctorModal.open && (
+        <DoctorsModal
+          open={doctorModal.open}
+          branchId={user.branch}
+          queueDoctors={lodash.keys(queueToday?.counters)}
+          onDoctorSelect={handleAddDoctorCounter}
+          onClose={handleDoctorModalClose}
+        />
+      )}
+
+      {transferModal.open && (
+        <TransferModal
+          open={transferModal.open}
+          data={transferModal.data}
+          doctors={doctorCounters}
+          onTransferSelect={handleTransferSelect}
+          onClose={handleTransferModalClose}
         />
       )}
     </AdminMainContainer>

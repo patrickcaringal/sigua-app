@@ -45,6 +45,29 @@ export const getFamilyMembersReq = async (id) => {
   }
 };
 
+export const getVerifiedFamilyMembersReq = async ({ id }) => {
+  try {
+    const q = query(
+      collRef,
+      where("accountId", "==", id),
+      where("verifiedContactNo", "==", true),
+      where("deleted", "==", false)
+    );
+    const querySnapshot = await getDocs(q);
+
+    const data = querySnapshot.docs
+      .map((doc) => ({
+        ...doc.data(),
+      }))
+      .sort(sortBy("dateCreated"));
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
 export const getPatientsForApprovalReq = async ({}) => {
   try {
     // Get Patients

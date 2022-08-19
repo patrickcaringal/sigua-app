@@ -119,3 +119,9 @@ export const QueueSchema = Yup.object().shape({
     .required("Required")
     .test("Is positive?", "Positive number only", (value) => value >= 0),
 });
+
+export const RegisterForQueueSchema = Yup.object().shape({
+  serviceId: Yup.string().required("Required"),
+  patientId: Yup.string().required("Required"),
+  patientNote: Yup.string().max(250, "Note").required("Required"),
+});

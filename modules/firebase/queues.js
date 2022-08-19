@@ -1,7 +1,11 @@
 import {
+  arrayRemove,
+  arrayUnion,
   collection,
   doc,
+  getDoc,
   getDocs,
+  increment,
   query,
   setDoc,
   updateDoc,
@@ -56,6 +60,52 @@ export const addQueueReq = async ({ docs }) => {
   }
 };
 
+export const registerToQueueReq = async ({ id, document }) => {
+  try {
+    // Get latest queue
+    const docRef = doc(db, "queues", id);
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) {
+      throw new Error("Unable to get Queue doc");
+    }
+
+    const data = docSnap.data();
+    document = {
+      ...document,
+      queueNo: data.nextQueueNo,
+    };
+
+    // Add to queue
+    const docRef2 = doc(db, "queues", id);
+    await updateDoc(docRef2, {
+      queue: arrayUnion(document),
+      nextQueueNo: increment(1),
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const addQueueCounterReq = async ({ id, document }) => {
+  try {
+    // Add
+    const docRef = doc(db, "queues", id);
+    await updateDoc(docRef, {
+      [`counters.${document.id}`]: document,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
 export const updateQueueRegStatusReq = async ({ document }) => {
   try {
     const docRef = doc(db, "queues", document.id);
@@ -83,6 +133,42 @@ export const updateQueueStatusReq = async ({ document }) => {
     await updateDoc(docRef, data);
 
     return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const transferQueueItemReq = async ({ id, from, to, document }) => {
+  try {
+    // Update
+    const docRef = doc(db, "queues", id);
+    await updateDoc(docRef, {
+      [to]: arrayUnion(document),
+      [from]: arrayRemove(document),
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+// Dev func
+export const resetQueueReq = async ({ id }) => {
+  try {
+    const docRef = doc(db, "queues", id);
+    await updateDoc(docRef, {
+      queue: [],
+      counters: [],
+      skipped: [],
+      nextQueueNo: 1,
+    });
+
+    return { success: true };
   } catch (error) {
     console.log(error);
     const errMsg = getErrorMsg(error.code);
