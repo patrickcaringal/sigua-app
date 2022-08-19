@@ -55,16 +55,16 @@ const QueueList = ({ queue, onTransferClick }) => {
               <ListItem
                 key={queueNo}
                 alignItems="flex-start"
-                secondaryAction={
-                  <IconButton
-                    edge="end"
-                    onClick={() =>
-                      onTransferClick({ patient: i, from: "queue" })
-                    }
-                  >
-                    <ArrowRightIcon />
-                  </IconButton>
-                }
+                // secondaryAction={
+                //   <IconButton
+                //     edge="end"
+                //     onClick={() =>
+                //       onTransferClick({ patient: i, from: "queue" })
+                //     }
+                //   >
+                //     <ArrowRightIcon />
+                //   </IconButton>
+                // }
               >
                 <ListItemAvatar sx={{ minWidth: 48 }}>
                   <Avatar
