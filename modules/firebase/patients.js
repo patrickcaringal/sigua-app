@@ -68,6 +68,44 @@ export const getVerifiedFamilyMembersReq = async ({ id }) => {
   }
 };
 
+// TODO: figure out per branch
+export const getPatientsReq = async ({}) => {
+  try {
+    // Get Patients
+    const q = query(
+      collRef,
+      where("verified", "==", true),
+      where("deleted", "==", false)
+    );
+    const querySnapshot = await getDocs(q);
+
+    // // Get Account list
+    // const docRef = doc(db, "accounts", "list");
+    // const docSnap = await getDoc(docRef);
+
+    // if (!docSnap.exists()) {
+    //   throw new Error("Unable to get Account list doc");
+    // }
+
+    // Map fields
+    // const accounts = docSnap.data();
+    const data = querySnapshot.docs
+      .map((doc) => {
+        const data = doc.data();
+        return {
+          ...data,
+          // accountName: accounts[data.accountId],
+        };
+      })
+      .sort(sortBy("dateCreated"));
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
 export const getPatientsForApprovalReq = async ({}) => {
   try {
     // Get Patients

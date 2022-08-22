@@ -4,6 +4,7 @@ import FactCheckIcon from "@mui/icons-material/FactCheck";
 import GroupIcon from "@mui/icons-material/Group";
 import MapsHomeWorkIcon from "@mui/icons-material/MapsHomeWork";
 import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
+import PeopleIcon from "@mui/icons-material/People";
 import QueueIcon from "@mui/icons-material/Queue";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import {
@@ -21,7 +22,6 @@ import { useRouter } from "next/router";
 
 import { PATHS } from "../../components/common/Routes";
 import { useAuth } from "../../contexts/AuthContext";
-
 const drawerWidth = 240;
 
 const LeftSidebar = () => {
@@ -56,14 +56,19 @@ const LeftSidebar = () => {
         //   onClick: () => router.push(PATHS.STAFF.QUEUE_MANAGEMENT),
         // },
         {
+          text: "Patients",
+          icon: <PeopleIcon />,
+          onClick: () => router.push(PATHS.STAFF.PATIENTS_LIST),
+        },
+        {
+          text: "Patient Approval",
+          icon: <FactCheckIcon />,
+          onClick: () => router.push(PATHS.STAFF.MEMBER_APPROVAL),
+        },
+        {
           text: "Queue Today",
           icon: <QueueIcon />,
           onClick: () => router.push(PATHS.STAFF.QUEUE_TODAY),
-        },
-        {
-          text: "Member Approval",
-          icon: <FactCheckIcon />,
-          onClick: () => router.push(PATHS.STAFF.MEMBER_APPROVAL),
         },
       ];
 
