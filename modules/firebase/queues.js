@@ -23,7 +23,7 @@ const collRef = collection(db, "queues");
 
 export const getQueuesReq = async () => {
   try {
-    // TODO: date range , where("deleted", "!=", true)
+    // TODO: date range, branch
     const q = query(collRef);
     const querySnapshot = await getDocs(q);
     const data = querySnapshot.docs

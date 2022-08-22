@@ -29,7 +29,7 @@ const Header = ({
           },
           {
             label: "Date",
-            value: formatTimeStamp(date, "MMM dd, yyyy (eee)"),
+            value: formatTimeStamp(date, "MMM-dd-yyyy (eee)"),
           },
         ].map(({ label, value }, index) => (
           <Fragment key={index}>

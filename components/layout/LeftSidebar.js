@@ -2,10 +2,12 @@ import * as React from "react";
 
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import GroupIcon from "@mui/icons-material/Group";
+import ListIcon from "@mui/icons-material/List";
 import MapsHomeWorkIcon from "@mui/icons-material/MapsHomeWork";
 import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
 import PeopleIcon from "@mui/icons-material/People";
 import QueueIcon from "@mui/icons-material/Queue";
+import ViewListIcon from "@mui/icons-material/ViewList";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import {
   Box,
@@ -69,6 +71,11 @@ const LeftSidebar = () => {
           text: "Queue Today",
           icon: <QueueIcon />,
           onClick: () => router.push(PATHS.STAFF.QUEUE_TODAY),
+        },
+        {
+          text: "Queues",
+          icon: <ViewListIcon />,
+          onClick: () => router.push(PATHS.STAFF.QUEUE_MANAGEMENT),
         },
       ];
 
