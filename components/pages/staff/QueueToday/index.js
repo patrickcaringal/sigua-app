@@ -136,6 +136,7 @@ const QueueManagementPage = () => {
       counters: {},
       done: [],
       skipped: [],
+      doctors: [],
       nextQueueNo: 1,
       createdBy: user.id,
       openForRegistration: false,

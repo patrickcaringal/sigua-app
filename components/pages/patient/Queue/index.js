@@ -93,6 +93,7 @@ const PatientQueuePage = () => {
     const unsub = onSnapshot(q, (querySnapshot) => {
       if (querySnapshot.docs.length === 1) {
         const realtimeData = querySnapshot.docs[0].data();
+
         setQueueToday(realtimeData);
       } else if (querySnapshot.docs.length > 1) {
         alert("detected more than 1 queue today");
@@ -119,8 +120,6 @@ const PatientQueuePage = () => {
         type: "WARNING",
       });
     }
-
-    return;
 
     // Register
     const payload = { id: queueToday.id, document };
@@ -156,13 +155,16 @@ const PatientQueuePage = () => {
   };
 
   const mergedQueueItems = () => {
-    const queue = queueToday?.queue?.filter((i) => i.accountId === user.id);
-    const next = queueToday?.next?.filter((i) => i.accountId === user.id);
-    const counters = doctorCounters
-      ?.reduce((a, i) => [...a, ...i.queue], [])
-      .filter((i) => i.accountId === user.id);
-    const skipped = queueToday?.skipped?.filter((i) => i.accountId === user.id);
-    const done = queueToday?.done?.filter((i) => i.accountId === user.id);
+    const queue =
+      queueToday?.queue?.filter((i) => i.accountId === user.id) || [];
+    const next = queueToday?.next?.filter((i) => i.accountId === user.id) || [];
+    const counters =
+      doctorCounters
+        ?.reduce((a, i) => [...a, ...i.queue], [])
+        .filter((i) => i.accountId === user.id) || [];
+    const skipped =
+      queueToday?.skipped?.filter((i) => i.accountId === user.id) || [];
+    const done = queueToday?.done?.filter((i) => i.accountId === user.id) || [];
 
     return [...queue, ...next, ...counters, ...skipped, ...done];
   };

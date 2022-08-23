@@ -96,6 +96,7 @@ export const addQueueCounterReq = async ({ id, document }) => {
     const docRef = doc(db, "queues", id);
     await updateDoc(docRef, {
       [`counters.${document.id}`]: document,
+      doctors: arrayUnion(document.id),
     });
 
     return { success: true };
