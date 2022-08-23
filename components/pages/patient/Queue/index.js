@@ -85,6 +85,8 @@ const PatientQueuePage = () => {
       (i) => i.accountId === user.id
     );
 
+    const next = (queueToday.next || []).filter((i) => i.accountId === user.id);
+
     const counters = doctorCounters.reduce((acc, i) => {
       return [...acc, ...i.queue];
     }, []);
@@ -93,7 +95,7 @@ const PatientQueuePage = () => {
       (i) => i.accountId === user.id
     );
 
-    return [...queue, ...counters, ...skipped];
+    return [...queue, ...next, ...counters, ...skipped];
   };
   const myQueueItems = mergedQueueItems().filter(
     (i) => i.accountId === user.id

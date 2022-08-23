@@ -132,7 +132,8 @@ const QueueManagementPage = () => {
       date: formatFirebasetimeStamp(docs.date),
       queueDate: formatTimeStamp(docs.date),
       queue: [],
-      counters: [],
+      next: [],
+      counters: {},
       done: [],
       skipped: [],
       nextQueueNo: 1,
@@ -300,19 +301,37 @@ const QueueManagementPage = () => {
               mt: 3,
             }}
           >
-            <QueueComponent
-              queueKey="queue"
-              title="QUEUE"
-              queue={queueToday.queue}
-              onTransferClick={handleTransferModalOpen}
-            />
+            <Box
+              sx={{
+                flex: 1,
+                // border: "1px solid red",
+                display: "grid",
+                gridTemplateRows: "calc((100vh - 260px) / 2) auto",
+                gap: 3,
+                height: "calc(100vh - 260px)",
+              }}
+            >
+              <QueueComponent
+                queueKey="queue"
+                title="QUEUE"
+                queue={queueToday.queue}
+                onTransferClick={handleTransferModalOpen}
+              />
+              <QueueComponent
+                queueKey="next"
+                title="NEXT"
+                queue={queueToday.next}
+                onTransferClick={handleTransferModalOpen}
+              />
+            </Box>
+
             {/* Doctor List */}
             <Box
               sx={{
                 flex: 1,
                 // border: "1px solid red",
                 display: "grid",
-                gridTemplateRows: "auto auto",
+                gridTemplateRows: "calc((100vh - 260px) / 2) auto",
                 gap: 3,
                 height: "calc(100vh - 260px)",
               }}
@@ -333,7 +352,7 @@ const QueueManagementPage = () => {
                 flex: 1,
                 // border: "1px solid red",
                 display: "grid",
-                gridTemplateRows: "auto auto",
+                gridTemplateRows: "calc((100vh - 260px) / 2) auto",
                 gap: 3,
                 height: "calc(100vh - 260px)",
               }}
