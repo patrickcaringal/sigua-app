@@ -97,21 +97,22 @@ const PatientListPage = () => {
           sx={{ height: "calc(100vh - 64px - 64px - 16px)" }}
         >
           <TableContainer>
-            <Table>
+            <Table size="small">
               <TableHead>
                 <TableRow>
                   {[
                     { text: "Name" },
-                    { text: "Birthdate", sx: { width: 200 } },
-                    { text: "Age", sx: { width: 200 } },
-                    { text: "Gender", sx: { width: 200 } },
-                    { text: "Contact No.", sx: { width: 200 } },
-                    { text: "Actions", align: "center", sx: { width: 110 } },
+                    { text: "Birthdate", sx: { width: 140 } },
+                    { text: "Age", sx: { width: 100 }, align: "center" },
+                    { text: "Gender", sx: { width: 100 } },
+                    { text: "Contact No.", sx: { width: 140 } },
+                    { text: "Address" },
+                    { text: "Actions", align: "right" },
                   ].map(({ text, align, sx }) => (
                     <TableCell
                       key={text}
                       {...(align && { align })}
-                      {...(sx && { sx: { ...sx, fontWeight: "bold" } })}
+                      sx={{ ...sx, fontWeight: "bold", p: 2 }}
                     >
                       {text}
                     </TableCell>
@@ -121,22 +122,35 @@ const PatientListPage = () => {
 
               <TableBody>
                 {patients.map((m, index) => {
-                  const { name, gender, birthdate, contactNo } = m;
+                  const { name, gender, birthdate, contactNo, address } = m;
 
                   return (
                     <TableRow key={index}>
                       <TableCell>{name}</TableCell>
-
                       <TableCell>
                         {formatTimeStamp(birthdate, "MMM-dd-yyyy")}
                       </TableCell>
-                      <TableCell>
+                      <TableCell align="center">
                         {calculateAge(formatTimeStamp(birthdate))}
                       </TableCell>
                       <TableCell sx={{ textTransform: "capitalize" }}>
                         {gender}
                       </TableCell>
                       <TableCell>{contactNo}</TableCell>
+                      <TableCell sx={{ maxWidth: 300, height: 53 }}>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            display: "-webkit-box",
+                            WebkitBoxOrient: "vertical",
+                            WebkitLineClamp: "2",
+                            overflow: "hidden",
+                          }}
+                          component="div"
+                        >
+                          {address}
+                        </Typography>
+                      </TableCell>
                       <TableCell align="center">
                         {/* <FactCheckIcon /> */}
                       </TableCell>

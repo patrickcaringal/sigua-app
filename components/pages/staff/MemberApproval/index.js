@@ -24,7 +24,12 @@ import {
   getPatientsForApprovalReq,
   updatePatientReq,
 } from "../../../../modules/firebase";
-import { getFullName, localUpdateDocs } from "../../../../modules/helper";
+import {
+  calculateAge,
+  formatTimeStamp,
+  getFullName,
+  localUpdateDocs,
+} from "../../../../modules/helper";
 import { Toolbar, successMessage } from "../../../common";
 import MemberApprovalModal from "./MemberApprovalModal";
 
@@ -197,39 +202,57 @@ const MemberApprovalPage = () => {
           sx={{ height: "calc(100vh - 64px - 64px - 16px)" }}
         >
           <TableContainer>
-            <Table>
+            <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Requester</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Address</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
+                  {[
+                    { text: "Name" },
+                    { text: "Requester" },
+                    { text: "Birthdate", sx: { width: 140 } },
+                    { text: "Age", sx: { width: 100 }, align: "center" },
+                    { text: "Gender", sx: { width: 100 } },
+                    { text: "Contact No.", sx: { width: 140 } },
+                    { text: "Address" },
+                    { text: "Actions", align: "right" },
+                  ].map(({ text, align, sx = {} }) => (
+                    <TableCell
+                      key={text}
+                      {...(align && { align })}
+                      sx={{ ...sx, fontWeight: "bold", p: 2 }}
+                    >
+                      {text}
+                    </TableCell>
+                  ))}
                 </TableRow>
               </TableHead>
 
               <TableBody>
                 {members.map((m, index) => {
                   const {
-                    firstName,
-                    suffix,
-                    lastName,
-                    middleName,
-                    address,
+                    name,
+                    gender,
+                    birthdate,
+                    contactNo,
                     accountName,
+                    address,
                   } = m;
 
+                  // <TableCell>{accountName}</TableCell>
                   return (
                     <TableRow key={index}>
-                      <TableCell>
-                        {getFullName({
-                          firstName,
-                          suffix,
-                          lastName,
-                          middleName,
-                        })}
-                      </TableCell>
+                      <TableCell>{name}</TableCell>
                       <TableCell>{accountName}</TableCell>
-                      <TableCell sx={{ maxWidth: 200 }}>
+                      <TableCell>
+                        {formatTimeStamp(birthdate, "MMM-dd-yyyy")}
+                      </TableCell>
+                      <TableCell align="center">
+                        {calculateAge(formatTimeStamp(birthdate))}
+                      </TableCell>
+                      <TableCell sx={{ textTransform: "capitalize" }}>
+                        {gender}
+                      </TableCell>
+                      <TableCell>{contactNo}</TableCell>
+                      <TableCell sx={{ maxWidth: 300, height: 53 }}>
                         <Typography
                           variant="caption"
                           sx={{
@@ -243,7 +266,7 @@ const MemberApprovalPage = () => {
                           {address}
                         </Typography>
                       </TableCell>
-                      <TableCell>
+                      <TableCell align="right">
                         <IconButton
                           color="primary"
                           component="span"
