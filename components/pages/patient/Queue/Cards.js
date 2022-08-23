@@ -44,7 +44,8 @@ export const AdminCards = ({
 };
 
 export const OwnCards = ({ queueNumbers, myQueueItems }) => {
-  const { skippedNumbers, servingNumbers, nextNumbers } = queueNumbers;
+  const { skippedNumbers, servingNumbers, nextNumbers, doneNumbers } =
+    queueNumbers;
 
   const getCardType = (queueNo) => {
     if (servingNumbers.includes(queueNo)) {
@@ -75,6 +76,8 @@ export const OwnCards = ({ queueNumbers, myQueueItems }) => {
       {myQueueItems
         .sort((a, b) => a.queueNo - b.queueNo)
         .map((i) => {
+          if (doneNumbers.includes(i.queueNo)) return null;
+
           return (
             <QueueCard
               key={i.queueNo}

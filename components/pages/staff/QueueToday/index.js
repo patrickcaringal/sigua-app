@@ -276,18 +276,16 @@ const QueueManagementPage = () => {
         paths: [{ text: "Queue Today" }],
       }}
       toolbarContent={
-        <>
-          <ToolbarButtons
-            hasQueueToday={hasQueueToday}
-            isRegOpen={isRegOpen}
-            isQueueOpen={isQueueOpen}
-            onRegStatus={handleRegStatus}
-            onQueueStatus={handleQueueStatus}
-            onResetQueue={handleResetQueue}
-            onDoctorModalOpen={handleDoctorModalOpen}
-            onQueueModalOpen={handleQueueModalOpen}
-          />
-        </>
+        <ToolbarButtons
+          hasQueueToday={hasQueueToday}
+          isRegOpen={isRegOpen}
+          isQueueOpen={isQueueOpen}
+          onRegStatus={handleRegStatus}
+          onQueueStatus={handleQueueStatus}
+          onResetQueue={handleResetQueue}
+          onDoctorModalOpen={handleDoctorModalOpen}
+          onQueueModalOpen={handleQueueModalOpen}
+        />
       }
     >
       {hasQueueToday ? (
@@ -322,7 +320,7 @@ const QueueManagementPage = () => {
               <QueueComponent
                 queueKey="queue"
                 title="QUEUE"
-                queue={queueToday.queue}
+                queue={queueToday.queue.sort((a, b) => a.queueNo - b.queueNo)}
                 enableFirstItemOnly
                 onTransferClick={handleTransferModalOpen}
               />

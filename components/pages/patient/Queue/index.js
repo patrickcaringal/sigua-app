@@ -76,32 +76,11 @@ const PatientQueuePage = () => {
 
   const nextNumbers = queueToday?.next?.map((i) => i.queueNo);
   const skippedNumbers = queueToday?.skipped?.map((i) => i.queueNo);
+  const doneNumbers = queueToday?.done?.map((i) => i.queueNo);
   const doctorCounters = lodash.values(queueToday?.counters);
   const servingNumbers = doctorCounters.reduce(
     (acc, i) => [...acc, ...i.queue.map((j) => j.queueNo)],
     []
-  );
-
-  const mergedQueueItems = () => {
-    const queue = (queueToday.queue || []).filter(
-      (i) => i.accountId === user.id
-    );
-
-    const next = (queueToday.next || []).filter((i) => i.accountId === user.id);
-
-    const counters = doctorCounters.reduce((acc, i) => {
-      return [...acc, ...i.queue];
-    }, []);
-
-    const skipped = (queueToday.skipped || []).filter(
-      (i) => i.accountId === user.id
-    );
-
-    return [...queue, ...next, ...counters, ...skipped];
-  };
-
-  const myQueueItems = mergedQueueItems().filter(
-    (i) => i.accountId === user.id
   );
 
   useEffect(() => {
@@ -141,6 +120,8 @@ const PatientQueuePage = () => {
       });
     }
 
+    return;
+
     // Register
     const payload = { id: queueToday.id, document };
     const { error: regError } = await registerToQueue(payload);
@@ -173,6 +154,20 @@ const PatientQueuePage = () => {
   const handleQueueModalClose = () => {
     setQueueModal(defaultModal);
   };
+
+  const mergedQueueItems = () => {
+    const queue = queueToday?.queue?.filter((i) => i.accountId === user.id);
+    const next = queueToday?.next?.filter((i) => i.accountId === user.id);
+    const counters = doctorCounters
+      ?.reduce((a, i) => [...a, ...i.queue], [])
+      .filter((i) => i.accountId === user.id);
+    const skipped = queueToday?.skipped?.filter((i) => i.accountId === user.id);
+    const done = queueToday?.done?.filter((i) => i.accountId === user.id);
+
+    return [...queue, ...next, ...counters, ...skipped, ...done];
+  };
+
+  const myQueueItems = mergedQueueItems();
 
   return (
     <Container maxWidth="lg">
@@ -226,7 +221,12 @@ const PatientQueuePage = () => {
                 counters={doctorCounters}
               />
               <OwnCards
-                queueNumbers={{ skippedNumbers, servingNumbers, nextNumbers }}
+                queueNumbers={{
+                  skippedNumbers,
+                  servingNumbers,
+                  nextNumbers,
+                  doneNumbers,
+                }}
                 myQueueItems={myQueueItems}
               />
             </Box>

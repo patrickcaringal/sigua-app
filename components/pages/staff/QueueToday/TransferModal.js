@@ -20,6 +20,7 @@ export const QUEUE_FLOW = {
   SKIPPED_NEXT: "SKIPPED_NEXT",
   DOCTOR_DONE: "DOCTOR_DONE",
   DOCTOR_QUEQUE: "DOCTOR_QUEQUE",
+  DOCTOR_DONE: "DOCTOR_DONE",
 };
 
 const TransferModal = ({ open, data, doctors, onTransferSelect, onClose }) => {
@@ -28,6 +29,7 @@ const TransferModal = ({ open, data, doctors, onTransferSelect, onClose }) => {
   const fromSkipped = data.from === "skipped";
   const fromDoctor = data.from.includes("counters");
 
+  const showQueue = ["done"].includes(data.from);
   const showNext = ["queue", "skipped"].includes(data.from);
   const showSkipped = ["next"].includes(data.from);
   const showDoctor = ["next"].includes(data.from);
@@ -111,7 +113,7 @@ const TransferModal = ({ open, data, doctors, onTransferSelect, onClose }) => {
         </>
       )}
 
-      {/* TO QUEQUE */}
+      {/* TO DONE */}
       {fromDoctor && (
         <>
           <Divider />
@@ -121,8 +123,30 @@ const TransferModal = ({ open, data, doctors, onTransferSelect, onClose }) => {
               onClick={() => {
                 onTransferSelect({
                   ...data,
+                  to: "done",
+                  flow: QUEUE_FLOW.DOCTOR_DONE,
+                });
+                handleClose();
+              }}
+            >
+              <ListItemText primary="Done" sx={{ textAlign: "center" }} />
+            </ListItem>
+          </List>
+        </>
+      )}
+
+      {/* TO QUEQUE */}
+      {showQueue && (
+        <>
+          <Divider />
+          <List sx={{ pt: 0 }}>
+            <ListItem
+              button
+              onClick={() => {
+                onTransferSelect({
+                  ...data,
                   to: "queue",
-                  flow: QUEUE_FLOW.DOCTOR_QUEQUE,
+                  flow: "",
                 });
                 handleClose();
               }}
