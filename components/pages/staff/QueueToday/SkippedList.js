@@ -13,12 +13,12 @@ import {
   Typography,
 } from "@mui/material";
 
-const QueueList = ({ queue, onTransferClick }) => {
+const SkippedList = ({ queue, onTransferClick }) => {
   return (
     <Box
       sx={{
-        height: "calc((100vh - 240px ) / 2)",
         flex: 1,
+        height: "calc((100vh - 290px ) / 2)",
         // border: "1px solid red",
       }}
     >
@@ -48,7 +48,7 @@ const QueueList = ({ queue, onTransferClick }) => {
                 fontWeight="medium"
                 color="common.white"
               >
-                QUEUE
+                SKIPPED
               </Typography>
             }
           />
@@ -65,7 +65,7 @@ const QueueList = ({ queue, onTransferClick }) => {
                   <IconButton
                     edge="end"
                     onClick={() =>
-                      onTransferClick({ patient: i, from: "queue" })
+                      onTransferClick({ patient: i, from: "skipped" })
                     }
                   >
                     <ArrowRightIcon />
@@ -118,7 +118,7 @@ const QueueList = ({ queue, onTransferClick }) => {
                   variant="caption"
                   fontWeight="medium"
                 >
-                  No Registered Patient
+                  None
                 </Typography>
               }
             />
@@ -129,4 +129,4 @@ const QueueList = ({ queue, onTransferClick }) => {
   );
 };
 
-export default QueueList;
+export default SkippedList;

@@ -29,10 +29,13 @@ import { PATHS, confirmMessage, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import DoctorList from "./DoctorList";
 import DoctorsModal from "./DoctorsModal";
+import DoneList from "./DoneList";
 import Header from "./Header";
 import Placeholder from "./Placeholder";
+import QueueComponent from "./QueueComponent";
 import QueueList from "./QueueList";
 import ManageQueueModal from "./QueueModal";
+import SkippedList from "./SkippedList";
 import ToolbarButtons from "./ToolbarButtons";
 import TransferModal, { QUEUE_FLOW } from "./TransferModal";
 
@@ -195,6 +198,9 @@ const QueueManagementPage = () => {
   };
 
   const handleTransferSelect = async ({ patient, doctor, from, to, flow }) => {
+    // console.log({ patient, doctor, from, to, flow });
+    // return;
+
     if (
       flow === QUEUE_FLOW.QUEUE_DOCTOR &&
       queueToday.counters[doctor.id].queue.length
@@ -289,9 +295,14 @@ const QueueManagementPage = () => {
             sx={{
               display: "flex",
               flexDirection: "row",
+              gap: 3,
+              mx: 2,
+              mt: 3,
             }}
           >
-            <QueueList
+            <QueueComponent
+              queueKey="queue"
+              title="QUEUE"
               queue={queueToday.queue}
               onTransferClick={handleTransferModalOpen}
             />
@@ -299,17 +310,46 @@ const QueueManagementPage = () => {
             <Box
               sx={{
                 flex: 1,
-                display: "flex",
-                flexDirection: "column",
+                // border: "1px solid red",
+                display: "grid",
+                gridTemplateRows: "auto auto",
+                gap: 3,
+                height: "calc(100vh - 260px)",
               }}
             >
               {doctorCounters.map((i) => (
-                <DoctorList
+                <QueueComponent
                   key={i.id}
-                  data={i}
+                  queueKey={`counters.${i.id}.queue`}
+                  title={`Dr. ${i.name}`}
+                  queue={i.queue}
                   onTransferClick={handleTransferModalOpen}
                 />
               ))}
+            </Box>
+
+            <Box
+              sx={{
+                flex: 1,
+                // border: "1px solid red",
+                display: "grid",
+                gridTemplateRows: "auto auto",
+                gap: 3,
+                height: "calc(100vh - 260px)",
+              }}
+            >
+              <QueueComponent
+                queueKey="done"
+                title="DONE"
+                queue={queueToday.done}
+                onTransferClick={handleTransferModalOpen}
+              />
+              <QueueComponent
+                queueKey="skipped"
+                title="SKIPPED"
+                queue={queueToday.skipped}
+                onTransferClick={handleTransferModalOpen}
+              />
             </Box>
           </Box>
         </>
