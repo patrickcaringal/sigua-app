@@ -1,5 +1,6 @@
 import * as React from "react";
 
+import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import GroupIcon from "@mui/icons-material/Group";
 import ListIcon from "@mui/icons-material/List";
@@ -36,8 +37,19 @@ const LeftSidebar = () => {
   const sidebarItems = isAdmin
     ? [
         {
+          text: "Patients",
+          icon: <PeopleIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.PATIENTS_LIST),
+        },
+        {
+          text: "Patient Approval",
+          icon: <FactCheckIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.PATIENTS_APPROVAL),
+        },
+        { text: "Divider" },
+        {
           text: "Staffs",
-          icon: <GroupIcon />,
+          icon: <AssignmentIndIcon />,
           onClick: () => router.push(PATHS.DOCTOR.STAFF_MANAGEMENT),
         },
         {
@@ -98,14 +110,18 @@ const LeftSidebar = () => {
       <Toolbar />
       <Box sx={{ overflow: "auto" }}>
         <List>
-          {sidebarItems.map(({ text, icon, onClick }) => (
-            <ListItem key={text} disablePadding onClick={onClick}>
-              <ListItemButton>
-                <ListItemIcon>{icon}</ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
+          {sidebarItems.map(({ text, icon, onClick }) => {
+            if (text === "Divider") return <Divider sx={{ my: 1 }} />;
+
+            return (
+              <ListItem key={text} disablePadding onClick={onClick}>
+                <ListItemButton>
+                  <ListItemIcon>{icon}</ListItemIcon>
+                  <ListItemText primary={text} />
+                </ListItemButton>
+              </ListItem>
+            );
+          })}
         </List>
         {/* 
         <Divider />

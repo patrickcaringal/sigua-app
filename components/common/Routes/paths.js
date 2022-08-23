@@ -3,6 +3,8 @@ import lodash from "lodash";
 export const PATHS = {
   DOCTOR: {
     DASHBOARD: "/doctor/dashboard",
+    PATIENTS_LIST: "/doctor/patients",
+    PATIENTS_APPROVAL: "/doctor/patients/approval",
     SERVICES_MANAGEMENT: "/doctor/services",
     SERVICES_RESTORE: "/doctor/services/restore",
     BRANCH_MANAGEMENT: "/doctor/branches",

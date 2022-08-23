@@ -193,7 +193,7 @@ const MemberApprovalPage = () => {
     >
       <Toolbar
         onRootClick={() => router.push("/staff/dashboard")}
-        paths={[{ text: "Member Approval" }]}
+        paths={[{ text: "Patient Approval" }]}
       />
 
       <Box>
