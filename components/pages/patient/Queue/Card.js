@@ -4,6 +4,7 @@ import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
 
 export const CARD_TYPES = {
   OWNED: "OWNED",
+  OWNED_NEXT: "OWNED_NEXT",
   OWNED_SERVING: "OWNED_SERVING",
   OWNED_SKIPPED: "OWNED_SKIPPED",
   OTHERS: "OTHERS",
@@ -11,6 +12,7 @@ export const CARD_TYPES = {
 
 const textColor = {
   OWNED: "warning.light",
+  OWNED_NEXT: "warning.light",
   OWNED_SERVING: "success.light",
   OWNED_SKIPPED: "error.light",
   OTHERS: "primary.main",
@@ -18,12 +20,14 @@ const textColor = {
 
 const borderColor = {
   OWNED: "#ff9800",
+  OWNED_NEXT: "#ff9800",
   OWNED_SERVING: "#4caf50",
   OWNED_SKIPPED: "#ef5350",
   OTHERS: "#009FFE",
 };
 
 const statusText = {
+  OWNED_NEXT: "Proceed to Clinic",
   OWNED_SERVING: "Serving",
   OWNED_SKIPPED: "Skipped",
 };
@@ -37,6 +41,7 @@ const CardComponent = ({
   const isOwned = [
     CARD_TYPES.OWNED_SERVING,
     CARD_TYPES.OWNED_SKIPPED,
+    CARD_TYPES.OWNED_NEXT,
     CARD_TYPES.OWNED,
   ].includes(type);
 

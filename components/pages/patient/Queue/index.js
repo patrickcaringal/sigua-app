@@ -73,12 +73,14 @@ const PatientQueuePage = () => {
   const hasQueueToday = !!lodash.keys(queueToday).length;
   const isRegOpen = hasQueueToday ? queueToday.openForRegistration : false;
   const isQueueOngoing = hasQueueToday ? queueToday.openQueue : false;
+
+  const nextNumbers = queueToday?.next?.map((i) => i.queueNo);
+  const skippedNumbers = queueToday?.skipped?.map((i) => i.queueNo);
   const doctorCounters = lodash.values(queueToday?.counters);
   const servingNumbers = doctorCounters.reduce(
     (acc, i) => [...acc, ...i.queue.map((j) => j.queueNo)],
     []
   );
-  const skippedNumbers = queueToday?.skipped?.map((i) => i.queueNo);
 
   const mergedQueueItems = () => {
     const queue = (queueToday.queue || []).filter(
@@ -97,6 +99,7 @@ const PatientQueuePage = () => {
 
     return [...queue, ...next, ...counters, ...skipped];
   };
+
   const myQueueItems = mergedQueueItems().filter(
     (i) => i.accountId === user.id
   );
@@ -223,8 +226,7 @@ const PatientQueuePage = () => {
                 counters={doctorCounters}
               />
               <OwnCards
-                servingNumbers={servingNumbers}
-                skippedNumbers={skippedNumbers}
+                queueNumbers={{ skippedNumbers, servingNumbers, nextNumbers }}
                 myQueueItems={myQueueItems}
               />
             </Box>

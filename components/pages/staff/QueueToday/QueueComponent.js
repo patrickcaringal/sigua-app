@@ -18,6 +18,7 @@ const QueueList = ({
   queueKey,
   queue,
   onTransferClick,
+  enableFirstItemOnly = false,
   placeholderText = "None",
 }) => {
   return (
@@ -79,6 +80,7 @@ const QueueList = ({
       >
         {queue.map((i, index) => {
           const { queueNo, patientName, serviceName } = i;
+          const moveDisabled = enableFirstItemOnly && index !== 0;
 
           return (
             <>
@@ -91,6 +93,7 @@ const QueueList = ({
                     onClick={() =>
                       onTransferClick({ patient: i, from: queueKey })
                     }
+                    disabled={moveDisabled}
                   >
                     <ArrowRightIcon />
                   </IconButton>

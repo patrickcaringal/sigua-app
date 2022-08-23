@@ -35,7 +35,7 @@ export const AdminCards = ({
           <QueueCard
             key={i.id}
             queueNo={i.queue.length ? i.queue[0].queueNo : "-"}
-            title="Serving Number"
+            title="Now Serving Number"
             type={CARD_TYPES.OTHERS}
           />
         ))}
@@ -43,7 +43,9 @@ export const AdminCards = ({
   );
 };
 
-export const OwnCards = ({ servingNumbers, skippedNumbers, myQueueItems }) => {
+export const OwnCards = ({ queueNumbers, myQueueItems }) => {
+  const { skippedNumbers, servingNumbers, nextNumbers } = queueNumbers;
+
   const getCardType = (queueNo) => {
     if (servingNumbers.includes(queueNo)) {
       return CARD_TYPES.OWNED_SERVING;
@@ -53,6 +55,10 @@ export const OwnCards = ({ servingNumbers, skippedNumbers, myQueueItems }) => {
       return CARD_TYPES.OWNED_SKIPPED;
     }
 
+    if (nextNumbers.includes(queueNo)) {
+      return CARD_TYPES.OWNED_NEXT;
+    }
+
     return CARD_TYPES.OWNED;
   };
 
@@ -60,7 +66,6 @@ export const OwnCards = ({ servingNumbers, skippedNumbers, myQueueItems }) => {
     <Box
       sx={{
         flex: 1,
-        // border: "1px solid blue",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",

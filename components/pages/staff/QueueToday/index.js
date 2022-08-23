@@ -202,8 +202,16 @@ const QueueManagementPage = () => {
     // console.log({ patient, doctor, from, to, flow });
     // return;
 
+    if (flow === QUEUE_FLOW.QUEUE_NEXT && queueToday.next.length === 3) {
+      return openResponseDialog({
+        autoClose: true,
+        content: `Only 3 Patients allowed for Next queue `,
+        type: "WARNING",
+      });
+    }
+
     if (
-      flow === QUEUE_FLOW.QUEUE_DOCTOR &&
+      flow === QUEUE_FLOW.NEXT_DOCTOR &&
       queueToday.counters[doctor.id].queue.length
     ) {
       return openResponseDialog({
@@ -315,6 +323,7 @@ const QueueManagementPage = () => {
                 queueKey="queue"
                 title="QUEUE"
                 queue={queueToday.queue}
+                enableFirstItemOnly
                 onTransferClick={handleTransferModalOpen}
               />
               <QueueComponent
