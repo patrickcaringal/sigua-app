@@ -203,7 +203,7 @@ const QueueManagementPage = () => {
     // console.log({ patient, doctor, from, to, flow });
     // return;
 
-    if (flow === QUEUE_FLOW.QUEUE_NEXT && queueToday.next.length === 3) {
+    if (flow === QUEUE_FLOW.QUEUE_NEXT && queueToday?.next?.length === 3) {
       return openResponseDialog({
         autoClose: true,
         content: `Only 3 Patients allowed for Next queue `,
