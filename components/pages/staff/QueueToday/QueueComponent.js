@@ -13,25 +13,25 @@ import {
   Typography,
 } from "@mui/material";
 
-const QueueList = ({ queue, onTransferClick }) => {
+const QueueList = ({
+  title,
+  queueKey,
+  queue,
+  onTransferClick,
+  enableFirstItemOnly = false,
+  placeholderText = "None",
+}) => {
   return (
     <Box
       sx={{
-        height: "calc((100vh - 240px ) / 2)",
+        // height: "calc((100vh - 270px ) / 2)",
         flex: 1,
-        // border: "1px solid red",
+        // border: "1px solid blue",
+        boxShadow: 2,
+        borderRadius: 1,
       }}
     >
-      <List
-        sx={{
-          width: "100%",
-          maxWidth: 360,
-          boxShadow: 2,
-          borderRadius: 1,
-        }}
-        dense
-        disablePadding
-      >
+      <List dense disablePadding>
         <ListItem
           sx={{
             bgcolor: "primary.light",
@@ -48,13 +48,39 @@ const QueueList = ({ queue, onTransferClick }) => {
                 fontWeight="medium"
                 color="common.white"
               >
-                QUEUE
+                {title}
               </Typography>
             }
           />
         </ListItem>
+        {queue.length === 0 && (
+          <ListItem alignItems="flex-start">
+            <ListItemText
+              primary={
+                <Typography
+                  display="block"
+                  variant="caption"
+                  fontWeight="medium"
+                >
+                  {placeholderText}
+                </Typography>
+              }
+            />
+          </ListItem>
+        )}
+      </List>
+
+      <List
+        sx={{
+          overflow: "overlay",
+          maxHeight: "calc((100vh - 348px) / 2)",
+        }}
+        dense
+        disablePadding
+      >
         {queue.map((i, index) => {
           const { queueNo, patientName, serviceName } = i;
+          const moveDisabled = enableFirstItemOnly && index !== 0;
 
           return (
             <>
@@ -65,8 +91,9 @@ const QueueList = ({ queue, onTransferClick }) => {
                   <IconButton
                     edge="end"
                     onClick={() =>
-                      onTransferClick({ patient: i, from: "queue" })
+                      onTransferClick({ patient: i, from: queueKey })
                     }
+                    disabled={moveDisabled}
                   >
                     <ArrowRightIcon />
                   </IconButton>
@@ -104,26 +131,11 @@ const QueueList = ({ queue, onTransferClick }) => {
                   }
                 />
               </ListItem>
-              {index + 1 !== queue.length && <Divider component="li" />}
+              <Divider component="li" />
+              {/* {index + 1 !== queue.length && <Divider component="li" />} */}
             </>
           );
         })}
-
-        {queue.length === 0 && (
-          <ListItem alignItems="flex-start">
-            <ListItemText
-              primary={
-                <Typography
-                  display="block"
-                  variant="caption"
-                  fontWeight="medium"
-                >
-                  No Registered Patient
-                </Typography>
-              }
-            />
-          </ListItem>
-        )}
       </List>
     </Box>
   );

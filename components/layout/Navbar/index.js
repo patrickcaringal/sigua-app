@@ -1,34 +1,22 @@
 import * as React from "react";
 
-import AdbIcon from "@mui/icons-material/Adb";
-import LogoutIcon from "@mui/icons-material/Logout";
-import MenuIcon from "@mui/icons-material/Menu";
 import {
   AppBar,
-  Avatar,
   Box,
   Button,
   Container,
   CssBaseline,
-  Divider,
-  IconButton,
-  ListItemIcon,
-  ListItemText,
-  Menu,
-  MenuItem,
   Toolbar,
-  Tooltip,
-  Typography,
 } from "@mui/material";
 import { useRouter } from "next/router";
 
-import { Logo } from "../../components";
-import { useAuth } from "../../contexts/AuthContext";
-import { useBackdropLoader } from "../../contexts/BackdropLoaderContext";
-import { useResponseDialog } from "../../contexts/ResponseDialogContext";
-import useRequest from "../../hooks/useRequest";
-import { signOutAnonymouslyReq, signOutReq } from "../../modules/firebase";
-import { getFullName, getInitials } from "../../modules/helper";
+import { Logo } from "../../../components";
+import { useAuth } from "../../../contexts/AuthContext";
+import { useBackdropLoader } from "../../../contexts/BackdropLoaderContext";
+import { useResponseDialog } from "../../../contexts/ResponseDialogContext";
+import useRequest from "../../../hooks/useRequest";
+import { signOutAnonymouslyReq, signOutReq } from "../../../modules/firebase";
+import UserAvatar from "./UserAvatar";
 
 const pages = ["Products", "Pricing", "Blog"];
 // const settings = ["Profile", "Account", "Dashboard", "Logout"];
@@ -75,7 +63,6 @@ const ResponsiveAppBar = () => {
       const { error: signOutError } = await signOutReq();
       if (signOutError) return openErrorDialog(signOutError);
       manualSetUser(null);
-      setAnchorElUser(null);
       return;
     }
 
@@ -83,7 +70,6 @@ const ResponsiveAppBar = () => {
     const { error: signOutError } = await signOutAnonymously(userSession);
     if (signOutError) return openErrorDialog(signOutError);
     manualSetUser(null);
-    setAnchorElUser(null);
   };
 
   return (
@@ -162,56 +148,11 @@ const ResponsiveAppBar = () => {
             {/* Right */}
             <Box sx={{ flexGrow: 0 }}>
               {isLoggedIn ? (
-                <>
-                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar sx={{ bgcolor: "primary.main" }}>
-                      {getInitials(user?.firstName)}
-                    </Avatar>
-                  </IconButton>
-                  <Menu
-                    sx={{ mt: "45px" }}
-                    id="menu-appbar"
-                    anchorEl={anchorElUser}
-                    anchorOrigin={{
-                      vertical: "top",
-                      horizontal: "right",
-                    }}
-                    keepMounted
-                    transformOrigin={{
-                      vertical: "top",
-                      horizontal: "right",
-                    }}
-                    open={Boolean(anchorElUser)}
-                    onClose={handleCloseUserMenu}
-                  >
-                    <Box sx={{ width: 260, p: 2 }}>
-                      <Typography variant="body1" textAlign="center">
-                        {getFullName(user).toUpperCase()}
-                      </Typography>
-                      <Typography variant="body2" textAlign="center">
-                        {user?.email}
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        textAlign="center"
-                        display="block"
-                      >
-                        {user?.role === "superadmin"
-                          ? "Doctor"
-                          : !user?.role
-                          ? "Patient"
-                          : user?.role}
-                      </Typography>
-                    </Box>
-                    <Divider />
-                    <MenuItem onClick={handleLogout}>
-                      <ListItemIcon>
-                        <LogoutIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText>Logout</ListItemText>
-                    </MenuItem>
-                  </Menu>
-                </>
+                <UserAvatar
+                  user={user}
+                  isStaff={isStaff}
+                  onLogout={handleLogout}
+                />
               ) : // displayed if page is not signin or signup
               !["/signin", "/signup", "/doctor/signin"].includes(
                   router.pathname

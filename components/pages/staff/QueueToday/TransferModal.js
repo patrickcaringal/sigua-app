@@ -11,14 +11,28 @@ import {
 } from "@mui/material";
 
 export const QUEUE_FLOW = {
+  QUEUE_NEXT: "QUEUE_NEXT",
   QUEUE_DOCTOR: "QUEUE_DOCTOR",
   QUEUE_SKIPPED: "QUEUE_SKIPPED",
+  NEXT_SKIPPED: "NEXT_SKIPPED",
+  NEXT_DOCTOR: "NEXT_DOCTOR",
+  SKIPPED_DOCTOR: "SKIPPED_DOCTOR",
+  SKIPPED_NEXT: "SKIPPED_NEXT",
+  DOCTOR_DONE: "DOCTOR_DONE",
+  DOCTOR_QUEQUE: "DOCTOR_QUEQUE",
   DOCTOR_DONE: "DOCTOR_DONE",
 };
 
 const TransferModal = ({ open, data, doctors, onTransferSelect, onClose }) => {
-  const showDoctors = data.from !== "doctor";
-  const showSkipped = data.from === "queue";
+  const fromQueue = data.from === "queue";
+  const fromNext = data.from === "next";
+  const fromSkipped = data.from === "skipped";
+  const fromDoctor = data.from.includes("counters");
+
+  const showQueue = ["done"].includes(data.from);
+  const showNext = ["queue", "skipped"].includes(data.from);
+  const showSkipped = ["next"].includes(data.from);
+  const showDoctor = ["next"].includes(data.from);
 
   const handleClose = () => {
     onClose();
@@ -27,9 +41,9 @@ const TransferModal = ({ open, data, doctors, onTransferSelect, onClose }) => {
   return (
     <Dialog onClose={handleClose} open={open}>
       <DialogTitle>TRANSFER PATIENT TO</DialogTitle>
-      {showDoctors && (
+      {/* TO DOCTOR */}
+      {showDoctor && (
         <List sx={{ pt: 0 }}>
-          {/* Doctors */}
           {doctors.map((i) => {
             const { id, name } = i;
             return (
@@ -40,7 +54,7 @@ const TransferModal = ({ open, data, doctors, onTransferSelect, onClose }) => {
                     ...data,
                     doctor: i,
                     to: `counters.${id}.queue`,
-                    flow: QUEUE_FLOW.QUEUE_DOCTOR,
+                    flow: QUEUE_FLOW.NEXT_DOCTOR,
                   });
                   handleClose();
                 }}
@@ -53,7 +67,8 @@ const TransferModal = ({ open, data, doctors, onTransferSelect, onClose }) => {
         </List>
       )}
 
-      {showSkipped && (
+      {/* TO NEXT */}
+      {showNext && (
         <>
           <Divider />
           <List sx={{ pt: 0 }}>
@@ -62,13 +77,81 @@ const TransferModal = ({ open, data, doctors, onTransferSelect, onClose }) => {
               onClick={() => {
                 onTransferSelect({
                   ...data,
+                  to: "next",
+                  flow: QUEUE_FLOW.QUEUE_NEXT,
+                });
+                handleClose();
+              }}
+            >
+              <ListItemText primary="Next" sx={{ textAlign: "center" }} />
+            </ListItem>
+          </List>
+        </>
+      )}
+
+      {/* TO SKIPPED */}
+      {showSkipped && (
+        <>
+          <List sx={{ pt: 0 }}>
+            <ListItem
+              button
+              onClick={() => {
+                onTransferSelect({
+                  ...data,
                   to: "skipped",
-                  flow: QUEUE_FLOW.QUEUE_SKIPPED,
+                  flow: QUEUE_FLOW.NEXT_SKIPPED,
+                  // fromQueue
+                  //   ? QUEUE_FLOW.QUEUE_SKIPPED
+                  //   : QUEUE_FLOW.DOCTOR_SKIPPED,
                 });
                 handleClose();
               }}
             >
               <ListItemText primary="Skipped" sx={{ textAlign: "center" }} />
+            </ListItem>
+          </List>
+        </>
+      )}
+
+      {/* TO DONE */}
+      {fromDoctor && (
+        <>
+          <Divider />
+          <List sx={{ pt: 0 }}>
+            <ListItem
+              button
+              onClick={() => {
+                onTransferSelect({
+                  ...data,
+                  to: "done",
+                  flow: QUEUE_FLOW.DOCTOR_DONE,
+                });
+                handleClose();
+              }}
+            >
+              <ListItemText primary="Done" sx={{ textAlign: "center" }} />
+            </ListItem>
+          </List>
+        </>
+      )}
+
+      {/* TO QUEQUE */}
+      {showQueue && (
+        <>
+          <Divider />
+          <List sx={{ pt: 0 }}>
+            <ListItem
+              button
+              onClick={() => {
+                onTransferSelect({
+                  ...data,
+                  to: "queue",
+                  flow: "",
+                });
+                handleClose();
+              }}
+            >
+              <ListItemText primary="Queue" sx={{ textAlign: "center" }} />
             </ListItem>
           </List>
         </>

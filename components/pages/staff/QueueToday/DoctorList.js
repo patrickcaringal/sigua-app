@@ -17,11 +17,11 @@ const DoctorList = ({ data, onTransferClick }) => {
   const { name, queue } = data;
 
   return (
-    <Box sx={{ flex: 1, mx: 2, mt: 3 }}>
+    <Box sx={{ flex: 1 }}>
       <List
         sx={{
-          width: "100%",
-          maxWidth: 360,
+          // width: "100%",
+          // maxWidth: 360,
           boxShadow: 2,
           borderRadius: 1,
         }}

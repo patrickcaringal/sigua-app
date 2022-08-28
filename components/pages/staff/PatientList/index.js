@@ -21,7 +21,7 @@ import useRequest from "../../../../hooks/useRequest";
 import {
   MEMBER_STATUS,
   deleteImageReq,
-  getPatientsForApprovalReq,
+  getPatientsReq,
   updatePatientReq,
 } from "../../../../modules/firebase";
 import {
@@ -30,24 +30,21 @@ import {
   getFullName,
   localUpdateDocs,
 } from "../../../../modules/helper";
-import { Toolbar, successMessage } from "../../../common";
+import { PATHS, Toolbar, successMessage } from "../../../common";
 import MemberApprovalModal from "./MemberApprovalModal";
 
-const MemberApprovalPage = () => {
+const PatientListPage = () => {
   const router = useRouter();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   // Requests
-  const [getMemberForApproval] = useRequest(
-    getPatientsForApprovalReq,
-    setBackdropLoader
-  );
+  const [getPatients] = useRequest(getPatientsReq, setBackdropLoader);
   const [updatePatient] = useRequest(updatePatientReq);
   const [deleteImage] = useRequest(deleteImageReq);
 
   // Local States
-  const [members, setMembers] = useState([]);
+  const [patients, setPatients] = useState([]);
   const [memberApprovalModal, setMemberApprovalModal] = useState({
     open: false,
     data: null,
@@ -56,11 +53,12 @@ const MemberApprovalPage = () => {
   useEffect(() => {
     const fetch = async () => {
       // Get Patients
-      const { data: patientList, error: getPatientsError } =
-        await getMemberForApproval({});
+      const { data: patientList, error: getPatientsError } = await getPatients(
+        {}
+      );
       if (getPatientsError) return openErrorDialog(getPatientsError);
 
-      setMembers(patientList);
+      setPatients(patientList);
     };
 
     fetch();
@@ -81,109 +79,6 @@ const MemberApprovalPage = () => {
     });
   };
 
-  const handleApprove = async (patient) => {
-    setBackdropLoader(true);
-    const updatedDoc = {
-      id: patient.id,
-      verified: true,
-      verificationAttachment: null,
-      verificationRejectReason: null,
-      status: MEMBER_STATUS.FOR_PHONE_VERIFICATION,
-    };
-
-    const { updates } = localUpdateDocs({
-      updatedDoc,
-      oldDocs: [...members],
-    });
-
-    // Update
-    const { error: updateError } = await updatePatient({
-      patient: updates,
-    });
-    if (updateError) {
-      setBackdropLoader(false);
-      return openErrorDialog(updateError);
-    }
-
-    // Delete Image
-    const url = patient.verificationAttachment;
-    const { error: deleteImageError } = await deleteImage({
-      url,
-    });
-    if (deleteImageError) {
-      setBackdropLoader(false);
-      return openErrorDialog(deleteImageError);
-    }
-
-    // Success
-    setBackdropLoader(false);
-    setMembers((prev) => prev.filter((i) => i.id !== updatedDoc.id));
-    openResponseDialog({
-      autoClose: true,
-      content: successMessage({
-        noun: "Family Member Verification",
-        verb: "approved",
-      }),
-      type: "SUCCESS",
-      closeCb() {
-        handleMemberModalClose();
-      },
-    });
-  };
-
-  const handleReject = async (patient) => {
-    setBackdropLoader(true);
-    const updatedDoc = {
-      id: patient.id,
-      verificationAttachment: null,
-      status: MEMBER_STATUS.REJECTED,
-    };
-
-    const { updates } = localUpdateDocs({
-      updatedDoc,
-      oldDocs: [...members],
-      additionalDiffFields() {
-        return {
-          verificationRejectReason: patient.verificationRejectReason,
-        };
-      },
-    });
-
-    // Update
-    const { error: updateError } = await updatePatient({
-      patient: updates,
-    });
-    if (updateError) {
-      setBackdropLoader(false);
-      return openErrorDialog(updateError);
-    }
-
-    // Delete Image
-    const url = patient.verificationAttachment;
-    const { error: deleteImageError } = await deleteImage({
-      url,
-    });
-    if (deleteImageError) {
-      setBackdropLoader(false);
-      return openErrorDialog(deleteImageError);
-    }
-
-    // Success
-    setBackdropLoader(false);
-    setMembers((prev) => prev.filter((i) => i.id !== updatedDoc.id));
-    openResponseDialog({
-      autoClose: true,
-      content: successMessage({
-        noun: "Family Member Verification",
-        verb: "rejected",
-      }),
-      type: "SUCCESS",
-      closeCb() {
-        handleMemberModalClose();
-      },
-    });
-  };
-
   return (
     <Box
       sx={{
@@ -192,8 +87,8 @@ const MemberApprovalPage = () => {
       }}
     >
       <Toolbar
-        onRootClick={() => router.push("/staff/dashboard")}
-        paths={[{ text: "Patient Approval" }]}
+        onRootClick={() => router.push(PATHS.STAFF.DASHBOARD)}
+        paths={[{ text: "Patients" }]}
       />
 
       <Box>
@@ -207,14 +102,13 @@ const MemberApprovalPage = () => {
                 <TableRow>
                   {[
                     { text: "Name" },
-                    { text: "Requester" },
                     { text: "Birthdate", sx: { width: 140 } },
                     { text: "Age", sx: { width: 100 }, align: "center" },
                     { text: "Gender", sx: { width: 100 } },
                     { text: "Contact No.", sx: { width: 140 } },
                     { text: "Address" },
                     { text: "Actions", align: "right" },
-                  ].map(({ text, align, sx = {} }) => (
+                  ].map(({ text, align, sx }) => (
                     <TableCell
                       key={text}
                       {...(align && { align })}
@@ -227,21 +121,12 @@ const MemberApprovalPage = () => {
               </TableHead>
 
               <TableBody>
-                {members.map((m, index) => {
-                  const {
-                    name,
-                    gender,
-                    birthdate,
-                    contactNo,
-                    accountName,
-                    address,
-                  } = m;
+                {patients.map((m, index) => {
+                  const { name, gender, birthdate, contactNo, address } = m;
 
-                  // <TableCell>{accountName}</TableCell>
                   return (
                     <TableRow key={index}>
                       <TableCell>{name}</TableCell>
-                      <TableCell>{accountName}</TableCell>
                       <TableCell>
                         {formatTimeStamp(birthdate, "MMM-dd-yyyy")}
                       </TableCell>
@@ -266,14 +151,8 @@ const MemberApprovalPage = () => {
                           {address}
                         </Typography>
                       </TableCell>
-                      <TableCell align="right">
-                        <IconButton
-                          color="primary"
-                          component="span"
-                          onClick={() => handleMemberModalOpen(m)}
-                        >
-                          <FactCheckIcon />
-                        </IconButton>
+                      <TableCell align="center">
+                        {/* <FactCheckIcon /> */}
                       </TableCell>
                     </TableRow>
                   );
@@ -297,4 +176,4 @@ const MemberApprovalPage = () => {
   );
 };
 
-export default MemberApprovalPage;
+export default PatientListPage;

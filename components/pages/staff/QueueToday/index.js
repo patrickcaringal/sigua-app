@@ -29,10 +29,13 @@ import { PATHS, confirmMessage, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import DoctorList from "./DoctorList";
 import DoctorsModal from "./DoctorsModal";
+import DoneList from "./DoneList";
 import Header from "./Header";
 import Placeholder from "./Placeholder";
+import QueueComponent from "./QueueComponent";
 import QueueList from "./QueueList";
 import ManageQueueModal from "./QueueModal";
+import SkippedList from "./SkippedList";
 import ToolbarButtons from "./ToolbarButtons";
 import TransferModal, { QUEUE_FLOW } from "./TransferModal";
 
@@ -129,9 +132,11 @@ const QueueManagementPage = () => {
       date: formatFirebasetimeStamp(docs.date),
       queueDate: formatTimeStamp(docs.date),
       queue: [],
-      counters: [],
+      next: [],
+      counters: {},
       done: [],
       skipped: [],
+      doctors: [],
       nextQueueNo: 1,
       createdBy: user.id,
       openForRegistration: false,
@@ -195,8 +200,19 @@ const QueueManagementPage = () => {
   };
 
   const handleTransferSelect = async ({ patient, doctor, from, to, flow }) => {
+    // console.log({ patient, doctor, from, to, flow });
+    // return;
+
+    if (flow === QUEUE_FLOW.QUEUE_NEXT && queueToday.next.length === 3) {
+      return openResponseDialog({
+        autoClose: true,
+        content: `Only 3 Patients allowed for Next queue `,
+        type: "WARNING",
+      });
+    }
+
     if (
-      flow === QUEUE_FLOW.QUEUE_DOCTOR &&
+      flow === QUEUE_FLOW.NEXT_DOCTOR &&
       queueToday.counters[doctor.id].queue.length
     ) {
       return openResponseDialog({
@@ -261,18 +277,16 @@ const QueueManagementPage = () => {
         paths: [{ text: "Queue Today" }],
       }}
       toolbarContent={
-        <>
-          <ToolbarButtons
-            hasQueueToday={hasQueueToday}
-            isRegOpen={isRegOpen}
-            isQueueOpen={isQueueOpen}
-            onRegStatus={handleRegStatus}
-            onQueueStatus={handleQueueStatus}
-            onResetQueue={handleResetQueue}
-            onDoctorModalOpen={handleDoctorModalOpen}
-            onQueueModalOpen={handleQueueModalOpen}
-          />
-        </>
+        <ToolbarButtons
+          hasQueueToday={hasQueueToday}
+          isRegOpen={isRegOpen}
+          isQueueOpen={isQueueOpen}
+          onRegStatus={handleRegStatus}
+          onQueueStatus={handleQueueStatus}
+          onResetQueue={handleResetQueue}
+          onDoctorModalOpen={handleDoctorModalOpen}
+          onQueueModalOpen={handleQueueModalOpen}
+        />
       }
     >
       {hasQueueToday ? (
@@ -289,27 +303,80 @@ const QueueManagementPage = () => {
             sx={{
               display: "flex",
               flexDirection: "row",
+              gap: 3,
+              mx: 2,
+              mt: 3,
             }}
           >
-            <QueueList
-              queue={queueToday.queue}
-              onTransferClick={handleTransferModalOpen}
-            />
+            <Box
+              sx={{
+                flex: 1,
+                // border: "1px solid red",
+                display: "grid",
+                gridTemplateRows: "calc((100vh - 260px) / 2) auto",
+                gap: 3,
+                height: "calc(100vh - 260px)",
+              }}
+            >
+              <QueueComponent
+                queueKey="queue"
+                title="QUEUE"
+                queue={queueToday.queue.sort((a, b) => a.queueNo - b.queueNo)}
+                enableFirstItemOnly
+                onTransferClick={handleTransferModalOpen}
+              />
+              <QueueComponent
+                queueKey="next"
+                title="NEXT"
+                queue={queueToday.next}
+                onTransferClick={handleTransferModalOpen}
+              />
+            </Box>
+
             {/* Doctor List */}
             <Box
               sx={{
                 flex: 1,
-                display: "flex",
-                flexDirection: "column",
+                // border: "1px solid red",
+                display: "grid",
+                gridTemplateRows: "calc((100vh - 260px) / 2) auto",
+                gap: 3,
+                height: "calc(100vh - 260px)",
               }}
             >
               {doctorCounters.map((i) => (
-                <DoctorList
+                <QueueComponent
                   key={i.id}
-                  data={i}
+                  queueKey={`counters.${i.id}.queue`}
+                  title={`Dr. ${i.name}`}
+                  queue={i.queue}
                   onTransferClick={handleTransferModalOpen}
                 />
               ))}
+            </Box>
+
+            <Box
+              sx={{
+                flex: 1,
+                // border: "1px solid red",
+                display: "grid",
+                gridTemplateRows: "calc((100vh - 260px) / 2) auto",
+                gap: 3,
+                height: "calc(100vh - 260px)",
+              }}
+            >
+              <QueueComponent
+                queueKey="done"
+                title="DONE"
+                queue={queueToday.done}
+                onTransferClick={handleTransferModalOpen}
+              />
+              <QueueComponent
+                queueKey="skipped"
+                title="SKIPPED"
+                queue={queueToday.skipped}
+                onTransferClick={handleTransferModalOpen}
+              />
             </Box>
           </Box>
         </>

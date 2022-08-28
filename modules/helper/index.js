@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { differenceInYears, format } from "date-fns";
 import { Timestamp } from "firebase/firestore";
 import lodash from "lodash";
 
@@ -44,6 +44,11 @@ export const sortBy =
 
     return new Date(convertToDate(b[key])) - new Date(convertToDate(a[key]));
   };
+
+export const calculateAge = (birthdate) => {
+  const age = differenceInYears(new Date(), new Date(birthdate));
+  return age;
+};
 
 export const getInitials = (str = "") => {
   return str.toUpperCase().charAt(0);

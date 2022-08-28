@@ -73,30 +73,14 @@ const PatientQueuePage = () => {
   const hasQueueToday = !!lodash.keys(queueToday).length;
   const isRegOpen = hasQueueToday ? queueToday.openForRegistration : false;
   const isQueueOngoing = hasQueueToday ? queueToday.openQueue : false;
+
+  const nextNumbers = queueToday?.next?.map((i) => i.queueNo);
+  const skippedNumbers = queueToday?.skipped?.map((i) => i.queueNo);
+  const doneNumbers = queueToday?.done?.map((i) => i.queueNo);
   const doctorCounters = lodash.values(queueToday?.counters);
   const servingNumbers = doctorCounters.reduce(
     (acc, i) => [...acc, ...i.queue.map((j) => j.queueNo)],
     []
-  );
-  const skippedNumbers = queueToday?.skipped?.map((i) => i.queueNo);
-
-  const mergedQueueItems = () => {
-    const queue = (queueToday.queue || []).filter(
-      (i) => i.accountId === user.id
-    );
-
-    const counters = doctorCounters.reduce((acc, i) => {
-      return [...acc, ...i.queue];
-    }, []);
-
-    const skipped = (queueToday.skipped || []).filter(
-      (i) => i.accountId === user.id
-    );
-
-    return [...queue, ...counters, ...skipped];
-  };
-  const myQueueItems = mergedQueueItems().filter(
-    (i) => i.accountId === user.id
   );
 
   useEffect(() => {
@@ -109,6 +93,7 @@ const PatientQueuePage = () => {
     const unsub = onSnapshot(q, (querySnapshot) => {
       if (querySnapshot.docs.length === 1) {
         const realtimeData = querySnapshot.docs[0].data();
+
         setQueueToday(realtimeData);
       } else if (querySnapshot.docs.length > 1) {
         alert("detected more than 1 queue today");
@@ -169,6 +154,23 @@ const PatientQueuePage = () => {
     setQueueModal(defaultModal);
   };
 
+  const mergedQueueItems = () => {
+    const queue =
+      queueToday?.queue?.filter((i) => i.accountId === user.id) || [];
+    const next = queueToday?.next?.filter((i) => i.accountId === user.id) || [];
+    const counters =
+      doctorCounters
+        ?.reduce((a, i) => [...a, ...i.queue], [])
+        .filter((i) => i.accountId === user.id) || [];
+    const skipped =
+      queueToday?.skipped?.filter((i) => i.accountId === user.id) || [];
+    const done = queueToday?.done?.filter((i) => i.accountId === user.id) || [];
+
+    return [...queue, ...next, ...counters, ...skipped, ...done];
+  };
+
+  const myQueueItems = mergedQueueItems();
+
   return (
     <Container maxWidth="lg">
       <Toolbar
@@ -221,8 +223,12 @@ const PatientQueuePage = () => {
                 counters={doctorCounters}
               />
               <OwnCards
-                servingNumbers={servingNumbers}
-                skippedNumbers={skippedNumbers}
+                queueNumbers={{
+                  skippedNumbers,
+                  servingNumbers,
+                  nextNumbers,
+                  doneNumbers,
+                }}
                 myQueueItems={myQueueItems}
               />
             </Box>

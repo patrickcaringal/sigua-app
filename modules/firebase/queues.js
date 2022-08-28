@@ -23,7 +23,7 @@ const collRef = collection(db, "queues");
 
 export const getQueuesReq = async () => {
   try {
-    // TODO: date range , where("deleted", "!=", true)
+    // TODO: date range, branch
     const q = query(collRef);
     const querySnapshot = await getDocs(q);
     const data = querySnapshot.docs
@@ -96,6 +96,7 @@ export const addQueueCounterReq = async ({ id, document }) => {
     const docRef = doc(db, "queues", id);
     await updateDoc(docRef, {
       [`counters.${document.id}`]: document,
+      doctors: arrayUnion(document.id),
     });
 
     return { success: true };
@@ -163,8 +164,10 @@ export const resetQueueReq = async ({ id }) => {
     const docRef = doc(db, "queues", id);
     await updateDoc(docRef, {
       queue: [],
-      counters: [],
+      next: [],
+      counters: {},
       skipped: [],
+      done: [],
       nextQueueNo: 1,
     });
 

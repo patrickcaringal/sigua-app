@@ -13,15 +13,9 @@ import {
   Typography,
 } from "@mui/material";
 
-const QueueList = ({ queue, onTransferClick }) => {
+const DoneList = ({ queue, onTransferClick }) => {
   return (
-    <Box
-      sx={{
-        height: "calc((100vh - 240px ) / 2)",
-        flex: 1,
-        // border: "1px solid red",
-      }}
-    >
+    <Box sx={{ flex: 1 }}>
       <List
         sx={{
           width: "100%",
@@ -48,7 +42,7 @@ const QueueList = ({ queue, onTransferClick }) => {
                 fontWeight="medium"
                 color="common.white"
               >
-                QUEUE
+                DONE
               </Typography>
             }
           />
@@ -61,16 +55,16 @@ const QueueList = ({ queue, onTransferClick }) => {
               <ListItem
                 key={queueNo}
                 alignItems="flex-start"
-                secondaryAction={
-                  <IconButton
-                    edge="end"
-                    onClick={() =>
-                      onTransferClick({ patient: i, from: "queue" })
-                    }
-                  >
-                    <ArrowRightIcon />
-                  </IconButton>
-                }
+                // secondaryAction={
+                //   <IconButton
+                //     edge="end"
+                //     onClick={() =>
+                //       onTransferClick({ patient: i, from: "skipped" })
+                //     }
+                //   >
+                //     <ArrowRightIcon />
+                //   </IconButton>
+                // }
               >
                 <ListItemAvatar sx={{ minWidth: 48 }}>
                   <Avatar
@@ -118,7 +112,7 @@ const QueueList = ({ queue, onTransferClick }) => {
                   variant="caption"
                   fontWeight="medium"
                 >
-                  No Registered Patient
+                  None
                 </Typography>
               }
             />
@@ -129,4 +123,4 @@ const QueueList = ({ queue, onTransferClick }) => {
   );
 };
 
-export default QueueList;
+export default DoneList;

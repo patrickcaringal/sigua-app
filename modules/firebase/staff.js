@@ -30,12 +30,6 @@ import { checkDuplicate, registerNames } from "./helpers";
 
 const collRef = collection(db, "staffs");
 
-const transformedFields = (doc) => ({
-  name: getFullName(doc),
-  birthdate: formatFirebasetimeStamp(doc.birthdate),
-  nameBirthdate: getUniquePersonId(doc),
-});
-
 export const signInStaffReq = async ({ email, password }) => {
   try {
     // Authenticate
@@ -50,9 +44,17 @@ export const signInStaffReq = async ({ email, password }) => {
     const exist = querySnapshot.docs.length === 1;
     if (!exist) throw new Error("Staff document not found");
 
+    const docRef = doc(db, "branches", "list");
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) {
+      throw new Error("Unable to get Branch list doc");
+    }
+
+    const staffDocumnet = querySnapshot.docs[0].data();
     const document = {
-      id: querySnapshot.docs[0].id,
-      ...querySnapshot.docs[0].data(),
+      id: staffDocumnet.id,
+      ...staffDocumnet,
+      branchName: docSnap.data()[staffDocumnet.branch],
     };
 
     return { data: document, success: true };

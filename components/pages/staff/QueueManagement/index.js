@@ -42,11 +42,6 @@ import { AdminMainContainer } from "../../../shared";
 import ManageQueueModal from "./QueueModal";
 import TableCells from "./TableCells";
 
-const defaultModal = {
-  open: false,
-  data: {},
-};
-
 const QueueManagementPage = () => {
   const router = useRouter();
   const { user, isStaff } = useAuth();
@@ -56,133 +51,22 @@ const QueueManagementPage = () => {
 
   // Requests
   const [getQueues] = useRequest(getQueuesReq, setBackdropLoader);
-  const [getBranches] = useRequest(getBranchesReq, setBackdropLoader);
-  const [addQueue] = useRequest(addQueueReq, setBackdropLoader);
 
   // Local States
   const [queues, setQueues] = useState([]);
-  const [queueToday, setQueueToday] = useState();
-  const [branches, setBranches] = useState([]);
-  const [branchesMap, setBranchesMap] = useState({});
-  const [queueModal, setQueueModal] = useState(defaultModal);
 
   useEffect(() => {
     const fetchQueues = async () => {
-      // Get Services
+      // Get
       const { data: queueList, error: getQueuesError } = await getQueues();
       if (getQueuesError) return openErrorDialog(getQueuesError);
-
-      const mappedQueue = queueList.map((i) => {
-        const isToday = formatTimeStamp(i.date) === today;
-        if (isToday) {
-          setQueueToday(i);
-        }
-
-        return i;
-      });
 
       setQueues(queueList);
     };
 
-    const fetchBranches = async () => {
-      // Get Branches
-      const {
-        data: branchList,
-        map: branchMap,
-        error: getBranchError,
-      } = await getBranches({ mapService: false });
-      if (getBranchError) return openErrorDialog(getBranchError);
-
-      setBranches(
-        branchList.map((i) => ({
-          ...lodash.pick(i, ["name", "id", "capacity"]),
-        }))
-      );
-      setBranchesMap(branchMap);
-    };
-
-    fetchBranches();
     fetchQueues();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // useEffect(() => {
-  //   console.log("went here");
-  //   const q = query(
-  //     collection(db, "queues"),
-  //     where("branchId", "==", user.branch),
-  //     where("queueDate", "==", today)
-  //   );
-  //   const unsub = onSnapshot(q, (querySnapshot) => {
-  //     if (querySnapshot.docs.length === 1) {
-  //       const realtimeData = querySnapshot.docs[0].data();
-
-  //       const { latestDocs, updates } = localUpdateDocs({
-  //         updatedDoc: realtimeData,
-  //         oldDocs: [...queues],
-  //       });
-
-  //       // setQueues(latestDocs);
-  //     }
-  //   });
-
-  //   return () => unsub();
-  // }, [user.branch, queues]);
-
-  const handleAddQueue = async (docs) => {
-    docs = {
-      ...docs,
-      date: formatFirebasetimeStamp(docs.date),
-      queueDate: formatTimeStamp(docs.date),
-      queue: [],
-      counters: [
-        // {
-        //   id: 'docId',
-        //   ongoing: {}
-        // }
-      ],
-      done: [],
-      skipped: [],
-      createdBy: user.id,
-      openForRegistration: false,
-    };
-
-    // Add
-    const { data: newDoc, error: addError } = await addQueue({
-      docs,
-    });
-    if (addError) return openErrorDialog(addError);
-
-    // Successful
-    setQueues((prev) => [newDoc, ...prev]);
-    openResponseDialog({
-      autoClose: true,
-      content: successMessage({
-        noun: "Queue",
-        verb: "added",
-      }),
-      type: "SUCCESS",
-      closeCb() {
-        setQueueModal(defaultModal);
-      },
-    });
-  };
-
-  const handleEditQueue = async (updatedDocs) => {};
-
-  const handleQueueModalOpen = () => {
-    setQueueModal({
-      open: true,
-      data: {
-        branchId: user.branch,
-        capacity: branches.find((i) => i.id === user.branch).capacity,
-      },
-    });
-  };
-
-  const handleQueueModalClose = () => {
-    setQueueModal(defaultModal);
-  };
 
   return (
     <AdminMainContainer
@@ -190,29 +74,37 @@ const QueueManagementPage = () => {
         onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
         paths: [{ text: "Queue" }],
       }}
-      toolbarContent={
-        <>
-          <Button
-            variant="contained"
-            size="small"
-            onClick={handleQueueModalOpen}
-            startIcon={<AddCircleIcon />}
-            disabled={!!queueToday}
-          >
-            add queue
-          </Button>
-        </>
-      }
     >
       <TableContainer>
         <Table>
           <TableHead>
             <TableRow>
               {[
-                { text: "Date", sx: { width: 200 } },
-                { text: "Capacity" },
-                { text: "Status", align: "center", sx: { width: 110 } },
-                { text: "Actions", align: "center", sx: { width: 110 } },
+                { text: "Date", sx: { width: 120 } },
+                { text: "Day", sx: { width: 100 } },
+                { text: "Doctor" },
+                {
+                  text: "Capacity",
+                  sx: { width: 100 },
+                  align: "center",
+                },
+                {
+                  text: "Registered",
+                  sx: { width: 200 },
+                  align: "center",
+                },
+                {
+                  text: "Served Patients",
+                  sx: { width: 200 },
+                  align: "center",
+                },
+                {
+                  text: "No Show Patients",
+                  sx: { width: 200 },
+                  align: "center",
+                },
+                // { text: "Status", align: "center", sx: { width: 110 } },
+                // { text: "Actions", align: "center", sx: { width: 110 } },
               ].map(({ text, align, sx }) => (
                 <TableCell
                   key={text}
@@ -230,7 +122,7 @@ const QueueManagementPage = () => {
               return (
                 <TableRow key={i.id}>
                   <TableCells data={i} />
-                  <TableCell align="center">
+                  {/* <TableCell align="center">
                     <IconButton
                       size="small"
                       // onClick={() => handleEditServiceModalOpen(i)}
@@ -243,24 +135,13 @@ const QueueManagementPage = () => {
                     >
                       <DeleteIcon />
                     </IconButton>
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               );
             })}
           </TableBody>
         </Table>
       </TableContainer>
-
-      {queueModal.open && (
-        <ManageQueueModal
-          isStaff={isStaff}
-          branches={branches}
-          open={queueModal.open}
-          data={queueModal.data}
-          onClose={handleQueueModalClose}
-          onSave={!queueModal.data?.id ? handleAddQueue : handleEditQueue}
-        />
-      )}
     </AdminMainContainer>
   );
 };

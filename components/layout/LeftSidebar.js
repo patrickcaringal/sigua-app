@@ -1,10 +1,15 @@
 import * as React from "react";
 
+import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import GroupIcon from "@mui/icons-material/Group";
+import ListIcon from "@mui/icons-material/List";
 import MapsHomeWorkIcon from "@mui/icons-material/MapsHomeWork";
+import MedicalInformationIcon from "@mui/icons-material/MedicalInformation";
 import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
+import PeopleIcon from "@mui/icons-material/People";
 import QueueIcon from "@mui/icons-material/Queue";
+import ViewListIcon from "@mui/icons-material/ViewList";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import {
   Box,
@@ -34,8 +39,25 @@ const LeftSidebar = () => {
   const sidebarItems = isAdmin
     ? [
         {
+          text: "Patients",
+          icon: <PeopleIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.PATIENTS_LIST),
+        },
+        {
+          text: "Patient Approval",
+          icon: <FactCheckIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.PATIENTS_APPROVAL),
+        },
+        { text: "Divider" },
+        // {
+        //   text: "Diagnose Patient",
+        //   icon: <MedicalInformationIcon />,
+        //   onClick: () => router.push(PATHS.DOCTOR.DIAGNOSE),
+        // },
+        // { text: "Divider" },
+        {
           text: "Staffs",
-          icon: <GroupIcon />,
+          icon: <AssignmentIndIcon />,
           onClick: () => router.push(PATHS.DOCTOR.STAFF_MANAGEMENT),
         },
         {
@@ -56,14 +78,24 @@ const LeftSidebar = () => {
         //   onClick: () => router.push(PATHS.STAFF.QUEUE_MANAGEMENT),
         // },
         {
+          text: "Patients",
+          icon: <PeopleIcon />,
+          onClick: () => router.push(PATHS.STAFF.PATIENTS_LIST),
+        },
+        {
+          text: "Patient Approval",
+          icon: <FactCheckIcon />,
+          onClick: () => router.push(PATHS.STAFF.MEMBER_APPROVAL),
+        },
+        {
           text: "Queue Today",
           icon: <QueueIcon />,
           onClick: () => router.push(PATHS.STAFF.QUEUE_TODAY),
         },
         {
-          text: "Member Approval",
-          icon: <FactCheckIcon />,
-          onClick: () => router.push(PATHS.STAFF.MEMBER_APPROVAL),
+          text: "Queues",
+          icon: <ViewListIcon />,
+          onClick: () => router.push(PATHS.STAFF.QUEUE_MANAGEMENT),
         },
       ];
 
@@ -86,14 +118,18 @@ const LeftSidebar = () => {
       <Toolbar />
       <Box sx={{ overflow: "auto" }}>
         <List>
-          {sidebarItems.map(({ text, icon, onClick }) => (
-            <ListItem key={text} disablePadding onClick={onClick}>
-              <ListItemButton>
-                <ListItemIcon>{icon}</ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
+          {sidebarItems.map(({ text, icon, onClick }) => {
+            if (text === "Divider") return <Divider sx={{ my: 1 }} />;
+
+            return (
+              <ListItem key={text} disablePadding onClick={onClick}>
+                <ListItemButton>
+                  <ListItemIcon>{icon}</ListItemIcon>
+                  <ListItemText primary={text} />
+                </ListItemButton>
+              </ListItem>
+            );
+          })}
         </List>
         {/* 
         <Divider />
