@@ -12,10 +12,10 @@ const TableCells = ({ data }) => {
     date,
     capacity,
     counters,
-    queue,
-    next,
-    done,
-    skipped,
+    queue = [],
+    next = [],
+    done = [],
+    skipped = [],
     openForRegistration,
   } = data;
   const doctors = lodash.values(counters).map((i) => i.name);

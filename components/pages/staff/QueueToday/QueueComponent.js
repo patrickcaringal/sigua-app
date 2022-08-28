@@ -16,7 +16,7 @@ import {
 const QueueList = ({
   title,
   queueKey,
-  queue,
+  queue = [],
   onTransferClick,
   enableFirstItemOnly = false,
   placeholderText = "None",
