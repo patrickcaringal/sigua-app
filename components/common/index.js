@@ -1,3 +1,4 @@
+import Datalist from "./Datalist";
 import { DatePicker, Input, Select } from "./Form";
 import Modal from "./Modal";
 import {
@@ -16,6 +17,7 @@ import {
 import Toolbar from "./Toolbar";
 
 export {
+  Datalist,
   Modal,
   Toolbar,
   // Routes

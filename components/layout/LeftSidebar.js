@@ -49,12 +49,12 @@ const LeftSidebar = () => {
           onClick: () => router.push(PATHS.DOCTOR.PATIENTS_APPROVAL),
         },
         { text: "Divider" },
-        // {
-        //   text: "Diagnose Patient",
-        //   icon: <MedicalInformationIcon />,
-        //   onClick: () => router.push(PATHS.DOCTOR.DIAGNOSE),
-        // },
-        // { text: "Divider" },
+        {
+          text: "Diagnose Patient",
+          icon: <MedicalInformationIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.DIAGNOSE),
+        },
+        { text: "Divider" },
         {
           text: "Staffs",
           icon: <AssignmentIndIcon />,

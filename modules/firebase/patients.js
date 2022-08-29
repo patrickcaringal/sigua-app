@@ -68,6 +68,25 @@ export const getVerifiedFamilyMembersReq = async ({ id }) => {
   }
 };
 
+export const getPatientReq = async ({ id }) => {
+  try {
+    // Get Patient
+    const q = doc(db, "patients", id);
+    const querySnapshot = await getDoc(q);
+
+    if (!querySnapshot.exists()) {
+      throw new Error("Unable to get Patient doc");
+    }
+
+    const data = querySnapshot.data();
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
 // TODO: figure out per branch
 export const getPatientsReq = async ({}) => {
   try {

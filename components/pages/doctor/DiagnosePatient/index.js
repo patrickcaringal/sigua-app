@@ -14,6 +14,7 @@ import {
   addQueueReq,
   db,
   getBranchesReq,
+  getPatientReq,
   resetQueueReq,
   transferQueueItemReq,
   updateQueueRegStatusReq,
@@ -25,8 +26,9 @@ import {
   pluralize,
   today,
 } from "../../../../modules/helper";
-import { PATHS, confirmMessage, successMessage } from "../../../common";
+import { Input, PATHS, confirmMessage, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
+import PatientDetails from "./PatientDetails";
 
 const defaultModal = {
   open: false,
@@ -41,14 +43,18 @@ const QueueManagementPage = () => {
 
   // Requests
   const [getBranches] = useRequest(getBranchesReq, setBackdropLoader);
+  const [getPatient] = useRequest(getPatientReq, setBackdropLoader);
 
   // Local States
   const [queueToday, setQueueToday] = useState({});
+  const [patient, setPatient] = useState({});
 
   const doctorId = user.id;
   const hasQueueToday = !!lodash.keys(queueToday).length;
+  const hasPatient = !!lodash.keys(patient).length;
 
-  //   const currentPatient = queueToday?.counters[doctorId]?.queue[0];
+  const currentPatient = queueToday?.counters?.[doctorId]?.queue[0];
+  console.log({ currentPatient });
 
   useEffect(() => {
     const q = query(
@@ -73,6 +79,31 @@ const QueueManagementPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (currentPatient) {
+      const fetch = async () => {
+        // Get Patient
+        const payload = { id: currentPatient.patientId };
+        const { data, error: getError } = await getPatient(payload);
+        if (getError) return openErrorDialog(getError);
+
+        setPatient({
+          ...data,
+          ...lodash.pick(currentPatient, [
+            "queueNo",
+            "serviceName",
+            "patientNote",
+          ]),
+        });
+      };
+
+      fetch();
+    } else {
+      setPatient({});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPatient]);
+
   return (
     <AdminMainContainer
       toolbarProps={{
@@ -84,38 +115,32 @@ const QueueManagementPage = () => {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: "240px auto",
-          gap: 3,
+          gridTemplateColumns: "360px auto",
+          gridTemplateRows: "calc(100vh - 144px) auto",
+          columnGap: 3,
         }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            border: "1px solid red",
-          }}
-        >
-          <Avatar
-            sx={{
-              bgcolor: "primary.light",
-              width: 80,
-              height: 80,
-              fontSize: 40,
-            }}
-          >
-            P
-          </Avatar>
+        <PatientDetails patient={patient} />
+        <Box sx={{ pr: 3 }}>
+          {/* Medical history  */}
 
-          <Typography
-            // color="text.secondary"
-            // sx={{ fontWeight: "bold" }}
-            fontWeight="medium"
-          >
-            Patrick Angelo Caringal
-          </Typography>
+          {/* Diagnosis */}
+          <Box sx={{ mt: 5 }}>
+            <Input
+              required
+              multiline
+              label="Doctor Diagnosis"
+              name="address"
+              rows={5}
+              // value={values.address}
+              // onChange={(e) =>
+              //   setFieldValue("address", e.target.value.toUpperCase())
+              // }
+              // onBlur={handleBlur}
+              // error={getError("address")}
+            />
+          </Box>
         </Box>
-        <Box sx={{ border: "1px solid blue" }}>Medical records</Box>
       </Box>
     </AdminMainContainer>
   );
