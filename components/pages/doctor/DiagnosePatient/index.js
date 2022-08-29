@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 
+import MedicalInformationIcon from "@mui/icons-material/MedicalInformation";
 import { Avatar, Box, Button, Typography } from "@mui/material";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { FormikProvider, useFormik } from "formik";
 import lodash from "lodash";
 import { useRouter } from "next/router";
 
@@ -10,15 +12,10 @@ import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
 import {
-  addQueueCounterReq,
-  addQueueReq,
   db,
+  diagnosePatientReq,
   getBranchesReq,
   getPatientReq,
-  resetQueueReq,
-  transferQueueItemReq,
-  updateQueueRegStatusReq,
-  updateQueueStatusReq,
 } from "../../../../modules/firebase";
 import {
   formatFirebasetimeStamp,
@@ -26,6 +23,7 @@ import {
   pluralize,
   today,
 } from "../../../../modules/helper";
+import { DiagnoseSchema } from "../../../../modules/validation";
 import { Input, PATHS, confirmMessage, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import PatientDetails from "./PatientDetails";
@@ -44,6 +42,7 @@ const QueueManagementPage = () => {
   // Requests
   const [getBranches] = useRequest(getBranchesReq, setBackdropLoader);
   const [getPatient] = useRequest(getPatientReq, setBackdropLoader);
+  const [diagnosePatient] = useRequest(diagnosePatientReq, setBackdropLoader);
 
   // Local States
   const [queueToday, setQueueToday] = useState({});
@@ -52,9 +51,55 @@ const QueueManagementPage = () => {
   const doctorId = user.id;
   const hasQueueToday = !!lodash.keys(queueToday).length;
   const hasPatient = !!lodash.keys(patient).length;
-
   const currentPatient = queueToday?.counters?.[doctorId]?.queue[0];
-  console.log({ currentPatient });
+
+  // console.log({ queueToday });
+
+  const formik = useFormik({
+    initialValues: { diagnosis: "" },
+    validationSchema: DiagnoseSchema,
+    validateOnChange: false,
+    enableReinitialize: true,
+    onSubmit: async (values, { resetForm }) => {
+      const payload = {
+        queue: {
+          from: `counters.${doctorId}.queue`,
+          id: queueToday.id,
+          document: currentPatient,
+        },
+        medicalRecord: {
+          queueId: queueToday.id,
+          diagnosis: values.diagnosis,
+          ...lodash.pick(queueToday, ["branchId", "branchName"]),
+          ...lodash.pick(currentPatient, [
+            "queueNo",
+            "patientId",
+            "patientName",
+            "patientNote",
+            "accountId",
+            "serviceId",
+            "serviceName",
+          ]),
+        },
+      };
+
+      const { error: diganoseError } = await diagnosePatient(payload);
+      if (diganoseError) return openErrorDialog(diganoseError);
+
+      // Successful
+      openResponseDialog({
+        autoClose: true,
+        content: successMessage({
+          noun: "Medical Record",
+          verb: "saved",
+        }),
+        type: "SUCCESS",
+        closeCb() {
+          resetForm();
+        },
+      });
+    },
+  });
 
   useEffect(() => {
     const q = query(
@@ -110,7 +155,17 @@ const QueueManagementPage = () => {
         onRootClick: () => router.push(PATHS.DOCTOR.DIAGNOSE),
         paths: [{ text: "Diagnose Patient" }],
       }}
-      //   toolbarContent={}
+      toolbarContent={
+        <Button
+          variant="contained"
+          size="small"
+          disabled={!hasPatient}
+          onClick={() => formik.submitForm()}
+          startIcon={<MedicalInformationIcon />}
+        >
+          submit diagnosis
+        </Button>
+      }
     >
       <Box
         sx={{
@@ -130,14 +185,12 @@ const QueueManagementPage = () => {
               required
               multiline
               label="Doctor Diagnosis"
-              name="address"
+              name="diagnosis"
               rows={5}
-              // value={values.address}
-              // onChange={(e) =>
-              //   setFieldValue("address", e.target.value.toUpperCase())
-              // }
-              // onBlur={handleBlur}
-              // error={getError("address")}
+              value={formik.values.diagnosis}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.diagnosis && formik.errors.diagnosis}
             />
           </Box>
         </Box>

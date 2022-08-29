@@ -125,3 +125,7 @@ export const RegisterForQueueSchema = Yup.object().shape({
   patientId: Yup.string().required("Required"),
   patientNote: Yup.string().max(250, "Note").required("Required"),
 });
+
+export const DiagnoseSchema = Yup.object().shape({
+  diagnosis: Yup.string().required("Required").max(500, "Diagnosis too long"),
+});

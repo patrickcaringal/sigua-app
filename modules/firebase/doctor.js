@@ -4,6 +4,8 @@ import {
 } from "firebase/auth";
 import {
   Timestamp,
+  arrayRemove,
+  arrayUnion,
   collection,
   doc,
   getDoc,
@@ -49,6 +51,41 @@ export const getBranchDoctorsReq = async ({ branchId }) => {
     // .sort(sortBy("date", "desc"));
 
     return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
+export const diagnosePatientReq = async ({ queue, medicalRecord }) => {
+  try {
+    const batch = writeBatch(db);
+
+    // // Update queue
+    // const { id, from,  document } = queue;
+    // const docRef = doc(db, "queues", id);
+    // await updateDoc(docRef, {
+    //   done: arrayUnion(document),
+    //   [from]: arrayRemove(document),
+    // });
+    // batch.update(docRef, {
+    //   done: arrayUnion(document),
+    //   [from]: arrayRemove(document),
+    // });
+
+    // Create Medical Record
+    const docRef2 = doc(collection(db, "medicalRecords"));
+    const data = {
+      id: docRef2.id,
+      ...medicalRecord,
+      deleted: false,
+      ...timestampFields({ dateCreated: true, dateUpdated: true }),
+    };
+    batch.set(docRef2, data);
+
+    await batch.commit();
+
+    return { success: true };
   } catch (error) {
     console.log(error);
     return { error: error.message };
