@@ -24,6 +24,7 @@ import {
 } from "./branches";
 import { auth, db } from "./config";
 import { diagnosePatientReq, getBranchDoctorsReq } from "./doctor";
+import { getPatientRecordReq } from "./medicalRecords";
 import {
   MEMBER_STATUS,
   addPatientReq,
@@ -123,6 +124,8 @@ export {
   transferQueueItemReq,
   updateQueueRegStatusReq,
   updateQueueStatusReq,
+  // medical records
+  getPatientRecordReq,
   // storage
   uploadImageReq,
   deleteImageReq,

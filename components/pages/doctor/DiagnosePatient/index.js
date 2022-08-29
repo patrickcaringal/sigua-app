@@ -15,6 +15,7 @@ import {
   db,
   diagnosePatientReq,
   getBranchesReq,
+  getPatientRecordReq,
   getPatientReq,
 } from "../../../../modules/firebase";
 import {
@@ -26,6 +27,7 @@ import {
 import { DiagnoseSchema } from "../../../../modules/validation";
 import { Input, PATHS, confirmMessage, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
+import MedicalHistory from "./MedicalHistory";
 import PatientDetails from "./PatientDetails";
 
 const defaultModal = {
@@ -40,20 +42,19 @@ const QueueManagementPage = () => {
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   // Requests
-  const [getBranches] = useRequest(getBranchesReq, setBackdropLoader);
   const [getPatient] = useRequest(getPatientReq, setBackdropLoader);
+  const [getPatientRecord] = useRequest(getPatientRecordReq, setBackdropLoader);
   const [diagnosePatient] = useRequest(diagnosePatientReq, setBackdropLoader);
 
   // Local States
   const [queueToday, setQueueToday] = useState({});
   const [patient, setPatient] = useState({});
+  const [medicalRecords, setMedicalRecords] = useState([]);
 
   const doctorId = user.id;
   const hasQueueToday = !!lodash.keys(queueToday).length;
   const hasPatient = !!lodash.keys(patient).length;
   const currentPatient = queueToday?.counters?.[doctorId]?.queue[0];
-
-  // console.log({ queueToday });
 
   const formik = useFormik({
     initialValues: { diagnosis: "" },
@@ -80,6 +81,8 @@ const QueueManagementPage = () => {
             "serviceId",
             "serviceName",
           ]),
+          doctorId: doctorId,
+          doctorName: user.name,
         },
       };
 
@@ -126,7 +129,7 @@ const QueueManagementPage = () => {
 
   useEffect(() => {
     if (currentPatient) {
-      const fetch = async () => {
+      const fetchPatient = async () => {
         // Get Patient
         const payload = { id: currentPatient.patientId };
         const { data, error: getError } = await getPatient(payload);
@@ -142,9 +145,20 @@ const QueueManagementPage = () => {
         });
       };
 
-      fetch();
+      const fetchMedicalRecord = async () => {
+        // Get Medical Record
+        const payload = { id: currentPatient.patientId };
+        const { data, error: getError } = await getPatientRecord(payload);
+        if (getError) return openErrorDialog(getError);
+
+        setMedicalRecords(data);
+      };
+
+      fetchPatient();
+      fetchMedicalRecord();
     } else {
       setPatient({});
+      setMedicalRecords([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPatient]);
@@ -178,6 +192,7 @@ const QueueManagementPage = () => {
         <PatientDetails patient={patient} />
         <Box sx={{ pr: 3 }}>
           {/* Medical history  */}
+          <MedicalHistory data={medicalRecords} />
 
           {/* Diagnosis */}
           <Box sx={{ mt: 5 }}>

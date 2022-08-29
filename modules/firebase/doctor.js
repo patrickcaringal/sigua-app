@@ -21,6 +21,7 @@ import lodash from "lodash";
 import {
   arrayStringify,
   formatFirebasetimeStamp,
+  formatTimeStamp,
   getFullName,
   getUniquePersonId,
   pluralize,
@@ -61,17 +62,13 @@ export const diagnosePatientReq = async ({ queue, medicalRecord }) => {
   try {
     const batch = writeBatch(db);
 
-    // // Update queue
-    // const { id, from,  document } = queue;
-    // const docRef = doc(db, "queues", id);
-    // await updateDoc(docRef, {
-    //   done: arrayUnion(document),
-    //   [from]: arrayRemove(document),
-    // });
-    // batch.update(docRef, {
-    //   done: arrayUnion(document),
-    //   [from]: arrayRemove(document),
-    // });
+    // Update queue
+    const { id, from, document } = queue;
+    const docRef = doc(db, "queues", id);
+    batch.update(docRef, {
+      done: arrayUnion(document),
+      [from]: arrayRemove(document),
+    });
 
     // Create Medical Record
     const docRef2 = doc(collection(db, "medicalRecords"));
@@ -79,6 +76,7 @@ export const diagnosePatientReq = async ({ queue, medicalRecord }) => {
       id: docRef2.id,
       ...medicalRecord,
       deleted: false,
+      date: formatTimeStamp(Timestamp.now()),
       ...timestampFields({ dateCreated: true, dateUpdated: true }),
     };
     batch.set(docRef2, data);
