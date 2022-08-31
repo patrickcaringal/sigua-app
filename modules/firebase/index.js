@@ -38,7 +38,7 @@ import {
 import {
   addQueueCounterReq,
   addQueueReq,
-  getQueuesReq,
+  getQueuesByBranchReq,
   registerToQueueReq,
   resetQueueReq,
   transferQueueItemReq,
@@ -118,7 +118,7 @@ export {
   // queue
   addQueueCounterReq,
   addQueueReq,
-  getQueuesReq,
+  getQueuesByBranchReq,
   registerToQueueReq,
   resetQueueReq,
   transferQueueItemReq,

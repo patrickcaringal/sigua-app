@@ -39,7 +39,7 @@ import {
   addQueueReq,
   db,
   getBranchDoctorsReq,
-  getQueuesReq,
+  getQueuesByBranchReq,
   resetQueueReq,
   updateQueueRegStatusReq,
   updateQueueStatusReq,

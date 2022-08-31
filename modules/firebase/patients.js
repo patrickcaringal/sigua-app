@@ -87,7 +87,6 @@ export const getPatientReq = async ({ id }) => {
   }
 };
 
-// TODO: figure out per branch
 export const getPatientsByBranchReq = async ({ id }) => {
   try {
     // Get Patients
@@ -98,12 +97,8 @@ export const getPatientsByBranchReq = async ({ id }) => {
       where("deleted", "==", false)
     );
     const querySnapshot = await getDocs(q);
-
     const data = querySnapshot.docs
-      .map((doc) => {
-        const data = doc.data();
-        return { ...data };
-      })
+      .map((doc) => ({ ...doc.data() }))
       .sort(sortBy("dateCreated"));
 
     return { data, success: true };
