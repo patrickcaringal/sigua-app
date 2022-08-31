@@ -32,6 +32,7 @@ import {
   getPatientReq,
   getPatientsByBranchReq,
   getPatientsForApprovalReq,
+  getPatientsReq,
   getVerifiedFamilyMembersReq,
   updatePatientReq,
 } from "./patients";
@@ -89,8 +90,9 @@ export {
   addPatientReq,
   getFamilyMembersReq,
   getPatientReq,
-  getPatientsForApprovalReq,
   getPatientsByBranchReq,
+  getPatientsForApprovalReq,
+  getPatientsReq,
   getVerifiedFamilyMembersReq,
   updatePatientReq,
   // staff

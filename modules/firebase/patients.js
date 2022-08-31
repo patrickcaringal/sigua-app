@@ -87,6 +87,26 @@ export const getPatientReq = async ({ id }) => {
   }
 };
 
+export const getPatientsReq = async () => {
+  try {
+    // Get Patients
+    const q = query(
+      collRef,
+      where("verified", "==", true),
+      where("deleted", "==", false)
+    );
+    const querySnapshot = await getDocs(q);
+    const data = querySnapshot.docs
+      .map((doc) => ({ ...doc.data() }))
+      .sort(sortBy("dateCreated"));
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
 export const getPatientsByBranchReq = async ({ id }) => {
   try {
     // Get Patients

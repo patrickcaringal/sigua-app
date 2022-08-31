@@ -39,7 +39,7 @@ const LeftSidebar = () => {
   const sidebarItems = isAdmin
     ? [
         {
-          text: "Patients",
+          text: "Patient Records",
           icon: <PeopleIcon />,
           onClick: () => router.push(PATHS.DOCTOR.PATIENTS_LIST),
         },
@@ -78,7 +78,7 @@ const LeftSidebar = () => {
         //   onClick: () => router.push(PATHS.STAFF.QUEUE_MANAGEMENT),
         // },
         {
-          text: "Patients",
+          text: "Patient Records",
           icon: <PeopleIcon />,
           onClick: () => router.push(PATHS.STAFF.PATIENTS_LIST),
         },

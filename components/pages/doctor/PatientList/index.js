@@ -22,7 +22,7 @@ import useRequest from "../../../../hooks/useRequest";
 import {
   MEMBER_STATUS,
   deleteImageReq,
-  getPatientsByBranchReq,
+  getPatientsReq,
   updatePatientReq,
 } from "../../../../modules/firebase";
 import {
@@ -41,7 +41,7 @@ const PatientListPage = () => {
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   // Requests
-  const [getPatients] = useRequest(getPatientsByBranchReq, setBackdropLoader);
+  const [getPatients] = useRequest(getPatientsReq, setBackdropLoader);
   const [updatePatient] = useRequest(updatePatientReq);
   const [deleteImage] = useRequest(deleteImageReq);
 
@@ -55,8 +55,7 @@ const PatientListPage = () => {
   useEffect(() => {
     const fetch = async () => {
       // Get Patients
-      const payload = { id: user.branch };
-      const { data: patientList, error: getError } = await getPatients(payload);
+      const { data: patientList, error: getError } = await getPatients();
       if (getError) return openErrorDialog(getError);
 
       setPatients(patientList);
@@ -91,6 +90,7 @@ const PatientListPage = () => {
         onRootClick={() => router.push(PATHS.STAFF.DASHBOARD)}
         paths={[{ text: "Patient Records" }]}
       />
+
       <Box>
         <Paper
           elevation={2}
@@ -143,7 +143,7 @@ const PatientListPage = () => {
                           sx={{
                             display: "-webkit-box",
                             WebkitBoxOrient: "vertical",
-                            WebkitLineClamp: "2",
+                            WebkitLineClamp: "1",
                             overflow: "hidden",
                           }}
                           component="div"
