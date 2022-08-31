@@ -20,6 +20,7 @@ export const PATHS = {
     // QUEUE_LIST: "/staff/queue/list",
     PATIENTS_LIST: "/staff/patients",
     MEMBER_APPROVAL: "/staff/member/approval",
+    PATIENTS_MEDICAL_RECORD: "/staff/patients/[id]/medical-record",
   },
   PATIENT: {
     DASHBOARD: "/dashboard",
