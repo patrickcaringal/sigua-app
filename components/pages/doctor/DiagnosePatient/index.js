@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import MedicalInformationIcon from "@mui/icons-material/MedicalInformation";
 import { Avatar, Box, Button, Typography } from "@mui/material";
+import faker from "faker";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { FormikProvider, useFormik } from "formik";
 import lodash from "lodash";
@@ -11,6 +12,7 @@ import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
+import { isMockDataEnabled } from "../../../../modules/env";
 import {
   db,
   diagnosePatientReq,
@@ -36,6 +38,12 @@ const defaultModal = {
   data: {},
 };
 
+const defaultValues = isMockDataEnabled
+  ? {
+      diagnosis: faker.lorem.paragraph(2),
+    }
+  : { diagnosis: "" };
+
 const QueueManagementPage = () => {
   const router = useRouter();
   const { user } = useAuth();
@@ -59,7 +67,7 @@ const QueueManagementPage = () => {
   const currentPatient = queueToday?.counters?.[doctorId]?.queue[0];
 
   const formik = useFormik({
-    initialValues: { diagnosis: "" },
+    initialValues: defaultValues,
     validationSchema: DiagnoseSchema,
     validateOnChange: false,
     enableReinitialize: true,

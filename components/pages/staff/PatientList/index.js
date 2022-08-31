@@ -15,13 +15,14 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 
+import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
 import {
   MEMBER_STATUS,
   deleteImageReq,
-  getPatientsReq,
+  getPatientsByBranchReq,
   updatePatientReq,
 } from "../../../../modules/firebase";
 import {
@@ -35,11 +36,12 @@ import MemberApprovalModal from "./MemberApprovalModal";
 
 const PatientListPage = () => {
   const router = useRouter();
+  const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   // Requests
-  const [getPatients] = useRequest(getPatientsReq, setBackdropLoader);
+  const [getPatients] = useRequest(getPatientsByBranchReq, setBackdropLoader);
   const [updatePatient] = useRequest(updatePatientReq);
   const [deleteImage] = useRequest(deleteImageReq);
 
@@ -53,10 +55,9 @@ const PatientListPage = () => {
   useEffect(() => {
     const fetch = async () => {
       // Get Patients
-      const { data: patientList, error: getPatientsError } = await getPatients(
-        {}
-      );
-      if (getPatientsError) return openErrorDialog(getPatientsError);
+      const payload = { id: user.branch };
+      const { data: patientList, error: getError } = await getPatients(payload);
+      if (getError) return openErrorDialog(getError);
 
       setPatients(patientList);
     };
