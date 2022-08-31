@@ -8,20 +8,31 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
+import faker from "faker";
 import { FormikProvider, useFormik } from "formik";
 
+import { isMockDataEnabled } from "../../../../modules/env";
 import { RegisterForQueueSchema } from "../../../../modules/validation";
 import { Modal } from "../../../common";
 import Form from "./Form";
 
-const defaultValues = {
-  serviceId: "",
-  serviceName: "",
-  patientId: "",
-  patientName: "",
-  patientContactNo: "",
-  patientNote: "",
-};
+const defaultValues = isMockDataEnabled
+  ? {
+      serviceId: "",
+      serviceName: "",
+      patientId: "",
+      patientName: "",
+      patientContactNo: "",
+      patientNote: faker.lorem.paragraph(2),
+    }
+  : {
+      serviceId: "",
+      serviceName: "",
+      patientId: "",
+      patientName: "",
+      patientContactNo: "",
+      patientNote: "",
+    };
 
 const ManageFamilyMemberModal = ({
   open = false,

@@ -29,6 +29,7 @@ import { Input, PATHS, confirmMessage, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import MedicalHistory from "./MedicalHistory";
 import PatientDetails from "./PatientDetails";
+import RecordModal from "./RecordModal";
 
 const defaultModal = {
   open: false,
@@ -50,6 +51,7 @@ const QueueManagementPage = () => {
   const [queueToday, setQueueToday] = useState({});
   const [patient, setPatient] = useState({});
   const [medicalRecords, setMedicalRecords] = useState([]);
+  const [patientRecordModal, setPatientRecordModal] = useState(defaultModal);
 
   const doctorId = user.id;
   const hasQueueToday = !!lodash.keys(queueToday).length;
@@ -163,6 +165,17 @@ const QueueManagementPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPatient]);
 
+  const handlePatientRecordModalOpen = (data) => {
+    setPatientRecordModal({
+      open: true,
+      data,
+    });
+  };
+
+  const handlePatientRecordModalClose = () => {
+    setPatientRecordModal(defaultModal);
+  };
+
   return (
     <AdminMainContainer
       toolbarProps={{
@@ -192,7 +205,10 @@ const QueueManagementPage = () => {
         <PatientDetails patient={patient} />
         <Box sx={{ pr: 3 }}>
           {/* Medical history  */}
-          <MedicalHistory data={medicalRecords} />
+          <MedicalHistory
+            data={medicalRecords}
+            onRecordClick={handlePatientRecordModalOpen}
+          />
 
           {/* Diagnosis */}
           <Box sx={{ mt: 5 }}>
@@ -210,6 +226,14 @@ const QueueManagementPage = () => {
           </Box>
         </Box>
       </Box>
+
+      {patientRecordModal.open && (
+        <RecordModal
+          open={patientRecordModal.open}
+          data={patientRecordModal.data}
+          onClose={handlePatientRecordModalClose}
+        />
+      )}
     </AdminMainContainer>
   );
 };

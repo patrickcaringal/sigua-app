@@ -3,6 +3,7 @@ import React from "react";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import {
   Box,
+  IconButton,
   Table,
   TableBody,
   TableCell,
@@ -14,7 +15,7 @@ import {
 
 import { formatTimeStamp } from "../../../../modules/helper";
 
-const MedicalHistory = ({ data = [] }) => {
+const MedicalHistory = ({ data = [], onRecordClick }) => {
   return (
     <Box>
       <TableContainer>
@@ -27,6 +28,7 @@ const MedicalHistory = ({ data = [] }) => {
                 { text: "Service", sx: { width: 140 } },
                 { text: "Doctor", sx: { width: 160 } },
                 { text: "Diagnosis" },
+                { text: "Actions", sx: { width: 82 } },
               ].map(({ text, align, sx }) => (
                 <TableCell
                   key={text}
@@ -47,7 +49,6 @@ const MedicalHistory = ({ data = [] }) => {
                 branchName,
                 doctorName,
                 diagnosis,
-                patientNote,
               } = i;
               return (
                 <TableRow key={index}>
@@ -63,14 +64,18 @@ const MedicalHistory = ({ data = [] }) => {
                       sx={{
                         display: "-webkit-box",
                         WebkitBoxOrient: "vertical",
-                        WebkitLineClamp: "2",
+                        WebkitLineClamp: "1",
                         overflow: "hidden",
-                        whiteSpace: "pre-line",
                       }}
                       component="div"
                     >
                       {diagnosis}
                     </Typography>
+                  </TableCell>
+                  <TableCell align="center">
+                    <IconButton size="small" onClick={() => onRecordClick(i)}>
+                      <AssignmentIcon />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               );

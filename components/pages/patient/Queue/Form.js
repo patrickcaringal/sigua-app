@@ -143,9 +143,10 @@ const Form = ({
               label="Note"
               name="patientNote"
               value={values.patientNote}
-              onChange={(e) =>
-                setFieldValue("patientNote", e.target.value.toUpperCase())
-              }
+              onChange={handleChange}
+              // onChange={(e) =>
+              //   setFieldValue("patientNote", e.target.value.toUpperCase())
+              // }
               onBlur={handleBlur}
               error={getError("patientNote")}
             />
