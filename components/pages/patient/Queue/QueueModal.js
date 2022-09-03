@@ -23,7 +23,7 @@ const defaultValues = isMockDataEnabled
       patientId: "",
       patientName: "",
       patientContactNo: "",
-      patientNote: faker.lorem.paragraph(2),
+      patientNote: faker.lorem.sentences(2),
     }
   : {
       serviceId: "",

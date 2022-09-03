@@ -89,6 +89,7 @@ const Form = ({
               label="Date of Birth"
               name="birthdate"
               onChange={(value) => {
+                if (!value || value == "Invalid Date") return;
                 setFieldValue("birthdate", formatTimeStamp(value), false);
               }}
               onBlur={handleBlur}

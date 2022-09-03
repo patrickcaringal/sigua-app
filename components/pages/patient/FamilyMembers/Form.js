@@ -199,6 +199,7 @@ const Form = ({
                           label="Date of Birth"
                           name={getFieldName("birthdate")}
                           onChange={(value) => {
+                            if (!value || value == "Invalid Date") return;
                             setFieldValue(
                               getFieldName("birthdate"),
                               formatTimeStamp(value),

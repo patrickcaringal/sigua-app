@@ -221,6 +221,7 @@ const QueueManagementPage = () => {
           {/* Diagnosis */}
           <Box sx={{ mt: 5 }}>
             <Input
+              disabled={!hasPatient}
               required
               multiline
               label="Doctor Diagnosis"

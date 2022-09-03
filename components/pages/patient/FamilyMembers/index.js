@@ -129,8 +129,11 @@ const FamilyMemberPage = () => {
   };
 
   const handleUploadAttachment = async (file) => {
-    setBackdropLoader(true);
+    if (!file) {
+      return openErrorDialog("Select a Verification Attachment");
+    }
 
+    setBackdropLoader(true);
     // Upload
     const { data: url, error: uploadError } = await uploadImage({ file });
     if (uploadError) {
