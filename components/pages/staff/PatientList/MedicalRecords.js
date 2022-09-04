@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
 
-import { Avatar, Box, Button, Typography } from "@mui/material";
-import lodash from "lodash";
+import { Box } from "@mui/material";
 import { useRouter } from "next/router";
 
-import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
@@ -12,14 +10,7 @@ import {
   getPatientRecordReq,
   getPatientReq,
 } from "../../../../modules/firebase";
-import {
-  formatFirebasetimeStamp,
-  formatTimeStamp,
-  pluralize,
-  today,
-} from "../../../../modules/helper";
-import { DiagnoseSchema } from "../../../../modules/validation";
-import { Input, PATHS, confirmMessage, successMessage } from "../../../common";
+import { PATHS } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import MedicalHistory from "../../doctor/DiagnosePatient/MedicalHistory";
 import RecordModal from "../../doctor/DiagnosePatient/RecordModal";
@@ -32,9 +23,8 @@ const defaultModal = {
 
 const MedicalRecordPage = () => {
   const router = useRouter();
-  const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
-  const { openResponseDialog, openErrorDialog } = useResponseDialog();
+  const { openErrorDialog } = useResponseDialog();
 
   const patientId = router.query.id;
 
@@ -43,7 +33,6 @@ const MedicalRecordPage = () => {
   const [getPatientRecord] = useRequest(getPatientRecordReq, setBackdropLoader);
 
   // Local States
-  // const [queueToday, setQueueToday] = useState({});
   const [patient, setPatient] = useState({});
   const [medicalRecords, setMedicalRecords] = useState([]);
   const [patientRecordModal, setPatientRecordModal] = useState(defaultModal);
@@ -95,7 +84,7 @@ const MedicalRecordPage = () => {
         paths: [
           {
             text: "Medical Records",
-            onClick: () => router.push(PATHS.STAFF.PATIENTS_LIST),
+            // onClick: () => router.push(PATHS.STAFF.PATIENTS_LIST),
           },
           { text: patient.name },
         ],

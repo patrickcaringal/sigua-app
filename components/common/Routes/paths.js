@@ -12,6 +12,7 @@ export const PATHS = {
     BRANCH_RESTORE: "/doctor/branches/restore",
     STAFF_MANAGEMENT: "/doctor/staffs",
     STAFF_RESTORE: "/doctor/staffs/restore",
+    PATIENTS_MEDICAL_RECORD: "/doctor/patients/[id]/medical-record",
   },
   STAFF: {
     DASHBOARD: "/staff/dashboard",

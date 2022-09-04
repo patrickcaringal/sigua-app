@@ -32,9 +32,9 @@ const drawerWidth = 240;
 const LeftSidebar = () => {
   const router = useRouter();
 
-  const { isAdminPanel, isAdmin } = useAuth();
+  const { isLoggedIn, isAdminPanel, isAdmin } = useAuth();
 
-  if (!isAdminPanel) return null;
+  if (!isLoggedIn || !isAdminPanel) return null;
 
   const sidebarItems = isAdmin
     ? [

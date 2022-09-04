@@ -20,18 +20,8 @@ import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
-import {
-  MEMBER_STATUS,
-  deleteImageReq,
-  getPatientsByBranchReq,
-  updatePatientReq,
-} from "../../../../modules/firebase";
-import {
-  calculateAge,
-  formatTimeStamp,
-  getFullName,
-  localUpdateDocs,
-} from "../../../../modules/helper";
+import { getPatientsByBranchReq } from "../../../../modules/firebase";
+import { calculateAge, formatTimeStamp } from "../../../../modules/helper";
 import { PATHS, Toolbar, successMessage } from "../../../common";
 
 const PatientListPage = () => {
@@ -62,7 +52,7 @@ const PatientListPage = () => {
 
   const handleViewMedicalRecord = (id) => {
     router.push({
-      pathname: `/staff/patients/[id]/medical-record`,
+      pathname: PATHS.STAFF.PATIENTS_MEDICAL_RECORD,
       query: { id },
     });
   };
