@@ -283,3 +283,40 @@ export const deletePatientReq = async ({ patient }) => {
     return { error: errMsg || error.message };
   }
 };
+
+export const getDeletedPatientsReq = async () => {
+  try {
+    const q = query(collRef, where("deleted", "==", true));
+    const querySnapshot = await getDocs(q);
+    const data = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    const map = data.reduce((acc, i) => ({ ...acc, [i.id]: i.name }), {});
+
+    return { data, map, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
+export const restorePatientReq = async ({ docs }) => {
+  try {
+    // Bulk Update Document
+    const batch = writeBatch(db);
+
+    docs.forEach((d) => {
+      const updatedFields = { deleted: false };
+      batch.update(doc(db, "patients", d.id), updatedFields);
+    });
+
+    await batch.commit();
+
+    return { success: true };
+  } catch (error) {
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};

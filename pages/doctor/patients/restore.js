@@ -1,6 +1,6 @@
 import React from "react";
 
-import ServiceRestorePage from "../../../components/pages/doctor/ServiceManagement/Restore";
+import PatientRestorePage from "../../../components/pages/doctor/PatientList/Restore";
 
-const ServiceRestore = () => <ServiceRestorePage />;
-export default ServiceRestore;
+const PatientRestore = () => <PatientRestorePage />;
+export default PatientRestore;

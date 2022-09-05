@@ -2,27 +2,26 @@ import React, { useEffect, useState } from "react";
 
 import {
   Button,
+  Checkbox,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
+  Typography,
 } from "@mui/material";
 import { useRouter } from "next/router";
 
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
-import useRequest from "../../../../hooks/useRequest";
-import { deletePatientReq, getPatientsReq } from "../../../../modules/firebase";
+import { useRequest, useSelect } from "../../../../hooks";
 import {
-  ACTION_BUTTONS,
-  ACTION_ICONS,
-  PATHS,
-  confirmMessage,
-  getActionButtons,
-  successMessage,
-} from "../../../common";
+  getDeletedPatientsReq,
+  restorePatientReq,
+} from "../../../../modules/firebase";
+import { arrayStringify, pluralize } from "../../../../modules/helper";
+import { ACTION_ICONS, PATHS, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import TableCells from "./TableCells";
 
@@ -32,11 +31,13 @@ const PatientListPage = () => {
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   // Requests
-  const [getPatients] = useRequest(getPatientsReq, setBackdropLoader);
-  const [deletePatient] = useRequest(deletePatientReq, setBackdropLoader);
+  const [getPatients] = useRequest(getDeletedPatientsReq, setBackdropLoader);
+  const [restorePatient] = useRequest(restorePatientReq, setBackdropLoader);
 
   // Local States
   const [patients, setPatients] = useState([]);
+  const selected = useSelect("id");
+  const selectedItems = selected.getSelected(patients);
 
   useEffect(() => {
     const fetch = async () => {
@@ -51,60 +52,70 @@ const PatientListPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleViewMedicalRecord = (id) => {
-    router.push({
-      pathname: PATHS.DOCTOR.PATIENTS_MEDICAL_RECORD,
-      query: { id },
-    });
-  };
-
-  const handleDeleteConfirm = (patient) => {
+  const handleRestoreConfirm = () => {
+    const names = selectedItems.map((i) => i.name);
     openResponseDialog({
-      content: confirmMessage({ noun: "Patient", item: patient.name }),
+      content: (
+        <>
+          <Typography variant="body1" gutterBottom>
+            Are you sure you want to restore ff:
+          </Typography>
+          <Typography variant="body2">{arrayStringify(names)}</Typography>
+        </>
+      ),
       type: "CONFIRM",
       actions: (
         <Button
           variant="outlined"
           color="error"
-          onClick={() => handleDelete(patient)}
+          onClick={handleRestore}
           size="small"
         >
-          delete
+          restore
         </Button>
       ),
     });
   };
 
-  const handleDelete = async (patient) => {
-    // Delete
-    const { error: deleteError } = await deletePatient({ patient });
-    if (deleteError) return openErrorDialog(deleteError);
+  const handleRestore = async () => {
+    const items = selectedItems;
+    const ids = selectedItems.map((i) => i.id);
+
+    // Update
+    const { error: restoreError } = await restorePatient({ docs: items });
+    if (restoreError) return openErrorDialog(restoreError);
 
     // Success
-    setPatients((prev) => prev.filter((i) => i.id !== patient.id));
+    setPatients((prev) => prev.filter((i) => !ids.includes(i.id)));
     openResponseDialog({
       autoClose: true,
-      content: successMessage({ noun: "Patient", verb: "deleted" }),
+      content: successMessage({
+        noun: pluralize("Patient", items.length),
+        verb: "restored",
+      }),
       type: "SUCCESS",
     });
-  };
-
-  const handleRestoreRedirect = () => {
-    router.push(PATHS.DOCTOR.PATIENTS_RESTORE);
   };
 
   return (
     <AdminMainContainer
       toolbarProps={{
         onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
-        paths: [{ text: "Patient Records" }],
+        paths: [
+          {
+            text: "Patient Records",
+            onClick: () => router.push(PATHS.DOCTOR.PATIENTS_LIST),
+          },
+          { text: "Restore" },
+        ],
       }}
       toolbarContent={
         <Button
-          variant="outlined"
+          variant="contained"
           size="small"
-          onClick={handleRestoreRedirect}
+          onClick={handleRestoreConfirm}
           startIcon={ACTION_ICONS.RESTORE}
+          disabled={selectedItems.length === 0}
         >
           restore
         </Button>
@@ -114,6 +125,7 @@ const PatientListPage = () => {
         <Table size="small">
           <TableHead>
             <TableRow>
+              <TableCell sx={{ width: 50 }} />
               {[
                 { text: "Name" },
                 { text: "Birthdate", sx: { width: 140 } },
@@ -121,7 +133,6 @@ const PatientListPage = () => {
                 { text: "Gender", sx: { width: 100 } },
                 { text: "Contact No.", sx: { width: 140 } },
                 { text: "Address" },
-                { text: "Actions", sx: { width: 100 } },
               ].map(({ text, align, sx }) => (
                 <TableCell
                   key={text}
@@ -135,24 +146,22 @@ const PatientListPage = () => {
           </TableHead>
 
           <TableBody>
-            {patients.map((i, index) => {
+            {patients.map((i) => {
+              const { id } = i;
+              const isItemSelected = selected.isItemSelected(id);
+
               return (
                 <TableRow key={i.id}>
-                  <TableCells data={i} />
-                  <TableCell align="center">
-                    {getActionButtons([
-                      {
-                        action: ACTION_BUTTONS.DETAILS,
-                        tooltipText: "Medical Records",
-                        onClick: () => handleViewMedicalRecord(i.id),
-                      },
-                      {
-                        action: ACTION_BUTTONS.DELETE,
-                        tooltipText: "Delete",
-                        onClick: () => handleDeleteConfirm(i),
-                      },
-                    ])}
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      color="primary"
+                      checked={isItemSelected}
+                      onChange={(e) => {
+                        selected.select([{ id, checked: e.target.checked }]);
+                      }}
+                    />
                   </TableCell>
+                  <TableCells data={i} />
                 </TableRow>
               );
             })}
