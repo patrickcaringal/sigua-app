@@ -21,16 +21,12 @@ import { checkDuplicate, registerNames } from "./helpers";
 
 const collRef = collection(db, "queues");
 
-export const getQueuesReq = async () => {
+export const getQueuesByBranchReq = async ({ id }) => {
   try {
-    // TODO: date range, branch
-    const q = query(collRef);
+    const q = query(collRef, where("branchId", "==", id));
     const querySnapshot = await getDocs(q);
     const data = querySnapshot.docs
-      .map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }))
+      .map((doc) => ({ ...doc.data() }))
       .sort(sortBy("date", "desc"));
 
     return { data, success: true };

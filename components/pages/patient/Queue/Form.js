@@ -44,7 +44,7 @@ const Form = ({
 
   // Requests
   const [getServices, servicesLoading] = useRequest(getServicesReq);
-  const [getPatientsReq, patientsLoading] = useRequest(
+  const [getPatients, patientsLoading] = useRequest(
     getVerifiedFamilyMembersReq
   );
 
@@ -70,8 +70,9 @@ const Form = ({
     const fetchPatients = async () => {
       // Get Services
       const payload = { id: values.accountId };
-      const { data: patientList, error: getPatientsError } =
-        await getPatientsReq(payload);
+      const { data: patientList, error: getPatientsError } = await getPatients(
+        payload
+      );
       if (getPatientsError) return openErrorDialog(getPatientsError);
 
       setPatients(patientList);
@@ -143,9 +144,10 @@ const Form = ({
               label="Note"
               name="patientNote"
               value={values.patientNote}
-              onChange={(e) =>
-                setFieldValue("patientNote", e.target.value.toUpperCase())
-              }
+              onChange={handleChange}
+              // onChange={(e) =>
+              //   setFieldValue("patientNote", e.target.value.toUpperCase())
+              // }
               onBlur={handleBlur}
               error={getError("patientNote")}
             />

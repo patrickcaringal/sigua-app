@@ -7,14 +7,14 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const Modal = ({ children, open, onClose }) => {
+const Modal = ({ children, width = "sm", open, onClose }) => {
   const isMobileView = useMediaQuery((theme) => theme.breakpoints.only("xs"));
 
   return (
     <Dialog
       fullScreen={isMobileView}
       fullWidth
-      maxWidth="sm"
+      maxWidth={width}
       open={open}
       onClose={onClose}
       TransitionComponent={Transition}

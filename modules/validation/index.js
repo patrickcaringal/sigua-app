@@ -1,5 +1,6 @@
 import {
   BranchesSchema,
+  DiagnoseSchema,
   DoctorSigninSchema,
   FamilyMemberSchema,
   QueueSchema,
@@ -14,6 +15,7 @@ import {
 
 export {
   BranchesSchema,
+  DiagnoseSchema,
   DoctorSigninSchema,
   FamilyMemberSchema,
   QueueSchema,

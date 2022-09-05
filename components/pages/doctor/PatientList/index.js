@@ -16,31 +16,27 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 
-import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
-import { getPatientsByBranchReq } from "../../../../modules/firebase";
+import { getPatientsReq } from "../../../../modules/firebase";
 import { calculateAge, formatTimeStamp } from "../../../../modules/helper";
 import { PATHS, Toolbar, successMessage } from "../../../common";
 
 const PatientListPage = () => {
   const router = useRouter();
-  const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   // Requests
-  const [getPatients] = useRequest(getPatientsByBranchReq, setBackdropLoader);
+  const [getPatients] = useRequest(getPatientsReq, setBackdropLoader);
 
   // Local States
   const [patients, setPatients] = useState([]);
-
   useEffect(() => {
     const fetch = async () => {
       // Get Patients
-      const payload = { id: user.branch };
-      const { data: patientList, error: getError } = await getPatients(payload);
+      const { data: patientList, error: getError } = await getPatients();
       if (getError) return openErrorDialog(getError);
 
       setPatients(patientList);
@@ -52,7 +48,7 @@ const PatientListPage = () => {
 
   const handleViewMedicalRecord = (id) => {
     router.push({
-      pathname: PATHS.STAFF.PATIENTS_MEDICAL_RECORD,
+      pathname: PATHS.DOCTOR.PATIENTS_MEDICAL_RECORD,
       query: { id },
     });
   };
@@ -65,9 +61,10 @@ const PatientListPage = () => {
       }}
     >
       <Toolbar
-        onRootClick={() => router.push(PATHS.STAFF.DASHBOARD)}
+        onRootClick={() => router.push(PATHS.DOCTOR.DASHBOARD)}
         paths={[{ text: "Patient Records" }]}
       />
+
       <Box>
         <Paper
           elevation={2}

@@ -27,7 +27,7 @@ import {
   db,
   deleteServiceReq,
   getBranchesReq,
-  getQueuesReq,
+  getQueuesByBranchReq,
   updateServiceReq,
 } from "../../../../modules/firebase";
 import {
@@ -50,16 +50,17 @@ const QueueManagementPage = () => {
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   // Requests
-  const [getQueues] = useRequest(getQueuesReq, setBackdropLoader);
+  const [getQueues] = useRequest(getQueuesByBranchReq, setBackdropLoader);
 
   // Local States
   const [queues, setQueues] = useState([]);
 
   useEffect(() => {
     const fetchQueues = async () => {
-      // Get
-      const { data: queueList, error: getQueuesError } = await getQueues();
-      if (getQueuesError) return openErrorDialog(getQueuesError);
+      // Get Queues
+      const payload = { id: user.branch };
+      const { data: queueList, error: getError } = await getQueues(payload);
+      if (getError) return openErrorDialog(getError);
 
       setQueues(queueList);
     };

@@ -27,9 +27,7 @@ export const SigninSchema = Yup.object().shape({
   contactNo: Yup.string()
     .matches(/^(09)\d{9}$/, "Invalid Contact Number")
     .required("Required"),
-  password: Yup.string()
-    .min(8, "Password must be 8 characters long")
-    .required("Required"),
+  password: Yup.string().required("Required"),
 });
 
 export const DoctorSigninSchema = Yup.object().shape({
@@ -124,4 +122,8 @@ export const RegisterForQueueSchema = Yup.object().shape({
   serviceId: Yup.string().required("Required"),
   patientId: Yup.string().required("Required"),
   patientNote: Yup.string().max(250, "Note").required("Required"),
+});
+
+export const DiagnoseSchema = Yup.object().shape({
+  diagnosis: Yup.string().required("Required").max(500, "Diagnosis too long"),
 });

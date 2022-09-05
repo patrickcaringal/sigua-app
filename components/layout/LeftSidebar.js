@@ -32,14 +32,14 @@ const drawerWidth = 240;
 const LeftSidebar = () => {
   const router = useRouter();
 
-  const { isAdminPanel, isAdmin } = useAuth();
+  const { isLoggedIn, isAdminPanel, isAdmin } = useAuth();
 
-  if (!isAdminPanel) return null;
+  if (!isLoggedIn || !isAdminPanel) return null;
 
   const sidebarItems = isAdmin
     ? [
         {
-          text: "Patients",
+          text: "Patient Records",
           icon: <PeopleIcon />,
           onClick: () => router.push(PATHS.DOCTOR.PATIENTS_LIST),
         },
@@ -49,12 +49,12 @@ const LeftSidebar = () => {
           onClick: () => router.push(PATHS.DOCTOR.PATIENTS_APPROVAL),
         },
         { text: "Divider" },
-        // {
-        //   text: "Diagnose Patient",
-        //   icon: <MedicalInformationIcon />,
-        //   onClick: () => router.push(PATHS.DOCTOR.DIAGNOSE),
-        // },
-        // { text: "Divider" },
+        {
+          text: "Diagnose Patient",
+          icon: <MedicalInformationIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.DIAGNOSE),
+        },
+        { text: "Divider" },
         {
           text: "Staffs",
           icon: <AssignmentIndIcon />,
@@ -78,7 +78,7 @@ const LeftSidebar = () => {
         //   onClick: () => router.push(PATHS.STAFF.QUEUE_MANAGEMENT),
         // },
         {
-          text: "Patients",
+          text: "Patient Records",
           icon: <PeopleIcon />,
           onClick: () => router.push(PATHS.STAFF.PATIENTS_LIST),
         },

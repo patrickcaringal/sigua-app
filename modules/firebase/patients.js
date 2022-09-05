@@ -68,8 +68,26 @@ export const getVerifiedFamilyMembersReq = async ({ id }) => {
   }
 };
 
-// TODO: figure out per branch
-export const getPatientsReq = async ({}) => {
+export const getPatientReq = async ({ id }) => {
+  try {
+    // Get Patient
+    const q = doc(db, "patients", id);
+    const querySnapshot = await getDoc(q);
+
+    if (!querySnapshot.exists()) {
+      throw new Error("Unable to get Patient doc");
+    }
+
+    const data = querySnapshot.data();
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
+export const getPatientsReq = async () => {
   try {
     // Get Patients
     const q = query(
@@ -78,25 +96,29 @@ export const getPatientsReq = async ({}) => {
       where("deleted", "==", false)
     );
     const querySnapshot = await getDocs(q);
-
-    // // Get Account list
-    // const docRef = doc(db, "accounts", "list");
-    // const docSnap = await getDoc(docRef);
-
-    // if (!docSnap.exists()) {
-    //   throw new Error("Unable to get Account list doc");
-    // }
-
-    // Map fields
-    // const accounts = docSnap.data();
     const data = querySnapshot.docs
-      .map((doc) => {
-        const data = doc.data();
-        return {
-          ...data,
-          // accountName: accounts[data.accountId],
-        };
-      })
+      .map((doc) => ({ ...doc.data() }))
+      .sort(sortBy("dateCreated"));
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
+export const getPatientsByBranchReq = async ({ id }) => {
+  try {
+    // Get Patients
+    const q = query(
+      collRef,
+      where("visitedBranch", "array-contains", id),
+      where("verified", "==", true),
+      where("deleted", "==", false)
+    );
+    const querySnapshot = await getDocs(q);
+    const data = querySnapshot.docs
+      .map((doc) => ({ ...doc.data() }))
       .sort(sortBy("dateCreated"));
 
     return { data, success: true };
