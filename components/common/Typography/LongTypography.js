@@ -14,6 +14,7 @@ const LongTypography = ({ text, displayedLines = 1, maxWidth = "none" }) => {
         maxWidth,
       }}
       component="div"
+      // color="text.secondary"
     >
       {text}
     </Typography>
