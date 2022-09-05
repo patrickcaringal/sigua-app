@@ -28,6 +28,7 @@ import { getPatientRecordReq } from "./medicalRecords";
 import {
   MEMBER_STATUS,
   addPatientReq,
+  deletePatientReq,
   getFamilyMembersReq,
   getPatientReq,
   getPatientsByBranchReq,
@@ -88,6 +89,7 @@ export {
   // patient
   MEMBER_STATUS,
   addPatientReq,
+  deletePatientReq,
   getFamilyMembersReq,
   getPatientReq,
   getPatientsByBranchReq,

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import {
   Box,
+  Button,
   IconButton,
   Paper,
   Table,
@@ -19,10 +20,19 @@ import { useRouter } from "next/router";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
-import { getPatientsReq } from "../../../../modules/firebase";
+import { deletePatientReq, getPatientsReq } from "../../../../modules/firebase";
 import { calculateAge, formatTimeStamp } from "../../../../modules/helper";
-import { PATHS, Toolbar, successMessage } from "../../../common";
+import {
+  ACTION_BUTTONS,
+  ACTION_ICONS,
+  PATHS,
+  Toolbar,
+  confirmMessage,
+  getActionButtons,
+  successMessage,
+} from "../../../common";
 import { AdminMainContainer } from "../../../shared";
+import TableCells from "./TableCells";
 
 const PatientListPage = () => {
   const router = useRouter();
@@ -31,9 +41,11 @@ const PatientListPage = () => {
 
   // Requests
   const [getPatients] = useRequest(getPatientsReq, setBackdropLoader);
+  const [deletePatient] = useRequest(deletePatientReq, setBackdropLoader);
 
   // Local States
   const [patients, setPatients] = useState([]);
+
   useEffect(() => {
     const fetch = async () => {
       // Get Patients
@@ -54,12 +66,57 @@ const PatientListPage = () => {
     });
   };
 
+  const handleDeleteConfirm = (patient) => {
+    openResponseDialog({
+      content: confirmMessage({ noun: "Patient", item: patient.name }),
+      type: "CONFIRM",
+      actions: (
+        <Button
+          variant="outlined"
+          color="error"
+          onClick={() => handleDelete(patient)}
+          size="small"
+        >
+          delete
+        </Button>
+      ),
+    });
+  };
+
+  const handleDelete = async (patient) => {
+    // Delete
+    const { error: deleteError } = await deletePatient({ patient });
+    if (deleteError) return openErrorDialog(deleteError);
+
+    // Success
+    setPatients((prev) => prev.filter((i) => i.id !== patient.id));
+    openResponseDialog({
+      autoClose: true,
+      content: successMessage({ noun: "Patient", verb: "deleted" }),
+      type: "SUCCESS",
+    });
+  };
+
+  const handleRestoreRedirect = () => {
+    router.push(PATHS.DOCTOR.PATIENTS_RESTORE);
+  };
+
   return (
     <AdminMainContainer
       toolbarProps={{
         onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
         paths: [{ text: "Patient Records" }],
       }}
+      toolbarContent={
+        <Button
+          variant="outlined"
+          size="small"
+          onClick={handleRestoreRedirect}
+          startIcon={ACTION_ICONS.RESTORE}
+        >
+          restore
+        </Button>
+      }
     >
       <TableContainer>
         <Table size="small">
@@ -72,7 +129,7 @@ const PatientListPage = () => {
                 { text: "Gender", sx: { width: 100 } },
                 { text: "Contact No.", sx: { width: 140 } },
                 { text: "Address" },
-                { text: "Actions", sx: { width: 82 } },
+                { text: "Actions", sx: { width: 100 } },
               ].map(({ text, align, sx }) => (
                 <TableCell
                   key={text}
@@ -86,45 +143,23 @@ const PatientListPage = () => {
           </TableHead>
 
           <TableBody>
-            {patients.map((m, index) => {
-              const { id, name, gender, birthdate, contactNo, address } = m;
-
+            {patients.map((i, index) => {
               return (
-                <TableRow key={index}>
-                  <TableCell>{name}</TableCell>
-                  <TableCell>
-                    {formatTimeStamp(birthdate, "MMM-dd-yyyy")}
-                  </TableCell>
+                <TableRow key={i.id}>
+                  <TableCells data={i} />
                   <TableCell align="center">
-                    {calculateAge(formatTimeStamp(birthdate))}
-                  </TableCell>
-                  <TableCell sx={{ textTransform: "capitalize" }}>
-                    {gender}
-                  </TableCell>
-                  <TableCell>{contactNo}</TableCell>
-                  <TableCell sx={{ maxWidth: 300, height: 53 }}>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        display: "-webkit-box",
-                        WebkitBoxOrient: "vertical",
-                        WebkitLineClamp: "1",
-                        overflow: "hidden",
-                      }}
-                      component="div"
-                    >
-                      {address}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="center">
-                    <Tooltip title="View Medical Records">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleViewMedicalRecord(id)}
-                      >
-                        <AssignmentIcon />
-                      </IconButton>
-                    </Tooltip>
+                    {getActionButtons([
+                      {
+                        action: ACTION_BUTTONS.DETAILS,
+                        tooltipText: "Medical Records",
+                        onClick: () => handleViewMedicalRecord(i.id),
+                      },
+                      {
+                        action: ACTION_BUTTONS.DELETE,
+                        tooltipText: "Delete",
+                        onClick: () => handleDeleteConfirm(i),
+                      },
+                    ])}
                   </TableCell>
                 </TableRow>
               );

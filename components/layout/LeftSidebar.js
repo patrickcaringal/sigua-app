@@ -118,8 +118,9 @@ const LeftSidebar = () => {
       <Toolbar />
       <Box sx={{ overflow: "auto" }}>
         <List>
-          {sidebarItems.map(({ text, icon, onClick }) => {
-            if (text === "Divider") return <Divider sx={{ my: 1 }} />;
+          {sidebarItems.map(({ text, icon, onClick }, index) => {
+            if (text === "Divider")
+              return <Divider key={index} sx={{ my: 1 }} />;
 
             return (
               <ListItem key={text} disablePadding onClick={onClick}>
