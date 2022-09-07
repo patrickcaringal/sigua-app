@@ -2,19 +2,26 @@ import React from "react";
 
 import { Typography } from "@mui/material";
 
-const LongTypography = ({ text, displayedLines = 1, maxWidth = "none" }) => {
+const LongTypography = ({
+  text,
+  displayedLines = 0,
+  maxWidth = "none",
+  color = "text.primary",
+}) => {
   return (
     <Typography
       variant="caption"
-      sx={{
-        display: "-webkit-box",
-        WebkitBoxOrient: "vertical",
-        WebkitLineClamp: `${displayedLines}`,
-        overflow: "hidden",
-        maxWidth,
-      }}
+      sx={
+        displayedLines !== 0 && {
+          display: "-webkit-box",
+          WebkitBoxOrient: "vertical",
+          WebkitLineClamp: `${displayedLines}`,
+          overflow: "hidden",
+          maxWidth,
+        }
+      }
       component="div"
-      // color="text.secondary"
+      color={color}
     >
       {text}
     </Typography>

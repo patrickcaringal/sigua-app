@@ -26,7 +26,7 @@ const defaultModal = {
   data: {},
 };
 
-const FamilyMemberPage = () => {
+const MedicalRecordPage = () => {
   const router = useRouter();
   const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
@@ -81,15 +81,7 @@ const FamilyMemberPage = () => {
       <Toolbar
         onRootClick={() => router.push("/dashboard")}
         paths={[{ text: "Medical Records" }]}
-      >
-        {/* <Button
-          variant="contained"
-          size="small"
-          onClick={handleMemberModalOpen}
-        >
-          Add Family Member
-        </Button> */}
-      </Toolbar>
+      />
       <Box
         sx={{
           display: "flex",
@@ -114,24 +106,44 @@ const FamilyMemberPage = () => {
           ))}
         </Select>
 
-        <Box
-          sx={{
-            flex: 1,
-            // border: "1px solid red",
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            flexWrap: "wrap",
-            gap: 2,
-            mt: 3,
-          }}
-        >
-          {medicalRecords.map((i) => {
-            return <Card key={i.id} data={i} />;
-          })}
-        </Box>
+        {selectedPatient ? (
+          <Box
+            sx={{
+              flex: 1,
+              // border: "1px solid red",
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              flexWrap: "wrap",
+              gap: 2,
+              mt: 3,
+            }}
+          >
+            {medicalRecords.map((i) => {
+              return <Card key={i.id} data={i} />;
+            })}
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              // border: "1px solid blue",
+              display: "flex",
+              flexDirection: "column",
+              flex: 1,
+              minHeight: "calc(100vh / 3)",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Box sx={{}}>
+              <Typography variant="h6" color="text.secondary">
+                Select a family member
+              </Typography>
+            </Box>
+          </Box>
+        )}
       </Box>
     </Container>
   );
 };
 
-export default FamilyMemberPage;
+export default MedicalRecordPage;

@@ -54,11 +54,15 @@ const CardComponent = ({ data }) => {
           <Typography variant="body2">DR. {doctorName}</Typography>
         </Box>
 
-        <Typography variant="body2">Patient Note</Typography>
-        <LongTypography text={patientNote} displayedLines={5} />
+        <Typography variant="body2" sx={{ mt: 2 }} gutterBottom>
+          Patient Note
+        </Typography>
+        <LongTypography text={patientNote} color="text.secondary" />
 
-        <Typography variant="body2">Diagnosis</Typography>
-        <LongTypography text={diagnosis} displayedLines={5} />
+        <Typography variant="body2" sx={{ mt: 2 }} gutterBottom>
+          Diagnosis
+        </Typography>
+        <LongTypography text={diagnosis} color="text.secondary" />
       </CardContent>
     </Card>
   );
