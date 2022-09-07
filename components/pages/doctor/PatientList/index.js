@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 
 import {
+  Box,
   Button,
+  MenuItem,
   Table,
   TableBody,
   TableCell,
@@ -18,6 +20,7 @@ import { deletePatientReq, getPatientsReq } from "../../../../modules/firebase";
 import {
   ACTION_BUTTONS,
   ACTION_ICONS,
+  Input,
   PATHS,
   confirmMessage,
   getActionButtons,
@@ -25,6 +28,7 @@ import {
 } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import TableCells from "./TableCells";
+import useFilter from "./useFilter";
 
 const PatientListPage = () => {
   const router = useRouter();
@@ -37,6 +41,12 @@ const PatientListPage = () => {
 
   // Local States
   const [patients, setPatients] = useState([]);
+  const { filtered, setData, filters, onNameChange } = useFilter({});
+
+  useEffect(() => {
+    setData(patients);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [patients]);
 
   useEffect(() => {
     const fetch = async () => {
@@ -100,14 +110,24 @@ const PatientListPage = () => {
         paths: [{ text: "Patient Records" }],
       }}
       toolbarContent={
-        <Button
-          variant="outlined"
-          size="small"
-          onClick={handleRestoreRedirect}
-          startIcon={ACTION_ICONS.RESTORE}
-        >
-          restore
-        </Button>
+        <>
+          <Box sx={{ width: 200 }}>
+            <Input
+              debounce
+              label="Search"
+              value={filters.name}
+              onChange={(e) => onNameChange(e?.target?.value)}
+            />
+          </Box>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={handleRestoreRedirect}
+            startIcon={ACTION_ICONS.RESTORE}
+          >
+            restore
+          </Button>
+        </>
       }
     >
       <TableContainer>
@@ -135,7 +155,7 @@ const PatientListPage = () => {
           </TableHead>
 
           <TableBody>
-            {patients.map((i, index) => {
+            {filtered.map((i, index) => {
               return (
                 <TableRow key={i.id}>
                   <TableCells data={i} />
