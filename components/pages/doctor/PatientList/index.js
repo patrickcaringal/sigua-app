@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import {
   Box,
   Button,
   MenuItem,
+  Pagination,
   Table,
   TableBody,
   TableCell,
@@ -15,7 +16,7 @@ import { useRouter } from "next/router";
 
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
-import useRequest from "../../../../hooks/useRequest";
+import { usePagination, useRequest } from "../../../../hooks";
 import { deletePatientReq, getPatientsReq } from "../../../../modules/firebase";
 import {
   ACTION_BUTTONS,
@@ -42,11 +43,12 @@ const PatientListPage = () => {
   // Local States
   const [patients, setPatients] = useState([]);
   const { filtered, setData, filters, onNameChange } = useFilter({});
+  const pagination = usePagination(filtered); // , undefined, 1
 
   useEffect(() => {
-    setData(patients);
+    pagination.setTotalItems(filtered.length);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [patients]);
+  }, [filtered.length]);
 
   useEffect(() => {
     const fetch = async () => {
@@ -55,6 +57,7 @@ const PatientListPage = () => {
       if (getError) return openErrorDialog(getError);
 
       setPatients(patientList);
+      setData(patientList);
     };
 
     fetch();
@@ -103,6 +106,16 @@ const PatientListPage = () => {
     router.push(PATHS.DOCTOR.PATIENTS_RESTORE);
   };
 
+  const handleSearchChange = useCallback((e) => {
+    onNameChange(e?.target?.value);
+    pagination.goToPage(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handlePageChange = (event, value) => {
+    pagination.goToPage(value - 1);
+  };
+
   return (
     <AdminMainContainer
       toolbarProps={{
@@ -116,7 +129,7 @@ const PatientListPage = () => {
               debounce
               label="Search"
               value={filters.name}
-              onChange={(e) => onNameChange(e?.target?.value)}
+              onChange={handleSearchChange}
             />
           </Box>
           <Button
@@ -130,17 +143,22 @@ const PatientListPage = () => {
         </>
       }
     >
-      <TableContainer>
-        <Table size="small">
+      <TableContainer
+        sx={{
+          maxHeight: "calc(100vh - 64px - 64px - 16px - 77px)",
+          overflow: "overlay",
+        }}
+      >
+        <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
               {[
                 { text: "Name" },
                 { text: "Birthdate", sx: { width: 140 } },
-                { text: "Age", sx: { width: 100 }, align: "center" },
+                { text: "Age", sx: { width: 40 }, align: "center" },
                 { text: "Gender", sx: { width: 100 } },
                 { text: "Contact No.", sx: { width: 140 } },
-                { text: "Address" },
+                { text: "Address", sx: { width: 360 } },
                 { text: "Actions", sx: { width: 100 } },
               ].map(({ text, align, sx }) => (
                 <TableCell
@@ -155,30 +173,50 @@ const PatientListPage = () => {
           </TableHead>
 
           <TableBody>
-            {filtered.map((i, index) => {
-              return (
-                <TableRow key={i.id}>
-                  <TableCells data={i} />
-                  <TableCell align="center">
-                    {getActionButtons([
-                      {
-                        action: ACTION_BUTTONS.DETAILS,
-                        tooltipText: "Medical Records",
-                        onClick: () => handleViewMedicalRecord(i.id),
-                      },
-                      {
-                        action: ACTION_BUTTONS.DELETE,
-                        tooltipText: "Delete",
-                        onClick: () => handleDeleteConfirm(i),
-                      },
-                    ])}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+            {filtered
+              .slice(pagination.info.start, pagination.info.end)
+              .map((i, index) => {
+                return (
+                  <TableRow key={index}>
+                    <TableCells data={i} />
+                    <TableCell align="center">
+                      {getActionButtons([
+                        {
+                          action: ACTION_BUTTONS.DETAILS,
+                          tooltipText: "Medical Records",
+                          onClick: () => handleViewMedicalRecord(i.id),
+                        },
+                        {
+                          action: ACTION_BUTTONS.DELETE,
+                          tooltipText: "Delete",
+                          onClick: () => handleDeleteConfirm(i),
+                        },
+                      ])}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
           </TableBody>
         </Table>
       </TableContainer>
+      {pagination.pages.length > 1 && (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            mt: 3,
+          }}
+        >
+          <Pagination
+            variant="outlined"
+            shape="rounded"
+            count={pagination.pages.length}
+            page={pagination.info.activePage + 1}
+            onChange={handlePageChange}
+          />
+        </Box>
+      )}
     </AdminMainContainer>
   );
 };

@@ -13,7 +13,7 @@ const useFilter = ({ data = [], defaultName = "" }) => {
 
     if (name) {
       filtered = filtered.filter((i) =>
-        i.name.includes(name.toLocaleUpperCase())
+        i.name.toUpperCase().includes(name.toUpperCase())
       );
       // filtered = filtered.filter((i) => {
       //   // console.log(i.name, name);

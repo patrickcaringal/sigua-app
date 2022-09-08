@@ -8,6 +8,7 @@ body {
   overflow: overlay;
 
   *::-webkit-scrollbar {
+    // z-index: 999;
     width: 12px;
     height: 12px;
   }

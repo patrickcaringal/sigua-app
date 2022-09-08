@@ -17,7 +17,7 @@ const TableCells = ({ data }) => {
       </TableCell>
       <TableCell sx={{ textTransform: "capitalize" }}>{gender}</TableCell>
       <TableCell>{contactNo}</TableCell>
-      <TableCell sx={{ maxWidth: 300 }}>
+      <TableCell>
         <LongTypography text={address} displayedLines={1} />
       </TableCell>
     </>
