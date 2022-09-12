@@ -28,12 +28,15 @@ import { getPatientRecordReq } from "./medicalRecords";
 import {
   MEMBER_STATUS,
   addPatientReq,
+  deletePatientReq,
+  getDeletedPatientsReq,
   getFamilyMembersReq,
   getPatientReq,
   getPatientsByBranchReq,
   getPatientsForApprovalReq,
   getPatientsReq,
   getVerifiedFamilyMembersReq,
+  restorePatientReq,
   updatePatientReq,
 } from "./patients";
 import {
@@ -88,12 +91,15 @@ export {
   // patient
   MEMBER_STATUS,
   addPatientReq,
+  deletePatientReq,
+  getDeletedPatientsReq,
   getFamilyMembersReq,
   getPatientReq,
   getPatientsByBranchReq,
   getPatientsForApprovalReq,
   getPatientsReq,
   getVerifiedFamilyMembersReq,
+  restorePatientReq,
   updatePatientReq,
   // staff
   addStaffReq,

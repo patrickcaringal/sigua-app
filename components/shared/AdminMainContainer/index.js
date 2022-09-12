@@ -13,7 +13,7 @@ const AdminMainContainer = ({ children, toolbarProps, toolbarContent }) => {
       }}
     >
       <Toolbar {...toolbarProps}>
-        <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
+        <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
           {toolbarContent}
         </Box>
       </Toolbar>
@@ -22,7 +22,7 @@ const AdminMainContainer = ({ children, toolbarProps, toolbarContent }) => {
           elevation={2}
           sx={{
             height: "calc(100vh - 64px - 64px - 16px)",
-            overflow: "overlay",
+            // overflow: "overlay",
           }}
         >
           {children}

@@ -9,11 +9,12 @@ const Header = ({
   date,
   capacity,
   registered,
+  isQueueFull,
   isRegOpen,
   isQueueOpen,
 }) => {
   return (
-    <Box sx={{ m: 2, display: "flex", flexDirection: "row", gap: 6 }}>
+    <Box sx={{ mx: 2, pt: 2, display: "flex", flexDirection: "row", gap: 6 }}>
       <Box
         sx={{
           display: "grid",
@@ -52,7 +53,9 @@ const Header = ({
             label: "Status",
             value: (
               <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
-                {isRegOpen ? (
+                {isQueueFull ? (
+                  <Chip label="Queue Full" color="error" size="small" />
+                ) : isRegOpen ? (
                   <Chip
                     label="Registration Open"
                     color="primary"

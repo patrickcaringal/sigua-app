@@ -9,6 +9,8 @@ import { Button } from "@mui/material";
 
 const ToolbarButtons = ({
   hasQueueToday,
+  hasDoctor,
+  isQueueFull,
   isRegOpen,
   isQueueOpen,
   onRegStatus,
@@ -37,10 +39,12 @@ const ToolbarButtons = ({
         size="small"
         onClick={onRegStatus}
         startIcon={isRegOpen ? <VisibilityOffIcon /> : <VisibilityIcon />}
+        disabled={!isRegOpen && isQueueFull}
       >
         {`${isRegOpen ? "close" : "open"}`} registration
       </Button>
       <Button
+        disabled={!hasDoctor}
         variant="outlined"
         size="small"
         onClick={onQueueStatus}

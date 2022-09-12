@@ -5,6 +5,7 @@ export const PATHS = {
     DASHBOARD: "/doctor/dashboard",
     PATIENTS_LIST: "/doctor/patients",
     PATIENTS_APPROVAL: "/doctor/patients/approval",
+    PATIENTS_RESTORE: "/doctor/patients/restore",
     DIAGNOSE: "/doctor/diagnose",
     SERVICES_MANAGEMENT: "/doctor/services",
     SERVICES_RESTORE: "/doctor/services/restore",
@@ -26,6 +27,7 @@ export const PATHS = {
   PATIENT: {
     DASHBOARD: "/dashboard",
     FAMILY: "/family-members",
+    MEDICAL_RECORD: "/medical-records",
     QUEUE: "/queue/today",
   },
   PUBLIC: {

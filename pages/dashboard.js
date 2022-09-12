@@ -11,6 +11,7 @@ import {
 import lodash from "lodash";
 import { useRouter } from "next/router";
 
+import { PATHS } from "../components/common";
 import { BranchesDialog } from "../components/shared";
 import { useBackdropLoader } from "../contexts/BackdropLoaderContext";
 import useRequest from "../hooks/useRequest";
@@ -72,7 +73,7 @@ const DashboardPage = () => {
         <CardActionArea
           sx={{ width: "inherit", height: "inherit" }}
           onClick={() => {
-            router.push("/family-members");
+            router.push(PATHS.PATIENT.FAMILY);
           }}
         >
           <CardContent
@@ -103,6 +104,9 @@ const DashboardPage = () => {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
+            }}
+            onClick={() => {
+              router.push(PATHS.PATIENT.MEDICAL_RECORD);
             }}
           >
             <Typography

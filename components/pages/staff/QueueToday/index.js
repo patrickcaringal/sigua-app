@@ -76,6 +76,7 @@ const QueueManagementPage = () => {
   const [doctorModal, setDoctorModal] = useState(defaultModal);
   const [transferModal, setTransferModal] = useState(defaultModal);
 
+  const isQueueFull = queueToday?.nextQueueNo - 1 === queueToday?.capacity;
   const hasQueueToday = !!lodash.keys(queueToday).length;
   const isRegOpen = hasQueueToday ? queueToday.openForRegistration : false;
   const isQueueOpen = hasQueueToday ? queueToday.openQueue : false;
@@ -279,6 +280,8 @@ const QueueManagementPage = () => {
       toolbarContent={
         <ToolbarButtons
           hasQueueToday={hasQueueToday}
+          hasDoctor={!!doctorCounters.length}
+          isQueueFull={isQueueFull}
           isRegOpen={isRegOpen}
           isQueueOpen={isQueueOpen}
           onRegStatus={handleRegStatus}
@@ -296,6 +299,7 @@ const QueueManagementPage = () => {
             date={queueToday.date}
             registered={queueToday.nextQueueNo - 1}
             capacity={queueToday.capacity}
+            isQueueFull={isQueueFull}
             isRegOpen={isRegOpen}
             isQueueOpen={isQueueOpen}
           />
@@ -319,13 +323,15 @@ const QueueManagementPage = () => {
               }}
             >
               <QueueComponent
+                disabled={!isQueueOpen}
+                enableFirstItemOnly
                 queueKey="queue"
                 title="QUEUE"
                 queue={queueToday.queue.sort((a, b) => a.queueNo - b.queueNo)}
-                enableFirstItemOnly
                 onTransferClick={handleTransferModalOpen}
               />
               <QueueComponent
+                disabled={!isQueueOpen}
                 queueKey="next"
                 title="NEXT"
                 queue={queueToday.next}
@@ -346,6 +352,7 @@ const QueueManagementPage = () => {
             >
               {doctorCounters.map((i) => (
                 <QueueComponent
+                  disabled={!isQueueOpen}
                   key={i.id}
                   queueKey={`counters.${i.id}.queue`}
                   title={`Dr. ${i.name}`}
@@ -366,12 +373,14 @@ const QueueManagementPage = () => {
               }}
             >
               <QueueComponent
+                disabled={!isQueueOpen}
                 queueKey="done"
                 title="DONE"
                 queue={queueToday.done}
                 onTransferClick={handleTransferModalOpen}
               />
               <QueueComponent
+                disabled={!isQueueOpen}
                 queueKey="skipped"
                 title="SKIPPED"
                 queue={queueToday.skipped}

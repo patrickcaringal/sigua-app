@@ -10,6 +10,7 @@ import {
 } from "firebase/firestore";
 
 import { sortBy } from "../helper";
+import { getErrorMsg } from "./auth";
 import { db, timestampFields } from "./config";
 import { checkDuplicate, registerNames } from "./helpers";
 
@@ -251,5 +252,71 @@ export const updatePatientReq = async ({ patient }) => {
   } catch (error) {
     console.log(error);
     return { error: error.message };
+  }
+};
+
+export const deletePatientReq = async ({ patient }) => {
+  try {
+    // // Check Branches associated
+    // await checkDuplicate({
+    //   collectionName: "branches",
+    //   whereClause: where("servicesId", "array-contains", patient.id),
+    //   customErrorMsg: associationMessage({
+    //     verb: "delete",
+    //     item: patient.name,
+    //     noun: `some Branches`,
+    //   }),
+    // });
+
+    // Update to deleted status
+    const docRef = doc(db, "patients", patient.id);
+    const finalDoc = {
+      deleted: true,
+      ...timestampFields({ dateUpdated: true }),
+    };
+    await updateDoc(docRef, finalDoc);
+
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const getDeletedPatientsReq = async () => {
+  try {
+    const q = query(collRef, where("deleted", "==", true));
+    const querySnapshot = await getDocs(q);
+    const data = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    const map = data.reduce((acc, i) => ({ ...acc, [i.id]: i.name }), {});
+
+    return { data, map, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
+export const restorePatientReq = async ({ docs }) => {
+  try {
+    // Bulk Update Document
+    const batch = writeBatch(db);
+
+    docs.forEach((d) => {
+      const updatedFields = { deleted: false };
+      batch.update(doc(db, "patients", d.id), updatedFields);
+    });
+
+    await batch.commit();
+
+    return { success: true };
+  } catch (error) {
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
   }
 };
