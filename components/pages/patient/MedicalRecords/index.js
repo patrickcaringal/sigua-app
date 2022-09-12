@@ -1,30 +1,18 @@
 import React, { useEffect, useState } from "react";
 
-import { Box, Button, Container, MenuItem, Typography } from "@mui/material";
+import { Box, Container, MenuItem, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
-import useRequest from "../../../../hooks/useRequest";
+import { usePagination, useRequest } from "../../../../hooks";
 import {
-  MEMBER_STATUS,
   getPatientRecordReq,
   getVerifiedFamilyMembersReq,
 } from "../../../../modules/firebase";
-import {
-  formatTimeStamp,
-  localUpdateDocs,
-  personBuiltInFields,
-  pluralize,
-} from "../../../../modules/helper";
-import { Select, Toolbar, successMessage } from "../../../common";
+import { Pagination, Select, Toolbar } from "../../../common";
 import Card from "./Card";
-
-const defaultModal = {
-  open: false,
-  data: {},
-};
 
 const MedicalRecordPage = () => {
   const router = useRouter();
@@ -33,7 +21,7 @@ const MedicalRecordPage = () => {
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   // Requests
-  const [getPatients, patientsLoading] = useRequest(
+  const [getPatients] = useRequest(
     getVerifiedFamilyMembersReq,
     setBackdropLoader
   );
@@ -43,6 +31,7 @@ const MedicalRecordPage = () => {
   const [patients, setPatients] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [medicalRecords, setMedicalRecords] = useState([]);
+  const pagination = usePagination(medicalRecords, 2);
 
   useEffect(() => {
     if (user.id) {
@@ -69,12 +58,18 @@ const MedicalRecordPage = () => {
         if (getError) return openErrorDialog(getError);
 
         setMedicalRecords(data);
+        pagination.setTotalItems(data.length);
+        pagination.goToPage(0);
       };
 
       fetch();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPatient]);
+
+  const handlePageChange = (event, value) => {
+    pagination.goToPage(value - 1);
+  };
 
   return (
     <Container maxWidth="lg">
@@ -86,7 +81,6 @@ const MedicalRecordPage = () => {
         sx={{
           display: "flex",
           flexDirection: "column",
-          mt: 1,
           pb: 1,
         }}
       >
@@ -118,9 +112,11 @@ const MedicalRecordPage = () => {
               mt: 3,
             }}
           >
-            {medicalRecords.map((i) => {
-              return <Card key={i.id} data={i} />;
-            })}
+            {medicalRecords
+              .slice(pagination.info.start, pagination.info.end)
+              .map((i) => {
+                return <Card key={i.id} data={i} />;
+              })}
           </Box>
         ) : (
           <Box
@@ -141,6 +137,8 @@ const MedicalRecordPage = () => {
             </Box>
           </Box>
         )}
+
+        <Pagination pagination={pagination} onChange={handlePageChange} />
       </Box>
     </Container>
   );
