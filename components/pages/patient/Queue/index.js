@@ -70,8 +70,11 @@ const PatientQueuePage = () => {
   const [queueToday, setQueueToday] = useState({});
   const [queueModal, setQueueModal] = useState(defaultModal);
 
+  const isQueueFull = queueToday?.nextQueueNo - 1 === queueToday?.capacity;
   const hasQueueToday = !!lodash.keys(queueToday).length;
-  const isRegOpen = hasQueueToday ? queueToday.openForRegistration : false;
+  const isRegOpen = hasQueueToday
+    ? queueToday.openForRegistration && !isQueueFull
+    : false;
   const isQueueOngoing = hasQueueToday ? queueToday.openQueue : false;
 
   const nextNumbers = queueToday?.next?.map((i) => i.queueNo);

@@ -22,7 +22,6 @@ const CardComponent = ({ data }) => {
     diagnosis,
     patientNote,
   } = data;
-  console.log(data);
 
   return (
     <Card

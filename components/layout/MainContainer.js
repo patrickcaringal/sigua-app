@@ -7,13 +7,13 @@ import { useAuth } from "../../contexts/AuthContext";
 const drawerWidth = 240;
 
 const LeftSidebar = ({ children }) => {
-  const { isLoggedIn, isAdminPanel } = useAuth();
+  const { isAdminPanel } = useAuth();
 
   return (
     <Box
       component="main"
       sx={{
-        ml: isLoggedIn && isAdminPanel ? "240px" : 0,
+        ml: isAdminPanel ? "240px" : 0,
         bgcolor: "grey.100",
       }}
     >

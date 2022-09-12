@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 
 const QueueList = ({
+  disabled,
   title,
   queueKey,
   queue = [],
@@ -80,7 +81,7 @@ const QueueList = ({
       >
         {queue.map((i, index) => {
           const { queueNo, patientName, serviceName } = i;
-          const moveDisabled = enableFirstItemOnly && index !== 0;
+          const moveDisabled = (enableFirstItemOnly && index !== 0) || disabled;
 
           return (
             <>
