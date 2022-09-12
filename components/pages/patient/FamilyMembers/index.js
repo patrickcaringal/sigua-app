@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { Box, Button, Container, Typography } from "@mui/material";
 import { useRouter } from "next/router";
@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
-import useRequest from "../../../../hooks/useRequest";
+import { useFilter, usePagination, useRequest } from "../../../../hooks";
 import {
   MEMBER_STATUS,
   addPatientReq,
@@ -20,7 +20,13 @@ import {
   personBuiltInFields,
   pluralize,
 } from "../../../../modules/helper";
-import { Toolbar, successMessage } from "../../../common";
+import {
+  Input,
+  PATHS,
+  Pagination,
+  Toolbar,
+  successMessage,
+} from "../../../common";
 import { MobileNumberVerificationModal } from "../../../shared";
 import Cards from "./Cards";
 import ManageFamilyMemberModal from "./ManageFamilyMemberModal";
@@ -51,6 +57,9 @@ const FamilyMemberPage = () => {
   // Phone Verification Modal
   const [phoneModal, setPhoneModal] = useState(defaultModal);
 
+  const filtering = useFilter({});
+  const pagination = usePagination(filtering.filtered, 6);
+
   useEffect(() => {
     const fetch = async () => {
       // Get Family Members
@@ -65,6 +74,16 @@ const FamilyMemberPage = () => {
     if (user.id) fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user.id]);
+
+  useEffect(() => {
+    filtering.setData(members);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [members]);
+
+  useEffect(() => {
+    pagination.setTotalItems(filtering.filtered.length);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtering.filtered.length]);
 
   const handleAddMemeber = async (docs) => {
     docs = docs.map((i) => ({
@@ -257,19 +276,48 @@ const FamilyMemberPage = () => {
     setPhoneModal(defaultModal);
   };
 
+  const handleSearchChange = useCallback((e) => {
+    filtering.onNameChange(e?.target?.value);
+    pagination.goToPage(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handlePageChange = (event, value) => {
+    pagination.goToPage(value - 1);
+  };
+
   return (
     <Container maxWidth="lg">
       <Toolbar
-        onRootClick={() => router.push("/dashboard")}
+        onRootClick={() => router.push(PATHS.PATIENT.DASHBOARD)}
         paths={[{ text: "Family Members" }]}
       >
-        <Button
-          variant="contained"
-          size="small"
-          onClick={handleMemberModalOpen}
+        <Box
+          sx={{
+            width: { xs: "100%", md: "unset" },
+            display: "flex",
+            flexDirection: "row",
+            gap: 2,
+            justifyContent: "space-between",
+            mb: { xs: 1, md: 0 },
+          }}
         >
-          Add Family Member
-        </Button>
+          <Box sx={{ width: 200 }}>
+            <Input
+              debounce
+              label="Search"
+              value={filtering.filters.name}
+              onChange={handleSearchChange}
+            />
+          </Box>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={handleMemberModalOpen}
+          >
+            Add Member
+          </Button>
+        </Box>
       </Toolbar>
       <Box
         sx={{
@@ -282,12 +330,16 @@ const FamilyMemberPage = () => {
         }}
       >
         <Cards
-          data={members}
+          data={filtering.filtered.slice(
+            pagination.info.start,
+            pagination.info.end
+          )}
           onEditModal={handleEditModalOpen}
           onVerificationModal={handleAttachmentModalOpen}
           onPhoneModal={handlePhoneModalOpen}
         />
       </Box>
+      <Pagination pagination={pagination} onChange={handlePageChange} />
 
       {familyMemberModal.open && (
         <ManageFamilyMemberModal

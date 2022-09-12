@@ -12,6 +12,7 @@ const PaginationComp = ({ pagination, onChange }) => {
         flexDirection: "column",
         alignItems: "center",
         mt: 3,
+        pb: 2,
       }}
     >
       <Pagination
