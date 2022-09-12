@@ -3,6 +3,7 @@ import Datalist from "./Datalist";
 import { DatePicker, Input, Select } from "./Form";
 import Modal from "./Modal";
 import Pagination from "./Pagination";
+import Placeholder from "./Placeholder";
 import {
   ResponseDialog,
   associationMessage,
@@ -46,4 +47,6 @@ export {
   getActionButtons,
   // Pagination
   Pagination,
+  // Placeholder
+  Placeholder,
 };

@@ -2,8 +2,8 @@ import React from "react";
 
 import { Box, Pagination } from "@mui/material";
 
-const PaginationComp = ({ pagination, onChange }) => {
-  if (pagination.pages.length <= 1) return null;
+const PaginationComp = ({ pagination, onChange, display = true }) => {
+  if (pagination.pages.length <= 1 || !display) return null;
 
   return (
     <Box

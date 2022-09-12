@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 
 import { Box, Container, MenuItem, Typography } from "@mui/material";
 import { useRouter } from "next/router";
@@ -11,7 +11,7 @@ import {
   getPatientRecordReq,
   getVerifiedFamilyMembersReq,
 } from "../../../../modules/firebase";
-import { Pagination, Select, Toolbar } from "../../../common";
+import { Pagination, Placeholder, Select, Toolbar } from "../../../common";
 import Card from "./Card";
 
 const MedicalRecordPage = () => {
@@ -21,19 +21,28 @@ const MedicalRecordPage = () => {
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   // Requests
-  const [getPatients] = useRequest(
+  const [getPatients, patientLoading] = useRequest(
     getVerifiedFamilyMembersReq,
     setBackdropLoader
   );
-  const [getPatientRecord] = useRequest(getPatientRecordReq, setBackdropLoader);
+  const [getPatientRecord, patientRecordLoading] = useRequest(
+    getPatientRecordReq,
+    setBackdropLoader
+  );
 
   // Local States
   const [patients, setPatients] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [medicalRecords, setMedicalRecords] = useState([]);
   const pagination = usePagination(medicalRecords, 2);
+  const tableData = medicalRecords.slice(
+    pagination.info.start,
+    pagination.info.end
+  );
+  const isLoading = patientLoading || patientRecordLoading;
+  const showConent = !isLoading && selectedPatient && tableData.length !== 0;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (user.id) {
       const fetch = async () => {
         // Get Family Members
@@ -100,7 +109,7 @@ const MedicalRecordPage = () => {
           ))}
         </Select>
 
-        {selectedPatient ? (
+        {showConent ? (
           <Box
             sx={{
               flex: 1,
@@ -112,33 +121,28 @@ const MedicalRecordPage = () => {
               mt: 3,
             }}
           >
-            {medicalRecords
-              .slice(pagination.info.start, pagination.info.end)
-              .map((i) => {
-                return <Card key={i.id} data={i} />;
-              })}
+            {tableData.map((i) => (
+              <Card key={i.id} data={i} />
+            ))}
           </Box>
         ) : (
-          <Box
-            sx={{
-              // border: "1px solid blue",
-              display: "flex",
-              flexDirection: "column",
-              flex: 1,
-              minHeight: "calc(100vh / 3)",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Box sx={{}}>
-              <Typography variant="h6" color="text.secondary">
-                Select a family member
-              </Typography>
-            </Box>
-          </Box>
+          // "Select a family member"
+          <Placeholder
+            display={!isLoading}
+            text={
+              !selectedPatient
+                ? "Select a family member"
+                : tableData.length === 0
+                ? "No medical record"
+                : ""
+            }
+          />
         )}
-
-        <Pagination pagination={pagination} onChange={handlePageChange} />
+        <Pagination
+          display={!isLoading}
+          pagination={pagination}
+          onChange={handlePageChange}
+        />
       </Box>
     </Container>
   );
