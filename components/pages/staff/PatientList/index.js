@@ -4,7 +4,6 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import {
   Box,
   IconButton,
-  Paper,
   Table,
   TableBody,
   TableCell,
@@ -12,7 +11,6 @@ import {
   TableHead,
   TableRow,
   Tooltip,
-  Typography,
 } from "@mui/material";
 import { useRouter } from "next/router";
 
@@ -22,13 +20,8 @@ import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useFilter, usePagination, useRequest } from "../../../../hooks";
 import { getPatientsByBranchReq } from "../../../../modules/firebase";
 import { calculateAge, formatTimeStamp } from "../../../../modules/helper";
-import {
-  Input,
-  LongTypography,
-  PATHS,
-  Pagination,
-  Toolbar,
-} from "../../../common";
+import { Input, LongTypography, PATHS, Pagination } from "../../../common";
+import { AdminMainContainer } from "../../../shared";
 
 const PatientListPage = () => {
   const router = useRouter();
@@ -42,7 +35,7 @@ const PatientListPage = () => {
   // Local States
   const [patients, setPatients] = useState([]);
   const filtering = useFilter({});
-  const pagination = usePagination(filtering.filtered, 1);
+  const pagination = usePagination(filtering.filtered);
 
   useEffect(() => {
     const fetch = async () => {
@@ -82,16 +75,12 @@ const PatientListPage = () => {
   };
 
   return (
-    <Box
-      sx={{
-        height: "calc(100vh - 64px)",
-        mx: 4,
+    <AdminMainContainer
+      toolbarProps={{
+        onRootClick: () => router.push(PATHS.STAFF.DASHBOARD),
+        paths: [{ text: "Patient Approval" }],
       }}
-    >
-      <Toolbar
-        onRootClick={() => router.push(PATHS.STAFF.DASHBOARD)}
-        paths={[{ text: "Patient Records" }]}
-      >
+      toolbarContent={
         <Box sx={{ width: 200 }}>
           <Input
             debounce
@@ -100,79 +89,72 @@ const PatientListPage = () => {
             onChange={handleSearchChange}
           />
         </Box>
-      </Toolbar>
-      <Box>
-        <Paper
-          elevation={2}
-          sx={{ height: "calc(100vh - 64px - 64px - 16px)" }}
-        >
-          <TableContainer>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  {[
-                    { text: "Name" },
-                    { text: "Birthdate", sx: { width: 140 } },
-                    { text: "Age", sx: { width: 40 }, align: "center" },
-                    { text: "Gender", sx: { width: 100 } },
-                    { text: "Contact No.", sx: { width: 140 } },
-                    { text: "Address", sx: { width: 360 } },
-                    { text: "Actions", sx: { width: 82 } },
-                  ].map(({ text, align, sx }) => (
-                    <TableCell
-                      key={text}
-                      {...(align && { align })}
-                      sx={{ ...sx, fontWeight: "bold", p: 2 }}
-                    >
-                      {text}
+      }
+    >
+      <TableContainer>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              {[
+                { text: "Name" },
+                { text: "Birthdate", sx: { width: 140 } },
+                { text: "Age", sx: { width: 40 }, align: "center" },
+                { text: "Gender", sx: { width: 100 } },
+                { text: "Contact No.", sx: { width: 140 } },
+                { text: "Address", sx: { width: 360 } },
+                { text: "Actions", sx: { width: 82 } },
+              ].map(({ text, align, sx }) => (
+                <TableCell
+                  key={text}
+                  {...(align && { align })}
+                  sx={{ ...sx, fontWeight: "bold", p: 2 }}
+                >
+                  {text}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+
+          <TableBody>
+            {filtering.filtered
+              .slice(pagination.info.start, pagination.info.end)
+              .map((m, index) => {
+                const { id, name, gender, birthdate, contactNo, address } = m;
+
+                return (
+                  <TableRow key={index}>
+                    <TableCell>{name}</TableCell>
+                    <TableCell>
+                      {formatTimeStamp(birthdate, "MMM-dd-yyyy")}
                     </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-
-              <TableBody>
-                {filtering.filtered
-                  .slice(pagination.info.start, pagination.info.end)
-                  .map((m, index) => {
-                    const { id, name, gender, birthdate, contactNo, address } =
-                      m;
-
-                    return (
-                      <TableRow key={index}>
-                        <TableCell>{name}</TableCell>
-                        <TableCell>
-                          {formatTimeStamp(birthdate, "MMM-dd-yyyy")}
-                        </TableCell>
-                        <TableCell align="center">
-                          {calculateAge(formatTimeStamp(birthdate))}
-                        </TableCell>
-                        <TableCell sx={{ textTransform: "capitalize" }}>
-                          {gender}
-                        </TableCell>
-                        <TableCell>{contactNo}</TableCell>
-                        <TableCell>
-                          <LongTypography text={address} displayedLines={1} />
-                        </TableCell>
-                        <TableCell align="center">
-                          <Tooltip title="View Medical Records">
-                            <IconButton
-                              size="small"
-                              onClick={() => handleViewMedicalRecord(id)}
-                            >
-                              <AssignmentIcon />
-                            </IconButton>
-                          </Tooltip>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <Pagination pagination={pagination} onChange={handlePageChange} />
-        </Paper>
-      </Box>
-    </Box>
+                    <TableCell align="center">
+                      {calculateAge(formatTimeStamp(birthdate))}
+                    </TableCell>
+                    <TableCell sx={{ textTransform: "capitalize" }}>
+                      {gender}
+                    </TableCell>
+                    <TableCell>{contactNo}</TableCell>
+                    <TableCell>
+                      <LongTypography text={address} displayedLines={1} />
+                    </TableCell>
+                    <TableCell align="center">
+                      <Tooltip title="View Medical Records">
+                        <IconButton
+                          size="small"
+                          onClick={() => handleViewMedicalRecord(id)}
+                        >
+                          <AssignmentIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Pagination pagination={pagination} onChange={handlePageChange} />
+    </AdminMainContainer>
   );
 };
 
