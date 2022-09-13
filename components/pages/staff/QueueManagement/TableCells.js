@@ -17,19 +17,21 @@ const TableCells = ({ data }) => {
     done = [],
     skipped = [],
     openForRegistration,
+    nextQueueNo,
   } = data;
   const doctors = lodash.values(counters).map((i) => i.name);
-  const registered = queue.length + next.length + skipped.length + done.length;
+  // const registered = queue.length + next.length + skipped.length + done.length;
+  const registered = nextQueueNo - 1;
 
   return (
     <>
       <TableCell>{formatTimeStamp(date, "MMM-dd-yyyy")}</TableCell>
       <TableCell>{formatTimeStamp(date, "eeee")}</TableCell>
       <TableCell>{doctors.join(", ")}</TableCell>
-      <TableCell align="center">{capacity}</TableCell>
-      <TableCell align="center">{registered}</TableCell>
-      <TableCell align="center">{done.length}</TableCell>
-      <TableCell align="center">{skipped.length}</TableCell>
+      <TableCell align="right">{capacity}</TableCell>
+      <TableCell align="right">{registered}</TableCell>
+      <TableCell align="right">{done.length}</TableCell>
+      <TableCell align="right">{skipped.length}</TableCell>
       {/* <TableCell align="center">
         {isToday && !openForRegistration && (
           <Chip label="Close" color="warning" size="small" />
