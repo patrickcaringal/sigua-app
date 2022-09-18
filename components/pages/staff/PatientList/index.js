@@ -64,11 +64,14 @@ const PatientListPage = () => {
     });
   };
 
-  const handleSearchChange = useCallback((e) => {
-    filtering.onNameChange(e?.target?.value);
-    pagination.goToPage(0);
+  const handleSearchChange = useCallback(
+    (e) => {
+      pagination.goToPage(0);
+      filtering.onNameChange(e?.target?.value);
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    [pagination.goToPage, filtering.onNameChange]
+  );
 
   const handlePageChange = (event, value) => {
     pagination.goToPage(value - 1);

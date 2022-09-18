@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   Box,
   Button,
-  MenuItem,
   Pagination,
   Table,
   TableBody,
@@ -16,7 +15,7 @@ import { useRouter } from "next/router";
 
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
-import { usePagination, useRequest } from "../../../../hooks";
+import { useFilter, usePagination, useRequest } from "../../../../hooks";
 import { deletePatientReq, getPatientsReq } from "../../../../modules/firebase";
 import {
   ACTION_BUTTONS,
@@ -29,7 +28,6 @@ import {
 } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import TableCells from "./TableCells";
-import useFilter from "./useFilter";
 
 const PatientListPage = () => {
   const router = useRouter();
@@ -106,11 +104,14 @@ const PatientListPage = () => {
     router.push(PATHS.DOCTOR.PATIENTS_RESTORE);
   };
 
-  const handleSearchChange = useCallback((e) => {
-    onNameChange(e?.target?.value);
-    pagination.goToPage(0);
+  const handleSearchChange = useCallback(
+    (e) => {
+      pagination.goToPage(0);
+      filtering.onNameChange(e?.target?.value);
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    [pagination.goToPage, filtering.onNameChange]
+  );
 
   const handlePageChange = (event, value) => {
     pagination.goToPage(value - 1);

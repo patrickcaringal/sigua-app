@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import RestoreIcon from "@mui/icons-material/Restore";
 import {
+  Box,
   Button,
   IconButton,
   Table,
@@ -18,7 +19,7 @@ import { useRouter } from "next/router";
 
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
-import useRequest from "../../../../hooks/useRequest";
+import { useFilter, usePagination, useRequest } from "../../../../hooks";
 import {
   addServiceReq,
   deleteServiceReq,
@@ -26,7 +27,13 @@ import {
   updateServiceReq,
 } from "../../../../modules/firebase";
 import { localUpdateDocs, pluralize } from "../../../../modules/helper";
-import { PATHS, confirmMessage, successMessage } from "../../../common";
+import {
+  Input,
+  PATHS,
+  Pagination,
+  confirmMessage,
+  successMessage,
+} from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import ManageServiceModal from "./ManageServiceModal";
 import TableCells from "./TableCells";
@@ -50,6 +57,8 @@ const ServicesManagementPage = () => {
   // Local States
   const [services, setServices] = useState([]);
   const [serviceModal, setServiceModal] = useState(false);
+  const filtering = useFilter({});
+  const pagination = usePagination(filtering.filtered);
 
   useEffect(() => {
     const fetch = async () => {
@@ -63,6 +72,16 @@ const ServicesManagementPage = () => {
     fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    filtering.setData(services);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [services]);
+
+  useEffect(() => {
+    pagination.setTotalItems(filtering.filtered.length);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtering.filtered.length]);
 
   const handleAddService = async (docs) => {
     // Add
@@ -165,6 +184,20 @@ const ServicesManagementPage = () => {
     router.push(PATHS.DOCTOR.SERVICES_RESTORE);
   };
 
+  const handleSearchChange = useCallback(
+    (e) => {
+      pagination.goToPage(0);
+      filtering.onNameChange(e?.target?.value);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [pagination.goToPage, filtering.onNameChange]
+  );
+
+  const handlePageChange = (event, value) => {
+    pagination.goToPage(value - 1);
+  };
+  console.log(pagination.info.activePage);
+
   return (
     <AdminMainContainer
       toolbarProps={{
@@ -173,6 +206,14 @@ const ServicesManagementPage = () => {
       }}
       toolbarContent={
         <>
+          <Box sx={{ width: 200 }}>
+            <Input
+              debounce
+              label="Search"
+              value={filtering.filters.name}
+              onChange={handleSearchChange}
+            />
+          </Box>
           <Button
             variant="outlined"
             size="small"
@@ -213,30 +254,33 @@ const ServicesManagementPage = () => {
           </TableHead>
 
           <TableBody>
-            {services.map((i) => {
-              return (
-                <TableRow key={i.id}>
-                  <TableCells data={i} />
-                  <TableCell align="center">
-                    <IconButton
-                      size="small"
-                      onClick={() => handleEditServiceModalOpen(i)}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleDeleteConfirm(i)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+            {filtering.filtered
+              .slice(pagination.info.start, pagination.info.end)
+              .map((i) => {
+                return (
+                  <TableRow key={i.id}>
+                    <TableCells data={i} />
+                    <TableCell align="center">
+                      <IconButton
+                        size="small"
+                        onClick={() => handleEditServiceModalOpen(i)}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDeleteConfirm(i)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
           </TableBody>
         </Table>
       </TableContainer>
+      <Pagination pagination={pagination} onChange={handlePageChange} />
 
       {serviceModal.open && (
         <ManageServiceModal

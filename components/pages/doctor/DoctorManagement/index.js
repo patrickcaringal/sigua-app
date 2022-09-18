@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import RestoreIcon from "@mui/icons-material/Restore";
 import {
+  Box,
   Button,
   IconButton,
   Table,
@@ -19,7 +20,7 @@ import { useRouter } from "next/router";
 
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
-import useRequest from "../../../../hooks/useRequest";
+import { useFilter, usePagination, useRequest } from "../../../../hooks";
 import {
   addDoctorReq,
   deleteDoctorReq,
@@ -33,7 +34,13 @@ import {
   personBuiltInFields,
   pluralize,
 } from "../../../../modules/helper";
-import { PATHS, confirmMessage, successMessage } from "../../../common";
+import {
+  Input,
+  PATHS,
+  Pagination,
+  confirmMessage,
+  successMessage,
+} from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import ManageDoctorModal from "./ManageDoctorModal";
 import TableCells from "./TableCells";
@@ -60,6 +67,8 @@ const DoctorsPage = () => {
   const [doctorModal, setDoctorModal] = useState(defaultModal);
   const [branches, setBranches] = useState([]);
   const [branchesMap, setBranchesMap] = useState({});
+  const filtering = useFilter({});
+  const pagination = usePagination(filtering.filtered);
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -100,6 +109,16 @@ const DoctorsPage = () => {
       data: null,
     });
   };
+
+  useEffect(() => {
+    filtering.setData(doctors);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [doctors]);
+
+  useEffect(() => {
+    pagination.setTotalItems(filtering.filtered.length);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtering.filtered.length]);
 
   const handleAddDoctor = async (docs) => {
     docs = docs.map((i) => ({
@@ -209,6 +228,19 @@ const DoctorsPage = () => {
     router.push(PATHS.DOCTOR.DOCTOR_RESTORE);
   };
 
+  const handleSearchChange = useCallback(
+    (e) => {
+      pagination.goToPage(0);
+      filtering.onNameChange(e?.target?.value);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [pagination.goToPage, filtering.onNameChange]
+  );
+
+  const handlePageChange = (event, value) => {
+    pagination.goToPage(value - 1);
+  };
+
   return (
     <AdminMainContainer
       toolbarProps={{
@@ -217,6 +249,14 @@ const DoctorsPage = () => {
       }}
       toolbarContent={
         <>
+          <Box sx={{ width: 200 }}>
+            <Input
+              debounce
+              label="Search"
+              value={filtering.filters.name}
+              onChange={handleSearchChange}
+            />
+          </Box>
           <Button
             variant="outlined"
             size="small"
@@ -262,41 +302,44 @@ const DoctorsPage = () => {
           </TableHead>
 
           <TableBody>
-            {doctors.map((i) => {
-              const { id, branch, birthdate } = i;
-              const data = {
-                ...i,
-                branchName: branchesMap[branch],
-              };
+            {filtering.filtered
+              .slice(pagination.info.start, pagination.info.end)
+              .map((i) => {
+                const { id, branch, birthdate } = i;
+                const data = {
+                  ...i,
+                  branchName: branchesMap[branch],
+                };
 
-              return (
-                <TableRow key={id}>
-                  <TableCells data={data} />
-                  <TableCell align="center">
-                    <IconButton
-                      size="small"
-                      onClick={() =>
-                        handleEditModalOpen({
-                          ...i,
-                          birthdate: formatTimeStamp(birthdate),
-                        })
-                      }
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleDeleteConfirm(i)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+                return (
+                  <TableRow key={id}>
+                    <TableCells data={data} />
+                    <TableCell align="center">
+                      <IconButton
+                        size="small"
+                        onClick={() =>
+                          handleEditModalOpen({
+                            ...i,
+                            birthdate: formatTimeStamp(birthdate),
+                          })
+                        }
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDeleteConfirm(i)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
           </TableBody>
         </Table>
       </TableContainer>
+      <Pagination pagination={pagination} onChange={handlePageChange} />
 
       {doctorModal.open && (
         <ManageDoctorModal
