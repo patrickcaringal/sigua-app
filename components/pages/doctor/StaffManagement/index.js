@@ -222,7 +222,6 @@ const StaffsPage = () => {
             size="small"
             onClick={handleRestoreRedirect}
             startIcon={<RestoreIcon />}
-            sx={{ mr: 2 }}
           >
             restore
           </Button>
@@ -242,9 +241,12 @@ const StaffsPage = () => {
           <TableHead>
             <TableRow>
               {[
-                { text: "Name", sx: { width: 200 } },
-                { text: "Email" },
-                { text: "Address", sx: { width: 400 } },
+                { text: "Name" },
+                { text: "Birthdate", sx: { width: 140 } },
+                { text: "Age", sx: { width: 40 }, align: "center" },
+                { text: "Gender", sx: { width: 100 } },
+                // { text: "Contact No.", sx: { width: 140 } },
+                { text: "Address", sx: { width: 360 } },
                 { text: "Branch", sx: { width: 110 } },
                 { text: "Actions", align: "center", sx: { width: 110 } },
               ].map(({ text, align, sx }) => (

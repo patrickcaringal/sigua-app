@@ -241,11 +241,14 @@ const DoctorsPage = () => {
           <TableHead>
             <TableRow>
               {[
-                { text: "Name", sx: { width: 200 } },
-                { text: "Email" },
+                { text: "Name" },
+                { text: "Email", sx: { width: 200 } },
+                { text: "Birthdate", sx: { width: 140 } },
+                { text: "Age", sx: { width: 40 }, align: "center" },
+                { text: "Gender", sx: { width: 100 } },
+                // { text: "Contact No.", sx: { width: 140 } },
                 { text: "Address", sx: { width: 400 } },
-                // { text: "Branch", sx: { width: 110 } },
-                { text: "Actions", align: "center", sx: { width: 110 } },
+                { text: "Actions", sx: { width: 100 } },
               ].map(({ text, align, sx }) => (
                 <TableCell
                   key={text}

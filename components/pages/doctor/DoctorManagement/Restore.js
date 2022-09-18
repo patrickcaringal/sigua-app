@@ -131,8 +131,12 @@ const DoctorRestorePage = () => {
             <TableRow>
               <TableCell sx={{ width: 50 }} />
               {[
-                { text: "Name", sx: { width: 200 } },
-                { text: "Email" },
+                { text: "Name" },
+                { text: "Email", sx: { width: 200 } },
+                { text: "Birthdate", sx: { width: 140 } },
+                { text: "Age", sx: { width: 40 }, align: "center" },
+                { text: "Gender", sx: { width: 100 } },
+                // { text: "Contact No.", sx: { width: 140 } },
                 { text: "Address", sx: { width: 400 } },
                 // { text: "Branch", sx: { width: 110 } },
               ].map(({ text, align, sx }) => (

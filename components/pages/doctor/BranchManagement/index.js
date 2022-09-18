@@ -204,7 +204,6 @@ const BranchManagementPage = () => {
             size="small"
             onClick={handleRestoreRedirect}
             startIcon={<RestoreIcon />}
-            sx={{ mr: 2 }}
           >
             restore
           </Button>
@@ -226,8 +225,8 @@ const BranchManagementPage = () => {
               {[
                 { text: "Branch", sx: { width: 200 } },
                 { text: "Services" },
-                { text: "Address", sx: { width: 400 } },
                 { text: "Capacity", align: "center", sx: { width: 110 } },
+                { text: "Address", sx: { width: 400 } },
                 { text: "Actions", align: "center", sx: { width: 110 } },
               ].map(({ text, align, sx }) => (
                 <TableCell

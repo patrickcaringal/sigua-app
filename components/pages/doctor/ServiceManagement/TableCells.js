@@ -1,6 +1,8 @@
 import React from "react";
 
-import { TableCell, Typography } from "@mui/material";
+import { TableCell } from "@mui/material";
+
+import { LongTypography } from "../../../../components/common";
 
 const TableCells = ({ data }) => {
   const { id, name, description } = data;
@@ -9,18 +11,7 @@ const TableCells = ({ data }) => {
     <>
       <TableCell sx={{ width: 250 }}>{name}</TableCell>
       <TableCell>
-        <Typography
-          variant="caption"
-          sx={{
-            display: "-webkit-box",
-            WebkitBoxOrient: "vertical",
-            WebkitLineClamp: "2",
-            overflow: "hidden",
-          }}
-          component="div"
-        >
-          {description}
-        </Typography>
+        <LongTypography text={description} displayedLines={2} />
       </TableCell>
     </>
   );

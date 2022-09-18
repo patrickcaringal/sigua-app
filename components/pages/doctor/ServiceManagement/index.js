@@ -178,7 +178,6 @@ const ServicesManagementPage = () => {
             size="small"
             onClick={handleRestoreRedirect}
             startIcon={<RestoreIcon />}
-            sx={{ mr: 2 }}
           >
             restore
           </Button>

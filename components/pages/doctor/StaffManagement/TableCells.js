@@ -2,25 +2,22 @@ import React from "react";
 
 import { TableCell, Typography } from "@mui/material";
 
+import { LongTypography } from "../../../../components/common";
+import { calculateAge, formatTimeStamp } from "../../../../modules/helper";
+
 const TableCells = ({ data }) => {
-  const { id, name, email, branch, address, branchName } = data;
+  const { id, name, birthdate, gender, email, branch, address, branchName } =
+    data;
   return (
     <>
       <TableCell>{name}</TableCell>
-      <TableCell>{email}</TableCell>
+      <TableCell>{formatTimeStamp(birthdate, "MMM-dd-yyyy")}</TableCell>
+      <TableCell align="center">
+        {calculateAge(formatTimeStamp(birthdate))}
+      </TableCell>
+      <TableCell sx={{ textTransform: "capitalize" }}>{gender}</TableCell>
       <TableCell>
-        <Typography
-          variant="caption"
-          sx={{
-            display: "-webkit-box",
-            WebkitBoxOrient: "vertical",
-            WebkitLineClamp: "2",
-            overflow: "hidden",
-          }}
-          component="div"
-        >
-          {address}
-        </Typography>
+        <LongTypography text={address} displayedLines={1} />
       </TableCell>
       <TableCell>{branchName}</TableCell>
     </>
