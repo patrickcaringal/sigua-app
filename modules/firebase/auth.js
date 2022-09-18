@@ -48,7 +48,7 @@ export const signInReq = async ({ email, password }) => {
     // Get User Document
     const id = res?.user?.uid;
     const collRef = collection(db, "doctors");
-    const q = query(collRef, where("accountId", "==", id));
+    const q = query(collRef, where("authId", "==", id));
     const querySnapshot = await getDocs(q);
 
     const exist = querySnapshot.docs.length === 1;

@@ -11,6 +11,7 @@ const TableCells = ({ data }) => {
   return (
     <>
       <TableCell>{name}</TableCell>
+      <TableCell>{email}</TableCell>
       <TableCell>{formatTimeStamp(birthdate, "MMM-dd-yyyy")}</TableCell>
       <TableCell align="center">
         {calculateAge(formatTimeStamp(birthdate))}

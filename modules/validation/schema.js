@@ -33,7 +33,7 @@ export const SigninSchema = Yup.object().shape({
 export const DoctorSigninSchema = Yup.object().shape({
   email: Yup.string().email().required("Required"),
   password: Yup.string()
-    .min(8, "Password must be 8 characters long")
+    // .min(8, "Password must be 8 characters long")
     .required("Required"),
 });
 

@@ -129,6 +129,7 @@ const StaffsRestorePage = () => {
               <TableCell sx={{ width: 50 }} />
               {[
                 { text: "Name" },
+                { text: "Email", sx: { width: 200 } },
                 { text: "Birthdate", sx: { width: 140 } },
                 { text: "Age", sx: { width: 40 }, align: "center" },
                 { text: "Gender", sx: { width: 100 } },

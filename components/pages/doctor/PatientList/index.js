@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 
+import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useFilter, usePagination, useRequest } from "../../../../hooks";
@@ -30,6 +31,8 @@ import { AdminMainContainer } from "../../../shared";
 import TableCells from "./TableCells";
 
 const PatientListPage = () => {
+  const { isAdmin } = useAuth();
+
   const router = useRouter();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
@@ -40,13 +43,13 @@ const PatientListPage = () => {
 
   // Local States
   const [patients, setPatients] = useState([]);
-  const { filtered, setData, filters, onNameChange } = useFilter({});
-  const pagination = usePagination(filtered); // , undefined, 1
+  const filtering = useFilter({});
+  const pagination = usePagination(filtering.filtered); // , undefined, 1
 
   useEffect(() => {
-    pagination.setTotalItems(filtered.length);
+    pagination.setTotalItems(filtering.filtered.length);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtered.length]);
+  }, [filtering.filtered.length]);
 
   useEffect(() => {
     const fetch = async () => {
@@ -55,7 +58,7 @@ const PatientListPage = () => {
       if (getError) return openErrorDialog(getError);
 
       setPatients(patientList);
-      setData(patientList);
+      filtering.setData(patientList);
     };
 
     fetch();
@@ -129,18 +132,20 @@ const PatientListPage = () => {
             <Input
               debounce
               label="Search"
-              value={filters.name}
+              value={filtering.filters.name}
               onChange={handleSearchChange}
             />
           </Box>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={handleRestoreRedirect}
-            startIcon={ACTION_ICONS.RESTORE}
-          >
-            restore
-          </Button>
+          {isAdmin && (
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={handleRestoreRedirect}
+              startIcon={ACTION_ICONS.RESTORE}
+            >
+              restore
+            </Button>
+          )}
         </>
       }
     >
@@ -160,7 +165,7 @@ const PatientListPage = () => {
                 { text: "Gender", sx: { width: 100 } },
                 { text: "Contact No.", sx: { width: 140 } },
                 { text: "Address", sx: { width: 360 } },
-                { text: "Actions", sx: { width: 100 } },
+                { text: "Actions", sx: { width: 100 }, align: "center" },
               ].map(({ text, align, sx }) => (
                 <TableCell
                   key={text}
@@ -174,7 +179,7 @@ const PatientListPage = () => {
           </TableHead>
 
           <TableBody>
-            {filtered
+            {filtering.filtered
               .slice(pagination.info.start, pagination.info.end)
               .map((i, index) => {
                 return (
@@ -187,11 +192,15 @@ const PatientListPage = () => {
                           tooltipText: "Medical Records",
                           onClick: () => handleViewMedicalRecord(i.id),
                         },
-                        {
-                          action: ACTION_BUTTONS.DELETE,
-                          tooltipText: "Delete",
-                          onClick: () => handleDeleteConfirm(i),
-                        },
+                        ...(isAdmin
+                          ? [
+                              {
+                                action: ACTION_BUTTONS.DELETE,
+                                tooltipText: "Delete",
+                                onClick: () => handleDeleteConfirm(i),
+                              },
+                            ]
+                          : []),
                       ])}
                     </TableCell>
                   </TableRow>
