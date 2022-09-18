@@ -63,7 +63,7 @@ const DoctorsPage = () => {
 
   useEffect(() => {
     const fetchDoctors = async () => {
-      // Get Staffs
+      // Get Doctors
       const { data, error: getError } = await getDoctors({
         mapBranch: false,
       });
@@ -198,15 +198,15 @@ const DoctorsPage = () => {
     setDoctorModal(defaultModal);
   };
 
-  const handleEditModalOpen = (staff) => {
+  const handleEditModalOpen = (doctor) => {
     setDoctorModal({
       open: true,
-      data: staff,
+      data: doctor,
     });
   };
 
   const handleRestoreRedirect = () => {
-    router.push(PATHS.DOCTOR.STAFF_RESTORE);
+    router.push(PATHS.DOCTOR.DOCTOR_RESTORE);
   };
 
   return (
@@ -244,7 +244,7 @@ const DoctorsPage = () => {
                 { text: "Name", sx: { width: 200 } },
                 { text: "Email" },
                 { text: "Address", sx: { width: 400 } },
-                { text: "Branch", sx: { width: 110 } },
+                // { text: "Branch", sx: { width: 110 } },
                 { text: "Actions", align: "center", sx: { width: 110 } },
               ].map(({ text, align, sx }) => (
                 <TableCell

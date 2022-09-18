@@ -28,7 +28,9 @@ import {
   deleteDoctorReq,
   diagnosePatientReq,
   getBranchDoctorsReq,
+  getDeletedDoctorsReq,
   getDoctorsReq,
+  restoreDoctorReq,
   updateDoctorReq,
 } from "./doctor";
 import { getPatientRecordReq } from "./medicalRecords";
@@ -98,7 +100,9 @@ export {
   deleteDoctorReq,
   diagnosePatientReq,
   getBranchDoctorsReq,
+  getDeletedDoctorsReq,
   getDoctorsReq,
+  restoreDoctorReq,
   updateDoctorReq,
   // patient
   MEMBER_STATUS,

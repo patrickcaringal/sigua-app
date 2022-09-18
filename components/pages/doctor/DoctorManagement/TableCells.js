@@ -22,7 +22,7 @@ const TableCells = ({ data }) => {
           {address}
         </Typography>
       </TableCell>
-      <TableCell>{branchName}</TableCell>
+      {/* <TableCell>{branchName}</TableCell> */}
     </>
   );
 };

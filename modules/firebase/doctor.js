@@ -235,6 +235,61 @@ export const getDoctorsReq = async ({ mapBranch }) => {
   }
 };
 
+export const getDeletedDoctorsReq = async () => {
+  try {
+    // TODO: adjust when get branch needed
+    // const q = query(collRef, where("branch", "==", branch));
+    const q = query(
+      collRef,
+      where("deleted", "==", true),
+      where("role", "==", "doctor")
+    );
+    const querySnapshot = await getDocs(q);
+
+    const data = querySnapshot.docs
+      .map((doc) => {
+        const data = doc.data();
+        return {
+          ...data,
+        };
+      })
+      .sort(sortBy("dateCreated"));
+
+    // const data = querySnapshot.docs
+    //   .map((doc) => ({
+    //     id: doc.id,
+    //     ...doc.data(),
+    //   }))
+    //   .sort(sortBy("dateCreated"));
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
+export const restoreDoctorReq = async ({ docs }) => {
+  try {
+    // Bulk Update Document
+    const batch = writeBatch(db);
+
+    docs.forEach((d) => {
+      const updatedFields = {
+        deleted: false,
+      };
+      batch.update(doc(db, collectionName, d.id), updatedFields);
+    });
+
+    await batch.commit();
+
+    return { success: true };
+  } catch (error) {
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
 export const diagnosePatientReq = async ({ queue, medicalRecord }) => {
   try {
     const batch = writeBatch(db);
