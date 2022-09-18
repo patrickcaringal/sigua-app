@@ -43,7 +43,7 @@ const transformedFields = (doc) => ({
 export const getBranchDoctorsReq = async ({ branchId }) => {
   try {
     // Super Admin Doctor
-    const q = query(collRef, where("role", "==", "superadmin"));
+    const q = query(collRef, where("deleted", "==", false));
     const querySnapshot = await getDocs(q);
     const data = querySnapshot.docs.map((doc) => ({
       id: doc.id,

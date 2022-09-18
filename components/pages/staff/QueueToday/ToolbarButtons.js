@@ -9,7 +9,7 @@ import { Button } from "@mui/material";
 
 const ToolbarButtons = ({
   hasQueueToday,
-  hasDoctor,
+  doctors,
   isQueueFull,
   isRegOpen,
   isQueueOpen,
@@ -19,6 +19,8 @@ const ToolbarButtons = ({
   onDoctorModalOpen,
   onQueueModalOpen,
 }) => {
+  const hasDoctor = !!doctors;
+
   if (!hasQueueToday)
     return (
       <Button
@@ -53,6 +55,7 @@ const ToolbarButtons = ({
         {`${isQueueOpen ? "stop" : "start"}`} queue
       </Button>
       <Button
+        disabled={doctors >= 2}
         variant="contained"
         size="small"
         onClick={onDoctorModalOpen}

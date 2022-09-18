@@ -59,8 +59,8 @@ const QueueDetailPage = () => {
   const doctors = lodash.values(queue?.counters).map((i) => i.name);
   const stuckedItems = showConent
     ? [
-        ...queue?.queue,
-        ...queue?.next,
+        ...(queue?.queue || []),
+        ...(queue?.next || []),
         ...lodash.values(queue?.counters).reduce((acc, i) => {
           return [...acc, ...i.queue];
         }, []),

@@ -244,6 +244,14 @@ const QueueManagementPage = () => {
   };
 
   const handleDoctorModalOpen = () => {
+    if (doctorCounters.length == 2) {
+      return openResponseDialog({
+        autoClose: true,
+        content: "Max of 2 Doctors only",
+        type: "WARNING",
+      });
+    }
+
     setDoctorModal({
       open: true,
       data: null,
@@ -280,7 +288,8 @@ const QueueManagementPage = () => {
       toolbarContent={
         <ToolbarButtons
           hasQueueToday={hasQueueToday}
-          hasDoctor={!!doctorCounters.length}
+          // hasDoctor={!!doctorCounters.length}
+          doctors={doctorCounters.length}
           isQueueFull={isQueueFull}
           isRegOpen={isRegOpen}
           isQueueOpen={isQueueOpen}
@@ -345,7 +354,7 @@ const QueueManagementPage = () => {
                 flex: 1,
                 // border: "1px solid red",
                 display: "grid",
-                gridTemplateRows: "calc((100vh - 260px) / 2) auto",
+                gridTemplateRows: `calc((100vh - 260px) / ${doctorCounters.length}) auto`,
                 gap: 3,
                 height: "calc(100vh - 260px)",
               }}
