@@ -34,7 +34,7 @@ const defaultItem = {
 };
 
 const Form = ({
-  branches,
+  // branches,
   isCreate,
   // formik
   values,
@@ -46,7 +46,7 @@ const Form = ({
 }) => {
   return (
     <FieldArray
-      name="staffs"
+      name="doctors"
       render={({ push, remove }) => {
         return (
           <>
@@ -64,7 +64,12 @@ const Form = ({
                           middleName: faker.name.lastName(),
                           email: faker.internet.email(),
                           address: faker.lorem.paragraph(),
-                          birthdate: faker.date.past(),
+                          birthdate: faker.date.past(
+                            faker.datatype.number({
+                              min: 10,
+                              max: 50,
+                            })
+                          ),
                           gender: faker.random.arrayElement(["male", "female"]),
                           branch: "",
                         }
@@ -87,14 +92,14 @@ const Form = ({
                 minHeight: 280,
               }}
             >
-              {values.staffs.map((s, index) => {
-                const valueArr = values.staffs[index];
-                const touchedArr = touched.staffs?.[index];
-                const errorsArr = errors.staffs?.[index];
+              {values.doctors.map((s, index) => {
+                const valueArr = values.doctors[index];
+                const touchedArr = touched.doctors?.[index];
+                const errorsArr = errors.doctors?.[index];
 
                 const getError = (field) =>
                   touchedArr?.[field] && errorsArr?.[field];
-                const getFieldName = (field) => `staffs[${index}].${field}`;
+                const getFieldName = (field) => `doctors[${index}].${field}`;
 
                 return (
                   <Card key={index} elevation={isCreate ? 2 : 0}>
@@ -115,7 +120,7 @@ const Form = ({
                             <CloseIcon />
                           </IconButton>
                         }
-                        title={`Staff ${index + 1}`}
+                        title={`Doctor ${index + 1}`}
                       />
                     )}
                     <CardContent>
@@ -252,7 +257,7 @@ const Form = ({
                             error={getError("email")}
                           />
                         </Grid>
-                        <Grid item xs={12}>
+                        {/* <Grid item xs={12}>
                           <Select
                             value={valueArr.branch}
                             label="Branch"
@@ -272,7 +277,7 @@ const Form = ({
                               </MenuItem>
                             ))}
                           </Select>
-                        </Grid>
+                        </Grid> */}
                       </Grid>
                     </CardContent>
                   </Card>

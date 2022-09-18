@@ -23,7 +23,14 @@ import {
   updateBranchReq,
 } from "./branches";
 import { auth, db } from "./config";
-import { diagnosePatientReq, getBranchDoctorsReq } from "./doctor";
+import {
+  addDoctorReq,
+  deleteDoctorReq,
+  diagnosePatientReq,
+  getBranchDoctorsReq,
+  getDoctorsReq,
+  updateDoctorReq,
+} from "./doctor";
 import { getPatientRecordReq } from "./medicalRecords";
 import {
   MEMBER_STATUS,
@@ -87,8 +94,12 @@ export {
   updateFamilyMembersReq,
   getMemberForApprovalReq,
   // doctor
+  addDoctorReq,
+  deleteDoctorReq,
   diagnosePatientReq,
   getBranchDoctorsReq,
+  getDoctorsReq,
+  updateDoctorReq,
   // patient
   MEMBER_STATUS,
   addPatientReq,

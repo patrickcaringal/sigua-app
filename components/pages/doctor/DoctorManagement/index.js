@@ -21,11 +21,11 @@ import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
 import {
-  addStaffReq,
-  deleteStaffReq,
+  addDoctorReq,
+  deleteDoctorReq,
   getBranchesReq,
-  getStaffsReq,
-  updateStaffReq,
+  getDoctorsReq,
+  updateDoctorReq,
 } from "../../../../modules/firebase";
 import {
   formatTimeStamp,
@@ -35,7 +35,7 @@ import {
 } from "../../../../modules/helper";
 import { PATHS, confirmMessage, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
-import ManageStaffModal from "./ManageStaffModal";
+import ManageDoctorModal from "./ManageDoctorModal";
 import TableCells from "./TableCells";
 
 const defaultModal = {
@@ -43,33 +43,33 @@ const defaultModal = {
   data: {},
 };
 
-const StaffsPage = () => {
+const DoctorsPage = () => {
   const router = useRouter();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   // Requests
-  const [getStaffs] = useRequest(getStaffsReq, setBackdropLoader);
+  const [getDoctors] = useRequest(getDoctorsReq, setBackdropLoader);
   const [getBranches] = useRequest(getBranchesReq, setBackdropLoader);
-  const [addStaff] = useRequest(addStaffReq, setBackdropLoader);
-  const [updateStaff] = useRequest(updateStaffReq, setBackdropLoader);
-  const [deleteStaff] = useRequest(deleteStaffReq, setBackdropLoader);
+  const [addDoctor] = useRequest(addDoctorReq, setBackdropLoader);
+  const [updateDoctor] = useRequest(updateDoctorReq, setBackdropLoader);
+  const [deleteDoctor] = useRequest(deleteDoctorReq, setBackdropLoader);
 
   // Local States
-  const [staffs, setStaffs] = useState([]);
-  const [staffModal, setStaffModal] = useState(defaultModal);
+  const [doctors, setDoctors] = useState([]);
+  const [doctorModal, setDoctorModal] = useState(defaultModal);
   const [branches, setBranches] = useState([]);
   const [branchesMap, setBranchesMap] = useState({});
 
   useEffect(() => {
-    const fetchStaffs = async () => {
+    const fetchDoctors = async () => {
       // Get Staffs
-      const { data: staffList, error: getStaffsError } = await getStaffs({
+      const { data, error: getError } = await getDoctors({
         mapBranch: false,
       });
-      if (getStaffsError) return openErrorDialog(getStaffsError);
+      if (getError) return openErrorDialog(getError);
 
-      setStaffs(staffList);
+      setDoctors(data);
     };
 
     const fetchBranches = async () => {
@@ -89,89 +89,89 @@ const StaffsPage = () => {
       setBranchesMap(branchMap);
     };
 
-    fetchStaffs();
-    fetchBranches();
+    fetchDoctors();
+    // fetchBranches();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleStaffModalOpen = () => {
-    setStaffModal({
+  const handleDoctorModalOpen = () => {
+    setDoctorModal({
       open: true,
       data: null,
     });
   };
 
-  const handleAddStaff = async (docs) => {
+  const handleAddDoctor = async (docs) => {
     docs = docs.map((i) => ({
       ...i,
       ...personBuiltInFields(i),
     }));
 
     // Add
-    const { data: newDocs, error: addError } = await addStaff({
+    const { data: newDocs, error: addError } = await addDoctor({
       docs,
     });
     if (addError) return openErrorDialog(addError);
 
     // Successful
-    setStaffs((prev) => [...prev, ...newDocs]);
+    setDoctors((prev) => [...prev, ...newDocs]);
     openResponseDialog({
       autoClose: true,
       content: successMessage({
-        noun: pluralize("Staff", newDocs.length),
+        noun: pluralize("Doctor", newDocs.length),
         verb: "added",
       }),
       type: "SUCCESS",
       closeCb() {
-        setStaffModal(defaultModal);
+        setDoctorModal(defaultModal);
       },
     });
   };
 
-  const handleEditStaff = async (updatedDocs) => {
-    const updatedStaff = {
+  const handleEditDoctor = async (updatedDocs) => {
+    const updatedDoctor = {
       ...updatedDocs[0],
       ...personBuiltInFields(updatedDocs[0]),
     };
-    const staffCopy = [...staffs];
+    const doctorCopy = [...doctors];
     const { latestDocs, updates } = localUpdateDocs({
-      updatedDoc: updatedStaff,
-      oldDocs: staffCopy,
+      updatedDoc: updatedDoctor,
+      oldDocs: doctorCopy,
     });
 
     // TODO: change email
     // const isEmailUpdated = !lodash.isEqual(
-    //   staffs[index].email,
-    //   updatedStaff.email
+    //   doctors[index].email,
+    //   updatedDoctor.email
     // );
 
     // Update
-    const { error: updateError } = await updateStaff({
-      staff: updates,
+    const { error: updateError } = await updateDoctor({
+      doctor: updates,
     });
     if (updateError) return openErrorDialog(updateError);
 
     // Success
-    setStaffs(latestDocs);
+    setDoctors(latestDocs);
     openResponseDialog({
       autoClose: true,
-      content: successMessage({ noun: "Staff", verb: "updated" }),
+      content: successMessage({ noun: "Doctor", verb: "updated" }),
       type: "SUCCESS",
       closeCb() {
-        setStaffModal(defaultModal);
+        setDoctorModal(defaultModal);
       },
     });
   };
 
-  const handleDeleteConfirm = (staff) => {
+  const handleDeleteConfirm = (doctor) => {
     openResponseDialog({
-      content: confirmMessage({ noun: "Staff", item: staff.name }),
+      content: confirmMessage({ noun: "Doctor", item: doctor.name }),
       type: "CONFIRM",
       actions: (
         <Button
           variant="outlined"
           color="error"
-          onClick={() => handleDelete(staff)}
+          onClick={() => handleDelete(doctor)}
           size="small"
         >
           delete
@@ -180,26 +180,26 @@ const StaffsPage = () => {
     });
   };
 
-  const handleDelete = async (staff) => {
+  const handleDelete = async (doctor) => {
     // Delete
-    const { error: deleteError } = await deleteStaff({ staff });
+    const { error: deleteError } = await deleteDoctor({ doctor });
     if (deleteError) return openErrorDialog(deleteError);
 
     // Success
-    setStaffs((prev) => prev.filter((i) => i.id !== staff.id));
+    setDoctors((prev) => prev.filter((i) => i.id !== doctor.id));
     openResponseDialog({
       autoClose: true,
-      content: successMessage({ noun: "Staff", verb: "deleted" }),
+      content: successMessage({ noun: "Doctor", verb: "deleted" }),
       type: "SUCCESS",
     });
   };
 
-  const handleStaffModalClose = () => {
-    setStaffModal(defaultModal);
+  const handleDoctorModalClose = () => {
+    setDoctorModal(defaultModal);
   };
 
   const handleEditModalOpen = (staff) => {
-    setStaffModal({
+    setDoctorModal({
       open: true,
       data: staff,
     });
@@ -213,7 +213,7 @@ const StaffsPage = () => {
     <AdminMainContainer
       toolbarProps={{
         onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
-        paths: [{ text: "Staffs" }],
+        paths: [{ text: "Doctors" }],
       }}
       toolbarContent={
         <>
@@ -222,17 +222,16 @@ const StaffsPage = () => {
             size="small"
             onClick={handleRestoreRedirect}
             startIcon={<RestoreIcon />}
-            sx={{ mr: 2 }}
           >
             restore
           </Button>
           <Button
             variant="contained"
             size="small"
-            onClick={handleStaffModalOpen}
+            onClick={handleDoctorModalOpen}
             startIcon={<AddCircleIcon />}
           >
-            add staff
+            add doctor
           </Button>
         </>
       }
@@ -260,7 +259,7 @@ const StaffsPage = () => {
           </TableHead>
 
           <TableBody>
-            {staffs.map((i) => {
+            {doctors.map((i) => {
               const { id, branch, birthdate } = i;
               const data = {
                 ...i,
@@ -296,17 +295,17 @@ const StaffsPage = () => {
         </Table>
       </TableContainer>
 
-      {staffModal.open && (
-        <ManageStaffModal
+      {doctorModal.open && (
+        <ManageDoctorModal
           branches={branches}
-          open={staffModal.open}
-          data={staffModal.data}
-          onClose={handleStaffModalClose}
-          onSave={!staffModal.data ? handleAddStaff : handleEditStaff}
+          open={doctorModal.open}
+          data={doctorModal.data}
+          onClose={handleDoctorModalClose}
+          onSave={!doctorModal.data ? handleAddDoctor : handleEditDoctor}
         />
       )}
     </AdminMainContainer>
   );
 };
 
-export default StaffsPage;
+export default DoctorsPage;

@@ -56,6 +56,11 @@ const LeftSidebar = () => {
         },
         { text: "Divider" },
         {
+          text: "Doctors",
+          icon: <AssignmentIndIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.DOCTOR_MANAGEMENT),
+        },
+        {
           text: "Staffs",
           icon: <AssignmentIndIcon />,
           onClick: () => router.push(PATHS.DOCTOR.STAFF_MANAGEMENT),
