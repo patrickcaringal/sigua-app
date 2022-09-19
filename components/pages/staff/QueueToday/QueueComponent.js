@@ -18,9 +18,11 @@ const QueueList = ({
   title,
   queueKey,
   queue = [],
+  displayMoveButton = true,
   onTransferClick,
   enableFirstItemOnly = false,
   placeholderText = "None",
+  maxHeight = "calc((100vh - 348px) / 2)",
 }) => {
   return (
     <Box
@@ -74,7 +76,7 @@ const QueueList = ({
       <List
         sx={{
           overflow: "overlay",
-          maxHeight: "calc((100vh - 348px) / 2)",
+          maxHeight,
         }}
         dense
         disablePadding
@@ -89,15 +91,17 @@ const QueueList = ({
                 key={queueNo}
                 alignItems="flex-start"
                 secondaryAction={
-                  <IconButton
-                    edge="end"
-                    onClick={() =>
-                      onTransferClick({ patient: i, from: queueKey })
-                    }
-                    disabled={moveDisabled}
-                  >
-                    <ArrowRightIcon />
-                  </IconButton>
+                  displayMoveButton ? (
+                    <IconButton
+                      edge="end"
+                      onClick={() =>
+                        onTransferClick({ patient: i, from: queueKey })
+                      }
+                      disabled={moveDisabled}
+                    >
+                      <ArrowRightIcon />
+                    </IconButton>
+                  ) : null
                 }
               >
                 <ListItemAvatar sx={{ minWidth: 48 }}>

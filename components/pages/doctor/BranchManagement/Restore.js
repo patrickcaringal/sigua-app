@@ -130,8 +130,8 @@ const BranchesRestorePage = () => {
               {[
                 { text: "Branch", sx: { width: 200 } },
                 { text: "Services" },
-                { text: "Address", sx: { width: 400 } },
                 { text: "Capacity", align: "center", sx: { width: 110 } },
+                { text: "Address", sx: { width: 400 } },
               ].map(({ text, align, sx }) => (
                 <TableCell
                   key={text}

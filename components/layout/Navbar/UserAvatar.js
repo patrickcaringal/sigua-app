@@ -17,6 +17,7 @@ import { getInitials } from "../../../modules/helper";
 
 const ROLE_TEXTS = {
   superadmin: "Doctor",
+  doctor: "Doctor",
   staff: "Staff",
   patient: "Patient",
 };

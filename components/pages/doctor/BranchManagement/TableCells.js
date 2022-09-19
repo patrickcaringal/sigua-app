@@ -2,6 +2,8 @@ import React from "react";
 
 import { Box, Chip, TableCell, Typography } from "@mui/material";
 
+import { LongTypography } from "../../../../components/common";
+
 const TableCells = ({ data }) => {
   const { id, name, address, capacity, services } = data;
 
@@ -22,21 +24,11 @@ const TableCells = ({ data }) => {
           ))}
         </Box>
       </TableCell>
-      <TableCell>
-        <Typography
-          variant="caption"
-          sx={{
-            display: "-webkit-box",
-            WebkitBoxOrient: "vertical",
-            WebkitLineClamp: "2",
-            overflow: "hidden",
-          }}
-          component="div"
-        >
-          {address}
-        </Typography>
-      </TableCell>
       <TableCell align="center">{capacity}</TableCell>
+
+      <TableCell>
+        <LongTypography text={address} displayedLines={1} />
+      </TableCell>
     </>
   );
 };

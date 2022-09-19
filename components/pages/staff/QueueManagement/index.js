@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from "react";
 
-import AddCircleIcon from "@mui/icons-material/AddCircle";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import RestoreIcon from "@mui/icons-material/Restore";
 import {
   Button,
   IconButton,
@@ -37,7 +33,13 @@ import {
   pluralize,
   today,
 } from "../../../../modules/helper";
-import { PATHS, confirmMessage, successMessage } from "../../../common";
+import {
+  ACTION_BUTTONS,
+  PATHS,
+  confirmMessage,
+  getActionButtons,
+  successMessage,
+} from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import ManageQueueModal from "./QueueModal";
 import TableCells from "./TableCells";
@@ -69,6 +71,13 @@ const QueueManagementPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const handleViewQueueDetail = (id) => {
+    router.push({
+      pathname: PATHS.STAFF.QUEUE_DETAIL,
+      query: { id },
+    });
+  };
+
   return (
     <AdminMainContainer
       toolbarProps={{
@@ -77,40 +86,40 @@ const QueueManagementPage = () => {
       }}
     >
       <TableContainer>
-        <Table>
+        <Table size="small">
           <TableHead>
             <TableRow>
               {[
-                { text: "Date", sx: { width: 120 } },
-                { text: "Day", sx: { width: 100 } },
+                { text: "Date", sx: { width: 140 } },
+                { text: "Day", sx: { width: 140 } },
                 { text: "Doctor" },
                 {
                   text: "Capacity",
-                  sx: { width: 100 },
-                  align: "center",
+                  sx: { width: 200 },
+                  align: "right",
                 },
                 {
                   text: "Registered",
                   sx: { width: 200 },
-                  align: "center",
+                  align: "right",
                 },
                 {
                   text: "Served Patients",
                   sx: { width: 200 },
-                  align: "center",
+                  align: "right",
                 },
                 {
                   text: "No Show Patients",
                   sx: { width: 200 },
-                  align: "center",
+                  align: "right",
                 },
                 // { text: "Status", align: "center", sx: { width: 110 } },
-                // { text: "Actions", align: "center", sx: { width: 110 } },
+                { text: "Actions", sx: { width: 100 }, align: "center" },
               ].map(({ text, align, sx }) => (
                 <TableCell
                   key={text}
                   {...(align && { align })}
-                  {...(sx && { sx: { ...sx, fontWeight: "bold" } })}
+                  {...(sx && { sx: { ...sx, fontWeight: "bold", p: 2 } })}
                 >
                   {text}
                 </TableCell>
@@ -123,20 +132,15 @@ const QueueManagementPage = () => {
               return (
                 <TableRow key={i.id}>
                   <TableCells data={i} />
-                  {/* <TableCell align="center">
-                    <IconButton
-                      size="small"
-                      // onClick={() => handleEditServiceModalOpen(i)}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      // onClick={() => handleDeleteConfirm(i)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell> */}
+                  <TableCell align="center">
+                    {getActionButtons([
+                      {
+                        action: ACTION_BUTTONS.DETAILS_QUEUE,
+                        tooltipText: "Queue Details",
+                        onClick: () => handleViewQueueDetail(i.id),
+                      },
+                    ])}
+                  </TableCell>
                 </TableRow>
               );
             })}

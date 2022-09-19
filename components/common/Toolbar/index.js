@@ -10,8 +10,21 @@ const ToolbarComponent = ({ children, onRootClick, paths = [] }) => {
   };
 
   return (
-    <Toolbar disableGutters>
-      <Box sx={{ flexGrow: 1 }}>
+    <Toolbar
+      disableGutters
+      sx={{
+        display: "flex",
+        flexDirection: { xs: "column", md: "row" },
+      }}
+    >
+      <Box
+        sx={{
+          flexGrow: 1,
+          display: "flex",
+          width: { xs: "100%", md: "unset" },
+          my: { xs: 2, md: 0 },
+        }}
+      >
         <Breadcrumbs aria-label="breadcrumb">
           <Link
             href="#"

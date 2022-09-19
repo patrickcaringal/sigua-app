@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import RestoreIcon from "@mui/icons-material/Restore";
 import {
+  Box,
   Button,
   IconButton,
   Table,
@@ -19,7 +20,7 @@ import { useRouter } from "next/router";
 
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
-import useRequest from "../../../../hooks/useRequest";
+import { useFilter, usePagination, useRequest } from "../../../../hooks";
 import {
   addStaffReq,
   deleteStaffReq,
@@ -33,7 +34,13 @@ import {
   personBuiltInFields,
   pluralize,
 } from "../../../../modules/helper";
-import { PATHS, confirmMessage, successMessage } from "../../../common";
+import {
+  Input,
+  PATHS,
+  Pagination,
+  confirmMessage,
+  successMessage,
+} from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import ManageStaffModal from "./ManageStaffModal";
 import TableCells from "./TableCells";
@@ -60,6 +67,8 @@ const StaffsPage = () => {
   const [staffModal, setStaffModal] = useState(defaultModal);
   const [branches, setBranches] = useState([]);
   const [branchesMap, setBranchesMap] = useState({});
+  const filtering = useFilter({});
+  const pagination = usePagination(filtering.filtered);
 
   useEffect(() => {
     const fetchStaffs = async () => {
@@ -93,6 +102,16 @@ const StaffsPage = () => {
     fetchBranches();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    filtering.setData(staffs);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [staffs]);
+
+  useEffect(() => {
+    pagination.setTotalItems(filtering.filtered.length);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtering.filtered.length]);
 
   const handleStaffModalOpen = () => {
     setStaffModal({
@@ -209,6 +228,19 @@ const StaffsPage = () => {
     router.push(PATHS.DOCTOR.STAFF_RESTORE);
   };
 
+  const handleSearchChange = useCallback(
+    (e) => {
+      pagination.goToPage(0);
+      filtering.onNameChange(e?.target?.value);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [pagination.goToPage, filtering.onNameChange]
+  );
+
+  const handlePageChange = (event, value) => {
+    pagination.goToPage(value - 1);
+  };
+
   return (
     <AdminMainContainer
       toolbarProps={{
@@ -217,12 +249,19 @@ const StaffsPage = () => {
       }}
       toolbarContent={
         <>
+          <Box sx={{ width: 200 }}>
+            <Input
+              debounce
+              label="Search"
+              value={filtering.filters.name}
+              onChange={handleSearchChange}
+            />
+          </Box>
           <Button
             variant="outlined"
             size="small"
             onClick={handleRestoreRedirect}
             startIcon={<RestoreIcon />}
-            sx={{ mr: 2 }}
           >
             restore
           </Button>
@@ -242,9 +281,13 @@ const StaffsPage = () => {
           <TableHead>
             <TableRow>
               {[
-                { text: "Name", sx: { width: 200 } },
-                { text: "Email" },
-                { text: "Address", sx: { width: 400 } },
+                { text: "Name" },
+                { text: "Email", sx: { width: 200 } },
+                { text: "Birthdate", sx: { width: 140 } },
+                { text: "Age", sx: { width: 40 }, align: "center" },
+                { text: "Gender", sx: { width: 100 } },
+                // { text: "Contact No.", sx: { width: 140 } },
+                { text: "Address", sx: { width: 360 } },
                 { text: "Branch", sx: { width: 110 } },
                 { text: "Actions", align: "center", sx: { width: 110 } },
               ].map(({ text, align, sx }) => (
@@ -260,41 +303,44 @@ const StaffsPage = () => {
           </TableHead>
 
           <TableBody>
-            {staffs.map((i) => {
-              const { id, branch, birthdate } = i;
-              const data = {
-                ...i,
-                branchName: branchesMap[branch],
-              };
+            {filtering.filtered
+              .slice(pagination.info.start, pagination.info.end)
+              .map((i) => {
+                const { id, branch, birthdate } = i;
+                const data = {
+                  ...i,
+                  branchName: branchesMap[branch],
+                };
 
-              return (
-                <TableRow key={id}>
-                  <TableCells data={data} />
-                  <TableCell align="center">
-                    <IconButton
-                      size="small"
-                      onClick={() =>
-                        handleEditModalOpen({
-                          ...i,
-                          birthdate: formatTimeStamp(birthdate),
-                        })
-                      }
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleDeleteConfirm(i)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+                return (
+                  <TableRow key={id}>
+                    <TableCells data={data} />
+                    <TableCell align="center">
+                      <IconButton
+                        size="small"
+                        onClick={() =>
+                          handleEditModalOpen({
+                            ...i,
+                            birthdate: formatTimeStamp(birthdate),
+                          })
+                        }
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDeleteConfirm(i)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
           </TableBody>
         </Table>
       </TableContainer>
+      <Pagination pagination={pagination} onChange={handlePageChange} />
 
       {staffModal.open && (
         <ManageStaffModal

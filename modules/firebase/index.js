@@ -23,7 +23,16 @@ import {
   updateBranchReq,
 } from "./branches";
 import { auth, db } from "./config";
-import { diagnosePatientReq, getBranchDoctorsReq } from "./doctor";
+import {
+  addDoctorReq,
+  deleteDoctorReq,
+  diagnosePatientReq,
+  getBranchDoctorsReq,
+  getDeletedDoctorsReq,
+  getDoctorsReq,
+  restoreDoctorReq,
+  updateDoctorReq,
+} from "./doctor";
 import { getPatientRecordReq } from "./medicalRecords";
 import {
   MEMBER_STATUS,
@@ -42,6 +51,7 @@ import {
 import {
   addQueueCounterReq,
   addQueueReq,
+  getQueueReq,
   getQueuesByBranchReq,
   registerToQueueReq,
   resetQueueReq,
@@ -86,8 +96,14 @@ export {
   updateFamilyMembersReq,
   getMemberForApprovalReq,
   // doctor
+  addDoctorReq,
+  deleteDoctorReq,
   diagnosePatientReq,
   getBranchDoctorsReq,
+  getDeletedDoctorsReq,
+  getDoctorsReq,
+  restoreDoctorReq,
+  updateDoctorReq,
   // patient
   MEMBER_STATUS,
   addPatientReq,
@@ -126,6 +142,7 @@ export {
   // queue
   addQueueCounterReq,
   addQueueReq,
+  getQueueReq,
   getQueuesByBranchReq,
   registerToQueueReq,
   resetQueueReq,

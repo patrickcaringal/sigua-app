@@ -36,6 +36,23 @@ export const getQueuesByBranchReq = async ({ id }) => {
   }
 };
 
+export const getQueueReq = async ({ id }) => {
+  try {
+    const q = doc(db, "queues", id);
+    const querySnapshot = await getDoc(q);
+    if (!querySnapshot.exists()) {
+      throw new Error("Unable to get Queue doc");
+    }
+
+    const data = querySnapshot.data();
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
 export const addQueueReq = async ({ docs }) => {
   try {
     const docRef = doc(collRef);

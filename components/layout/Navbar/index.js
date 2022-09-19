@@ -29,6 +29,8 @@ const ResponsiveAppBar = () => {
     manualSetUser,
     isAdmin,
     isStaff,
+    isDoctor,
+    isPatient,
     isLoggedIn,
     isAdminPanel,
   } = useAuth();
@@ -39,37 +41,21 @@ const ResponsiveAppBar = () => {
     setBackdropLoader
   );
 
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
-
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
-
   const handleLogout = async () => {
-    // Sign Out Doctor, Staff
-    if (isAdmin || isStaff) {
-      const { error: signOutError } = await signOutReq();
+    if (isPatient) {
+      // Sign Out Patient
+      const { error: signOutError } = await signOutAnonymously(userSession);
       if (signOutError) return openErrorDialog(signOutError);
       manualSetUser(null);
       return;
     }
 
-    // Sign Out Patient
-    const { error: signOutError } = await signOutAnonymously(userSession);
-    if (signOutError) return openErrorDialog(signOutError);
-    manualSetUser(null);
+    // Sign Out Doctor, Staff
+    if (isAdmin || isStaff || isDoctor) {
+      const { error: signOutError } = await signOutReq();
+      if (signOutError) return openErrorDialog(signOutError);
+      manualSetUser(null);
+    }
   };
 
   return (

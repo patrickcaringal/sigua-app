@@ -6,7 +6,7 @@ import { LongTypography } from "../../../../components/common";
 import { calculateAge, formatTimeStamp } from "../../../../modules/helper";
 
 const TableCells = ({ data }) => {
-  const { id, name, birthdate, gender, email, branch, address, branchName } =
+  const { id, name, birthdate, email, branch, gender, address, branchName } =
     data;
   return (
     <>
@@ -17,10 +17,10 @@ const TableCells = ({ data }) => {
         {calculateAge(formatTimeStamp(birthdate))}
       </TableCell>
       <TableCell sx={{ textTransform: "capitalize" }}>{gender}</TableCell>
+      {/* <TableCell>{contactNo}</TableCell> */}
       <TableCell>
         <LongTypography text={address} displayedLines={1} />
       </TableCell>
-      <TableCell>{branchName}</TableCell>
     </>
   );
 };

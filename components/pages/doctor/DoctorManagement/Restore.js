@@ -18,38 +18,41 @@ import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useRequest, useSelect } from "../../../../hooks";
 import {
-  getDeletedStaffsReq,
-  restoreStaffReq,
+  getDeletedDoctorsReq,
+  restoreDoctorReq,
 } from "../../../../modules/firebase";
 import { arrayStringify, pluralize } from "../../../../modules/helper";
 import { PATHS, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import TableCells from "./TableCells";
 
-const StaffsRestorePage = () => {
+const DoctorRestorePage = () => {
   const router = useRouter();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   // Requests
-  const [getStaffs] = useRequest(getDeletedStaffsReq, setBackdropLoader);
-  const [restoreStaff] = useRequest(restoreStaffReq, setBackdropLoader);
+  const [getDeletedDoctors] = useRequest(
+    getDeletedDoctorsReq,
+    setBackdropLoader
+  );
+  const [restoreDoctor] = useRequest(restoreDoctorReq, setBackdropLoader);
 
   // Local States
-  const [staffs, setStaffs] = useState([]);
+  const [doctors, setDoctors] = useState([]);
   const selected = useSelect("id");
-  const selectedItems = selected.getSelected(staffs);
+  const selectedItems = selected.getSelected(doctors);
 
   useEffect(() => {
-    const fetchStaffs = async () => {
-      // Get Staffs
-      const { data: staffList, error: getStaffsError } = await getStaffs();
-      if (getStaffsError) return openErrorDialog(getStaffsError);
+    const fetchDoctors = async () => {
+      // Get Doctors
+      const { data, error: getError } = await getDeletedDoctors();
+      if (getError) return openErrorDialog(getError);
 
-      setStaffs(staffList);
+      setDoctors(data);
     };
 
-    fetchStaffs();
+    fetchDoctors();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -83,15 +86,15 @@ const StaffsRestorePage = () => {
     const ids = selectedItems.map((i) => i.id);
 
     // Update
-    const { error: restoreError } = await restoreStaff({ docs: items });
+    const { error: restoreError } = await restoreDoctor({ docs: items });
     if (restoreError) return openErrorDialog(restoreError);
 
     // Success
-    setStaffs((prev) => prev.filter((i) => !ids.includes(i.id)));
+    setDoctors((prev) => prev.filter((i) => !ids.includes(i.id)));
     openResponseDialog({
       autoClose: true,
       content: successMessage({
-        noun: pluralize("Staff", items.length),
+        noun: pluralize("Doctor", items.length),
         verb: "restored",
       }),
       type: "SUCCESS",
@@ -104,8 +107,8 @@ const StaffsRestorePage = () => {
         onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
         paths: [
           {
-            text: "Staffs",
-            onClick: () => router.push(PATHS.DOCTOR.STAFF_MANAGEMENT),
+            text: "Doctors",
+            onClick: () => router.push(PATHS.DOCTOR.DOCTOR_MANAGEMENT),
           },
           { text: "Restore" },
         ],
@@ -134,8 +137,8 @@ const StaffsRestorePage = () => {
                 { text: "Age", sx: { width: 40 }, align: "center" },
                 { text: "Gender", sx: { width: 100 } },
                 // { text: "Contact No.", sx: { width: 140 } },
-                { text: "Address", sx: { width: 360 } },
-                { text: "Branch", sx: { width: 110 } },
+                { text: "Address", sx: { width: 400 } },
+                // { text: "Branch", sx: { width: 110 } },
               ].map(({ text, align, sx }) => (
                 <TableCell
                   key={text}
@@ -149,7 +152,7 @@ const StaffsRestorePage = () => {
           </TableHead>
 
           <TableBody>
-            {staffs.map((i) => {
+            {doctors.map((i) => {
               const { id } = i;
               const isItemSelected = selected.isItemSelected(id);
 
@@ -175,4 +178,4 @@ const StaffsRestorePage = () => {
   );
 };
 
-export default StaffsRestorePage;
+export default DoctorRestorePage;

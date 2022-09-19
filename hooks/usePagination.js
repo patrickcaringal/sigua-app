@@ -37,14 +37,17 @@ const usePagination = (pageQuery, initialPageSize = 10, initialPage = 0) => {
     [activePage, goToPage]
   );
 
-  return {
-    setTotalItems,
-    pages,
-    info: pageInfo,
-    nextPage,
-    prevPage,
-    goToPage,
-  };
+  return useMemo(
+    () => ({
+      setTotalItems,
+      pages,
+      info: pageInfo,
+      nextPage,
+      prevPage,
+      goToPage,
+    }),
+    [goToPage, nextPage, prevPage, pageInfo, pages]
+  );
 };
 
 export default usePagination;

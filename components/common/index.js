@@ -2,6 +2,8 @@ import { ACTION_BUTTONS, ACTION_ICONS, getActionButtons } from "./ActionButton";
 import Datalist from "./Datalist";
 import { DatePicker, Input, Select } from "./Form";
 import Modal from "./Modal";
+import Pagination from "./Pagination";
+import Placeholder from "./Placeholder";
 import {
   ResponseDialog,
   associationMessage,
@@ -43,4 +45,8 @@ export {
   ACTION_BUTTONS,
   ACTION_ICONS,
   getActionButtons,
+  // Pagination
+  Pagination,
+  // Placeholder
+  Placeholder,
 };

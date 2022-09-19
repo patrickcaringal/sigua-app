@@ -19,7 +19,7 @@ const Placeholder = () => {
         variant="h4"
         gutterBottom
         color="text.secondary"
-        sx={{ fontWeight: "bold" }}
+        sx={{ fontWeight: "bold", textAlign: "center" }}
       >
         Queue is not yet available
       </Typography>

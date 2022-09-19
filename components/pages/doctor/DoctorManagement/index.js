@@ -22,13 +22,18 @@ import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useFilter, usePagination, useRequest } from "../../../../hooks";
 import {
-  addBranchReq,
-  deleteBranchReq,
+  addDoctorReq,
+  deleteDoctorReq,
   getBranchesReq,
-  getServicesReq,
-  updateBranchReq,
+  getDoctorsReq,
+  updateDoctorReq,
 } from "../../../../modules/firebase";
-import { localUpdateDocs, pluralize } from "../../../../modules/helper";
+import {
+  formatTimeStamp,
+  localUpdateDocs,
+  personBuiltInFields,
+  pluralize,
+} from "../../../../modules/helper";
 import {
   Input,
   PATHS,
@@ -37,7 +42,7 @@ import {
   successMessage,
 } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
-import ManageBranchModal from "./ManageBranchModal";
+import ManageDoctorModal from "./ManageDoctorModal";
 import TableCells from "./TableCells";
 
 const defaultModal = {
@@ -45,126 +50,147 @@ const defaultModal = {
   data: {},
 };
 
-const BranchManagementPage = () => {
+const DoctorsPage = () => {
   const router = useRouter();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   // Requests
-  const [getServices] = useRequest(getServicesReq, setBackdropLoader);
+  const [getDoctors] = useRequest(getDoctorsReq, setBackdropLoader);
   const [getBranches] = useRequest(getBranchesReq, setBackdropLoader);
-  const [addBranch] = useRequest(addBranchReq, setBackdropLoader);
-  const [updateBranch] = useRequest(updateBranchReq, setBackdropLoader);
-  const [deleteBranch] = useRequest(deleteBranchReq, setBackdropLoader);
+  const [addDoctor] = useRequest(addDoctorReq, setBackdropLoader);
+  const [updateDoctor] = useRequest(updateDoctorReq, setBackdropLoader);
+  const [deleteDoctor] = useRequest(deleteDoctorReq, setBackdropLoader);
 
   // Local States
-  const [services, setServices] = useState([]);
-  const [servicesMap, setServicesMap] = useState({});
+  const [doctors, setDoctors] = useState([]);
+  const [doctorModal, setDoctorModal] = useState(defaultModal);
   const [branches, setBranches] = useState([]);
-  const [branchModal, setBranchModal] = useState(defaultModal);
+  const [branchesMap, setBranchesMap] = useState({});
   const filtering = useFilter({});
   const pagination = usePagination(filtering.filtered);
 
   useEffect(() => {
-    const fetchServices = async () => {
-      // Get Services
-      const {
-        data: serviceList,
-        map: serviceMap,
-        error: getServiceError,
-      } = await getServices();
-      if (getServiceError) return openErrorDialog(getServiceError);
+    const fetchDoctors = async () => {
+      // Get Doctors
+      const { data, error: getError } = await getDoctors({
+        mapBranch: false,
+      });
+      if (getError) return openErrorDialog(getError);
 
-      setServices(
-        serviceList.map((i) => ({
-          ...lodash.pick(i, ["name", "id"]),
-        }))
-      );
-      setServicesMap(serviceMap);
+      setDoctors(data);
     };
 
     const fetchBranches = async () => {
       // Get Branches
-      const { data: branchList, error: getBranchError } = await getBranches({
-        mapService: false,
-      });
+      const {
+        data: branchList,
+        map: branchMap,
+        error: getBranchError,
+      } = await getBranches({ mapService: false });
       if (getBranchError) return openErrorDialog(getBranchError);
 
-      setBranches(branchList);
+      setBranches(
+        branchList.map((i) => ({
+          ...lodash.pick(i, ["name", "id"]),
+        }))
+      );
+      setBranchesMap(branchMap);
     };
 
-    fetchServices();
-    fetchBranches();
+    fetchDoctors();
+    // fetchBranches();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const handleDoctorModalOpen = () => {
+    setDoctorModal({
+      open: true,
+      data: null,
+    });
+  };
+
   useEffect(() => {
-    filtering.setData(branches);
+    filtering.setData(doctors);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [branches]);
+  }, [doctors]);
 
   useEffect(() => {
     pagination.setTotalItems(filtering.filtered.length);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtering.filtered.length]);
 
-  const handleAddBranch = async (docs) => {
+  const handleAddDoctor = async (docs) => {
+    docs = docs.map((i) => ({
+      ...i,
+      ...personBuiltInFields(i),
+    }));
+
     // Add
-    const { data: newDocs, error: addError } = await addBranch({
+    const { data: newDocs, error: addError } = await addDoctor({
       docs,
     });
     if (addError) return openErrorDialog(addError);
 
     // Successful
-    setBranches((prev) => [...prev, ...newDocs]);
+    setDoctors((prev) => [...prev, ...newDocs]);
     openResponseDialog({
       autoClose: true,
       content: successMessage({
-        noun: pluralize("Branch", newDocs.length, "es"),
+        noun: pluralize("Doctor", newDocs.length),
         verb: "added",
       }),
       type: "SUCCESS",
       closeCb() {
-        setBranchModal(defaultModal);
+        setDoctorModal(defaultModal);
       },
     });
   };
 
-  const handleEditBranch = async (updatedDocs) => {
-    const updatedBranch = updatedDocs[0];
-    const branchCopy = [...branches];
+  const handleEditDoctor = async (updatedDocs) => {
+    const updatedDoctor = {
+      ...updatedDocs[0],
+      ...personBuiltInFields(updatedDocs[0]),
+    };
+    const doctorCopy = [...doctors];
     const { latestDocs, updates } = localUpdateDocs({
-      updatedDoc: updatedBranch,
-      oldDocs: branchCopy,
+      updatedDoc: updatedDoctor,
+      oldDocs: doctorCopy,
     });
 
+    // TODO: change email
+    // const isEmailUpdated = !lodash.isEqual(
+    //   doctors[index].email,
+    //   updatedDoctor.email
+    // );
+
     // Update
-    const { error: updateError } = await updateBranch({
-      branch: updates,
+    const { error: updateError } = await updateDoctor({
+      doctor: updates,
     });
     if (updateError) return openErrorDialog(updateError);
 
     // Success
-    setBranches(latestDocs);
+    setDoctors(latestDocs);
     openResponseDialog({
       autoClose: true,
-      content: successMessage({ noun: "Branch", verb: "updated" }),
+      content: successMessage({ noun: "Doctor", verb: "updated" }),
       type: "SUCCESS",
       closeCb() {
-        setBranchModal(defaultModal);
+        setDoctorModal(defaultModal);
       },
     });
   };
 
-  const handleDeleteConfirm = (branch) => {
+  const handleDeleteConfirm = (doctor) => {
     openResponseDialog({
-      content: confirmMessage({ noun: "Branch", item: branch.name }),
+      content: confirmMessage({ noun: "Doctor", item: doctor.name }),
       type: "CONFIRM",
       actions: (
         <Button
           variant="outlined"
           color="error"
-          onClick={() => handleDelete(branch)}
+          onClick={() => handleDelete(doctor)}
           size="small"
         >
           delete
@@ -173,40 +199,33 @@ const BranchManagementPage = () => {
     });
   };
 
-  const handleDelete = async (branch) => {
+  const handleDelete = async (doctor) => {
     // Delete
-    const { error: deleteError } = await deleteBranch({ branch });
+    const { error: deleteError } = await deleteDoctor({ doctor });
     if (deleteError) return openErrorDialog(deleteError);
 
     // Success
-    setBranches((prev) => prev.filter((i) => i.id !== branch.id));
+    setDoctors((prev) => prev.filter((i) => i.id !== doctor.id));
     openResponseDialog({
       autoClose: true,
-      content: successMessage({ noun: "Branch", verb: "deleted" }),
+      content: successMessage({ noun: "Doctor", verb: "deleted" }),
       type: "SUCCESS",
     });
   };
 
-  const handleAddBranchModalOpen = () => {
-    setBranchModal({
-      open: true,
-      data: null,
-    });
+  const handleDoctorModalClose = () => {
+    setDoctorModal(defaultModal);
   };
 
-  const handleBranchModalClose = () => {
-    setBranchModal(defaultModal);
-  };
-
-  const handleEditBranchModalOpen = (branch) => {
-    setBranchModal({
+  const handleEditModalOpen = (doctor) => {
+    setDoctorModal({
       open: true,
-      data: branch,
+      data: doctor,
     });
   };
 
   const handleRestoreRedirect = () => {
-    router.push(PATHS.DOCTOR.BRANCH_RESTORE);
+    router.push(PATHS.DOCTOR.DOCTOR_RESTORE);
   };
 
   const handleSearchChange = useCallback(
@@ -226,7 +245,7 @@ const BranchManagementPage = () => {
     <AdminMainContainer
       toolbarProps={{
         onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
-        paths: [{ text: "Branches" }],
+        paths: [{ text: "Doctors" }],
       }}
       toolbarContent={
         <>
@@ -249,10 +268,10 @@ const BranchManagementPage = () => {
           <Button
             variant="contained"
             size="small"
-            onClick={handleAddBranchModalOpen}
+            onClick={handleDoctorModalOpen}
             startIcon={<AddCircleIcon />}
           >
-            add branch
+            add doctor
           </Button>
         </>
       }
@@ -262,11 +281,14 @@ const BranchManagementPage = () => {
           <TableHead>
             <TableRow>
               {[
-                { text: "Branch", sx: { width: 200 } },
-                { text: "Services" },
-                { text: "Capacity", align: "center", sx: { width: 110 } },
+                { text: "Name" },
+                { text: "Email", sx: { width: 200 } },
+                { text: "Birthdate", sx: { width: 140 } },
+                { text: "Age", sx: { width: 40 }, align: "center" },
+                { text: "Gender", sx: { width: 100 } },
+                // { text: "Contact No.", sx: { width: 140 } },
                 { text: "Address", sx: { width: 400 } },
-                { text: "Actions", align: "center", sx: { width: 110 } },
+                { text: "Actions", sx: { width: 100 } },
               ].map(({ text, align, sx }) => (
                 <TableCell
                   key={text}
@@ -283,17 +305,24 @@ const BranchManagementPage = () => {
             {filtering.filtered
               .slice(pagination.info.start, pagination.info.end)
               .map((i) => {
+                const { id, branch, birthdate } = i;
                 const data = {
                   ...i,
-                  services: i.servicesId.map((s) => servicesMap[s]),
+                  branchName: branchesMap[branch],
                 };
+
                 return (
-                  <TableRow key={i.id}>
+                  <TableRow key={id}>
                     <TableCells data={data} />
                     <TableCell align="center">
                       <IconButton
                         size="small"
-                        onClick={() => handleEditBranchModalOpen(data)}
+                        onClick={() =>
+                          handleEditModalOpen({
+                            ...i,
+                            birthdate: formatTimeStamp(birthdate),
+                          })
+                        }
                       >
                         <EditIcon />
                       </IconButton>
@@ -312,17 +341,17 @@ const BranchManagementPage = () => {
       </TableContainer>
       <Pagination pagination={pagination} onChange={handlePageChange} />
 
-      {branchModal.open && (
-        <ManageBranchModal
-          services={services}
-          open={branchModal.open}
-          data={branchModal.data}
-          onClose={handleBranchModalClose}
-          onSave={!branchModal.data ? handleAddBranch : handleEditBranch}
+      {doctorModal.open && (
+        <ManageDoctorModal
+          branches={branches}
+          open={doctorModal.open}
+          data={doctorModal.data}
+          onClose={handleDoctorModalClose}
+          onSave={!doctorModal.data ? handleAddDoctor : handleEditDoctor}
         />
       )}
     </AdminMainContainer>
   );
 };
 
-export default BranchManagementPage;
+export default DoctorsPage;
