@@ -36,6 +36,29 @@ export const getQueuesByBranchReq = async ({ id }) => {
   }
 };
 
+export const getQueuesByBranchDateRangeReq = async ({ id, start, end }) => {
+  try {
+    // let start = new Date("2022-09-01");
+    // let end = new Date("2022-09-13");
+
+    const q = query(
+      collRef,
+      where("branchId", "==", id),
+      where("dateCreated", ">=", start),
+      where("dateCreated", "<=", end)
+    );
+    const querySnapshot = await getDocs(q);
+    const data = querySnapshot.docs
+      .map((doc) => ({ ...doc.data() }))
+      .sort(sortBy("date", "desc"));
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
 export const getQueueReq = async ({ id }) => {
   try {
     const q = doc(db, "queues", id);
