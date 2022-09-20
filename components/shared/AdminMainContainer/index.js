@@ -13,7 +13,14 @@ const AdminMainContainer = ({ children, toolbarProps, toolbarContent }) => {
       }}
     >
       <Toolbar {...toolbarProps}>
-        <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 2,
+            alignItems: "center",
+          }}
+        >
           {toolbarContent}
         </Box>
       </Toolbar>
