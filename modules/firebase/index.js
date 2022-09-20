@@ -33,7 +33,10 @@ import {
   restoreDoctorReq,
   updateDoctorReq,
 } from "./doctor";
-import { getPatientRecordReq } from "./medicalRecords";
+import {
+  getPatientRecordReq,
+  getRecordsByBranchDateRangeReq,
+} from "./medicalRecords";
 import {
   MEMBER_STATUS,
   addPatientReq,
@@ -155,6 +158,7 @@ export {
   updateQueueStatusReq,
   // medical records
   getPatientRecordReq,
+  getRecordsByBranchDateRangeReq,
   // storage
   uploadImageReq,
   deleteImageReq,

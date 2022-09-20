@@ -11,6 +11,7 @@ import {
   Tooltip,
 } from "chart.js";
 import faker from "faker";
+import lodash from "lodash";
 import { Bar } from "react-chartjs-2";
 
 ChartJS.register(
@@ -23,6 +24,14 @@ ChartJS.register(
 );
 
 export const options = {
+  scales: {
+    x: {
+      ticks: {
+        stepSize: 1,
+        beginAtZero: true,
+      },
+    },
+  },
   indexAxis: "y",
   elements: {
     bar: {
@@ -42,21 +51,19 @@ export const options = {
   maintainAspectRatio: false,
 };
 
-const labels = ["Service1", "Service2", "Service3", "Service4", "Service5"];
+const ServiceGraph = ({ data }) => {
+  const graphData = {
+    labels: lodash.keys(data),
+    datasets: [
+      {
+        label: "Services",
+        data: lodash.values(data),
+        borderColor: "rgb(53, 162, 235)",
+        backgroundColor: "rgba(53, 162, 235, 0.5)",
+      },
+    ],
+  };
 
-export const data = {
-  labels,
-  datasets: [
-    {
-      label: "Services",
-      data: labels.map(() => faker.datatype.number({ min: 0, max: 100 })),
-      borderColor: "rgb(53, 162, 235)",
-      backgroundColor: "rgba(53, 162, 235, 0.5)",
-    },
-  ],
-};
-
-const ServiceGraph = () => {
   return (
     <Paper
       sx={{
@@ -69,7 +76,7 @@ const ServiceGraph = () => {
       }}
       elevation={2}
     >
-      <Bar options={options} data={data} />
+      <Bar options={options} data={graphData} />
     </Paper>
   );
 };

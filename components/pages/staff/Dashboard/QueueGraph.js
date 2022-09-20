@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Box, Paper } from "@mui/material";
+import { Paper } from "@mui/material";
 import {
   CategoryScale,
   Chart as ChartJS,
@@ -36,29 +36,36 @@ const options = {
     // },
   },
   maintainAspectRatio: false,
+  scales: {
+    y: {
+      ticks: {
+        stepSize: 1,
+        beginAtZero: true,
+      },
+    },
+  },
 };
 
-const labels = ["January", "February", "March", "April", "May", "June", "July"];
+const QueueGraph = ({ data }) => {
+  const { labels, dataset1, dataset2 } = data;
+  const graphData = {
+    labels,
+    datasets: [
+      {
+        label: "Served Patients",
+        data: dataset1,
+        borderColor: "rgb(53, 162, 235)",
+        backgroundColor: "rgba(53, 162, 235, 0.5)",
+      },
+      {
+        label: "No Show Patients",
+        data: dataset2,
+        borderColor: "rgb(255, 99, 132)",
+        backgroundColor: "rgba(255, 99, 132, 0.5)",
+      },
+    ],
+  };
 
-const data = {
-  labels,
-  datasets: [
-    {
-      label: "Served Patients",
-      data: labels.map(() => faker.datatype.number({ min: 0, max: 100 })),
-      borderColor: "rgb(53, 162, 235)",
-      backgroundColor: "rgba(53, 162, 235, 0.5)",
-    },
-    {
-      label: "No Show Patients",
-      data: labels.map(() => faker.datatype.number({ min: 0, max: 100 })),
-      borderColor: "rgb(255, 99, 132)",
-      backgroundColor: "rgba(255, 99, 132, 0.5)",
-    },
-  ],
-};
-
-const QueueGraph = () => {
   return (
     <Paper
       sx={{
@@ -71,7 +78,7 @@ const QueueGraph = () => {
       }}
       elevation={2}
     >
-      <Line options={options} data={data} />
+      <Line options={options} data={graphData} />
     </Paper>
   );
 };
