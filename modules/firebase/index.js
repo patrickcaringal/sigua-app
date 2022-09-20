@@ -3,6 +3,7 @@ import {
   checkAccountCredentialReq,
   checkAccountDuplicateReq,
   createAccountReq,
+  getAccountsReq,
   getMemberForApprovalReq,
   updateFamilyMembersReq,
 } from "./account";
@@ -96,12 +97,13 @@ export {
   signOutAnonymouslyReq,
   monitorAuthState,
   // account
-  createAccountReq,
-  checkAccountDuplicateReq,
-  checkAccountCredentialReq,
   addFamilyMembersReq,
-  updateFamilyMembersReq,
+  checkAccountCredentialReq,
+  checkAccountDuplicateReq,
+  createAccountReq,
+  getAccountsReq,
   getMemberForApprovalReq,
+  updateFamilyMembersReq,
   // doctor
   addDoctorReq,
   deleteDoctorReq,

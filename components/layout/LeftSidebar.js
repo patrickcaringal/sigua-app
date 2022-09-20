@@ -48,6 +48,7 @@ const LeftSidebar = () => {
           icon: <FactCheckIcon />,
           onClick: () => router.push(PATHS.DOCTOR.PATIENTS_APPROVAL),
         },
+
         { text: "Divider" },
         {
           text: "Diagnose Patient",
@@ -104,6 +105,11 @@ const LeftSidebar = () => {
           text: "Patient Approval",
           icon: <FactCheckIcon />,
           onClick: () => router.push(PATHS.STAFF.MEMBER_APPROVAL),
+        },
+        {
+          text: "Patient Accounts",
+          icon: <PeopleIcon />,
+          onClick: () => router.push(PATHS.STAFF.PATIENT_ACCOUNTS),
         },
         {
           text: "Queue Today",
