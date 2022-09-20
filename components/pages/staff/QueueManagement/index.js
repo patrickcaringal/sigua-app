@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import {
-  Button,
-  IconButton,
   Table,
   TableBody,
   TableCell,
@@ -10,43 +8,26 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
-import lodash from "lodash";
 import { useRouter } from "next/router";
 
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
-import useRequest from "../../../../hooks/useRequest";
-import {
-  addQueueReq,
-  db,
-  deleteServiceReq,
-  getBranchesReq,
-  getQueuesByBranchReq,
-  updateServiceReq,
-} from "../../../../modules/firebase";
-import {
-  formatFirebasetimeStamp,
-  formatTimeStamp,
-  localUpdateDocs,
-  pluralize,
-  today,
-} from "../../../../modules/helper";
+import { useFilter, usePagination, useRequest } from "../../../../hooks";
+import { getQueuesByBranchReq } from "../../../../modules/firebase";
 import {
   ACTION_BUTTONS,
+  Input,
   PATHS,
-  confirmMessage,
+  Pagination,
   getActionButtons,
-  successMessage,
 } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
-import ManageQueueModal from "./QueueModal";
 import TableCells from "./TableCells";
 
 const QueueManagementPage = () => {
   const router = useRouter();
-  const { user, isStaff } = useAuth();
+  const { user } = useAuth();
 
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
@@ -56,6 +37,8 @@ const QueueManagementPage = () => {
 
   // Local States
   const [queues, setQueues] = useState([]);
+  const filtering = useFilter({});
+  const pagination = usePagination(filtering.filtered);
 
   useEffect(() => {
     const fetchQueues = async () => {
@@ -65,11 +48,17 @@ const QueueManagementPage = () => {
       if (getError) return openErrorDialog(getError);
 
       setQueues(queueList);
+      filtering.setData(queueList);
     };
 
     fetchQueues();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    pagination.setTotalItems(filtering.filtered.length);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtering.filtered.length]);
 
   const handleViewQueueDetail = (id) => {
     router.push({
@@ -78,12 +67,35 @@ const QueueManagementPage = () => {
     });
   };
 
+  const handleSearchChange = useCallback(
+    (e) => {
+      pagination.goToPage(0);
+      filtering.onNameChange(e?.target?.value);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [pagination.goToPage, filtering.onNameChange]
+  );
+
+  const handlePageChange = (event, value) => {
+    pagination.goToPage(value - 1);
+  };
+
   return (
     <AdminMainContainer
       toolbarProps={{
         onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
         paths: [{ text: "Queue" }],
       }}
+      // toolbarContent={
+      //   <Box sx={{ width: 200 }}>
+      //     <Input
+      //       debounce
+      //       label="Search"
+      //       value={filtering.filters.name}
+      //       onChange={handleSearchChange}
+      //     />
+      //   </Box>
+      // }
     >
       <TableContainer>
         <Table size="small">
@@ -128,25 +140,28 @@ const QueueManagementPage = () => {
           </TableHead>
 
           <TableBody>
-            {queues.map((i) => {
-              return (
-                <TableRow key={i.id}>
-                  <TableCells data={i} />
-                  <TableCell align="center">
-                    {getActionButtons([
-                      {
-                        action: ACTION_BUTTONS.DETAILS_QUEUE,
-                        tooltipText: "Queue Details",
-                        onClick: () => handleViewQueueDetail(i.id),
-                      },
-                    ])}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+            {filtering.filtered
+              .slice(pagination.info.start, pagination.info.end)
+              .map((i) => {
+                return (
+                  <TableRow key={i.id}>
+                    <TableCells data={i} />
+                    <TableCell align="center">
+                      {getActionButtons([
+                        {
+                          action: ACTION_BUTTONS.DETAILS_QUEUE,
+                          tooltipText: "Queue Details",
+                          onClick: () => handleViewQueueDetail(i.id),
+                        },
+                      ])}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
           </TableBody>
         </Table>
       </TableContainer>
+      <Pagination pagination={pagination} onChange={handlePageChange} />
     </AdminMainContainer>
   );
 };

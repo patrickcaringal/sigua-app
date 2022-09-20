@@ -61,3 +61,22 @@ export const getRecordsByBranchDateRangeReq = async ({ id, start, end }) => {
     return { error: error.message };
   }
 };
+
+export const getRecordsByDateRangeReq = async ({ start, end }) => {
+  try {
+    const q = query(
+      collRef,
+      where("dateCreated", ">=", start),
+      where("dateCreated", "<=", end)
+    );
+    const querySnapshot = await getDocs(q);
+    const data = querySnapshot.docs
+      .map((doc) => ({ ...doc.data() }))
+      .sort(sortBy("dateCreated", "desc"));
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};

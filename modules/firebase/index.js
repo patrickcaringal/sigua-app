@@ -36,6 +36,7 @@ import {
 import {
   getPatientRecordReq,
   getRecordsByBranchDateRangeReq,
+  getRecordsByDateRangeReq,
 } from "./medicalRecords";
 import {
   MEMBER_STATUS,
@@ -57,6 +58,7 @@ import {
   getQueueReq,
   getQueuesByBranchDateRangeReq,
   getQueuesByBranchReq,
+  getQueuesByDateRangeReq,
   getQueuesTodayReq,
   registerToQueueReq,
   resetQueueReq,
@@ -150,6 +152,7 @@ export {
   getQueueReq,
   getQueuesByBranchDateRangeReq,
   getQueuesByBranchReq,
+  getQueuesByDateRangeReq,
   getQueuesTodayReq,
   registerToQueueReq,
   resetQueueReq,
@@ -159,6 +162,7 @@ export {
   // medical records
   getPatientRecordReq,
   getRecordsByBranchDateRangeReq,
+  getRecordsByDateRangeReq,
   // storage
   uploadImageReq,
   deleteImageReq,
