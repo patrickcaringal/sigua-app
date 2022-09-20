@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import MedicalInformationIcon from "@mui/icons-material/MedicalInformation";
 import { Avatar, Box, Button, Typography } from "@mui/material";
@@ -60,11 +60,15 @@ const QueueManagementPage = () => {
   const [patient, setPatient] = useState({});
   const [medicalRecords, setMedicalRecords] = useState([]);
   const [patientRecordModal, setPatientRecordModal] = useState(defaultModal);
+  const [queueError, setQueueError] = useState(null);
 
   const doctorId = user.id;
-  const hasQueueToday = !!lodash.keys(queueToday).length;
+  // const hasQueueToday = !!lodash.keys(queueToday).length;
   const hasPatient = !!lodash.keys(patient).length;
-  const currentPatient = queueToday?.counters?.[doctorId]?.queue[0];
+  const currentPatient = useMemo(
+    () => queueToday?.counters?.[doctorId]?.queue[0],
+    [doctorId, queueToday?.counters]
+  );
 
   const formik = useFormik({
     initialValues: defaultValues,
@@ -118,18 +122,21 @@ const QueueManagementPage = () => {
     const q = query(
       collection(db, "queues"),
       where("queueDate", "==", today),
+      where("openQueue", "==", true),
       where("doctors", "array-contains", doctorId)
     );
 
     const unsub = onSnapshot(q, (querySnapshot) => {
-      if (querySnapshot.docs.length === 1) {
-        const realtimeData = querySnapshot.docs[0].data();
-        setQueueToday(realtimeData);
-      } else if (querySnapshot.docs.length > 1) {
-        alert("detected more than 1 queue today");
-        setQueueToday({});
+      const realtimeData = querySnapshot?.docs[0]?.data();
+      setQueueToday(realtimeData);
+
+      const qCount = querySnapshot.docs.length;
+      if (qCount > 1) {
+        setQueueError(
+          `Detected ${qCount} overlapping queue containing current Doctor(${realtimeData.branchName} branch will be the priority).`
+        );
       } else {
-        setQueueToday({});
+        setQueueError(null);
       }
     });
 
@@ -164,14 +171,16 @@ const QueueManagementPage = () => {
         setMedicalRecords(data);
       };
 
-      fetchPatient();
-      fetchMedicalRecord();
+      if (!hasPatient) {
+        fetchPatient();
+        fetchMedicalRecord();
+      }
     } else {
       setPatient({});
       setMedicalRecords([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPatient]);
+  }, [currentPatient, patient]);
 
   const handlePatientRecordModalOpen = (data) => {
     setPatientRecordModal({
@@ -191,15 +200,22 @@ const QueueManagementPage = () => {
         paths: [{ text: "Diagnose Patient" }],
       }}
       toolbarContent={
-        <Button
-          variant="contained"
-          size="small"
-          disabled={!hasPatient}
-          onClick={() => formik.submitForm()}
-          startIcon={<MedicalInformationIcon />}
-        >
-          submit diagnosis
-        </Button>
+        <>
+          {queueError && (
+            <Typography variant="caption" color="error" fontWeight={500}>
+              {queueError}
+            </Typography>
+          )}
+          <Button
+            variant="contained"
+            size="small"
+            disabled={!hasPatient}
+            onClick={() => formik.submitForm()}
+            startIcon={<MedicalInformationIcon />}
+          >
+            submit diagnosis
+          </Button>
+        </>
       }
     >
       <Box

@@ -36,6 +36,26 @@ export const getQueuesByBranchReq = async ({ id }) => {
   }
 };
 
+export const getQueuesTodayReq = async ({ today }) => {
+  try {
+    const q = query(
+      collRef,
+      where("queueDate", "==", today),
+      where("openQueue", "==", true)
+    );
+
+    const querySnapshot = await getDocs(q);
+    const data = querySnapshot.docs
+      .map((doc) => ({ ...doc.data() }))
+      .sort(sortBy("date", "desc"));
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
 export const getQueuesByBranchDateRangeReq = async ({ id, start, end }) => {
   try {
     // let start = new Date("2022-09-01");
@@ -204,6 +224,7 @@ export const resetQueueReq = async ({ id }) => {
       counters: {},
       skipped: [],
       done: [],
+      doctors: [],
       nextQueueNo: 1,
     });
 

@@ -40,6 +40,7 @@ import {
   db,
   getBranchDoctorsReq,
   getQueuesByBranchReq,
+  getQueuesTodayReq,
   resetQueueReq,
   updateQueueRegStatusReq,
   updateQueueStatusReq,
@@ -71,9 +72,11 @@ const DoctorsModal = ({
 
   // Requests
   const [getBranchDoctor] = useRequest(getBranchDoctorsReq, setBackdropLoader);
+  const [getQueuesToday] = useRequest(getQueuesTodayReq, setBackdropLoader);
 
   // Local States
   const [doctors, setDoctors] = useState([]);
+  const [unavailableDoctors, setUnavailableDoctors] = useState([]);
 
   useEffect(() => {
     if (open) {
@@ -94,7 +97,24 @@ const DoctorsModal = ({
         setDoctors(mapped);
       };
 
+      const fetchQueuesToday = async () => {
+        // Get Doctors
+        const payload = { today };
+        const { data, error: getError } = await getQueuesToday(payload);
+        if (getError) return openErrorDialog(getError);
+
+        const unavailDoctors = data.reduce((acc, i) => {
+          i.doctors.forEach((d) => {
+            acc.add(d);
+          });
+          return acc;
+        }, new Set());
+
+        setUnavailableDoctors(Array.from(unavailDoctors));
+      };
+
       fetchDoctors();
+      fetchQueuesToday();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -102,7 +122,7 @@ const DoctorsModal = ({
   return (
     <DoctorDialog
       open={open}
-      data={doctors}
+      data={doctors.filter((i) => !unavailableDoctors.includes(i.id))}
       onItemClick={onDoctorSelect}
       onClose={onClose}
     />
