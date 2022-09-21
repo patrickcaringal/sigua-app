@@ -120,6 +120,7 @@ const CreateAccountModal = ({ open = false, onCreate, onClose }) => {
       // Create User Doc
       const payload = {
         ...values,
+        password: "12345678",
         registrationType: REG_TYPE.STAFF_REGISTERED,
       };
       const { data: userInfo, error: createAccError } = await createAccount(
@@ -143,7 +144,6 @@ const CreateAccountModal = ({ open = false, onCreate, onClose }) => {
           handleClose();
         },
       });
-      // manualSetUser(userInfo);
     } else {
       openErrorDialog("Incorrect Verification code");
     }
@@ -305,8 +305,10 @@ const CreateAccountModal = ({ open = false, onCreate, onClose }) => {
                     }}
                   >
                     <InfoIcon fontSize="small" sx={{ mr: 1 }} /> Contact Number
-                    will be used for Signing in
+                    will be used for Signing in. Default password will be
+                    12345678
                   </FormHelperText>
+
                   <Input
                     required
                     label="Contact Number"

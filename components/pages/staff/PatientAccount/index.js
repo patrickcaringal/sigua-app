@@ -22,9 +22,17 @@ import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useFilter, usePagination, useRequest } from "../../../../hooks";
 import { REG_TYPE, getAccountsReq } from "../../../../modules/firebase";
 import { calculateAge, formatTimeStamp } from "../../../../modules/helper";
-import { Input, LongTypography, PATHS, Pagination } from "../../../common";
+import {
+  ACTION_BUTTONS,
+  Input,
+  LongTypography,
+  PATHS,
+  Pagination,
+  getActionButtons,
+} from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import CreateAccountModal from "./CreateAccountModal";
+import FamilyModal from "./FamilyModal";
 
 const defaultModal = {
   open: false,
@@ -42,6 +50,7 @@ const PatientListPage = () => {
 
   // Local States
   const [createAccountModal, setCreateAccountModal] = useState(defaultModal); // Phone Verification Modal
+  const [familyModal, setFamilyModal] = useState(defaultModal); // Family Modal
   const [patients, setPatients] = useState([]);
   const filtering = useFilter({});
   const pagination = usePagination(filtering.filtered);
@@ -69,13 +78,6 @@ const PatientListPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtering.filtered.length]);
 
-  const handleViewMedicalRecord = (id) => {
-    router.push({
-      pathname: PATHS.STAFF.PATIENTS_MEDICAL_RECORD,
-      query: { id },
-    });
-  };
-
   const handleCreate = (newDocs) => {
     setPatients((prev) => [...prev, ...newDocs]);
   };
@@ -89,6 +91,17 @@ const PatientListPage = () => {
 
   const handleAccountModalClose = () => {
     setCreateAccountModal(defaultModal);
+  };
+
+  const handleFamilyModalOpen = (id) => {
+    setFamilyModal({
+      open: true,
+      data: id,
+    });
+  };
+
+  const handleFamilyModalClose = () => {
+    setFamilyModal(defaultModal);
   };
 
   const handleSearchChange = useCallback(
@@ -199,14 +212,21 @@ const PatientListPage = () => {
                     <TableCell align="center">{familyMembers}</TableCell>
 
                     <TableCell align="center">
-                      <Tooltip title="View Medical Records">
+                      {/* <Tooltip title="View Medical Records">
                         <IconButton
                           size="small"
                           // onClick={() => handleViewMedicalRecord(id)}
                         >
                           <AssignmentIcon />
                         </IconButton>
-                      </Tooltip>
+                      </Tooltip> */}
+                      {getActionButtons([
+                        {
+                          action: ACTION_BUTTONS.VIEW_FAMILY_MEMBERS,
+                          tooltipText: "Family Members",
+                          onClick: () => handleFamilyModalOpen(id),
+                        },
+                      ])}
                     </TableCell>
                   </TableRow>
                 );
@@ -221,6 +241,14 @@ const PatientListPage = () => {
           open={createAccountModal.open}
           onClose={handleAccountModalClose}
           onCreate={handleCreate}
+        />
+      )}
+
+      {familyModal.open && (
+        <FamilyModal
+          open={familyModal.open}
+          data={familyModal.data}
+          onClose={handleFamilyModalClose}
         />
       )}
     </AdminMainContainer>

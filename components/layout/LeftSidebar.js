@@ -1,5 +1,6 @@
 import * as React from "react";
 
+import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import GroupIcon from "@mui/icons-material/Group";
@@ -108,7 +109,7 @@ const LeftSidebar = () => {
         },
         {
           text: "Patient Accounts",
-          icon: <PeopleIcon />,
+          icon: <AccountBoxIcon />,
           onClick: () => router.push(PATHS.STAFF.PATIENT_ACCOUNTS),
         },
         {
