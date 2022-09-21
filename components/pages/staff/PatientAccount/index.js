@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 
+import AddCircleIcon from "@mui/icons-material/AddCircle";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import {
   Box,
+  Button,
   IconButton,
   Table,
   TableBody,
@@ -18,13 +20,16 @@ import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useFilter, usePagination, useRequest } from "../../../../hooks";
-import {
-  getAccountsReq,
-  getPatientsByBranchReq,
-} from "../../../../modules/firebase";
+import { REG_TYPE, getAccountsReq } from "../../../../modules/firebase";
 import { calculateAge, formatTimeStamp } from "../../../../modules/helper";
 import { Input, LongTypography, PATHS, Pagination } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
+import CreateAccountModal from "./CreateAccountModal";
+
+const defaultModal = {
+  open: false,
+  data: {},
+};
 
 const PatientListPage = () => {
   const router = useRouter();
@@ -36,6 +41,7 @@ const PatientListPage = () => {
   const [getPatients] = useRequest(getAccountsReq, setBackdropLoader);
 
   // Local States
+  const [createAccountModal, setCreateAccountModal] = useState(defaultModal); // Phone Verification Modal
   const [patients, setPatients] = useState([]);
   const filtering = useFilter({});
   const pagination = usePagination(filtering.filtered);
@@ -47,12 +53,16 @@ const PatientListPage = () => {
       if (getError) return openErrorDialog(getError);
 
       setPatients(data);
-      filtering.setData(data);
     };
 
     fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    filtering.setData(patients);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [patients]);
 
   useEffect(() => {
     pagination.setTotalItems(filtering.filtered.length);
@@ -64,6 +74,21 @@ const PatientListPage = () => {
       pathname: PATHS.STAFF.PATIENTS_MEDICAL_RECORD,
       query: { id },
     });
+  };
+
+  const handleCreate = (newDocs) => {
+    setPatients((prev) => [...prev, ...newDocs]);
+  };
+
+  const handleAccountModalOpen = () => {
+    setCreateAccountModal({
+      open: true,
+      data: {},
+    });
+  };
+
+  const handleAccountModalClose = () => {
+    setCreateAccountModal(defaultModal);
   };
 
   const handleSearchChange = useCallback(
@@ -86,14 +111,24 @@ const PatientListPage = () => {
         paths: [{ text: "Patient Accounts" }],
       }}
       toolbarContent={
-        <Box sx={{ width: 200 }}>
-          <Input
-            debounce
-            label="Search"
-            value={filtering.filters.name}
-            onChange={handleSearchChange}
-          />
-        </Box>
+        <>
+          <Box sx={{ width: 200 }}>
+            <Input
+              debounce
+              label="Search"
+              value={filtering.filters.name}
+              onChange={handleSearchChange}
+            />
+          </Box>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={handleAccountModalOpen}
+            startIcon={<AddCircleIcon />}
+          >
+            create account
+          </Button>
+        </>
       }
     >
       <TableContainer>
@@ -104,6 +139,7 @@ const PatientListPage = () => {
                 { text: "Name" },
                 { text: "Contact No.", sx: { width: 140 } },
                 { text: "Sign Up Date", sx: { width: 150 } },
+                { text: "Registration Type", sx: { width: 150 } },
                 { text: "Family Members", sx: { width: 150 }, align: "center" },
                 // { text: "Birthdate", sx: { width: 140 } },
                 // { text: "Age", sx: { width: 40 }, align: "center" },
@@ -135,6 +171,7 @@ const PatientListPage = () => {
                   address,
                   dateCreated,
                   familyMembers,
+                  registrationType,
                 } = m;
 
                 return (
@@ -156,7 +193,11 @@ const PatientListPage = () => {
                     {/* <TableCell>
                       <LongTypography text={address} displayedLines={1} />
                     </TableCell> */}
+                    <TableCell>
+                      {registrationType || REG_TYPE.SELF_REGISTERED}
+                    </TableCell>
                     <TableCell align="center">{familyMembers}</TableCell>
+
                     <TableCell align="center">
                       <Tooltip title="View Medical Records">
                         <IconButton
@@ -174,6 +215,14 @@ const PatientListPage = () => {
         </Table>
       </TableContainer>
       <Pagination pagination={pagination} onChange={handlePageChange} />
+
+      {createAccountModal.open && (
+        <CreateAccountModal
+          open={createAccountModal.open}
+          onClose={handleAccountModalClose}
+          onCreate={handleCreate}
+        />
+      )}
     </AdminMainContainer>
   );
 };

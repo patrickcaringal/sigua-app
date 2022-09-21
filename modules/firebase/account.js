@@ -43,6 +43,11 @@ export const comparePassword = (password, hashedPassword) => {
   return isMatched;
 };
 
+export const REG_TYPE = {
+  SELF_REGISTERED: "SELF_REGISTERED",
+  STAFF_REGISTERED: "STAFF_REGISTERED",
+};
+
 export const createAccountReq = async (account) => {
   try {
     const batch = writeBatch(db);
@@ -177,8 +182,6 @@ export const getAccountsReq = async () => {
         };
       })
       .sort(sortBy("dateCreated"));
-
-    console.log(data);
 
     return { data, success: true };
   } catch (error) {

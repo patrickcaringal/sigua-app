@@ -1,4 +1,5 @@
 import {
+  REG_TYPE,
   addFamilyMembersReq,
   checkAccountCredentialReq,
   checkAccountDuplicateReq,
@@ -97,6 +98,7 @@ export {
   signOutAnonymouslyReq,
   monitorAuthState,
   // account
+  REG_TYPE,
   addFamilyMembersReq,
   checkAccountCredentialReq,
   checkAccountDuplicateReq,
