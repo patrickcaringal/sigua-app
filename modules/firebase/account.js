@@ -108,13 +108,15 @@ export const createAccountReq = async (account) => {
 
 export const checkAccountDuplicateReq = async ({ contactNo, name }) => {
   try {
-    // Check contactNo duplicate
-    await checkDuplicate({
-      collectionName: "accounts",
-      whereClause: where("contactNo", "==", contactNo),
-      duplicateOutputField: "contactNo",
-      customErrorMsg: "Contact No. already used.",
-    });
+    if (contactNo) {
+      // Check contactNo duplicate
+      await checkDuplicate({
+        collectionName: "accounts",
+        whereClause: where("contactNo", "==", contactNo),
+        duplicateOutputField: "contactNo",
+        customErrorMsg: "Contact No. already used.",
+      });
+    }
 
     // Check patient name duplicate
     await checkDuplicate({

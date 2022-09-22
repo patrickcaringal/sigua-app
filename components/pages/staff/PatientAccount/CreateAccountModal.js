@@ -31,10 +31,10 @@ import { MobileNumberVerificationModal } from "../../../shared";
 
 const defaultValue = isMockDataEnabled
   ? {
-      firstName: faker.name.firstName(),
+      firstName: faker.name.firstName().toUpperCase(),
       suffix: "",
-      lastName: faker.name.lastName(),
-      middleName: faker.name.lastName(),
+      lastName: faker.name.lastName().toUpperCase(),
+      middleName: faker.name.lastName().toUpperCase(),
       email: faker.internet.email(),
       address: faker.lorem.paragraph(1),
       birthdate: faker.date.past(
@@ -83,13 +83,19 @@ const CreateAccountModal = ({ open = false, onCreate, onClose }) => {
     // validationSchema: SignupSchema,
     validateOnChange: false,
     onSubmit: async (values) => {
+      const contactNo = values.contactNo || null;
       // Check Account Duplicate
       const { error: checkAccDupliError } = await checkAccountDuplicate({
-        contactNo: values.contactNo,
+        contactNo,
         name: getUniquePersonId(values),
       });
       if (checkAccDupliError) return openErrorDialog(checkAccDupliError);
-      handlePhoneModalOpen(values);
+
+      if (contactNo) {
+        handlePhoneModalOpen(values);
+      } else {
+        createAccountFn();
+      }
     },
   });
   const {
@@ -110,40 +116,44 @@ const CreateAccountModal = ({ open = false, onCreate, onClose }) => {
     resetForm();
   };
 
+  const createAccountFn = async () => {
+    setBackdropLoader(true);
+
+    // Create User Doc
+    const payload = {
+      ...values,
+      password: "12345678",
+      registrationType: REG_TYPE.STAFF_REGISTERED,
+    };
+    const { data: userInfo, error: createAccError } = await createAccount(
+      payload
+    );
+    if (createAccError) {
+      setBackdropLoader(false);
+      return openErrorDialog(createAccError);
+    }
+
+    setBackdropLoader(false);
+    onCreate([{ ...userInfo, familyMembers: 1 }]);
+    openResponseDialog({
+      autoClose: true,
+      content: successMessage({
+        noun: "Account",
+        verb: "created",
+      }),
+      type: "SUCCESS",
+      closeCb() {
+        handleClose();
+      },
+    });
+  };
+
   const handleVerifyPhone = async (member) => {
     const { code } = member;
 
     // TODO: Verify code legit
     if (code === "1234") {
-      setBackdropLoader(true);
-
-      // Create User Doc
-      const payload = {
-        ...values,
-        password: "12345678",
-        registrationType: REG_TYPE.STAFF_REGISTERED,
-      };
-      const { data: userInfo, error: createAccError } = await createAccount(
-        payload
-      );
-      if (createAccError) {
-        setBackdropLoader(false);
-        return openErrorDialog(createAccError);
-      }
-
-      setBackdropLoader(false);
-      onCreate([{ ...userInfo, familyMembers: 1 }]);
-      openResponseDialog({
-        autoClose: true,
-        content: successMessage({
-          noun: "Account",
-          verb: "created",
-        }),
-        type: "SUCCESS",
-        closeCb() {
-          handleClose();
-        },
-      });
+      await createAccountFn();
     } else {
       openErrorDialog("Incorrect Verification code");
     }
