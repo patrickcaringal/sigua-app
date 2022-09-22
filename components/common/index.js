@@ -3,6 +3,7 @@ import Datalist from "./Datalist";
 import { DatePicker, Input, Select } from "./Form";
 import Modal from "./Modal";
 import Pagination from "./Pagination";
+import PdfFrame from "./PdfFrame";
 import Placeholder from "./Placeholder";
 import {
   ResponseDialog,
@@ -49,4 +50,6 @@ export {
   Pagination,
   // Placeholder
   Placeholder,
+  // PdfFrame
+  PdfFrame,
 };

@@ -5,6 +5,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import PeopleIcon from "@mui/icons-material/People";
+import QrCodeIcon from "@mui/icons-material/QrCode";
 import RestoreIcon from "@mui/icons-material/Restore";
 import { IconButton, Tooltip } from "@mui/material";
 
@@ -16,6 +17,7 @@ export const ACTION_BUTTONS = {
   RESTORE: "RESTORE",
   // specific
   VIEW_FAMILY_MEMBERS: "VIEW_FAMILY_MEMBERS",
+  GENERATE_QR_CODE: "GENERATE_QR_CODE",
 };
 
 export const ACTION_ICONS = {
@@ -26,6 +28,7 @@ export const ACTION_ICONS = {
   RESTORE: <RestoreIcon />,
   // specific
   VIEW_FAMILY_MEMBERS: <PeopleIcon />,
+  GENERATE_QR_CODE: <QrCodeIcon />,
 };
 
 const getButton = ({ tooltipText = "", action, onClick }) => {
