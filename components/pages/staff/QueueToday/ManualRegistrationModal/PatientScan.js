@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import {
   AppBar,
@@ -17,12 +17,9 @@ const QrReader = dynamic(() => import("react-qr-reader"), {
   ssr: false,
 });
 
-const MODE = {
-  SCAN: "SCAN",
-  SEARCH: "SEARCH",
-};
-
 const PatientSelectModal = ({ onPatientSelect }) => {
+  const ref = useRef(null);
+
   const handleScanFile = (result) => {
     if (result) {
       onPatientSelect(result);
@@ -40,6 +37,7 @@ const PatientSelectModal = ({ onPatientSelect }) => {
   return (
     <Box style={{ width: "100%" }}>
       <QrReader
+        ref={ref}
         delay={1000}
         onError={handleErrorFile}
         onScan={handleScanFile}

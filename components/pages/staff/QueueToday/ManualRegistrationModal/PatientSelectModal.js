@@ -33,7 +33,7 @@ const PatientSelectModal = ({ open = false, onSelect, onClose }) => {
   // Local States
   const [patientId, setPatientId] = useState(null);
   const [patientData, setPatientData] = useState(null);
-  const [mode, setMode] = useState(MODE.SCAN);
+  const [mode, setMode] = useState(MODE.SEARCH);
 
   const displaySearch = mode === MODE.SEARCH && !patientId;
   const displayScan = mode === MODE.SCAN && !patientId;

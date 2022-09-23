@@ -12,6 +12,7 @@ import faker from "faker";
 import { FormikProvider, useFormik } from "formik";
 
 import { isMockDataEnabled } from "../../../../modules/env";
+import { REG_TYPE } from "../../../../modules/firebase";
 import { RegisterForQueueSchema } from "../../../../modules/validation";
 import { Modal } from "../../../common";
 import Form from "./Form";
@@ -50,7 +51,11 @@ const ManageFamilyMemberModal = ({
     validateOnChange: false,
     enableReinitialize: true,
     onSubmit: async (values) => {
-      onSave(values);
+      const payload = {
+        ...values,
+        registrationType: REG_TYPE.SELF_REGISTERED,
+      };
+      onSave(payload);
     },
   });
 

@@ -56,6 +56,11 @@ const LeftSidebar = () => {
           icon: <MedicalInformationIcon />,
           onClick: () => router.push(PATHS.DOCTOR.DIAGNOSE),
         },
+        {
+          text: "Queue Today",
+          icon: <QueueIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.QUEUE_TODAY),
+        },
         { text: "Divider" },
         {
           text: "Doctors",
@@ -113,11 +118,6 @@ const LeftSidebar = () => {
           onClick: () => router.push(PATHS.STAFF.PATIENT_ACCOUNTS),
         },
         { text: "Divider" },
-        {
-          text: "Manual Queue Registration",
-          icon: <AddToQueueIcon />,
-          onClick: () => router.push(PATHS.STAFF.QUEUE_MANUAL_REGISTRATION),
-        },
         {
           text: "Queue Today",
           icon: <QueueIcon />,

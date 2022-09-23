@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { useFormik } from "formik";
 
+import { REG_TYPE } from "../../../../../modules/firebase";
 import { RegisterForQueueSchema } from "../../../../../modules/validation";
 import { Modal } from "../../../../common";
 import Form from "./Form";
@@ -18,6 +19,7 @@ import TodayHeader from "./Header";
 const ManualRegistrationModal = ({
   open = false,
   data: queueData,
+  onSave,
   onClose,
 }) => {
   const formik = useFormik({
@@ -33,11 +35,11 @@ const ManualRegistrationModal = ({
     validateOnChange: false,
     enableReinitialize: true,
     onSubmit: async (values) => {
-      console.log(values);
       const payload = {
         ...values,
+        registrationType: REG_TYPE.STAFF_REGISTERED,
       };
-      // onSave(values);
+      onSave(payload);
     },
   });
 

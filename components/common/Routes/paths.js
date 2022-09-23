@@ -16,6 +16,7 @@ export const PATHS = {
     STAFF_RESTORE: "/doctor/staffs/restore",
     DOCTOR_MANAGEMENT: "/doctor/doctors",
     DOCTOR_RESTORE: "/doctor/doctors/restore",
+    QUEUE_TODAY: "/doctor/queue/today",
   },
   STAFF: {
     DASHBOARD: "/staff/dashboard",
