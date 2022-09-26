@@ -18,6 +18,7 @@ import {
   getFullName,
   getUniquePersonId,
   pluralize,
+  sortBy,
 } from "../helper";
 import { db, timestampFields } from "./config";
 import { checkDuplicate, registerNames } from "./helpers";
@@ -40,6 +41,11 @@ export const hashPassword = (password) => {
 export const comparePassword = (password, hashedPassword) => {
   const isMatched = bcrypt.compareSync(password, hashedPassword);
   return isMatched;
+};
+
+export const REG_TYPE = {
+  SELF_REGISTERED: "SELF_REGISTERED",
+  STAFF_REGISTERED: "STAFF_REGISTERED",
 };
 
 export const createAccountReq = async (account) => {
@@ -102,13 +108,15 @@ export const createAccountReq = async (account) => {
 
 export const checkAccountDuplicateReq = async ({ contactNo, name }) => {
   try {
-    // Check contactNo duplicate
-    await checkDuplicate({
-      collectionName: "accounts",
-      whereClause: where("contactNo", "==", contactNo),
-      duplicateOutputField: "contactNo",
-      customErrorMsg: "Contact No. already used.",
-    });
+    if (contactNo) {
+      // Check contactNo duplicate
+      await checkDuplicate({
+        collectionName: "accounts",
+        whereClause: where("contactNo", "==", contactNo),
+        duplicateOutputField: "contactNo",
+        customErrorMsg: "Contact No. already used.",
+      });
+    }
 
     // Check patient name duplicate
     await checkDuplicate({
@@ -147,6 +155,37 @@ export const checkAccountCredentialReq = async ({ contactNo, password }) => {
     delete document.password;
 
     return { data: document, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
+export const getAccountsReq = async () => {
+  try {
+    // Get Accounts
+    const q = query(collRef, where("deleted", "==", false));
+    const querySnapshot = await getDocs(q);
+
+    // Get Patients
+    const q2 = query(collection(db, "patients"), where("deleted", "==", false));
+    const querySnapshot2 = await getDocs(q2);
+    const data2 = querySnapshot2.docs
+      .map((doc) => ({ ...doc.data() }))
+      .sort(sortBy("dateCreated"));
+
+    // Join
+    const data = querySnapshot.docs
+      .map((doc) => {
+        const d = doc.data();
+        return {
+          ...d,
+          familyMembers: data2.filter((i) => i.accountId == d.id)?.length,
+        };
+      })
+      .sort(sortBy("dateCreated"));
+
+    return { data, success: true };
   } catch (error) {
     console.log(error);
     return { error: error.message };

@@ -1,5 +1,7 @@
 import * as React from "react";
 
+import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import AddToQueueIcon from "@mui/icons-material/AddToQueue";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import GroupIcon from "@mui/icons-material/Group";
@@ -54,6 +56,11 @@ const LeftSidebar = () => {
           icon: <MedicalInformationIcon />,
           onClick: () => router.push(PATHS.DOCTOR.DIAGNOSE),
         },
+        {
+          text: "Queue Today",
+          icon: <QueueIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.QUEUE_TODAY),
+        },
         { text: "Divider" },
         {
           text: "Doctors",
@@ -105,6 +112,12 @@ const LeftSidebar = () => {
           icon: <FactCheckIcon />,
           onClick: () => router.push(PATHS.STAFF.MEMBER_APPROVAL),
         },
+        {
+          text: "Patient Accounts",
+          icon: <AccountBoxIcon />,
+          onClick: () => router.push(PATHS.STAFF.PATIENT_ACCOUNTS),
+        },
+        { text: "Divider" },
         {
           text: "Queue Today",
           icon: <QueueIcon />,

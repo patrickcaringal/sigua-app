@@ -1,8 +1,10 @@
 import {
+  REG_TYPE,
   addFamilyMembersReq,
   checkAccountCredentialReq,
   checkAccountDuplicateReq,
   createAccountReq,
+  getAccountsReq,
   getMemberForApprovalReq,
   updateFamilyMembersReq,
 } from "./account";
@@ -33,7 +35,11 @@ import {
   restoreDoctorReq,
   updateDoctorReq,
 } from "./doctor";
-import { getPatientRecordReq } from "./medicalRecords";
+import {
+  getPatientRecordReq,
+  getRecordsByBranchDateRangeReq,
+  getRecordsByDateRangeReq,
+} from "./medicalRecords";
 import {
   MEMBER_STATUS,
   addPatientReq,
@@ -54,6 +60,7 @@ import {
   getQueueReq,
   getQueuesByBranchDateRangeReq,
   getQueuesByBranchReq,
+  getQueuesByDateRangeReq,
   getQueuesTodayReq,
   registerToQueueReq,
   resetQueueReq,
@@ -91,12 +98,14 @@ export {
   signOutAnonymouslyReq,
   monitorAuthState,
   // account
-  createAccountReq,
-  checkAccountDuplicateReq,
-  checkAccountCredentialReq,
+  REG_TYPE,
   addFamilyMembersReq,
-  updateFamilyMembersReq,
+  checkAccountCredentialReq,
+  checkAccountDuplicateReq,
+  createAccountReq,
+  getAccountsReq,
   getMemberForApprovalReq,
+  updateFamilyMembersReq,
   // doctor
   addDoctorReq,
   deleteDoctorReq,
@@ -147,6 +156,7 @@ export {
   getQueueReq,
   getQueuesByBranchDateRangeReq,
   getQueuesByBranchReq,
+  getQueuesByDateRangeReq,
   getQueuesTodayReq,
   registerToQueueReq,
   resetQueueReq,
@@ -155,6 +165,8 @@ export {
   updateQueueStatusReq,
   // medical records
   getPatientRecordReq,
+  getRecordsByBranchDateRangeReq,
+  getRecordsByDateRangeReq,
   // storage
   uploadImageReq,
   deleteImageReq,

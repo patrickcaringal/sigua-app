@@ -8,52 +8,36 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import faker from "faker";
-import { FormikProvider, useFormik } from "formik";
+import { useFormik } from "formik";
 
-import { isMockDataEnabled } from "../../../../modules/env";
-import { REG_TYPE } from "../../../../modules/firebase";
-import { RegisterForQueueSchema } from "../../../../modules/validation";
-import { Modal } from "../../../common";
+import { REG_TYPE } from "../../../../../modules/firebase";
+import { RegisterForQueueSchema } from "../../../../../modules/validation";
+import { Modal } from "../../../../common";
 import Form from "./Form";
+import TodayHeader from "./Header";
 
-const defaultValues = isMockDataEnabled
-  ? {
-      serviceId: "",
-      serviceName: "",
-      patientId: "",
-      patientName: "",
-      patientContactNo: "",
-      patientNote: faker.lorem.sentences(2),
-    }
-  : {
+const ManualRegistrationModal = ({
+  open = false,
+  data: queueData,
+  onSave,
+  onClose,
+}) => {
+  const formik = useFormik({
+    initialValues: {
       serviceId: "",
       serviceName: "",
       patientId: "",
       patientName: "",
       patientContactNo: "",
       patientNote: "",
-    };
-
-const ManageFamilyMemberModal = ({
-  open = false,
-  data,
-  onClose,
-  onSave,
-  header,
-}) => {
-  const isCreate = !data?.id;
-  const initialValues = isCreate ? { ...defaultValues, ...data } : { data };
-
-  const formik = useFormik({
-    initialValues,
+    },
     validationSchema: RegisterForQueueSchema,
     validateOnChange: false,
     enableReinitialize: true,
     onSubmit: async (values) => {
       const payload = {
         ...values,
-        registrationType: REG_TYPE.SELF_REGISTERED,
+        registrationType: REG_TYPE.STAFF_REGISTERED,
       };
       onSave(payload);
     },
@@ -78,7 +62,7 @@ const ManageFamilyMemberModal = ({
           <Container maxWidth="lg">
             <Toolbar disableGutters>
               <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-                {isCreate ? "Get Queue Number" : "Edit"}
+                Manual Registration
               </Typography>
 
               <Button
@@ -96,16 +80,14 @@ const ManageFamilyMemberModal = ({
           </Container>
         </AppBar>
         <Box sx={{ py: 2 }}>
-          <FormikProvider value={formik}>
-            <Container maxWidth="lg" sx={{ pt: 2 }}>
-              {header}
-              <Form {...formik} isCreate={isCreate} />
-            </Container>
-          </FormikProvider>
+          <Container maxWidth="lg" sx={{ pt: 2 }}>
+            <TodayHeader date={queueData.date} branch={queueData.branch} />
+            <Form {...formik} />
+          </Container>
         </Box>
       </Box>
     </Modal>
   );
 };
 
-export default ManageFamilyMemberModal;
+export default ManualRegistrationModal;

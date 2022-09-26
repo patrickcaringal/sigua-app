@@ -1,35 +1,6 @@
 import React from "react";
 
-import {
-  Box,
-  Card,
-  CardActionArea,
-  CardContent,
-  CardMedia,
-  Typography,
-} from "@mui/material";
-import { useRouter } from "next/router";
+import DashboardPage from "../../components/pages/doctor/Dashboard";
 
-const DashboardPage = () => {
-  const router = useRouter();
-
-  return (
-    <Box
-      sx={{
-        height: "calc(100vh - 64px)",
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-        py: 4,
-        px: 2,
-      }}
-    >
-      <Typography gutterBottom variant="h6" component="div">
-        Doctor dashboard
-      </Typography>
-    </Box>
-  );
-};
-
-export default DashboardPage;
+const Dashboard = () => <DashboardPage />;
+export default Dashboard;

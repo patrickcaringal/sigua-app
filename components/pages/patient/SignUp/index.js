@@ -10,6 +10,7 @@ import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
 import { isMockDataEnabled } from "../../../../modules/env";
 import {
+  REG_TYPE,
   checkAccountDuplicateReq,
   createAccountReq,
   signInAnonymouslyReq,
@@ -100,8 +101,12 @@ const SignUpPage = () => {
       setBackdropLoader(true);
 
       // Create User Doc
+      const payload = {
+        ...values,
+        registrationType: REG_TYPE.SELF_REGISTERED,
+      };
       const { data: userInfo, error: createAccError } = await createAccount(
-        values
+        payload
       );
       if (createAccError) {
         setBackdropLoader(false);

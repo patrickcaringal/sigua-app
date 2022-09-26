@@ -1,30 +1,29 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import FactCheckIcon from "@mui/icons-material/FactCheck";
+import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import PeopleIcon from "@mui/icons-material/People";
-import { Box, Card, CardContent, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { subDays } from "date-fns";
-import { useRouter } from "next/router";
 
-import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useRequest } from "../../../../hooks";
 import {
-  getPatientsByBranchReq,
-  getPatientsForApprovalReq,
-  getQueuesByBranchDateRangeReq,
-  getRecordsByBranchDateRangeReq,
+  getDoctorsReq,
+  getPatientsReq,
+  getQueuesByDateRangeReq,
+  getRecordsByDateRangeReq,
+  getStaffsReq,
 } from "../../../../modules/firebase";
-import { formatTimeStamp, today } from "../../../../modules/helper";
-import CountCard from "../../doctor/Dashboard/CountCard";
+import { formatTimeStamp } from "../../../../modules/helper";
+import CountCard from "./CountCard";
 import QueueGraph from "./QueueGraph";
 import ServiceGraph from "./ServiceGraph";
 
 const START_DATE = 7;
 const END_DATE = 0;
+
 const DashboardPage = () => {
-  const { user } = useAuth();
   const daterange = {
     start: subDays(new Date(), START_DATE),
     end: subDays(new Date(), END_DATE),
@@ -34,49 +33,52 @@ const DashboardPage = () => {
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   // Requests
-  const [getPatients] = useRequest(getPatientsByBranchReq, setBackdropLoader);
-  const [getPatientForApproval] = useRequest(
-    getPatientsForApprovalReq,
-    setBackdropLoader
-  );
-  const [getQueues] = useRequest(
-    getQueuesByBranchDateRangeReq,
-    setBackdropLoader
-  );
+  const [getPatients] = useRequest(getPatientsReq, setBackdropLoader);
+  const [getStaffs] = useRequest(getStaffsReq, setBackdropLoader);
+  const [getDoctors] = useRequest(getDoctorsReq, setBackdropLoader);
+  const [getQueues] = useRequest(getQueuesByDateRangeReq, setBackdropLoader);
   const [getMedicalRecords] = useRequest(
-    getRecordsByBranchDateRangeReq,
+    getRecordsByDateRangeReq,
     setBackdropLoader
   );
 
   // Local States
   const [patients, setPatients] = useState([]);
-  const [patientsForApproval, setPatientsForApproval] = useState([]);
-
+  const [staffs, setStaffs] = useState([]);
+  const [doctors, setDoctors] = useState([]);
   const [queues, setQueues] = useState([]);
   const [medicalRecords, setMedicalRecords] = useState([]);
 
   useEffect(() => {
     const fetchPatients = async () => {
       // Get Patients
-      const payload = { id: user.branch };
-      const { data, error: getError } = await getPatients(payload);
+      const { data, error: getError } = await getPatients();
       if (getError) return openErrorDialog(getError);
       setPatients(data);
     };
 
-    const fetchPatientForApproval = async () => {
-      // Get Patients
-      const { data, error: getPatientsError } = await getPatientForApproval({});
-      if (getPatientsError) return openErrorDialog(getPatientsError);
-      setPatientsForApproval(data);
+    const fetchStaffs = async () => {
+      // Get Staffs
+      const { data, error: getError } = await getStaffs({
+        mapBranch: false,
+      });
+      if (getError) return openErrorDialog(getError);
+
+      setStaffs(data);
+    };
+
+    const fetchDoctors = async () => {
+      // Get Doctors
+      const { data, error: getError } = await getDoctors({
+        mapBranch: false,
+      });
+      if (getError) return openErrorDialog(getError);
+      setDoctors(data);
     };
 
     const fetchQueues = async () => {
       // Get Queues
-      const payload = {
-        id: user.branch,
-        ...daterange,
-      };
+      const payload = { ...daterange };
       const { data, error: getError } = await getQueues(payload);
       if (getError) return openErrorDialog(getError);
       setQueues(data);
@@ -84,17 +86,15 @@ const DashboardPage = () => {
 
     const fetchMedicalRecords = async () => {
       // Get MedicalRecords
-      const payload = {
-        id: user.branch,
-        ...daterange,
-      };
+      const payload = { ...daterange };
       const { data, error: getError } = await getMedicalRecords(payload);
       if (getError) return openErrorDialog(getError);
       setMedicalRecords(data);
     };
 
     fetchPatients();
-    fetchPatientForApproval();
+    fetchStaffs();
+    fetchDoctors();
     fetchQueues();
     fetchMedicalRecords();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -105,14 +105,23 @@ const DashboardPage = () => {
 
   const counters = [
     {
-      label: "Patients with record",
+      label: "Verified Patients",
       count: patients?.length,
       icon: <PeopleIcon sx={{ fontSize: 90, color: "text.secondary" }} />,
     },
     {
-      label: "Patients for Approval",
-      count: patientsForApproval?.length,
-      icon: <FactCheckIcon sx={{ fontSize: 90, color: "text.secondary" }} />,
+      label: "Staffs",
+      count: staffs?.length,
+      icon: (
+        <AssignmentIndIcon sx={{ fontSize: 90, color: "text.secondary" }} />
+      ),
+    },
+    {
+      label: "Doctors",
+      count: doctors?.length,
+      icon: (
+        <AssignmentIndIcon sx={{ fontSize: 90, color: "text.secondary" }} />
+      ),
     },
   ];
 
@@ -123,9 +132,6 @@ const DashboardPage = () => {
         p: 3,
       }}
     >
-      <Typography variant="h4" gutterBottom fontWeight={500}>
-        Mamatid Branch
-      </Typography>
       <Box sx={{ display: "flex", flexDirection: "row", gap: 3 }}>
         {counters.map((i, idx) => (
           <CountCard key={idx} {...i} />

@@ -3,7 +3,7 @@ import React from "react";
 import QueueIcon from "@mui/icons-material/Queue";
 import { Box, Typography } from "@mui/material";
 
-const Placeholder = () => {
+const Placeholder = ({ branch }) => {
   return (
     <Box
       sx={{
@@ -22,17 +22,20 @@ const Placeholder = () => {
         variant="h4"
         gutterBottom
         color="text.secondary"
-        sx={{ fontWeight: "semibold" }}
+        sx={{ fontWeight: "bold" }}
       >
         No Queue Today
       </Typography>
-      <Typography
-        variant="h6"
-        color="text.secondary"
-        sx={{ fontWeight: "semibold" }}
-      >
-        Add now
-      </Typography>
+      {branch && (
+        <Typography
+          variant="h5"
+          gutterBottom
+          color="text.secondary"
+          sx={{ fontWeight: "semibold" }}
+        >
+          {branch} Branch
+        </Typography>
+      )}
     </Box>
   );
 };
