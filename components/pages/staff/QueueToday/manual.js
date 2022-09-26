@@ -357,15 +357,17 @@ const QueueManagementPage = () => {
             onDoctorModalOpen={handleDoctorModalOpen}
             onQueueModalOpen={handleQueueModalOpen}
           />
-          <Button
-            variant="contained"
-            size="small"
-            onClick={handleManualRegModalOpen}
-            // startIcon={<AddCircleIcon />}
-            // disabled={hasQueueToday}
-          >
-            Manual register
-          </Button>
+          {false && (
+            <Button
+              variant="contained"
+              size="small"
+              onClick={handleManualRegModalOpen}
+              // startIcon={<AddCircleIcon />}
+              // disabled={hasQueueToday}
+            >
+              Manual register
+            </Button>
+          )}
         </>
       }
     >
