@@ -130,6 +130,11 @@ const LeftSidebar = () => {
           onClick: () => router.push(PATHS.STAFF.QUEUE_TODAY),
         },
         {
+          text: "Saturday Queue",
+          icon: <QueueIcon />,
+          onClick: () => router.push(PATHS.STAFF.QUEUE_SATURDAY),
+        },
+        {
           text: "Queues",
           icon: <ViewListIcon />,
           onClick: () => router.push(PATHS.STAFF.QUEUE_MANAGEMENT),

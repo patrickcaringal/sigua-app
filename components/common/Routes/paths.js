@@ -24,6 +24,7 @@ export const PATHS = {
     QUEUE_MANAGEMENT: "/staff/queue",
     QUEUE_DETAIL: "/staff/queue/[id]/details",
     QUEUE_TODAY: "/staff/queue/today",
+    QUEUE_SATURDAY: "/staff/queue/saturday",
     // QUEUE_LIST: "/staff/queue/list",
     PATIENTS_LIST: "/staff/patients",
     MEMBER_APPROVAL: "/staff/member/approval",
