@@ -61,6 +61,12 @@ const LeftSidebar = () => {
           icon: <QueueIcon />,
           onClick: () => router.push(PATHS.DOCTOR.QUEUE_TODAY),
         },
+        {
+          text: "Saturday Queue",
+          icon: <QueueIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.QUEUE_SATURDAY),
+        },
+
         { text: "Divider" },
         {
           text: "Doctors",

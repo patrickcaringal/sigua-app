@@ -10,15 +10,13 @@ import {
 } from "@mui/material";
 import { FormikProvider, useFormik } from "formik";
 
-import { formatTimeStamp } from "../../../../modules/helper";
+import { saturdayThisWeek, today } from "../../../../modules/helper";
 import { QueueSchema } from "../../../../modules/validation";
 import { Modal } from "../../../common";
 import Form from "./Form";
 
-const dateToday = formatTimeStamp(new Date());
-
 const defaultValues = {
-  date: dateToday,
+  date: today,
   branchId: "",
   capacity: "",
 };
@@ -30,12 +28,16 @@ const QueueModal = ({
   onSave,
   branches,
   isStaff,
+  isSaturday = false,
 }) => {
   const isCreate = !data?.id;
   const initialValues = isCreate ? { ...defaultValues, ...data } : { data };
 
   const formik = useFormik({
-    initialValues: initialValues,
+    initialValues: {
+      ...initialValues,
+      date: isSaturday ? saturdayThisWeek.formatted : today,
+    },
     validationSchema: QueueSchema,
     validateOnChange: false,
     enableReinitialize: true,

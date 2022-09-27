@@ -3,7 +3,7 @@ import React from "react";
 import QueueIcon from "@mui/icons-material/Queue";
 import { Box, Typography } from "@mui/material";
 
-const Placeholder = ({ branch }) => {
+const Placeholder = ({ text, branch }) => {
   return (
     <Box
       sx={{
@@ -24,7 +24,7 @@ const Placeholder = ({ branch }) => {
         color="text.secondary"
         sx={{ fontWeight: "bold" }}
       >
-        No Queue Today
+        {text || "No Queue Today"}
       </Typography>
       {branch && (
         <Typography
