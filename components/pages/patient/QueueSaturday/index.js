@@ -16,6 +16,7 @@ import {
   localUpdateDocs,
   personBuiltInFields,
   pluralize,
+  saturdayThisWeek,
   today,
 } from "../../../../modules/helper";
 import { Toolbar, successMessage } from "../../../common";
@@ -28,6 +29,8 @@ const defaultModal = {
   open: false,
   data: {},
 };
+
+const baseday = saturdayThisWeek.formatted;
 
 const TodayHeader = ({ date, branch }) => {
   return (
@@ -90,7 +93,7 @@ const PatientQueuePage = () => {
     const q = query(
       collection(db, "queues"),
       where("branchId", "==", branchId),
-      where("queueDate", "==", today)
+      where("queueDate", "==", baseday)
     );
 
     const unsub = onSnapshot(q, (querySnapshot) => {
@@ -178,7 +181,7 @@ const PatientQueuePage = () => {
     <Container maxWidth="lg">
       <Toolbar
         onRootClick={() => router.push("/dashboard")}
-        paths={[{ text: "Queue Today" }]}
+        paths={[{ text: "Saturday Queue" }]}
       >
         <Button
           variant="contained"
@@ -237,7 +240,12 @@ const PatientQueuePage = () => {
             </Box>
           </>
         ) : (
-          <Placeholder />
+          <Placeholder
+            text={`${formatTimeStamp(
+              saturdayThisWeek.date,
+              "MMM dd, yyyy (eee)"
+            )}`}
+          />
         )}
 
         {queueModal.open && (

@@ -34,7 +34,8 @@ export const PATHS = {
     DASHBOARD: "/dashboard",
     FAMILY: "/family-members",
     MEDICAL_RECORD: "/medical-records",
-    QUEUE: "/queue/today",
+    QUEUE_TODAY: "/queue/[id]",
+    QUEUE_SATURDAY: "/queue/saturday/[id]",
   },
   PUBLIC: {
     ROOT: "/",
