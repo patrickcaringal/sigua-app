@@ -196,7 +196,7 @@ const QueueManagementPage = () => {
   return (
     <AdminMainContainer
       toolbarProps={{
-        onRootClick: () => router.push(PATHS.DOCTOR.DIAGNOSE),
+        onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
         paths: [{ text: "Diagnose Patient" }],
       }}
       toolbarContent={

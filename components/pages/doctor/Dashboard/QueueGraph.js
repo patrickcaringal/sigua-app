@@ -1,24 +1,21 @@
 import React from "react";
 
-import { Paper } from "@mui/material";
+import { Paper, Typography } from "@mui/material";
 import {
+  BarElement,
   CategoryScale,
   Chart as ChartJS,
   Legend,
-  LineElement,
   LinearScale,
-  PointElement,
   Title,
   Tooltip,
 } from "chart.js";
-import faker from "faker";
-import { Line } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend
@@ -37,7 +34,11 @@ const options = {
   },
   maintainAspectRatio: false,
   scales: {
+    x: {
+      stacked: true,
+    },
     y: {
+      stacked: true,
       ticks: {
         stepSize: 1,
         beginAtZero: true,
@@ -71,14 +72,18 @@ const QueueGraph = ({ data }) => {
       sx={{
         mt: 4,
         // border: "1px solid red",
-        height: "calc(100vh - 228px - 64px - 64px )",
+        height: "calc(100vh - 228px - 64px)",
         px: 4,
-        py: 3,
+        pt: 2,
+        pb: 8,
         flex: 2,
       }}
       elevation={2}
     >
-      <Line options={options} data={graphData} />
+      <Typography variant="h6" fontWeight="semibold">
+        Queue Last 7 days
+      </Typography>
+      <Bar options={options} data={graphData} />
     </Paper>
   );
 };

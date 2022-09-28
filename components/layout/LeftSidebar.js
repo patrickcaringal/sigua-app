@@ -50,6 +50,11 @@ const LeftSidebar = () => {
           icon: <FactCheckIcon />,
           onClick: () => router.push(PATHS.DOCTOR.PATIENTS_APPROVAL),
         },
+        {
+          text: "Patient Accounts",
+          icon: <AccountBoxIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.PATIENT_ACCOUNTS),
+        },
         { text: "Divider" },
         {
           text: "Diagnose Patient",
