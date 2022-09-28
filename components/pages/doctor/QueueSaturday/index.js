@@ -48,7 +48,7 @@ const defaultModal = {
 const baseday = saturdayThisWeek.formatted;
 const isSat = isSaturday(today);
 
-const SaturdayQueuePage = ({ branchId }) => {
+const SaturdayQueuePage = ({ branchId, openBranchModal }) => {
   const router = useRouter();
   const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
@@ -352,6 +352,9 @@ const SaturdayQueuePage = ({ branchId }) => {
       }}
       toolbarContent={
         <>
+          <Button variant="outlined" size="small" onClick={openBranchModal}>
+            Select Branch
+          </Button>
           <ToolbarButtons
             hasQueueToday={hasQueueToday}
             doctors={doctorCounters.length}
@@ -422,6 +425,7 @@ const SaturdayQueuePage = ({ branchId }) => {
               />
               <QueueComponent
                 disabled={!isQueueOpen}
+                enableFirstItemOnly
                 queueKey="next"
                 title="NEXT"
                 queue={queueToday.next}

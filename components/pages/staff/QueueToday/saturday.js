@@ -416,6 +416,7 @@ const SaturdayQueuePage = () => {
                 onTransferClick={handleTransferModalOpen}
               />
               <QueueComponent
+                enableFirstItemOnly
                 disabled={!isQueueOpen}
                 queueKey="next"
                 title="NEXT"

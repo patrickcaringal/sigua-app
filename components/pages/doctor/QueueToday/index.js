@@ -43,7 +43,7 @@ const defaultModal = {
   data: {},
 };
 
-const QueueTodayPage = ({ branchId }) => {
+const QueueTodayPage = ({ branchId, openBranchModal }) => {
   const router = useRouter();
   const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
@@ -346,6 +346,9 @@ const QueueTodayPage = ({ branchId }) => {
       }}
       toolbarContent={
         <>
+          <Button variant="outlined" size="small" onClick={openBranchModal}>
+            Select Branch
+          </Button>
           <ToolbarButtons
             hasQueueToday={hasQueueToday}
             // hasDoctor={!!doctorCounters.length}
@@ -416,6 +419,7 @@ const QueueTodayPage = ({ branchId }) => {
               />
               <QueueComponent
                 disabled={!isQueueOpen}
+                enableFirstItemOnly
                 queueKey="next"
                 title="NEXT"
                 queue={queueToday.next}

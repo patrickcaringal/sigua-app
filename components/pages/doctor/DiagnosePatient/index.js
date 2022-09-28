@@ -180,7 +180,7 @@ const QueueManagementPage = () => {
       setMedicalRecords([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPatient, patient]);
+  }, [currentPatient]);
 
   const handlePatientRecordModalOpen = (data) => {
     setPatientRecordModal({

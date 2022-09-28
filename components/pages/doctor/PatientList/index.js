@@ -31,6 +31,7 @@ import { AdminMainContainer } from "../../../shared";
 import TableCells from "./TableCells";
 
 const PatientListPage = () => {
+  console.log("PatientListPage");
   const { isAdmin } = useAuth();
 
   const router = useRouter();

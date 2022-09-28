@@ -24,26 +24,26 @@ const DashboardPage = () => {
   const [branchId, setBranchId] = useState(null);
 
   useEffect(() => {
-    const fetch = async () => {
-      // Get Branches
-      const { data: branchList, error: getBranchError } = await getBranches({
-        mapService: false,
-      });
-      if (getBranchError) return openErrorDialog(getBranchError);
-
-      const data = branchList.map((i) => ({
-        ...lodash.pick(i, ["name", "id"]),
-      }));
-
-      setBranchesModal({
-        open: true,
-        data,
-      });
-    };
-
-    fetch();
+    fetchBranches();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const fetchBranches = async () => {
+    // Get Branches
+    const { data: branchList, error: getBranchError } = await getBranches({
+      mapService: false,
+    });
+    if (getBranchError) return openErrorDialog(getBranchError);
+
+    const data = branchList.map((i) => ({
+      ...lodash.pick(i, ["name", "id"]),
+    }));
+
+    setBranchesModal({
+      open: true,
+      data,
+    });
+  };
 
   const handleBranchModalClose = () => {
     setBranchesModal(defaultModal);
@@ -55,7 +55,9 @@ const DashboardPage = () => {
 
   return (
     <>
-      {branchId && <QueueToday branchId={branchId} />}
+      {branchId && (
+        <QueueToday branchId={branchId} openBranchModal={fetchBranches} />
+      )}
       {branchesModal.open && (
         <BranchesDialog
           open={branchesModal.open}

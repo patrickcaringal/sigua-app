@@ -414,6 +414,7 @@ const QueueTodayPage = () => {
               />
               <QueueComponent
                 disabled={!isQueueOpen}
+                enableFirstItemOnly
                 queueKey="next"
                 title="NEXT"
                 queue={queueToday.next}
