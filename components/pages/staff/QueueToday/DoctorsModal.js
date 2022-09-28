@@ -50,6 +50,7 @@ import {
   formatTimeStamp,
   localUpdateDocs,
   pluralize,
+  saturdayThisWeek,
   today,
 } from "../../../../modules/helper";
 import { PATHS, confirmMessage, successMessage } from "../../../common";
@@ -65,6 +66,7 @@ const DoctorsModal = ({
   branchId,
   queueDoctors,
   onDoctorSelect,
+  date = today,
   onClose,
 }) => {
   const { setBackdropLoader } = useBackdropLoader();
@@ -99,7 +101,7 @@ const DoctorsModal = ({
 
       const fetchQueuesToday = async () => {
         // Get Doctors
-        const payload = { today };
+        const payload = { today: date };
         const { data, error: getError } = await getQueuesToday(payload);
         if (getError) return openErrorDialog(getError);
 

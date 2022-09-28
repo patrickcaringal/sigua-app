@@ -64,14 +64,16 @@ const ToolbarButtons = ({
       >
         add doctor
       </Button>
-      <Button
-        variant="contained"
-        color="warning"
-        size="small"
-        onClick={onResetQueue}
-      >
-        Reset
-      </Button>
+      {false && (
+        <Button
+          variant="contained"
+          color="warning"
+          size="small"
+          onClick={onResetQueue}
+        >
+          Reset
+        </Button>
+      )}
     </>
   );
 };

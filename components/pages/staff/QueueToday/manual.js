@@ -41,7 +41,7 @@ const defaultModal = {
   data: {},
 };
 
-const QueueManagementPage = () => {
+const QueueTodayPage = () => {
   const router = useRouter();
   const { user, isStaff } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
@@ -357,7 +357,7 @@ const QueueManagementPage = () => {
             onDoctorModalOpen={handleDoctorModalOpen}
             onQueueModalOpen={handleQueueModalOpen}
           />
-          {false && (
+          {isRegOpen && (
             <Button
               variant="contained"
               size="small"
@@ -373,6 +373,9 @@ const QueueManagementPage = () => {
     >
       {hasQueueToday ? (
         <>
+          <span id="identifier" style={{ display: "none" }}>
+            {queueToday?.id}
+          </span>
           <Header
             branch={branchesMap[user.branch]}
             date={queueToday.date}
@@ -515,4 +518,4 @@ const QueueManagementPage = () => {
   );
 };
 
-export default QueueManagementPage;
+export default QueueTodayPage;

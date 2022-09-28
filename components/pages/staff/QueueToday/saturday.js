@@ -46,7 +46,7 @@ const defaultModal = {
 const baseday = saturdayThisWeek.formatted;
 const isSat = isSaturday(today);
 
-const QueueManagementPage = () => {
+const SaturdayQueuePage = () => {
   const router = useRouter();
   const { user, isStaff } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
@@ -362,22 +362,23 @@ const QueueManagementPage = () => {
             onDoctorModalOpen={handleDoctorModalOpen}
             onQueueModalOpen={handleQueueModalOpen}
           />
-          {false && (
-            <Button
-              variant="contained"
-              size="small"
-              onClick={handleManualRegModalOpen}
-              // startIcon={<AddCircleIcon />}
-              // disabled={hasQueueToday}
-            >
-              Manual register
-            </Button>
-          )}
+          <Button
+            variant="contained"
+            size="small"
+            onClick={handleManualRegModalOpen}
+            // startIcon={<AddCircleIcon />}
+            // disabled={hasQueueToday}
+          >
+            Manual register
+          </Button>
         </>
       }
     >
       {hasQueueToday ? (
         <>
+          <span id="identifier" style={{ display: "none" }}>
+            {queueToday?.id}
+          </span>
           <Header
             branch={branchesMap[user.branch]}
             date={queueToday.date}
@@ -496,6 +497,7 @@ const QueueManagementPage = () => {
           open={doctorModal.open}
           branchId={user.branch}
           queueDoctors={lodash.keys(queueToday?.counters)}
+          date={baseday}
           onDoctorSelect={handleAddDoctorCounter}
           onClose={handleDoctorModalClose}
         />
@@ -523,4 +525,4 @@ const QueueManagementPage = () => {
   );
 };
 
-export default QueueManagementPage;
+export default SaturdayQueuePage;
