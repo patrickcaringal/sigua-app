@@ -104,11 +104,11 @@ const PatientListPage = () => {
       ...personBuiltInFields(i),
     }));
 
-    // // Add
-    // const { data: newDocs, error: addError } = await addFamilyMembers({
-    //   docs,
-    // });
-    // if (addError) return openErrorDialog(addError);
+    // Add
+    const { data: newDocs, error: addError } = await addFamilyMembers({
+      docs,
+    });
+    if (addError) return openErrorDialog(addError);
 
     // Successful
     // setMembers((prev) => [...prev, ...newDocs]);
@@ -283,11 +283,11 @@ const PatientListPage = () => {
                           tooltipText: "Family Members",
                           onClick: () => handleFamilyModalOpen(id),
                         },
-                        {
-                          action: ACTION_BUTTONS.ADD_USER,
-                          tooltipText: "Add family Member",
-                          onClick: () => handleMemberModalOpen(id),
-                        },
+                        // {
+                        //   action: ACTION_BUTTONS.ADD_USER,
+                        //   tooltipText: "Add family Member",
+                        //   onClick: () => handleMemberModalOpen(id),
+                        // },
                       ])}
                     </TableCell>
                   </TableRow>

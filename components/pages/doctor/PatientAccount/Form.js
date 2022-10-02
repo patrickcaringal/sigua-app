@@ -45,12 +45,13 @@ const Form = ({
   errors,
   touched,
 }) => {
+  const multiMode = false;
   return (
     <FieldArray
       name="familyMembers"
       render={({ push, remove }) => (
         <>
-          {isCreate && (
+          {multiMode && (
             <Fab
               color="primary"
               size="small"
@@ -101,8 +102,8 @@ const Form = ({
                 `familyMembers[${index}].${field}`;
 
               return (
-                <Card key={index} elevation={isCreate ? 2 : 0}>
-                  {isCreate && (
+                <Card key={index} elevation={multiMode ? 2 : 0}>
+                  {multiMode && (
                     <CardHeader
                       avatar={
                         <Avatar
@@ -258,9 +259,9 @@ const Form = ({
                       </Grid>
                       <Grid item xs={12}>
                         <Input
-                          disabled={!isCreate}
+                          // disabled={!isCreate}
                           value={valueArr.contactNo}
-                          required
+                          // required
                           label="Contact Number"
                           name={getFieldName("contactNo")}
                           onChange={handleChange}

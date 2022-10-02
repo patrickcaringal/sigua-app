@@ -98,7 +98,7 @@ const ManageFamilyMemberModal = ({ open = false, data, setOpen, onSave }) => {
         <Box sx={{ py: 2 }}>
           <FormikProvider value={formik}>
             <Container maxWidth="lg">
-              <Form {...formik} isCreate={false} />
+              <Form {...formik} isCreate={isCreate} />
             </Container>
           </FormikProvider>
         </Box>
