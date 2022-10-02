@@ -14,6 +14,7 @@ import {
   addQueueReq,
   db,
   getBranchesReq,
+  registerToQueueReq,
   resetQueueReq,
   transferQueueItemReq,
   updateQueueRegStatusReq,
@@ -22,20 +23,16 @@ import {
 import {
   formatFirebasetimeStamp,
   formatTimeStamp,
-  pluralize,
   today,
 } from "../../../../modules/helper";
-import { PATHS, confirmMessage, successMessage } from "../../../common";
+import { PATHS, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
-import DoctorList from "../../staff/QueueToday/DoctorList";
 import DoctorsModal from "../../staff/QueueToday/DoctorsModal";
-import DoneList from "../../staff/QueueToday/DoneList";
 import Header from "../../staff/QueueToday/Header";
+import ManualRegistrationModal from "../../staff/QueueToday/ManualRegistrationModal";
 import Placeholder from "../../staff/QueueToday/Placeholder";
 import QueueComponent from "../../staff/QueueToday/QueueComponent";
-import QueueList from "../../staff/QueueToday/QueueList";
 import ManageQueueModal from "../../staff/QueueToday/QueueModal";
-import SkippedList from "../../staff/QueueToday/SkippedList";
 import ToolbarButtons from "../../staff/QueueToday/ToolbarButtons";
 import TransferModal, {
   QUEUE_FLOW,
@@ -46,7 +43,7 @@ const defaultModal = {
   data: {},
 };
 
-const QueueManagementPage = ({ branchId }) => {
+const QueueTodayPage = ({ branchId, openBranchModal }) => {
   const router = useRouter();
   const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
@@ -69,6 +66,7 @@ const QueueManagementPage = ({ branchId }) => {
     setBackdropLoader
   );
   const [resetQueue] = useRequest(resetQueueReq, setBackdropLoader);
+  const [registerToQueue] = useRequest(registerToQueueReq, setBackdropLoader);
 
   // Local States
   const [queueToday, setQueueToday] = useState({});
@@ -77,12 +75,23 @@ const QueueManagementPage = ({ branchId }) => {
   const [queueModal, setQueueModal] = useState(defaultModal);
   const [doctorModal, setDoctorModal] = useState(defaultModal);
   const [transferModal, setTransferModal] = useState(defaultModal);
+  // manual register
+  const [manualRegModal, setManualRegModal] = useState(defaultModal);
 
   const isQueueFull = queueToday?.nextQueueNo - 1 === queueToday?.capacity;
   const hasQueueToday = !!lodash.keys(queueToday).length;
   const isRegOpen = hasQueueToday ? queueToday.openForRegistration : false;
   const isQueueOpen = hasQueueToday ? queueToday.openQueue : false;
   const doctorCounters = lodash.values(queueToday?.counters);
+  const registeredPatients = hasQueueToday
+    ? [
+        ...queueToday?.queue,
+        ...queueToday?.next,
+        ...queueToday?.skipped,
+        ...queueToday?.done,
+        ...doctorCounters?.reduce((a, i) => [...a, ...i.queue], []),
+      ]
+    : [];
 
   useEffect(() => {
     const fetchBranches = async () => {
@@ -231,6 +240,39 @@ const QueueManagementPage = ({ branchId }) => {
     if (updateError) return openErrorDialog(updateError);
   };
 
+  const handleManualReg = async (document) => {
+    // Validate
+    const patientAlreadyHasQueue = !!registeredPatients.filter(
+      (i) => i.patientId === document.patientId
+    ).length;
+
+    if (patientAlreadyHasQueue) {
+      return openResponseDialog({
+        autoClose: true,
+        content: `${document.patientName} is already registered on today's queue.`,
+        type: "WARNING",
+      });
+    }
+
+    // Register
+    const payload = { id: queueToday.id, document };
+    const { error: regError } = await registerToQueue(payload);
+    if (regError) return openErrorDialog(regError);
+
+    // Successful
+    openResponseDialog({
+      autoClose: true,
+      content: successMessage({
+        noun: document.patientName,
+        verb: "registered to the Queue",
+      }),
+      type: "SUCCESS",
+      closeCb() {
+        setManualRegModal(defaultModal);
+      },
+    });
+  };
+
   const handleQueueModalOpen = () => {
     setQueueModal({
       open: true,
@@ -275,6 +317,21 @@ const QueueManagementPage = ({ branchId }) => {
     setTransferModal(defaultModal);
   };
 
+  const handleManualRegModalOpen = () => {
+    setManualRegModal({
+      open: true,
+      data: {
+        queueId: queueToday.id,
+        date: queueToday.date,
+        branch: queueToday.branchName,
+      },
+    });
+  };
+
+  const handleManualRegModalClose = () => {
+    setManualRegModal(defaultModal);
+  };
+
   const handleResetQueue = async () => {
     const payload = { id: queueToday.id };
     const { error: resetError } = await resetQueue(payload);
@@ -288,23 +345,42 @@ const QueueManagementPage = ({ branchId }) => {
         paths: [{ text: "Queue Today" }],
       }}
       toolbarContent={
-        <ToolbarButtons
-          hasQueueToday={hasQueueToday}
-          // hasDoctor={!!doctorCounters.length}
-          doctors={doctorCounters.length}
-          isQueueFull={isQueueFull}
-          isRegOpen={isRegOpen}
-          isQueueOpen={isQueueOpen}
-          onRegStatus={handleRegStatus}
-          onQueueStatus={handleQueueStatus}
-          onResetQueue={handleResetQueue}
-          onDoctorModalOpen={handleDoctorModalOpen}
-          onQueueModalOpen={handleQueueModalOpen}
-        />
+        <>
+          <Button variant="outlined" size="small" onClick={openBranchModal}>
+            Select Branch
+          </Button>
+          <ToolbarButtons
+            hasQueueToday={hasQueueToday}
+            // hasDoctor={!!doctorCounters.length}
+            doctors={doctorCounters.length}
+            isQueueFull={isQueueFull}
+            isRegOpen={isRegOpen}
+            isQueueOpen={isQueueOpen}
+            onRegStatus={handleRegStatus}
+            onQueueStatus={handleQueueStatus}
+            onResetQueue={handleResetQueue}
+            onDoctorModalOpen={handleDoctorModalOpen}
+            onQueueModalOpen={handleQueueModalOpen}
+          />
+          {isRegOpen && (
+            <Button
+              variant="contained"
+              size="small"
+              onClick={handleManualRegModalOpen}
+              // startIcon={<AddCircleIcon />}
+              // disabled={hasQueueToday}
+            >
+              Manual register
+            </Button>
+          )}
+        </>
       }
     >
       {hasQueueToday ? (
         <>
+          <span id="identifier" style={{ display: "none" }}>
+            {queueToday?.id}
+          </span>
           <Header
             branch={branchesMap[branchId]}
             date={queueToday.date}
@@ -343,6 +419,7 @@ const QueueManagementPage = ({ branchId }) => {
               />
               <QueueComponent
                 disabled={!isQueueOpen}
+                enableFirstItemOnly
                 queueKey="next"
                 title="NEXT"
                 queue={queueToday.next}
@@ -434,8 +511,17 @@ const QueueManagementPage = ({ branchId }) => {
           onClose={handleTransferModalClose}
         />
       )}
+
+      {manualRegModal.open && (
+        <ManualRegistrationModal
+          open={manualRegModal.open}
+          data={manualRegModal.data}
+          onClose={handleManualRegModalClose}
+          onSave={handleManualReg}
+        />
+      )}
     </AdminMainContainer>
   );
 };
 
-export default QueueManagementPage;
+export default QueueTodayPage;

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 import {
   AppBar,
@@ -8,50 +8,58 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
+import faker from "faker";
 import { FormikProvider, useFormik } from "formik";
 
-import { saturdayThisWeek, today } from "../../../../modules/helper";
-import { QueueSchema } from "../../../../modules/validation";
+import { isMockDataEnabled } from "../../../../modules/env";
+import { REG_TYPE } from "../../../../modules/firebase";
+import { RegisterForQueueSchema } from "../../../../modules/validation";
 import { Modal } from "../../../common";
 import Form from "./Form";
 
-const defaultValues = {
-  date: today,
-  branchId: "",
-  capacity: "",
-};
+const defaultValues = isMockDataEnabled
+  ? {
+      serviceId: "",
+      serviceName: "",
+      patientId: "",
+      patientName: "",
+      patientContactNo: "",
+      patientNote: faker.lorem.sentences(2),
+    }
+  : {
+      serviceId: "",
+      serviceName: "",
+      patientId: "",
+      patientName: "",
+      patientContactNo: "",
+      patientNote: "",
+    };
 
-const QueueModal = ({
+const ManageFamilyMemberModal = ({
   open = false,
   data,
   onClose,
   onSave,
-  branches,
-  isStaff,
-  isSaturday = false,
+  header,
 }) => {
   const isCreate = !data?.id;
   const initialValues = isCreate ? { ...defaultValues, ...data } : { data };
 
   const formik = useFormik({
-    initialValues: {
-      ...initialValues,
-      date: isSaturday ? saturdayThisWeek.formatted : today,
-    },
-    validationSchema: QueueSchema,
+    initialValues,
+    validationSchema: RegisterForQueueSchema,
     validateOnChange: false,
     enableReinitialize: true,
     onSubmit: async (values) => {
-      const name = branches.find((i) => i.id === values.branchId).name || "";
-      onSave({ ...values, branchName: name });
+      const payload = {
+        ...values,
+        registrationType: REG_TYPE.SELF_REGISTERED,
+      };
+      onSave(payload);
     },
   });
 
-  const { handleSubmit, resetForm } = formik;
-
-  useEffect(() => {
-    if (!open) resetForm();
-  }, [open, resetForm]);
+  const { handleSubmit, values, resetForm, dirty } = formik;
 
   const handleClose = () => {
     onClose();
@@ -70,14 +78,14 @@ const QueueModal = ({
           <Container maxWidth="lg">
             <Toolbar disableGutters>
               <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-                {isCreate ? "Add" : "Edit"} Queue
+                {isCreate ? "Get Queue Number" : "Edit"}
               </Typography>
 
               <Button
                 color="inherit"
                 sx={{ mr: 2 }}
                 type="submit"
-                // disabled={!dirty}
+                disabled={!dirty}
               >
                 save
               </Button>
@@ -89,13 +97,9 @@ const QueueModal = ({
         </AppBar>
         <Box sx={{ py: 2 }}>
           <FormikProvider value={formik}>
-            <Container maxWidth="lg">
-              <Form
-                {...formik}
-                isCreate={isCreate}
-                branches={branches}
-                isStaff={isStaff}
-              />
+            <Container maxWidth="lg" sx={{ pt: 2 }}>
+              {header}
+              <Form {...formik} isCreate={isCreate} />
             </Container>
           </FormikProvider>
         </Box>
@@ -104,4 +108,4 @@ const QueueModal = ({
   );
 };
 
-export default QueueModal;
+export default ManageFamilyMemberModal;

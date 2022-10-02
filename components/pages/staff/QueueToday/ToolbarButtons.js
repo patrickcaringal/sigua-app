@@ -10,6 +10,7 @@ import { Button } from "@mui/material";
 const ToolbarButtons = ({
   hasQueueToday,
   doctors,
+  isSat = true,
   isQueueFull,
   isRegOpen,
   isQueueOpen,
@@ -46,7 +47,7 @@ const ToolbarButtons = ({
         {`${isRegOpen ? "close" : "open"}`} registration
       </Button>
       <Button
-        disabled={!hasDoctor}
+        disabled={!hasDoctor || !isSat}
         variant="outlined"
         size="small"
         onClick={onQueueStatus}
@@ -63,14 +64,16 @@ const ToolbarButtons = ({
       >
         add doctor
       </Button>
-      <Button
-        variant="contained"
-        color="warning"
-        size="small"
-        onClick={onResetQueue}
-      >
-        Reset
-      </Button>
+      {false && (
+        <Button
+          variant="contained"
+          color="warning"
+          size="small"
+          onClick={onResetQueue}
+        >
+          Reset
+        </Button>
+      )}
     </>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { Box, Button } from "@mui/material";
+import { isSaturday } from "date-fns";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import lodash from "lodash";
 import { useRouter } from "next/router";
@@ -23,27 +24,33 @@ import {
 import {
   formatFirebasetimeStamp,
   formatTimeStamp,
+  saturdayThisWeek,
   today,
 } from "../../../../modules/helper";
 import { PATHS, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
-import DoctorsModal from "./DoctorsModal";
-import Header from "./Header";
-import ManualRegistrationModal from "./ManualRegistrationModal";
-import Placeholder from "./Placeholder";
-import QueueComponent from "./QueueComponent";
-import ManageQueueModal from "./QueueModal";
-import ToolbarButtons from "./ToolbarButtons";
-import TransferModal, { QUEUE_FLOW } from "./TransferModal";
+import DoctorsModal from "../../staff/QueueToday/DoctorsModal";
+import Header from "../../staff/QueueToday/Header";
+import ManualRegistrationModal from "../../staff/QueueToday/ManualRegistrationModal";
+import Placeholder from "../../staff/QueueToday/Placeholder";
+import QueueComponent from "../../staff/QueueToday/QueueComponent";
+import ManageQueueModal from "../../staff/QueueToday/QueueModal";
+import ToolbarButtons from "../../staff/QueueToday/ToolbarButtons";
+import TransferModal, {
+  QUEUE_FLOW,
+} from "../../staff/QueueToday/TransferModal";
 
 const defaultModal = {
   open: false,
   data: {},
 };
 
-const QueueTodayPage = () => {
+const baseday = saturdayThisWeek.formatted;
+const isSat = isSaturday(today);
+
+const SaturdayQueuePage = ({ branchId, openBranchModal }) => {
   const router = useRouter();
-  const { user, isStaff } = useAuth();
+  const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
@@ -116,8 +123,8 @@ const QueueTodayPage = () => {
   useEffect(() => {
     const q = query(
       collection(db, "queues"),
-      where("branchId", "==", user.branch), // prob
-      where("queueDate", "==", today)
+      where("branchId", "==", branchId), // prob
+      where("queueDate", "==", baseday)
     );
 
     const unsub = onSnapshot(q, (querySnapshot) => {
@@ -133,7 +140,7 @@ const QueueTodayPage = () => {
     });
 
     return () => unsub();
-  }, [user.branch]);
+  }, [branchId]);
 
   const handleAddQueue = async (docs) => {
     docs = {
@@ -151,6 +158,7 @@ const QueueTodayPage = () => {
       createdBy: user.id,
       openForRegistration: false,
       openQueue: false,
+      saturday: true,
     };
 
     // Add
@@ -275,8 +283,8 @@ const QueueTodayPage = () => {
     setQueueModal({
       open: true,
       data: {
-        branchId: user.branch,
-        capacity: branches.find((i) => i.id === user.branch).capacity,
+        branchId: branchId,
+        capacity: branches.find((i) => i.id === branchId).capacity,
       },
     });
   };
@@ -340,14 +348,17 @@ const QueueTodayPage = () => {
     <AdminMainContainer
       toolbarProps={{
         onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
-        paths: [{ text: "Queue Today" }],
+        paths: [{ text: "Saturday Queue" }],
       }}
       toolbarContent={
         <>
+          <Button variant="outlined" size="small" onClick={openBranchModal}>
+            Select Branch
+          </Button>
           <ToolbarButtons
             hasQueueToday={hasQueueToday}
-            // hasDoctor={!!doctorCounters.length}
             doctors={doctorCounters.length}
+            isSat={isSat}
             isQueueFull={isQueueFull}
             isRegOpen={isRegOpen}
             isQueueOpen={isQueueOpen}
@@ -377,7 +388,7 @@ const QueueTodayPage = () => {
             {queueToday?.id}
           </span>
           <Header
-            branch={branchesMap[user.branch]}
+            branch={branchesMap[branchId]}
             date={queueToday.date}
             registered={queueToday.nextQueueNo - 1}
             capacity={queueToday.capacity}
@@ -473,12 +484,13 @@ const QueueTodayPage = () => {
           </Box>
         </>
       ) : (
-        <Placeholder branch={branchesMap[user.branch]} />
+        <Placeholder text="No Saturday Queue" branch={branchesMap[branchId]} />
       )}
 
       {queueModal.open && (
         <ManageQueueModal
-          isStaff={isStaff}
+          isStaff
+          isSaturday
           branches={branches}
           open={queueModal.open}
           data={queueModal.data}
@@ -490,8 +502,9 @@ const QueueTodayPage = () => {
       {doctorModal.open && (
         <DoctorsModal
           open={doctorModal.open}
-          branchId={user.branch}
+          branchId={branchId}
           queueDoctors={lodash.keys(queueToday?.counters)}
+          date={baseday}
           onDoctorSelect={handleAddDoctorCounter}
           onClose={handleDoctorModalClose}
         />
@@ -519,4 +532,4 @@ const QueueTodayPage = () => {
   );
 };
 
-export default QueueTodayPage;
+export default SaturdayQueuePage;

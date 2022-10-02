@@ -1,41 +1,37 @@
 import React from "react";
 
-import QueueIcon from "@mui/icons-material/Queue";
 import { Box, Typography } from "@mui/material";
 
-const Placeholder = ({ text, branch }) => {
+import { formatTimeStamp } from "../../../../modules/helper";
+
+const Placeholder = ({ text = "" }) => {
   return (
     <Box
       sx={{
-        height: "100%",
+        height: "calc(100vh - 64px - 72px)",
         display: "flex",
         flexDirection: " column",
         alignItems: "center",
-        justifyContent: "center",
+        pt: 6,
       }}
     >
-      <Typography color="text.secondary" gutterBottom>
-        <QueueIcon fontSize="large" />
-      </Typography>
-
       <Typography
         variant="h4"
         gutterBottom
         color="text.secondary"
-        sx={{ fontWeight: "bold" }}
+        sx={{ fontWeight: "bold", textAlign: "center" }}
       >
-        {text || "No Queue Today"}
+        Queue is not yet available
       </Typography>
-      {branch && (
+      <Box sx={{ display: "flex", gap: 2 }}>
         <Typography
-          variant="h5"
-          gutterBottom
+          variant="h6"
           color="text.secondary"
           sx={{ fontWeight: "semibold" }}
         >
-          {branch} Branch
+          {text}
         </Typography>
-      )}
+      </Box>
     </Box>
   );
 };

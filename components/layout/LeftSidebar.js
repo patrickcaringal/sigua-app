@@ -50,6 +50,11 @@ const LeftSidebar = () => {
           icon: <FactCheckIcon />,
           onClick: () => router.push(PATHS.DOCTOR.PATIENTS_APPROVAL),
         },
+        {
+          text: "Patient Accounts",
+          icon: <AccountBoxIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.PATIENT_ACCOUNTS),
+        },
         { text: "Divider" },
         {
           text: "Diagnose Patient",
@@ -61,6 +66,12 @@ const LeftSidebar = () => {
           icon: <QueueIcon />,
           onClick: () => router.push(PATHS.DOCTOR.QUEUE_TODAY),
         },
+        {
+          text: "Saturday Queue",
+          icon: <QueueIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.QUEUE_SATURDAY),
+        },
+
         { text: "Divider" },
         {
           text: "Doctors",
@@ -122,6 +133,11 @@ const LeftSidebar = () => {
           text: "Queue Today",
           icon: <QueueIcon />,
           onClick: () => router.push(PATHS.STAFF.QUEUE_TODAY),
+        },
+        {
+          text: "Saturday Queue",
+          icon: <QueueIcon />,
+          onClick: () => router.push(PATHS.STAFF.QUEUE_SATURDAY),
         },
         {
           text: "Queues",

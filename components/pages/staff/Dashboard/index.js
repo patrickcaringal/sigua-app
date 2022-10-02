@@ -124,7 +124,7 @@ const DashboardPage = () => {
       }}
     >
       <Typography variant="h4" gutterBottom fontWeight={500}>
-        Mamatid Branch
+        {user?.branchName} Branch
       </Typography>
       <Box sx={{ display: "flex", flexDirection: "row", gap: 3 }}>
         {counters.map((i, idx) => (

@@ -4,6 +4,7 @@ export const PATHS = {
   DOCTOR: {
     DASHBOARD: "/doctor/dashboard",
     PATIENTS_LIST: "/doctor/patients",
+    PATIENT_ACCOUNTS: "/doctor/patients/accounts",
     PATIENTS_APPROVAL: "/doctor/patients/approval",
     PATIENTS_RESTORE: "/doctor/patients/restore",
     PATIENTS_MEDICAL_RECORD: "/doctor/patients/[id]/medical-record",
@@ -17,12 +18,14 @@ export const PATHS = {
     DOCTOR_MANAGEMENT: "/doctor/doctors",
     DOCTOR_RESTORE: "/doctor/doctors/restore",
     QUEUE_TODAY: "/doctor/queue/today",
+    QUEUE_SATURDAY: "/doctor/queue/saturday",
   },
   STAFF: {
     DASHBOARD: "/staff/dashboard",
     QUEUE_MANAGEMENT: "/staff/queue",
     QUEUE_DETAIL: "/staff/queue/[id]/details",
     QUEUE_TODAY: "/staff/queue/today",
+    QUEUE_SATURDAY: "/staff/queue/saturday",
     // QUEUE_LIST: "/staff/queue/list",
     PATIENTS_LIST: "/staff/patients",
     MEMBER_APPROVAL: "/staff/member/approval",
@@ -33,7 +36,8 @@ export const PATHS = {
     DASHBOARD: "/dashboard",
     FAMILY: "/family-members",
     MEDICAL_RECORD: "/medical-records",
-    QUEUE: "/queue/today",
+    QUEUE_TODAY: "/queue/[id]",
+    QUEUE_SATURDAY: "/queue/saturday/[id]",
   },
   PUBLIC: {
     ROOT: "/",

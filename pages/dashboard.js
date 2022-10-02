@@ -20,6 +20,7 @@ import { getBranchesReq } from "../modules/firebase";
 const defaultModal = {
   open: false,
   data: {},
+  isSat: false,
 };
 
 const DashboardPage = () => {
@@ -32,7 +33,7 @@ const DashboardPage = () => {
   // Local States
   const [branchesModal, setBranchesModal] = useState(defaultModal);
 
-  const handleBranchModalOpen = async () => {
+  const handleBranchModalOpen = async ({ isSat = false }) => {
     // Get Branches
     const { data: branchList, error: getBranchError } = await getBranches({
       mapService: false,
@@ -46,6 +47,7 @@ const DashboardPage = () => {
     setBranchesModal({
       open: true,
       data,
+      isSat,
     });
   };
 
@@ -54,7 +56,17 @@ const DashboardPage = () => {
   };
 
   const handleBranchQueue = (branchId) => {
-    router.push(`/queue/${branchId}`);
+    router.push({
+      pathname: PATHS.PATIENT.QUEUE_TODAY,
+      query: { id: branchId },
+    });
+  };
+
+  const handleBranchQueueSat = (branchId) => {
+    router.push({
+      pathname: PATHS.PATIENT.QUEUE_SATURDAY,
+      query: { id: branchId },
+    });
   };
 
   return (
@@ -149,11 +161,39 @@ const DashboardPage = () => {
         </CardActionArea>
       </Card>
 
+      <Card sx={{ width: 296, height: 208 }}>
+        <CardActionArea
+          sx={{ width: "inherit", height: "inherit" }}
+          onClick={() => handleBranchModalOpen({ isSat: true })}
+        >
+          <CardContent
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <Typography
+              gutterBottom
+              variant="h6"
+              component="div"
+              sx={{ textAlign: "center" }}
+            >
+              Saturday
+              <br />
+              Queue
+            </Typography>
+          </CardContent>
+        </CardActionArea>
+      </Card>
+
       {branchesModal.open && (
         <BranchesDialog
           open={branchesModal.open}
           data={branchesModal.data}
-          onBranchClick={handleBranchQueue}
+          onBranchClick={
+            branchesModal.isSat ? handleBranchQueueSat : handleBranchQueue
+          }
           onClose={handleBranchModalClose}
         />
       )}

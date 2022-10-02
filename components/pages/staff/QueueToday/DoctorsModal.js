@@ -1,70 +1,23 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import AddCircleIcon from "@mui/icons-material/AddCircle";
-import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import QueueIcon from "@mui/icons-material/Queue";
-import RestoreIcon from "@mui/icons-material/Restore";
-import StopIcon from "@mui/icons-material/Stop";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import {
-  Box,
-  Button,
-  Chip,
-  IconButton,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-} from "@mui/material";
-import Avatar from "@mui/material/Avatar";
-import Divider from "@mui/material/Divider";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
-import ListItemText from "@mui/material/ListItemText";
-import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
 import lodash from "lodash";
-import { useRouter } from "next/router";
 
-import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
 import {
-  addQueueReq,
-  db,
   getBranchDoctorsReq,
-  getQueuesByBranchReq,
   getQueuesTodayReq,
-  resetQueueReq,
-  updateQueueRegStatusReq,
-  updateQueueStatusReq,
 } from "../../../../modules/firebase";
-import {
-  formatFirebasetimeStamp,
-  formatTimeStamp,
-  localUpdateDocs,
-  pluralize,
-  today,
-} from "../../../../modules/helper";
-import { PATHS, confirmMessage, successMessage } from "../../../common";
-import { AdminMainContainer, DoctorDialog } from "../../../shared";
-import Header from "./Header";
-import Placeholder from "./Placeholder";
-import QueueList from "./QueueList";
-import ManageQueueModal from "./QueueModal";
-import ToolbarButtons from "./ToolbarButtons";
+import { today } from "../../../../modules/helper";
+import { DoctorDialog } from "../../../shared";
 
 const DoctorsModal = ({
   open,
   branchId,
   queueDoctors,
   onDoctorSelect,
+  date = today,
   onClose,
 }) => {
   const { setBackdropLoader } = useBackdropLoader();
@@ -99,7 +52,7 @@ const DoctorsModal = ({
 
       const fetchQueuesToday = async () => {
         // Get Doctors
-        const payload = { today };
+        const payload = { today: date };
         const { data, error: getError } = await getQueuesToday(payload);
         if (getError) return openErrorDialog(getError);
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { Box, Button } from "@mui/material";
+import { isSaturday } from "date-fns";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import lodash from "lodash";
 import { useRouter } from "next/router";
@@ -23,6 +24,7 @@ import {
 import {
   formatFirebasetimeStamp,
   formatTimeStamp,
+  saturdayThisWeek,
   today,
 } from "../../../../modules/helper";
 import { PATHS, successMessage } from "../../../common";
@@ -41,7 +43,10 @@ const defaultModal = {
   data: {},
 };
 
-const QueueTodayPage = () => {
+const baseday = saturdayThisWeek.formatted;
+const isSat = isSaturday(today);
+
+const SaturdayQueuePage = () => {
   const router = useRouter();
   const { user, isStaff } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
@@ -117,7 +122,7 @@ const QueueTodayPage = () => {
     const q = query(
       collection(db, "queues"),
       where("branchId", "==", user.branch), // prob
-      where("queueDate", "==", today)
+      where("queueDate", "==", baseday)
     );
 
     const unsub = onSnapshot(q, (querySnapshot) => {
@@ -357,17 +362,15 @@ const QueueTodayPage = () => {
             onDoctorModalOpen={handleDoctorModalOpen}
             onQueueModalOpen={handleQueueModalOpen}
           />
-          {isRegOpen && (
-            <Button
-              variant="contained"
-              size="small"
-              onClick={handleManualRegModalOpen}
-              // startIcon={<AddCircleIcon />}
-              // disabled={hasQueueToday}
-            >
-              Manual register
-            </Button>
-          )}
+          <Button
+            variant="contained"
+            size="small"
+            onClick={handleManualRegModalOpen}
+            // startIcon={<AddCircleIcon />}
+            // disabled={hasQueueToday}
+          >
+            Manual register
+          </Button>
         </>
       }
     >
@@ -413,8 +416,8 @@ const QueueTodayPage = () => {
                 onTransferClick={handleTransferModalOpen}
               />
               <QueueComponent
-                disabled={!isQueueOpen}
                 enableFirstItemOnly
+                disabled={!isQueueOpen}
                 queueKey="next"
                 title="NEXT"
                 queue={queueToday.next}
@@ -473,7 +476,10 @@ const QueueTodayPage = () => {
           </Box>
         </>
       ) : (
-        <Placeholder branch={branchesMap[user.branch]} />
+        <Placeholder
+          text="No Saturday Queue"
+          branch={branchesMap[user.branch]}
+        />
       )}
 
       {queueModal.open && (
@@ -492,6 +498,7 @@ const QueueTodayPage = () => {
           open={doctorModal.open}
           branchId={user.branch}
           queueDoctors={lodash.keys(queueToday?.counters)}
+          date={baseday}
           onDoctorSelect={handleAddDoctorCounter}
           onClose={handleDoctorModalClose}
         />
@@ -519,4 +526,4 @@ const QueueTodayPage = () => {
   );
 };
 
-export default QueueTodayPage;
+export default SaturdayQueuePage;
