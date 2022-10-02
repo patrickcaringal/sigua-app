@@ -20,8 +20,16 @@ import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useFilter, usePagination, useRequest } from "../../../../hooks";
-import { REG_TYPE, getAccountsReq } from "../../../../modules/firebase";
-import { calculateAge, formatTimeStamp } from "../../../../modules/helper";
+import {
+  REG_TYPE,
+  addPatientReq,
+  getAccountsReq,
+} from "../../../../modules/firebase";
+import {
+  calculateAge,
+  formatTimeStamp,
+  personBuiltInFields,
+} from "../../../../modules/helper";
 import {
   ACTION_BUTTONS,
   Input,
@@ -33,6 +41,7 @@ import {
 import { AdminMainContainer } from "../../../shared";
 import CreateAccountModal from "./CreateAccountModal";
 import FamilyModal from "./FamilyModal";
+import ManageFamilyMemberModal from "./ManageFamilyMemberModal";
 
 const defaultModal = {
   open: false,
@@ -47,8 +56,10 @@ const PatientListPage = () => {
 
   // Requests
   const [getPatients] = useRequest(getAccountsReq, setBackdropLoader);
+  const [addFamilyMembers] = useRequest(addPatientReq, setBackdropLoader);
 
   // Local States
+  const [familyMemberModal, setFamilyMemberModal] = useState(defaultModal);
   const [createAccountModal, setCreateAccountModal] = useState(defaultModal); // Phone Verification Modal
   const [familyModal, setFamilyModal] = useState(defaultModal); // Family Modal
   const [patients, setPatients] = useState([]);
@@ -82,6 +93,38 @@ const PatientListPage = () => {
     setPatients((prev) => [...prev, ...newDocs]);
   };
 
+  const handleAddFamilyMemeber = async (docs) => {
+    docs = docs.map((i) => ({
+      ...i,
+      verified: false,
+      verifiedContactNo: false,
+      verificationAttachment: null,
+      verificationRejectReason: null,
+      status: MEMBER_STATUS.FOR_VERIFICATION,
+      ...personBuiltInFields(i),
+    }));
+
+    // // Add
+    // const { data: newDocs, error: addError } = await addFamilyMembers({
+    //   docs,
+    // });
+    // if (addError) return openErrorDialog(addError);
+
+    // Successful
+    // setMembers((prev) => [...prev, ...newDocs]);
+    openResponseDialog({
+      autoClose: true,
+      content: successMessage({
+        noun: pluralize("Family member", newDocs.length),
+        verb: "added",
+      }),
+      type: "SUCCESS",
+      closeCb() {
+        setFamilyMemberModal(defaultModal);
+      },
+    });
+  };
+
   const handleAccountModalOpen = () => {
     setCreateAccountModal({
       open: true,
@@ -102,6 +145,20 @@ const PatientListPage = () => {
 
   const handleFamilyModalClose = () => {
     setFamilyModal(defaultModal);
+  };
+
+  const handleMemberModalOpen = (id) => {
+    setFamilyMemberModal({
+      open: true,
+      data: { accountId: id },
+    });
+  };
+
+  const handleEditModalOpen = (member) => {
+    setFamilyMemberModal({
+      open: true,
+      data: { ...member, birthdate: formatTimeStamp(member.birthdate) },
+    });
   };
 
   const handleSearchChange = useCallback(
@@ -158,7 +215,7 @@ const PatientListPage = () => {
                 // { text: "Age", sx: { width: 40 }, align: "center" },
                 // { text: "Gender", sx: { width: 100 } },
                 // { text: "Address", sx: { width: 360 } },
-                { text: "Actions", sx: { width: 82 } },
+                { text: "Actions", sx: { width: 100 } },
               ].map(({ text, align, sx }) => (
                 <TableCell
                   key={text}
@@ -226,6 +283,11 @@ const PatientListPage = () => {
                           tooltipText: "Family Members",
                           onClick: () => handleFamilyModalOpen(id),
                         },
+                        {
+                          action: ACTION_BUTTONS.ADD_USER,
+                          tooltipText: "Add family Member",
+                          onClick: () => handleMemberModalOpen(id),
+                        },
                       ])}
                     </TableCell>
                   </TableRow>
@@ -249,6 +311,15 @@ const PatientListPage = () => {
           open={familyModal.open}
           data={familyModal.data}
           onClose={handleFamilyModalClose}
+        />
+      )}
+
+      {familyMemberModal.open && (
+        <ManageFamilyMemberModal
+          open={familyMemberModal.open}
+          data={familyMemberModal.data}
+          setOpen={setFamilyMemberModal}
+          onSave={!familyMemberModal.data ? handleAddFamilyMemeber : () => {}}
         />
       )}
     </AdminMainContainer>
