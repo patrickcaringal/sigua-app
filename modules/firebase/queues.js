@@ -21,6 +21,21 @@ import { checkDuplicate, registerNames } from "./helpers";
 
 const collRef = collection(db, "queues");
 
+export const getAllQueuesReq = async () => {
+  try {
+    const q = query(collRef);
+    const querySnapshot = await getDocs(q);
+    const data = querySnapshot.docs
+      .map((doc) => ({ ...doc.data() }))
+      .sort(sortBy("date", "desc"));
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
 export const getQueuesByBranchReq = async ({ id }) => {
   try {
     const q = query(collRef, where("branchId", "==", id));
