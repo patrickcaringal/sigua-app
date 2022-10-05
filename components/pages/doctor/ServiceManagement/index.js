@@ -196,7 +196,6 @@ const ServicesManagementPage = () => {
   const handlePageChange = (event, value) => {
     pagination.goToPage(value - 1);
   };
-  console.log(pagination.info.activePage);
 
   return (
     <AdminMainContainer
