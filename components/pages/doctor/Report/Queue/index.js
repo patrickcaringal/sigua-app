@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 
 import {
   Button,
+  ButtonGroup,
   Table,
   TableBody,
   TableCell,
@@ -9,19 +10,17 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import faker from "faker";
-import { jsPDF } from "jspdf";
-import lodash from "lodash";
 import { useRouter } from "next/router";
 
 import { useAuth } from "../../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../../contexts/ResponseDialogContext";
-import { useFilter, usePagination, useRequest } from "../../../../../hooks";
+import { usePagination, useRequest } from "../../../../../hooks";
 import { getAllQueuesReq } from "../../../../../modules/firebase";
 import { formatTimeStamp } from "../../../../../modules/helper";
+import { exportQueueList } from "../../../../../modules/pdf";
 import {
-  ACTION_BUTTONS,
+  ACTION_ICONS,
   Input,
   PATHS,
   Pagination,
@@ -29,6 +28,13 @@ import {
 } from "../../../../common";
 import { AdminMainContainer } from "../../../../shared";
 import CollapsibleRow from "./CollapsibleRow";
+import FilterModal from "./FilterModal";
+import useFilter from "./FilterModal/useFilter";
+
+const defaultModal = {
+  open: false,
+  data: {},
+};
 
 const QueueManagementPage = () => {
   const router = useRouter();
@@ -42,6 +48,7 @@ const QueueManagementPage = () => {
 
   // Local States
   const [queues, setQueues] = useState([]);
+  const [filterModal, setFilterModal] = useState(defaultModal);
   const filtering = useFilter({});
   const pagination = usePagination(filtering.filtered);
 
@@ -65,95 +72,27 @@ const QueueManagementPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtering.filtered.length]);
 
-  const handleViewQueueDetail = (id) => {
-    window.print();
-    // router.push({
-    //   pathname: PATHS.DOCTOR.QUEUE_DETAIL,
-    //   query: { id },
-    // });
-  };
-
-  const handleSearchChange = useCallback(
-    (e) => {
-      pagination.goToPage(0);
-      filtering.onNameChange(e?.target?.value);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [pagination.goToPage, filtering.onNameChange]
-  );
-
   const handlePageChange = (event, value) => {
     pagination.goToPage(value - 1);
   };
 
-  const doPDF = () => {
-    // const data = queues.filter((i) => i.queueDate == "2022-09-20");
-    const data = queues;
-
-    let doc = new jsPDF();
-    const baseX = 8;
-
-    data.forEach((i) => {
-      doc.setFontSize(10);
-
-      // header
-      doc.text("Date:", baseX, 10);
-      doc.text(formatTimeStamp(i.date, "MMM-dd-yyyy eeee"), baseX + 10, 10);
-
-      doc.text("Branch:", baseX, 15);
-      doc.text(i.branchName, baseX + 14, 15);
-
-      const registered = i.nextQueueNo - 1;
-      doc.text("Patients: ", baseX, 20);
-      doc.text(`${registered} / ${i.capacity}`, baseX + 16, 20);
-
-      doc.text("Doctors:", baseX + 60, 10);
-      let y = 5;
-      lodash
-        .values(i.counters)
-        .map((i) => i.name)
-        .forEach((j) => {
-          y += 5;
-          doc.text(j || "-", baseX + 60 + 16, y);
-        });
-
-      // Patient list
-
-      doc.text(`Served Patients (${i.done.length})`, baseX, 30);
-      y = 32;
-      i.done.forEach((j, idx) => {
-        y += 5;
-        doc.text(`${idx + 1}. ${j.patientName} - ${j.serviceName}`, baseX, y);
-      });
-      // [...Array(80).keys()].forEach((j, idx) => {
-      //   y += 5;
-      //   doc.text(`${idx + 1}. ${faker.name.findName()}`, baseX, y);
-      // });
-
-      doc.text(`No Show Patients (${i.skipped.length})`, baseX + 100, 30);
-      y = 32;
-      i.skipped.forEach((j, idx) => {
-        y += 5;
-        doc.text(
-          `${idx + 1}. ${j.patientName} - ${j.serviceName}`,
-          baseX + 100,
-          y
-        );
-      });
-
-      doc.addPage();
+  const handleFilterModalOpen = () => {
+    setFilterModal({
+      open: true,
+      data: filtering.filters,
     });
+  };
 
-    // doc.addPage();
+  const handleFilterModalClose = () => {
+    setFilterModal(defaultModal);
+  };
 
-    // // header
-    // doc.text("Date", 8, 10);
-    // doc.text("Branch", 8, 15);
-    // doc.text("Patients", 8, 20);
+  const handleFilterApply = (filters) => {
+    filtering.setFilters(filters);
+  };
 
-    // doc.save("a4.pdf");
-    // doc.autoPrint();
-    doc.output("pdfobjectnewwindow"); //opens the data uri in new window
+  const handleClearFilter = () => {
+    filtering.clear();
   };
 
   return (
@@ -162,7 +101,31 @@ const QueueManagementPage = () => {
         onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
         paths: [{ text: "Queue" }],
       }}
-      toolbarContent={<Button onClick={doPDF}>PDF</Button>}
+      toolbarContent={
+        <>
+          <Button
+            onClick={() => exportQueueList(filtering.filtered)}
+            startIcon={ACTION_ICONS.EXPORT}
+            // disabled={!filtering.filtered.length}
+          >
+            export
+          </Button>
+          <ButtonGroup variant="contained" size="small">
+            <Button
+              size="small"
+              onClick={handleFilterModalOpen}
+              startIcon={ACTION_ICONS.FILTER}
+            >
+              filters
+            </Button>
+            {!!filtering.hasFilter && (
+              <Button size="small" onClick={handleClearFilter}>
+                {ACTION_ICONS.CLEAR}
+              </Button>
+            )}
+          </ButtonGroup>
+        </>
+      }
     >
       <TableContainer
         sx={{
@@ -235,6 +198,15 @@ const QueueManagementPage = () => {
         </Table>
       </TableContainer>
       <Pagination pagination={pagination} onChange={handlePageChange} />
+
+      {filterModal.open && (
+        <FilterModal
+          open={filterModal.open}
+          data={filterModal.data}
+          onApply={handleFilterApply}
+          onClose={handleFilterModalClose}
+        />
+      )}
     </AdminMainContainer>
   );
 };

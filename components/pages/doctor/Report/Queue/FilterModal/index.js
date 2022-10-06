@@ -14,25 +14,20 @@ import {
 } from "@mui/material";
 import { isAfter, isBefore } from "date-fns";
 
-import { useBackdropLoader } from "../../../../../contexts/BackdropLoaderContext";
-import { useRequest } from "../../../../../hooks";
-import {
-  getBranchesReq,
-  getServicesReq,
-} from "../../../../../modules/firebase";
-import { formatTimeStamp } from "../../../../../modules/helper";
-import { Datalist, DatePicker, Modal, Select } from "../../../../common";
+import { useBackdropLoader } from "../../../../../../contexts/BackdropLoaderContext";
+import { useRequest } from "../../../../../../hooks";
+import { getBranchesReq } from "../../../../../../modules/firebase";
+import { formatTimeStamp } from "../../../../../../modules/helper";
+import { Datalist, DatePicker, Modal, Select } from "../../../../../common";
 import useFilter from "./useFilter";
 
 const FilterModal = ({ open = false, data, onApply, onClose }) => {
   const { setBackdropLoader } = useBackdropLoader();
 
   // Requests
-  const [getServices] = useRequest(getServicesReq, setBackdropLoader);
   const [getBranches] = useRequest(getBranchesReq, setBackdropLoader);
 
   // Local States
-  const [services, setServices] = useState([]);
   const [branches, setBranches] = useState([]);
 
   useEffect(() => {
@@ -44,28 +39,11 @@ const FilterModal = ({ open = false, data, onApply, onClose }) => {
       setBranches(data);
     };
 
-    const fetchServices = async () => {
-      // Get Services
-      const { data, map: serviceMap, error } = await getServices();
-      if (error) return openErrorDialog(error);
-
-      setServices(data);
-    };
-
     fetchBranches();
-    fetchServices();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // useEffect(() => {
-  //   filtering.setBranch(e.target.value);
-  // }, [branches]);
-
   const filtering = useFilter({
-    // defaultStartDate: data.startDate,
-    // defaultEndDate: data.endDate,
-    // defaultBranch: data.branch,
-    // defaultService: data.service,
     ...data,
   });
 
@@ -153,24 +131,6 @@ const FilterModal = ({ open = false, data, onApply, onClose }) => {
                     All
                   </MenuItem>
                   {branches.map(({ id, name }) => (
-                    <MenuItem key={id} value={id} dense>
-                      {name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </Grid>
-              <Grid item xs={12}>
-                <Select
-                  value={filtering.filters.service}
-                  label="Service"
-                  onChange={(e) => {
-                    filtering.setService(e.target.value);
-                  }}
-                >
-                  <MenuItem value="-" dense>
-                    All
-                  </MenuItem>
-                  {services.map(({ id, name }) => (
                     <MenuItem key={id} value={id} dense>
                       {name}
                     </MenuItem>

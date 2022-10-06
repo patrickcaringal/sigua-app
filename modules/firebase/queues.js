@@ -14,7 +14,7 @@ import {
 } from "firebase/firestore";
 
 import { associationMessage } from "../../components/common";
-import { sortBy } from "../helper";
+import { sortBy, sortByDate_Branch } from "../helper";
 import { getErrorMsg } from "./auth";
 import { db, timestampFields } from "./config";
 import { checkDuplicate, registerNames } from "./helpers";
@@ -27,7 +27,7 @@ export const getAllQueuesReq = async () => {
     const querySnapshot = await getDocs(q);
     const data = querySnapshot.docs
       .map((doc) => ({ ...doc.data() }))
-      .sort(sortBy("date", "desc"));
+      .sort(sortByDate_Branch("date", "branchName", "desc"));
 
     return { data, success: true };
   } catch (error) {

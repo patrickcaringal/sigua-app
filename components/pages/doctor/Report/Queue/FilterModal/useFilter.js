@@ -8,19 +8,17 @@ const useFilter = ({
   startDate: defaultStartDate = "",
   endDate: defaultEndDate = "",
   branch: defaultBranch = ALL,
-  service: defaultService = ALL,
 }) => {
   const [initialData, setInitialData] = useState(data);
   const [startDate, setStartDate] = useState(defaultStartDate);
   const [endDate, setEndDate] = useState(defaultEndDate);
   const [branch, setBranch] = useState(defaultBranch);
-  const [service, setService] = useState(defaultService);
 
   const filters = {
     startDate,
     endDate,
     branch,
-    service,
+    // service,
   };
 
   const filteredData = useCallback(() => {
@@ -28,7 +26,7 @@ const useFilter = ({
 
     if (startDate || endDate) {
       filtered = filtered.filter((i) => {
-        const d1 = new Date(i.date);
+        const d1 = new Date(i.queueDate);
         const d2 = new Date(startDate);
         const d3 = new Date(endDate);
 
@@ -46,12 +44,8 @@ const useFilter = ({
       filtered = filtered.filter((i) => i.branchId === branch);
     }
 
-    if (service != ALL) {
-      filtered = filtered.filter((i) => i.serviceId === service);
-    }
-
     return filtered;
-  }, [initialData, startDate, endDate, branch, service]);
+  }, [initialData, startDate, endDate, branch]);
 
   const filtered = filteredData();
 
@@ -63,18 +57,15 @@ const useFilter = ({
     setStartDate(f?.startDate);
     setEndDate(f?.endDate);
     setBranch(f?.branch);
-    setService(f?.service);
   };
 
   const clear = () => {
     setStartDate("");
     setEndDate("");
     setBranch(ALL);
-    setService(ALL);
   };
 
-  const hasFilter =
-    !!startDate || !!endDate || branch !== ALL || service !== ALL;
+  const hasFilter = !!startDate || !!endDate || branch !== ALL;
 
   return {
     filtered,
@@ -85,7 +76,7 @@ const useFilter = ({
     setStartDate,
     setEndDate,
     setBranch,
-    setService,
+    // setService,
     clear,
   };
 };

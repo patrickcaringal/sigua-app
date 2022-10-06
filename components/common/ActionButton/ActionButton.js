@@ -1,8 +1,11 @@
 import React from "react";
 
 import AssignmentIcon from "@mui/icons-material/Assignment";
+import ClearIcon from "@mui/icons-material/Clear";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DownloadForOfflineIcon from "@mui/icons-material/DownloadForOffline";
 import EditIcon from "@mui/icons-material/Edit";
+import FilterListIcon from "@mui/icons-material/FilterList";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import PeopleIcon from "@mui/icons-material/People";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
@@ -32,6 +35,9 @@ export const ACTION_ICONS = {
   // specific
   VIEW_FAMILY_MEMBERS: <PeopleIcon />,
   GENERATE_QR_CODE: <QrCodeIcon />,
+  EXPORT: <DownloadForOfflineIcon />,
+  FILTER: <FilterListIcon />,
+  CLEAR: <ClearIcon />,
 };
 
 const getButton = ({ tooltipText = "", action, onClick }) => {

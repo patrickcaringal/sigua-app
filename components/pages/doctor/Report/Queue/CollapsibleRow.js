@@ -32,9 +32,15 @@ const CollapsibleRow = ({ data }) => {
     openForRegistration,
     nextQueueNo,
     branchName,
+    branchId,
   } = data;
   const registered = nextQueueNo - 1;
   const doctors = lodash.values(counters).map((i) => i.name);
+  const query = {
+    branch: branchId,
+    startDate: formatTimeStamp(date),
+    endDate: formatTimeStamp(date),
+  };
 
   return (
     <>
@@ -73,7 +79,7 @@ const CollapsibleRow = ({ data }) => {
                 skipped={skipped.length}
                 doctors={doctors}
               />
-              <Patients served={done} noShow={skipped} />
+              <Patients served={done} noShow={skipped} query={query} />
             </Box>
           </Collapse>
         </TableCell>

@@ -16,7 +16,7 @@ import {
 } from "../../../../modules/firebase";
 import { formatTimeStamp } from "../../../../modules/helper";
 import { exportPatientRecords } from "../../../../modules/pdf";
-import { PATHS } from "../../../common";
+import { ACTION_ICONS, PATHS } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import MedicalHistory from "../../doctor/DiagnosePatient/MedicalHistory";
 import RecordModal from "../../doctor/DiagnosePatient/RecordModal";
@@ -45,7 +45,7 @@ const MedicalRecordPage = () => {
   const [medicalRecords, setMedicalRecords] = useState([]);
   const [patientRecordModal, setPatientRecordModal] = useState(defaultModal);
   const [filterModal, setFilterModal] = useState(defaultModal);
-  const filtering = useFilter({});
+  const filtering = useFilter({ ...router.query });
 
   useEffect(() => {
     if (patientId) {
@@ -127,8 +127,10 @@ const MedicalRecordPage = () => {
         <>
           <Button
             onClick={() => exportPatientRecords(filtering.filtered, patient)}
+            startIcon={ACTION_ICONS.EXPORT}
+            disabled={!filtering.filtered.length}
           >
-            PDF
+            export
           </Button>
           <ButtonGroup variant="contained" size="small">
             <Button
