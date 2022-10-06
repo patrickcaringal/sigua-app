@@ -7,7 +7,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
   Tooltip,
@@ -20,7 +19,13 @@ import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useFilter, usePagination, useRequest } from "../../../../hooks";
 import { getPatientsByBranchReq } from "../../../../modules/firebase";
 import { calculateAge, formatTimeStamp } from "../../../../modules/helper";
-import { Input, LongTypography, PATHS, Pagination } from "../../../common";
+import {
+  Input,
+  LongTypography,
+  PATHS,
+  Pagination,
+  TableContainer,
+} from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 
 const PatientListPage = () => {

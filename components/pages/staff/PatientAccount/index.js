@@ -9,7 +9,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
   Tooltip,
@@ -28,6 +27,7 @@ import {
   LongTypography,
   PATHS,
   Pagination,
+  TableContainer,
   getActionButtons,
 } from "../../../common";
 import { AdminMainContainer } from "../../../shared";

@@ -6,7 +6,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
 } from "@mui/material";
@@ -24,6 +23,7 @@ import {
   Input,
   PATHS,
   Pagination,
+  TableContainer,
   getActionButtons,
 } from "../../../../common";
 import { AdminMainContainer } from "../../../../shared";
@@ -106,7 +106,7 @@ const QueueManagementPage = () => {
           <Button
             onClick={() => exportQueueList(filtering.filtered)}
             startIcon={ACTION_ICONS.EXPORT}
-            // disabled={!filtering.filtered.length}
+            disabled={!filtering.filtered.length}
           >
             export
           </Button>
@@ -127,16 +127,11 @@ const QueueManagementPage = () => {
         </>
       }
     >
-      <TableContainer
-        sx={{
-          maxHeight: "calc(100vh - 64px - 64px - 16px - 77px)",
-          overflow: "overlay",
-        }}
-      >
+      <TableContainer>
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell />
+              <TableCell sx={{ width: 66 }} />
               {[
                 { text: "Date", sx: { width: 140 } },
                 { text: "Day", sx: { width: 140 } },

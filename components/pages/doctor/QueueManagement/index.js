@@ -5,7 +5,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
 } from "@mui/material";
@@ -22,6 +21,7 @@ import {
   Input,
   PATHS,
   Pagination,
+  TableContainer,
   getActionButtons,
 } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
@@ -140,12 +140,7 @@ const QueueManagementPage = () => {
       }}
       toolbarContent={<Button onClick={doPDF}>PDF</Button>}
     >
-      <TableContainer
-        sx={{
-          maxHeight: "calc(100vh - 64px - 64px - 16px - 77px)",
-          overflow: "overlay",
-        }}
-      >
+      <TableContainer>
         <Table size="small">
           <TableHead>
             <TableRow>

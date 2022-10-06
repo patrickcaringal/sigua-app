@@ -11,7 +11,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
 } from "@mui/material";
@@ -31,6 +30,7 @@ import {
   Input,
   PATHS,
   Pagination,
+  TableContainer,
   confirmMessage,
   successMessage,
 } from "../../../common";

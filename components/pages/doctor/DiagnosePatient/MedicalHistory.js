@@ -7,12 +7,12 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
   Typography,
 } from "@mui/material";
 
+import { TableContainer } from "../../../../components/common";
 import { formatTimeStamp } from "../../../../modules/helper";
 
 const MedicalHistory = ({ data = [], onRecordClick }) => {
