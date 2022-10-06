@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import ClearIcon from "@mui/icons-material/Clear";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { Box, Button, ButtonGroup } from "@mui/material";
+import faker from "faker";
+import { jsPDF } from "jspdf";
 import { useRouter } from "next/router";
 
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
@@ -12,6 +14,8 @@ import {
   getPatientRecordReq,
   getPatientReq,
 } from "../../../../modules/firebase";
+import { formatTimeStamp } from "../../../../modules/helper";
+import { exportPatientRecords } from "../../../../modules/pdf";
 import { PATHS } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import MedicalHistory from "../../doctor/DiagnosePatient/MedicalHistory";
@@ -19,6 +23,7 @@ import RecordModal from "../../doctor/DiagnosePatient/RecordModal";
 import FilterModal from "./FilterModal";
 import useFilter from "./FilterModal/useFilter";
 import PatientDetails from "./PatientDetails";
+
 const defaultModal = {
   open: false,
   data: {},
@@ -119,20 +124,27 @@ const MedicalRecordPage = () => {
         ],
       }}
       toolbarContent={
-        <ButtonGroup variant="contained" size="small">
+        <>
           <Button
-            size="small"
-            onClick={handleFilterModalOpen}
-            startIcon={<FilterListIcon />}
+            onClick={() => exportPatientRecords(filtering.filtered, patient)}
           >
-            filters
+            PDF
           </Button>
-          {!!filtering.hasFilter && (
-            <Button size="small" onClick={handleClearFilter}>
-              <ClearIcon fontSize="small" />
+          <ButtonGroup variant="contained" size="small">
+            <Button
+              size="small"
+              onClick={handleFilterModalOpen}
+              startIcon={<FilterListIcon />}
+            >
+              filters
             </Button>
-          )}
-        </ButtonGroup>
+            {!!filtering.hasFilter && (
+              <Button size="small" onClick={handleClearFilter}>
+                <ClearIcon fontSize="small" />
+              </Button>
+            )}
+          </ButtonGroup>
+        </>
       }
     >
       <Box

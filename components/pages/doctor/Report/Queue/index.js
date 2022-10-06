@@ -89,7 +89,6 @@ const QueueManagementPage = () => {
   const doPDF = () => {
     // const data = queues.filter((i) => i.queueDate == "2022-09-20");
     const data = queues;
-    console.log(queues);
 
     let doc = new jsPDF();
     const baseX = 8;

@@ -65,6 +65,7 @@ const FilterModal = ({ open = false, data, onApply, onClose }) => {
     defaultStartDate: data.startDate,
     defaultEndDate: data.endDate,
     defaultBranch: data.branch,
+    defaultService: data.service,
   });
 
   const handleClose = () => {
