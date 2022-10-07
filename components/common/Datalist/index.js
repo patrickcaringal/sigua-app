@@ -13,7 +13,9 @@ const Datalist = ({ data, labelWidth = 100 }) => (
   >
     {data.map(({ label, value }, index) => (
       <React.Fragment key={index}>
-        <Box sx={{ minWidth: labelWidth }}>{label}</Box>
+        <Box sx={{ minWidth: labelWidth, alignSelf: "flex-start" }}>
+          {label}
+        </Box>
         <Box sx={{ fontWeight: 500 }}>{value}</Box>
       </React.Fragment>
     ))}
@@ -21,14 +23,3 @@ const Datalist = ({ data, labelWidth = 100 }) => (
 );
 
 export default Datalist;
-
-// [
-//     {
-//       label: "Branch",
-//       value: branch,
-//     },
-//     {
-//       label: "Date",
-//       value: formatTimeStamp(date, "MMM-dd-yyyy (eee)"),
-//     },
-//   ]

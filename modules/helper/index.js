@@ -49,6 +49,34 @@ export const sortBy =
     return new Date(convertToDate(b[key])) - new Date(convertToDate(a[key]));
   };
 
+export const sortByDate_Branch =
+  (key1, key2, sortBy = "asc") =>
+  (a, b) => {
+    const d1 = new Date(convertToDate(a[key1]));
+    const d2 = new Date(convertToDate(b[key1]));
+
+    const b1 = a[key2];
+    const b2 = b[key2];
+    if (sortBy === "asc") {
+      // Sort by dates
+      // If the first item has a higher number, move it down
+      // If the first item has a lower number, move it up
+      if (d1 > d2) return 1;
+      if (d1 < d2) return -1;
+
+      // If the dates are the same between both items, sort by branch
+      // If the first item comes first in the alphabet, move it up
+      if (b1 > b2) return 1;
+      if (b1 < b2) return -1;
+    }
+
+    if (d2 > d1) return 1;
+    if (d2 < d1) return -1;
+
+    if (b2 > b1) return 1;
+    if (b2 < b1) return -1;
+  };
+
 export const calculateAge = (birthdate) => {
   const age = differenceInYears(new Date(), new Date(birthdate));
   return age;

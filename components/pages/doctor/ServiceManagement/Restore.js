@@ -7,7 +7,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
   Typography,
@@ -22,7 +21,7 @@ import {
   restoreServiceReq,
 } from "../../../../modules/firebase";
 import { arrayStringify, pluralize } from "../../../../modules/helper";
-import { PATHS, successMessage } from "../../../common";
+import { PATHS, TableContainer, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import TableCells from "./TableCells";
 

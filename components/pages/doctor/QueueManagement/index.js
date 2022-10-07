@@ -1,19 +1,21 @@
 import React, { useCallback, useEffect, useState } from "react";
 
 import {
+  Button,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
 } from "@mui/material";
+import { jsPDF } from "jspdf";
 import { useRouter } from "next/router";
 
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useFilter, usePagination, useRequest } from "../../../../hooks";
-import { getQueuesByBranchReq } from "../../../../modules/firebase";
+import { getAllQueuesReq } from "../../../../modules/firebase";
 import {
   ACTION_BUTTONS,
   Input,
@@ -33,7 +35,7 @@ const QueueManagementPage = () => {
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   // Requests
-  const [getQueues] = useRequest(getQueuesByBranchReq, setBackdropLoader);
+  const [getQueues] = useRequest(getAllQueuesReq, setBackdropLoader);
 
   // Local States
   const [queues, setQueues] = useState([]);
@@ -62,7 +64,7 @@ const QueueManagementPage = () => {
 
   const handleViewQueueDetail = (id) => {
     router.push({
-      pathname: PATHS.STAFF.QUEUE_DETAIL,
+      pathname: PATHS.DOCTOR.QUEUE_DETAIL,
       query: { id },
     });
   };
@@ -80,22 +82,63 @@ const QueueManagementPage = () => {
     pagination.goToPage(value - 1);
   };
 
+  const doPDF = () => {
+    var generateData = function (amount) {
+      var result = [];
+      var data = {
+        coin: "100",
+        game_group: "GameGroup",
+        game_name: "XPTO2",
+        game_version: "25",
+        machine: "20485861",
+        vlt: "0",
+      };
+      for (var i = 0; i < amount; i += 1) {
+        data.id = (i + 1).toString();
+        result.push(Object.assign({}, data));
+      }
+      return result;
+    };
+
+    function createHeaders(keys) {
+      var result = [];
+      for (var i = 0; i < keys.length; i += 1) {
+        result.push({
+          id: keys[i],
+          name: keys[i],
+          prompt: keys[i],
+          width: 65,
+          align: "center",
+          padding: 0,
+        });
+      }
+      return result;
+    }
+
+    var headers = createHeaders([
+      "id",
+      "coin",
+      "game_group",
+      "game_name",
+      "game_version",
+      "machine",
+      "vlt",
+    ]);
+
+    var doc = new jsPDF({ putOnlyUsedFonts: true, orientation: "landscape" });
+    doc.table(1, 1, generateData(100), headers, { autoSize: true });
+    // doc.save("a4.pdf");
+    // doc.autoPrint();
+    doc.output("pdfobjectnewwindow"); //opens the data uri in new window
+  };
+
   return (
     <AdminMainContainer
       toolbarProps={{
         onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
         paths: [{ text: "Queue" }],
       }}
-      // toolbarContent={
-      //   <Box sx={{ width: 200 }}>
-      //     <Input
-      //       debounce
-      //       label="Search"
-      //       value={filtering.filters.name}
-      //       onChange={handleSearchChange}
-      //     />
-      //   </Box>
-      // }
+      toolbarContent={<Button onClick={doPDF}>PDF</Button>}
     >
       <TableContainer>
         <Table size="small">
@@ -104,6 +147,7 @@ const QueueManagementPage = () => {
               {[
                 { text: "Date", sx: { width: 140 } },
                 { text: "Day", sx: { width: 140 } },
+                { text: "Branch", sx: { width: 140 } },
                 { text: "Doctor" },
                 {
                   text: "Capacity",

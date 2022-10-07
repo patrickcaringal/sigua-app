@@ -7,7 +7,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
 } from "@mui/material";
@@ -23,6 +22,7 @@ import {
   ACTION_ICONS,
   Input,
   PATHS,
+  TableContainer,
   confirmMessage,
   getActionButtons,
   successMessage,
@@ -31,7 +31,6 @@ import { AdminMainContainer } from "../../../shared";
 import TableCells from "./TableCells";
 
 const PatientListPage = () => {
-  console.log("PatientListPage");
   const { isAdmin } = useAuth();
 
   const router = useRouter();
@@ -150,12 +149,7 @@ const PatientListPage = () => {
         </>
       }
     >
-      <TableContainer
-        sx={{
-          maxHeight: "calc(100vh - 64px - 64px - 16px - 77px)",
-          overflow: "overlay",
-        }}
-      >
+      <TableContainer>
         <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>

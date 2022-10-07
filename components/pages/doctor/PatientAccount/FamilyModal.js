@@ -8,7 +8,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
   Toolbar,
@@ -22,7 +21,12 @@ import { useRequest } from "../../../../hooks";
 import { getBaseApi } from "../../../../modules/env";
 import { getFamilyMembersReq } from "../../../../modules/firebase";
 import { calculateAge, formatTimeStamp } from "../../../../modules/helper";
-import { ACTION_BUTTONS, Modal, getActionButtons } from "../../../common";
+import {
+  ACTION_BUTTONS,
+  Modal,
+  TableContainer,
+  getActionButtons,
+} from "../../../common";
 import { icons } from "../../patient/FamilyMembers/utils";
 import PrintIdModal from "./PrintIdModal";
 

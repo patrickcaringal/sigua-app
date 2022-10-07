@@ -5,6 +5,7 @@ import AddToQueueIcon from "@mui/icons-material/AddToQueue";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import GroupIcon from "@mui/icons-material/Group";
+import InsertChartIcon from "@mui/icons-material/InsertChart";
 import ListIcon from "@mui/icons-material/List";
 import MapsHomeWorkIcon from "@mui/icons-material/MapsHomeWork";
 import MedicalInformationIcon from "@mui/icons-material/MedicalInformation";
@@ -12,7 +13,6 @@ import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
 import PeopleIcon from "@mui/icons-material/People";
 import QueueIcon from "@mui/icons-material/Queue";
 import ViewListIcon from "@mui/icons-material/ViewList";
-import WarehouseIcon from "@mui/icons-material/Warehouse";
 import {
   Box,
   Divider,
@@ -22,6 +22,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  ListSubheader,
   Toolbar,
 } from "@mui/material";
 import { useRouter } from "next/router";
@@ -92,6 +93,19 @@ const LeftSidebar = () => {
           text: "Services",
           icon: <MedicalServicesIcon />,
           onClick: () => router.push(PATHS.DOCTOR.SERVICES_MANAGEMENT),
+        },
+        {
+          text: "Queues",
+          icon: <ViewListIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.QUEUE_MANAGEMENT),
+        },
+
+        { text: "Divider" },
+        // { text: "subheader", title: "Reports" },
+        {
+          text: "Queue Report",
+          icon: <InsertChartIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.REPORT_QUEUE),
         },
       ]
     : isDoctor
@@ -165,9 +179,12 @@ const LeftSidebar = () => {
       <Toolbar />
       <Box sx={{ overflow: "auto" }}>
         <List>
-          {sidebarItems.map(({ text, icon, onClick }, index) => {
+          {sidebarItems.map(({ text, icon, onClick, title }, index) => {
             if (text === "Divider")
               return <Divider key={index} sx={{ my: 1 }} />;
+
+            // if (text === "Subheader")
+            //   return <ListSubheader component="div">{title}</ListSubheader>;
 
             return (
               <ListItem key={text} disablePadding onClick={onClick}>

@@ -17,8 +17,12 @@ export const PATHS = {
     STAFF_RESTORE: "/doctor/staffs/restore",
     DOCTOR_MANAGEMENT: "/doctor/doctors",
     DOCTOR_RESTORE: "/doctor/doctors/restore",
+    QUEUE_MANAGEMENT: "/doctor/queue",
+    QUEUE_DETAIL: "/doctor/queue/[id]/details",
     QUEUE_TODAY: "/doctor/queue/today",
     QUEUE_SATURDAY: "/doctor/queue/saturday",
+    REPORT_QUEUE: "/doctor/report/queue",
+    // REPORT_PATIENT_MEDICAL_RECORD: "/doctor/patient/medical-record",
   },
   STAFF: {
     DASHBOARD: "/staff/dashboard",

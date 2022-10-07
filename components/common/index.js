@@ -18,6 +18,7 @@ import {
   PROTECTED_ROUTES,
   getRoleRoutes,
 } from "./Routes";
+import { TableContainer } from "./Table";
 import Toolbar from "./Toolbar";
 import { LongTypography } from "./Typography";
 
@@ -52,4 +53,6 @@ export {
   Placeholder,
   // PdfFrame
   PdfFrame,
+  // Table
+  TableContainer,
 };

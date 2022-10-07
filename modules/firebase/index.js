@@ -57,6 +57,7 @@ import {
 import {
   addQueueCounterReq,
   addQueueReq,
+  getAllQueuesReq,
   getQueueReq,
   getQueuesByBranchDateRangeReq,
   getQueuesByBranchReq,
@@ -153,6 +154,7 @@ export {
   // queue
   addQueueCounterReq,
   addQueueReq,
+  getAllQueuesReq,
   getQueueReq,
   getQueuesByBranchDateRangeReq,
   getQueuesByBranchReq,

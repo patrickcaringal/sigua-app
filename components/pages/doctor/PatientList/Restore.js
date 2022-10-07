@@ -6,7 +6,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
   Typography,
@@ -21,7 +20,12 @@ import {
   restorePatientReq,
 } from "../../../../modules/firebase";
 import { arrayStringify, pluralize } from "../../../../modules/helper";
-import { ACTION_ICONS, PATHS, successMessage } from "../../../common";
+import {
+  ACTION_ICONS,
+  PATHS,
+  TableContainer,
+  successMessage,
+} from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import TableCells from "./TableCells";
 
