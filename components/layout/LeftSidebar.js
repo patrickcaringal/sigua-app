@@ -22,6 +22,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  ListSubheader,
   Toolbar,
 } from "@mui/material";
 import { useRouter } from "next/router";
@@ -100,8 +101,9 @@ const LeftSidebar = () => {
         },
 
         { text: "Divider" },
+        // { text: "subheader", title: "Reports" },
         {
-          text: "Queue",
+          text: "Queue Report",
           icon: <InsertChartIcon />,
           onClick: () => router.push(PATHS.DOCTOR.REPORT_QUEUE),
         },
@@ -177,9 +179,12 @@ const LeftSidebar = () => {
       <Toolbar />
       <Box sx={{ overflow: "auto" }}>
         <List>
-          {sidebarItems.map(({ text, icon, onClick }, index) => {
+          {sidebarItems.map(({ text, icon, onClick, title }, index) => {
             if (text === "Divider")
               return <Divider key={index} sx={{ my: 1 }} />;
+
+            // if (text === "Subheader")
+            //   return <ListSubheader component="div">{title}</ListSubheader>;
 
             return (
               <ListItem key={text} disablePadding onClick={onClick}>
