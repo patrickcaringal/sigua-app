@@ -41,18 +41,20 @@ export const signUpReq = async ({ email, password }) => {
 
 export const signInReq = async ({ email, password }) => {
   try {
-    // NOTE: query by role before login
-    // Authenticate
-    const res = await signInWithEmailAndPassword(auth, email, password);
-
     // Get User Document
-    const id = res?.user?.uid;
     const collRef = collection(db, "doctors");
-    const q = query(collRef, where("authId", "==", id));
+    const q = query(
+      collRef,
+      where("email", "==", email),
+      where("deleted", "==", false)
+    );
     const querySnapshot = await getDocs(q);
 
     const exist = querySnapshot.docs.length === 1;
-    if (!exist) throw new Error("Doctor document not found");
+    if (!exist) throw new Error("Invalid email or password.");
+
+    // Authenticate
+    const res = await signInWithEmailAndPassword(auth, email, password);
 
     const document = {
       id: querySnapshot.docs[0].id,

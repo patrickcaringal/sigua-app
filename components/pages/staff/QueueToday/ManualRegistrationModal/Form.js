@@ -60,6 +60,7 @@ const Form = ({
   }, []);
 
   const handlePatientSelect = (patient) => {
+    setFieldValue("accountId", patient.accountId, false);
     setFieldValue("patientId", patient.id, false);
     setFieldValue("patientName", patient.name, false);
     setFieldValue("patientContactNo", patient.contactNo, false);
