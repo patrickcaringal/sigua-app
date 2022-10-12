@@ -9,6 +9,14 @@ import {
   updateFamilyMembersReq,
 } from "./account";
 import {
+  addAnnouncementReq,
+  deleteAnnouncementReq,
+  getAnnouncementsReq,
+  getDeletedAnnouncementsReq,
+  restoreAnnouncementReq,
+  updateAnnouncementReq,
+} from "./announcements";
+import {
   monitorAuthState,
   signInAnonymouslyReq,
   signInReq,
@@ -107,6 +115,13 @@ export {
   getAccountsReq,
   getMemberForApprovalReq,
   updateFamilyMembersReq,
+  // Announcement
+  addAnnouncementReq,
+  deleteAnnouncementReq,
+  getAnnouncementsReq,
+  getDeletedAnnouncementsReq,
+  restoreAnnouncementReq,
+  updateAnnouncementReq,
   // doctor
   addDoctorReq,
   deleteDoctorReq,

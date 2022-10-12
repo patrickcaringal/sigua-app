@@ -99,6 +99,13 @@ const LeftSidebar = () => {
           icon: <ViewListIcon />,
           onClick: () => router.push(PATHS.DOCTOR.QUEUE_MANAGEMENT),
         },
+        { text: "Divider" },
+        // { text: "subheader", title: "Reports" },
+        {
+          text: "Announcements",
+          icon: <InsertChartIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.ANNOUNCEMENT_MANAGEMENT),
+        },
 
         { text: "Divider" },
         // { text: "subheader", title: "Reports" },

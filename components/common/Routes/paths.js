@@ -18,6 +18,8 @@ export const PATHS = {
     DOCTOR_MANAGEMENT: "/doctor/doctors",
     DOCTOR_RESTORE: "/doctor/doctors/restore",
     QUEUE_MANAGEMENT: "/doctor/queue",
+    ANNOUNCEMENT_MANAGEMENT: "/doctor/announcements",
+    ANNOUNCEMENT_RESTORE: "/doctor/announcements/restore",
     QUEUE_DETAIL: "/doctor/queue/[id]/details",
     QUEUE_TODAY: "/doctor/queue/today",
     QUEUE_SATURDAY: "/doctor/queue/saturday",
