@@ -121,7 +121,7 @@ const Form = ({
                         <Grid item xs={12}>
                           <Input
                             multiline
-                            rows={2}
+                            rows={10}
                             required
                             label="Content"
                             name={`announcements[${index}].content`}
