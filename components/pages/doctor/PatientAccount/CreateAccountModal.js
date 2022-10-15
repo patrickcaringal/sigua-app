@@ -15,14 +15,18 @@ import MenuItem from "@mui/material/MenuItem";
 import faker from "faker";
 import { useFormik } from "formik";
 
+import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useRequest } from "../../../../hooks";
 import { isMockDataEnabled } from "../../../../modules/env";
 import {
+  LOG_ACTIONS,
   REG_TYPE,
+  RESOURCE_TYPE,
   checkAccountDuplicateReq,
   createAccountReq,
+  saveLogReq,
 } from "../../../../modules/firebase";
 import { formatTimeStamp, getUniquePersonId } from "../../../../modules/helper";
 import { Modal, successMessage } from "../../../common";
@@ -65,6 +69,7 @@ const defaultModal = {
 };
 
 const CreateAccountModal = ({ open = false, onCreate, onClose }) => {
+  const { user } = useAuth();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
   const { setBackdropLoader } = useBackdropLoader();
 
@@ -132,6 +137,16 @@ const CreateAccountModal = ({ open = false, onCreate, onClose }) => {
       setBackdropLoader(false);
       return openErrorDialog(createAccError);
     }
+
+    await saveLogReq({
+      actorId: user.id,
+      actorName: user.name,
+      action: LOG_ACTIONS.CREATE,
+      resourceType: RESOURCE_TYPE.PATIENT,
+      resourceId: userInfo.id,
+      resourceName: userInfo.name,
+      change: null,
+    });
 
     setBackdropLoader(false);
     onCreate([{ ...userInfo, familyMembers: 1 }]);

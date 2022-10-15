@@ -19,7 +19,10 @@ import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useRequest } from "../../../../hooks";
 import { getBaseApi } from "../../../../modules/env";
-import { getFamilyMembersReq } from "../../../../modules/firebase";
+import {
+  MEMBER_STATUS,
+  getFamilyMembersReq,
+} from "../../../../modules/firebase";
 import { calculateAge, formatTimeStamp } from "../../../../modules/helper";
 import {
   ACTION_BUTTONS,
@@ -164,13 +167,14 @@ const FamilyModal = ({ open = false, data: patientId, onClose }) => {
                           </Typography>
                         </TableCell>
                         <TableCell align="center">
-                          {getActionButtons([
-                            {
-                              action: ACTION_BUTTONS.GENERATE_QR_CODE,
-                              tooltipText: "Print ID",
-                              onClick: () => handlePrintIdModalOpen(m),
-                            },
-                          ])}
+                          {status === MEMBER_STATUS.VERFIED &&
+                            getActionButtons([
+                              {
+                                action: ACTION_BUTTONS.GENERATE_QR_CODE,
+                                tooltipText: "Print ID",
+                                onClick: () => handlePrintIdModalOpen(m),
+                              },
+                            ])}
                         </TableCell>
                       </TableRow>
                     );

@@ -10,12 +10,15 @@ import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
 import {
+  LOG_ACTIONS,
+  RESOURCE_TYPE,
   addQueueCounterReq,
   addQueueReq,
   db,
   getBranchesReq,
   registerToQueueReq,
   resetQueueReq,
+  saveLogReq,
   transferQueueItemReq,
   updateQueueRegStatusReq,
   updateQueueStatusReq,
@@ -154,10 +157,20 @@ const QueueTodayPage = () => {
     };
 
     // Add
-    const { error: addError } = await addQueue({
+    const { data, error: addError } = await addQueue({
       docs,
     });
     if (addError) return openErrorDialog(addError);
+
+    await saveLogReq({
+      actorId: user.id,
+      actorName: user.name,
+      action: LOG_ACTIONS.CREATE,
+      resourceType: RESOURCE_TYPE.QUEUE,
+      resourceId: data.id,
+      resourceName: `${data.branchName} ${data.queueDate}`,
+      change: null,
+    });
 
     // Successful
     openResponseDialog({

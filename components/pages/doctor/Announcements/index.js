@@ -14,7 +14,6 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import lodash from "lodash";
 import { useRouter } from "next/router";
 
 import { useAuth } from "../../../../contexts/AuthContext";
@@ -24,13 +23,12 @@ import { useFilter, usePagination, useRequest } from "../../../../hooks";
 import {
   LOG_ACTIONS,
   RESOURCE_TYPE,
-  addBranchReq,
-  deleteBranchReq,
-  getBranchesReq,
-  getServicesReq,
+  addAnnouncementReq,
+  deleteAnnouncementReq,
+  getAnnouncementsReq,
   omitKeys,
   saveLogReq,
-  updateBranchReq,
+  updateAnnouncementReq,
 } from "../../../../modules/firebase";
 import { localUpdateDocs, pluralize } from "../../../../modules/helper";
 import {
@@ -42,7 +40,7 @@ import {
   successMessage,
 } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
-import ManageBranchModal from "./ManageBranchModal";
+import AnnouncementModal from "./AnnouncementModal";
 import TableCells from "./TableCells";
 
 const defaultModal = {
@@ -50,73 +48,55 @@ const defaultModal = {
   data: {},
 };
 
-const BranchManagementPage = () => {
+const AnnouncementsManagementPage = () => {
   const router = useRouter();
   const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   // Requests
-  const [getServices] = useRequest(getServicesReq, setBackdropLoader);
-  const [getBranches] = useRequest(getBranchesReq, setBackdropLoader);
-  const [addBranch] = useRequest(addBranchReq, setBackdropLoader);
-  const [updateBranch] = useRequest(updateBranchReq, setBackdropLoader);
-  const [deleteBranch] = useRequest(deleteBranchReq, setBackdropLoader);
+  const [getAnnouncements] = useRequest(getAnnouncementsReq, setBackdropLoader);
+  const [addAnnouncement] = useRequest(addAnnouncementReq, setBackdropLoader);
+  const [updateAnnouncement] = useRequest(
+    updateAnnouncementReq,
+    setBackdropLoader
+  );
+  const [deleteAnnouncement] = useRequest(
+    deleteAnnouncementReq,
+    setBackdropLoader
+  );
 
   // Local States
-  const [services, setServices] = useState([]);
-  const [servicesMap, setServicesMap] = useState({});
-  const [branches, setBranches] = useState([]);
-  const [branchModal, setBranchModal] = useState(defaultModal);
+  const [announcements, setAnnouncements] = useState([]);
+  const [announcementModal, setAnnouncementModal] = useState(false);
   const filtering = useFilter({});
   const pagination = usePagination(filtering.filtered);
 
   useEffect(() => {
-    const fetchServices = async () => {
-      // Get Services
-      const {
-        data: serviceList,
-        map: serviceMap,
-        error: getServiceError,
-      } = await getServices();
-      if (getServiceError) return openErrorDialog(getServiceError);
+    const fetch = async () => {
+      // Get Announcement
+      const { data, error } = await getAnnouncements();
+      if (error) return openErrorDialog(error);
 
-      setServices(
-        serviceList.map((i) => ({
-          ...lodash.pick(i, ["name", "id"]),
-        }))
-      );
-      setServicesMap(serviceMap);
+      setAnnouncements(data);
     };
-
-    const fetchBranches = async () => {
-      // Get Branches
-      const { data: branchList, error: getBranchError } = await getBranches({
-        mapService: false,
-      });
-      if (getBranchError) return openErrorDialog(getBranchError);
-
-      setBranches(branchList);
-    };
-
-    fetchServices();
-    fetchBranches();
+    fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    filtering.setData(branches);
+    filtering.setData(announcements);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [branches]);
+  }, [announcements]);
 
   useEffect(() => {
     pagination.setTotalItems(filtering.filtered.length);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtering.filtered.length]);
 
-  const handleAddBranch = async (docs) => {
+  const handleAddAnnouncement = async (docs) => {
     // Add
-    const { data: newDocs, error: addError } = await addBranch({
+    const { data: newDocs, error: addError } = await addAnnouncement({
       docs,
     });
     if (addError) return openErrorDialog(addError);
@@ -125,38 +105,38 @@ const BranchManagementPage = () => {
       actorId: user.id,
       actorName: user.name,
       action: LOG_ACTIONS.CREATE,
-      resourceType: RESOURCE_TYPE.BRANCH,
+      resourceType: RESOURCE_TYPE.ANNOUNCEMENT,
       resourceId: newDocs.map((i) => i.id),
-      resourceName: newDocs.map((i) => i.name),
+      resourceName: newDocs.map((i) => i.title),
       change: null,
     });
 
     // Successful
-    setBranches((prev) => [...prev, ...newDocs]);
+    setAnnouncements((prev) => [...prev, ...newDocs]);
     openResponseDialog({
       autoClose: true,
       content: successMessage({
-        noun: pluralize("Branch", newDocs.length, "es"),
+        noun: pluralize("Announcement", newDocs.length),
         verb: "added",
       }),
       type: "SUCCESS",
       closeCb() {
-        setBranchModal(defaultModal);
+        setAnnouncementModal(defaultModal);
       },
     });
   };
 
-  const handleEditBranch = async (updatedDocs) => {
-    const updatedBranch = updatedDocs[0];
-    const branchCopy = [...branches];
+  const handleEditAnnouncement = async (updatedDocs) => {
+    const updatedAnnouncement = updatedDocs[0];
+    const announcementCopy = [...announcements];
     const { latestDocs, updates } = localUpdateDocs({
-      updatedDoc: updatedBranch,
-      oldDocs: branchCopy,
+      updatedDoc: updatedAnnouncement,
+      oldDocs: announcementCopy,
     });
 
     // Update
-    const { error: updateError } = await updateBranch({
-      branch: updates,
+    const { error: updateError } = await updateAnnouncement({
+      announcement: updates,
     });
     if (updateError) return openErrorDialog(updateError);
 
@@ -164,33 +144,36 @@ const BranchManagementPage = () => {
       actorId: user.id,
       actorName: user.name,
       action: LOG_ACTIONS.UPDATE,
-      resourceType: RESOURCE_TYPE.BRANCH,
-      resourceId: updatedBranch.id,
-      resourceName: updatedBranch.name,
-      change: omitKeys(updates, RESOURCE_TYPE.BRANCH),
+      resourceType: RESOURCE_TYPE.ANNOUNCEMENT,
+      resourceId: updatedAnnouncement.id,
+      resourceName: updatedAnnouncement.title,
+      change: omitKeys(updates, RESOURCE_TYPE.ANNOUNCEMENT),
     });
 
     // Success
-    setBranches(latestDocs);
+    setAnnouncements(latestDocs);
     openResponseDialog({
       autoClose: true,
-      content: successMessage({ noun: "Branch", verb: "updated" }),
+      content: successMessage({ noun: "Announcement", verb: "updated" }),
       type: "SUCCESS",
       closeCb() {
-        setBranchModal(defaultModal);
+        setAnnouncementModal(defaultModal);
       },
     });
   };
 
-  const handleDeleteConfirm = (branch) => {
+  const handleDeleteConfirm = (announcement) => {
     openResponseDialog({
-      content: confirmMessage({ noun: "Branch", item: branch.name }),
+      content: confirmMessage({
+        noun: "Announcement",
+        item: announcement.name,
+      }),
       type: "CONFIRM",
       actions: (
         <Button
           variant="outlined"
           color="error"
-          onClick={() => handleDelete(branch)}
+          onClick={() => handleDelete(announcement)}
           size="small"
         >
           delete
@@ -199,50 +182,50 @@ const BranchManagementPage = () => {
     });
   };
 
-  const handleDelete = async (branch) => {
+  const handleDelete = async (announcement) => {
     // Delete
-    const { error: deleteError } = await deleteBranch({ branch });
+    const { error: deleteError } = await deleteAnnouncement({ announcement });
     if (deleteError) return openErrorDialog(deleteError);
 
     await saveLogReq({
       actorId: user.id,
       actorName: user.name,
       action: LOG_ACTIONS.DELETE,
-      resourceType: RESOURCE_TYPE.BRANCH,
-      resourceId: branch.id,
-      resourceName: branch.name,
+      resourceType: RESOURCE_TYPE.ANNOUNCEMENT,
+      resourceId: announcement.id,
+      resourceName: announcement.title,
       change: null,
     });
 
     // Success
-    setBranches((prev) => prev.filter((i) => i.id !== branch.id));
+    setAnnouncements((prev) => prev.filter((i) => i.id !== announcement.id));
     openResponseDialog({
       autoClose: true,
-      content: successMessage({ noun: "Branch", verb: "deleted" }),
+      content: successMessage({ noun: "Announcement", verb: "deleted" }),
       type: "SUCCESS",
     });
   };
 
-  const handleAddBranchModalOpen = () => {
-    setBranchModal({
+  const handleAnnouncementModalOpen = () => {
+    setAnnouncementModal({
       open: true,
       data: null,
     });
   };
 
-  const handleBranchModalClose = () => {
-    setBranchModal(defaultModal);
+  const handleAnnouncementModalClose = () => {
+    setAnnouncementModal(defaultModal);
   };
 
-  const handleEditBranchModalOpen = (branch) => {
-    setBranchModal({
+  const handleEditAnnouncementModalOpen = (announcement) => {
+    setAnnouncementModal({
       open: true,
-      data: branch,
+      data: announcement,
     });
   };
 
   const handleRestoreRedirect = () => {
-    router.push(PATHS.DOCTOR.BRANCH_RESTORE);
+    router.push(PATHS.DOCTOR.ANNOUNCEMENT_RESTORE);
   };
 
   const handleSearchChange = useCallback(
@@ -262,7 +245,7 @@ const BranchManagementPage = () => {
     <AdminMainContainer
       toolbarProps={{
         onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
-        paths: [{ text: "Branches" }],
+        paths: [{ text: "Announcements" }],
       }}
       toolbarContent={
         <>
@@ -285,10 +268,10 @@ const BranchManagementPage = () => {
           <Button
             variant="contained"
             size="small"
-            onClick={handleAddBranchModalOpen}
+            onClick={handleAnnouncementModalOpen}
             startIcon={<AddCircleIcon />}
           >
-            add branch
+            add announcement
           </Button>
         </>
       }
@@ -298,10 +281,8 @@ const BranchManagementPage = () => {
           <TableHead>
             <TableRow>
               {[
-                { text: "Branch", sx: { width: 200 } },
-                { text: "Services" },
-                { text: "Capacity", align: "center", sx: { width: 110 } },
-                { text: "Address", sx: { width: 400 } },
+                { text: "Title", sx: { width: 200 } },
+                { text: "Content" },
                 { text: "Actions", align: "center", sx: { width: 110 } },
               ].map(({ text, align, sx }) => (
                 <TableCell
@@ -319,17 +300,13 @@ const BranchManagementPage = () => {
             {filtering.filtered
               .slice(pagination.info.start, pagination.info.end)
               .map((i) => {
-                const data = {
-                  ...i,
-                  services: i.servicesId.map((s) => servicesMap[s]),
-                };
                 return (
                   <TableRow key={i.id}>
-                    <TableCells data={data} />
+                    <TableCells data={i} />
                     <TableCell align="center">
                       <IconButton
                         size="small"
-                        onClick={() => handleEditBranchModalOpen(data)}
+                        onClick={() => handleEditAnnouncementModalOpen(i)}
                       >
                         <EditIcon />
                       </IconButton>
@@ -348,17 +325,20 @@ const BranchManagementPage = () => {
       </TableContainer>
       <Pagination pagination={pagination} onChange={handlePageChange} />
 
-      {branchModal.open && (
-        <ManageBranchModal
-          services={services}
-          open={branchModal.open}
-          data={branchModal.data}
-          onClose={handleBranchModalClose}
-          onSave={!branchModal.data ? handleAddBranch : handleEditBranch}
+      {announcementModal.open && (
+        <AnnouncementModal
+          open={announcementModal.open}
+          data={announcementModal.data}
+          onClose={handleAnnouncementModalClose}
+          onSave={
+            !announcementModal.data
+              ? handleAddAnnouncement
+              : handleEditAnnouncement
+          }
         />
       )}
     </AdminMainContainer>
   );
 };
 
-export default BranchManagementPage;
+export default AnnouncementsManagementPage;

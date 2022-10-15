@@ -321,7 +321,7 @@ export const diagnosePatientReq = async ({ queue, medicalRecord }) => {
 
     await batch.commit();
 
-    return { success: true };
+    return { data, success: true };
   } catch (error) {
     console.log(error);
     return { error: error.message };

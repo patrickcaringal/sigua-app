@@ -16,7 +16,13 @@ import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useFilter, usePagination, useRequest } from "../../../../hooks";
-import { deletePatientReq, getPatientsReq } from "../../../../modules/firebase";
+import {
+  LOG_ACTIONS,
+  RESOURCE_TYPE,
+  deletePatientReq,
+  getPatientsReq,
+  saveLogReq,
+} from "../../../../modules/firebase";
 import {
   ACTION_BUTTONS,
   ACTION_ICONS,
@@ -31,7 +37,7 @@ import { AdminMainContainer } from "../../../shared";
 import TableCells from "./TableCells";
 
 const PatientListPage = () => {
-  const { isAdmin } = useAuth();
+  const { user, isAdmin } = useAuth();
 
   const router = useRouter();
   const { setBackdropLoader } = useBackdropLoader();
@@ -45,6 +51,11 @@ const PatientListPage = () => {
   const [patients, setPatients] = useState([]);
   const filtering = useFilter({});
   const pagination = usePagination(filtering.filtered); // , undefined, 1
+
+  useEffect(() => {
+    filtering.setData(patients);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [patients]);
 
   useEffect(() => {
     pagination.setTotalItems(filtering.filtered.length);
@@ -93,6 +104,16 @@ const PatientListPage = () => {
     // Delete
     const { error: deleteError } = await deletePatient({ patient });
     if (deleteError) return openErrorDialog(deleteError);
+
+    await saveLogReq({
+      actorId: user.id,
+      actorName: user.name,
+      action: LOG_ACTIONS.DELETE,
+      resourceType: RESOURCE_TYPE.PATIENT,
+      resourceId: patient.id,
+      resourceName: patient.name,
+      change: null,
+    });
 
     // Success
     setPatients((prev) => prev.filter((i) => i.id !== patient.id));

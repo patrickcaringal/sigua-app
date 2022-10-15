@@ -16,13 +16,18 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 
+import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useFilter, usePagination, useRequest } from "../../../../hooks";
 import {
+  LOG_ACTIONS,
+  RESOURCE_TYPE,
   addServiceReq,
   deleteServiceReq,
   getServicesReq,
+  omitKeys,
+  saveLogReq,
   updateServiceReq,
 } from "../../../../modules/firebase";
 import { localUpdateDocs, pluralize } from "../../../../modules/helper";
@@ -45,6 +50,7 @@ const defaultModal = {
 
 const ServicesManagementPage = () => {
   const router = useRouter();
+  const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
@@ -90,6 +96,16 @@ const ServicesManagementPage = () => {
     });
     if (addError) return openErrorDialog(addError);
 
+    await saveLogReq({
+      actorId: user.id,
+      actorName: user.name,
+      action: LOG_ACTIONS.CREATE,
+      resourceType: RESOURCE_TYPE.SERVICE,
+      resourceId: newDocs.map((i) => i.id),
+      resourceName: newDocs.map((i) => i.name),
+      change: null,
+    });
+
     // Successful
     setServices((prev) => [...prev, ...newDocs]);
     openResponseDialog({
@@ -118,6 +134,16 @@ const ServicesManagementPage = () => {
       service: updates,
     });
     if (updateError) return openErrorDialog(updateError);
+
+    await saveLogReq({
+      actorId: user.id,
+      actorName: user.name,
+      action: LOG_ACTIONS.UPDATE,
+      resourceType: RESOURCE_TYPE.SERVICE,
+      resourceId: updatedService.id,
+      resourceName: updatedService.name,
+      change: omitKeys(updates, RESOURCE_TYPE.SERVICE),
+    });
 
     // Success
     setServices(latestDocs);
@@ -152,6 +178,16 @@ const ServicesManagementPage = () => {
     // Delete
     const { error: deleteError } = await deleteService({ service });
     if (deleteError) return openErrorDialog(deleteError);
+
+    await saveLogReq({
+      actorId: user.id,
+      actorName: user.name,
+      action: LOG_ACTIONS.DELETE,
+      resourceType: RESOURCE_TYPE.SERVICE,
+      resourceId: service.id,
+      resourceName: service.name,
+      change: null,
+    });
 
     // Success
     setServices((prev) => prev.filter((i) => i.id !== service.id));

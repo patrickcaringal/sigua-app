@@ -20,8 +20,8 @@ import { useRequest, useSelect } from "../../../../hooks";
 import {
   LOG_ACTIONS,
   RESOURCE_TYPE,
-  getDeletedDoctorsReq,
-  restoreDoctorReq,
+  getDeletedAnnouncementsReq,
+  restoreAnnouncementReq,
   saveLogReq,
 } from "../../../../modules/firebase";
 import { arrayStringify, pluralize } from "../../../../modules/helper";
@@ -29,39 +29,41 @@ import { PATHS, TableContainer, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import TableCells from "./TableCells";
 
-const DoctorRestorePage = () => {
+const AnnouncementRestorePage = () => {
   const router = useRouter();
   const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   // Requests
-  const [getDeletedDoctors] = useRequest(
-    getDeletedDoctorsReq,
+  const [getAnnouncements] = useRequest(
+    getDeletedAnnouncementsReq,
     setBackdropLoader
   );
-  const [restoreDoctor] = useRequest(restoreDoctorReq, setBackdropLoader);
+  const [restoreAnnouncement] = useRequest(
+    restoreAnnouncementReq,
+    setBackdropLoader
+  );
 
   // Local States
-  const [doctors, setDoctors] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
   const selected = useSelect("id");
-  const selectedItems = selected.getSelected(doctors);
+  const selectedItems = selected.getSelected(announcements);
 
   useEffect(() => {
-    const fetchDoctors = async () => {
-      // Get Doctors
-      const { data, error: getError } = await getDeletedDoctors();
-      if (getError) return openErrorDialog(getError);
+    const fetch = async () => {
+      // Get Announcements
+      const { data, error } = await getAnnouncements();
+      if (error) return openErrorDialog(error);
 
-      setDoctors(data);
+      setAnnouncements(data);
     };
-
-    fetchDoctors();
+    fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleRestoreConfirm = () => {
-    const names = selectedItems.map((i) => i.name);
+    const names = selectedItems.map((i) => i.title);
     openResponseDialog({
       content: (
         <>
@@ -90,25 +92,25 @@ const DoctorRestorePage = () => {
     const ids = selectedItems.map((i) => i.id);
 
     // Update
-    const { error: restoreError } = await restoreDoctor({ docs: items });
+    const { error: restoreError } = await restoreAnnouncement({ docs: items });
     if (restoreError) return openErrorDialog(restoreError);
 
     await saveLogReq({
       actorId: user.id,
       actorName: user.name,
       action: LOG_ACTIONS.RESTORE,
-      resourceType: RESOURCE_TYPE.DOCTOR,
+      resourceType: RESOURCE_TYPE.ANNOUNCEMENT,
       resourceId: ids,
-      resourceName: items.map((i) => i.name),
+      resourceName: items.map((i) => i.title),
       change: null,
     });
 
     // Success
-    setDoctors((prev) => prev.filter((i) => !ids.includes(i.id)));
+    setAnnouncements((prev) => prev.filter((i) => !ids.includes(i.id)));
     openResponseDialog({
       autoClose: true,
       content: successMessage({
-        noun: pluralize("Doctor", items.length),
+        noun: pluralize("Announcement", items.length),
         verb: "restored",
       }),
       type: "SUCCESS",
@@ -121,8 +123,8 @@ const DoctorRestorePage = () => {
         onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
         paths: [
           {
-            text: "Doctors",
-            onClick: () => router.push(PATHS.DOCTOR.DOCTOR_MANAGEMENT),
+            text: "Announcements",
+            onClick: () => router.push(PATHS.DOCTOR.ANNOUNCEMENT_MANAGEMENT),
           },
           { text: "Restore" },
         ],
@@ -144,29 +146,22 @@ const DoctorRestorePage = () => {
           <TableHead>
             <TableRow>
               <TableCell sx={{ width: 50 }} />
-              {[
-                { text: "Name" },
-                { text: "Email", sx: { width: 200 } },
-                { text: "Birthdate", sx: { width: 140 } },
-                { text: "Age", sx: { width: 40 }, align: "center" },
-                { text: "Gender", sx: { width: 100 } },
-                // { text: "Contact No.", sx: { width: 140 } },
-                { text: "Address", sx: { width: 400 } },
-                // { text: "Branch", sx: { width: 110 } },
-              ].map(({ text, align, sx }) => (
-                <TableCell
-                  key={text}
-                  {...(align && { align })}
-                  {...(sx && { sx: { ...sx, fontWeight: "bold" } })}
-                >
-                  {text}
-                </TableCell>
-              ))}
+              {[{ text: "Title", sx: { width: 200 } }, { text: "Content" }].map(
+                ({ text, align, sx }) => (
+                  <TableCell
+                    key={text}
+                    {...(align && { align })}
+                    {...(sx && { sx: { ...sx, fontWeight: "bold" } })}
+                  >
+                    {text}
+                  </TableCell>
+                )
+              )}
             </TableRow>
           </TableHead>
 
           <TableBody>
-            {doctors.map((i) => {
+            {announcements.map((i) => {
               const { id } = i;
               const isItemSelected = selected.isItemSelected(id);
 
@@ -192,4 +187,4 @@ const DoctorRestorePage = () => {
   );
 };
 
-export default DoctorRestorePage;
+export default AnnouncementRestorePage;

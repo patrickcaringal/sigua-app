@@ -3,6 +3,7 @@ import * as React from "react";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import AddToQueueIcon from "@mui/icons-material/AddToQueue";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
+import CampaignIcon from "@mui/icons-material/Campaign";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import GroupIcon from "@mui/icons-material/Group";
 import InsertChartIcon from "@mui/icons-material/InsertChart";
@@ -99,6 +100,11 @@ const LeftSidebar = () => {
           icon: <ViewListIcon />,
           onClick: () => router.push(PATHS.DOCTOR.QUEUE_MANAGEMENT),
         },
+        {
+          text: "Announcements",
+          icon: <CampaignIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.ANNOUNCEMENT_MANAGEMENT),
+        },
 
         { text: "Divider" },
         // { text: "subheader", title: "Reports" },
@@ -106,6 +112,11 @@ const LeftSidebar = () => {
           text: "Queue Report",
           icon: <InsertChartIcon />,
           onClick: () => router.push(PATHS.DOCTOR.REPORT_QUEUE),
+        },
+        {
+          text: "Activity Logs",
+          icon: <InsertChartIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.REPORT_ACTIVITY_LOGS),
         },
       ]
     : isDoctor

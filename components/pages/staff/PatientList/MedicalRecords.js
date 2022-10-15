@@ -160,10 +160,16 @@ const MedicalRecordPage = () => {
         <PatientDetails patient={patient} />
         <Box sx={{ pr: 3 }}>
           {/* Medical history  */}
-          <MedicalHistory
-            data={filtering.filtered}
-            onRecordClick={handlePatientRecordModalOpen}
-          />
+          <Box
+            sx={{
+              minHeight: "calc(100vh - 64px - 64px - 30px )",
+            }}
+          >
+            <MedicalHistory
+              data={filtering.filtered}
+              onRecordClick={handlePatientRecordModalOpen}
+            />
+          </Box>
         </Box>
       </Box>
 

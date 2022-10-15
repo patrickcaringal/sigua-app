@@ -1,71 +1,54 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import {
   AppBar,
   Box,
   Button,
   Container,
-  Slide,
   Toolbar,
   Typography,
 } from "@mui/material";
 import { FormikProvider, useFormik } from "formik";
 
-import { StaffSchema } from "../../../../modules/validation";
+// import { ServicesSchema } from "../../../../modules/validation";
 import { Modal } from "../../../common";
 import Form from "./Form";
 
-const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
-
 const defaultValues = {
-  staffs: [],
+  announcements: [
+    {
+      image: "",
+      title: "",
+      content: "",
+    },
+  ],
 };
 
-const defaultStaffValue = {
-  firstName: "",
-  middleName: "",
-  lastName: "",
-  suffix: "",
-  birthdate: "",
-  gender: "",
-  address: "",
-  email: "",
-  branch: "",
-};
-
-export default function ManageStaffModal({
+export default function ManageAnnouncementModal({
   open = false,
   data,
   onClose,
   onSave,
-  branches,
 }) {
-  const branchesMap = branches.reduce((acc, i) => {
-    return { ...acc, [i.id]: i.name };
-  }, {});
-
   const isCreate = !data;
-  const initialValues = isCreate ? defaultValues : { staffs: [data] };
+  const initialValues = isCreate ? defaultValues : { announcements: [data] };
 
   const formik = useFormik({
     initialValues: initialValues,
-    validationSchema: StaffSchema,
+    // validationSchema: announcementsSchema,
     validateOnChange: false,
     enableReinitialize: true,
     onSubmit: async (values) => {
-      const { staffs } = values;
-      const mapped = staffs.map((i) => ({
-        ...i,
-        branchName: branchesMap[i.branch],
-      }));
-
-      onSave(mapped);
+      const { announcements } = values;
+      onSave(announcements);
     },
   });
 
   const { handleSubmit, values, dirty, resetForm } = formik;
+
+  useEffect(() => {
+    if (!open) resetForm();
+  }, [open, resetForm]);
 
   const handleClose = () => {
     onClose();
@@ -84,14 +67,14 @@ export default function ManageStaffModal({
           <Container maxWidth="lg">
             <Toolbar disableGutters>
               <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-                {isCreate ? "Add" : "Edit"} Staff
+                {isCreate ? "Add" : "Edit"} Announcement
               </Typography>
 
               <Button
                 color="inherit"
                 sx={{ mr: 2 }}
                 type="submit"
-                disabled={values.staffs.length === 0 || !dirty}
+                disabled={values.announcements.length === 0 || !dirty}
               >
                 save
               </Button>
@@ -104,7 +87,7 @@ export default function ManageStaffModal({
         <Box sx={{ py: 2 }}>
           <FormikProvider value={formik}>
             <Container maxWidth="lg">
-              <Form {...formik} isCreate={isCreate} branches={branches} />
+              <Form {...formik} isCreate={isCreate} />
             </Container>
           </FormikProvider>
         </Box>

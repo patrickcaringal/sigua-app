@@ -24,6 +24,7 @@ const ManualRegistrationModal = ({
 }) => {
   const formik = useFormik({
     initialValues: {
+      accountId: "",
       serviceId: "",
       serviceName: "",
       patientId: "",

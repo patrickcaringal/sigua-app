@@ -14,11 +14,14 @@ import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
 import { isMockDataEnabled } from "../../../../modules/env";
 import {
+  LOG_ACTIONS,
+  RESOURCE_TYPE,
   db,
   diagnosePatientReq,
   getBranchesReq,
   getPatientRecordReq,
   getPatientReq,
+  saveLogReq,
 } from "../../../../modules/firebase";
 import {
   formatFirebasetimeStamp,
@@ -100,8 +103,19 @@ const QueueManagementPage = () => {
         },
       };
 
-      const { error: diganoseError } = await diagnosePatient(payload);
+      const { data, error: diganoseError } = await diagnosePatient(payload);
       if (diganoseError) return openErrorDialog(diganoseError);
+
+      // savelog
+      await saveLogReq({
+        actorId: user.id,
+        actorName: user.name,
+        action: LOG_ACTIONS.CREATE,
+        resourceType: RESOURCE_TYPE.MEDICAL_RECORD,
+        resourceId: data.id,
+        resourceName: data.patientName,
+        change: null,
+      });
 
       // Successful
       openResponseDialog({
@@ -228,11 +242,13 @@ const QueueManagementPage = () => {
       >
         <PatientDetails patient={patient} />
         <Box sx={{ pr: 3 }}>
-          {/* Medical history  */}
-          <MedicalHistory
-            data={medicalRecords}
-            onRecordClick={handlePatientRecordModalOpen}
-          />
+          <Box sx={{ minHeight: "calc(100vh - 64px - 64px - 210px)" }}>
+            {/* Medical history  */}
+            <MedicalHistory
+              data={medicalRecords}
+              onRecordClick={handlePatientRecordModalOpen}
+            />
+          </Box>
 
           {/* Diagnosis */}
           <Box sx={{ mt: 5 }}>

@@ -9,6 +9,14 @@ import {
   updateFamilyMembersReq,
 } from "./account";
 import {
+  addAnnouncementReq,
+  deleteAnnouncementReq,
+  getAnnouncementsReq,
+  getDeletedAnnouncementsReq,
+  restoreAnnouncementReq,
+  updateAnnouncementReq,
+} from "./announcements";
+import {
   monitorAuthState,
   signInAnonymouslyReq,
   signInReq,
@@ -35,6 +43,13 @@ import {
   restoreDoctorReq,
   updateDoctorReq,
 } from "./doctor";
+import {
+  LOG_ACTIONS,
+  RESOURCE_TYPE,
+  getLogsByMonthReq,
+  omitKeys,
+  saveLogReq,
+} from "./logs";
 import {
   getPatientRecordReq,
   getRecordsByBranchDateRangeReq,
@@ -107,6 +122,13 @@ export {
   getAccountsReq,
   getMemberForApprovalReq,
   updateFamilyMembersReq,
+  // Announcement
+  addAnnouncementReq,
+  deleteAnnouncementReq,
+  getAnnouncementsReq,
+  getDeletedAnnouncementsReq,
+  restoreAnnouncementReq,
+  updateAnnouncementReq,
   // doctor
   addDoctorReq,
   deleteDoctorReq,
@@ -172,4 +194,10 @@ export {
   // storage
   uploadImageReq,
   deleteImageReq,
+  // log
+  LOG_ACTIONS,
+  RESOURCE_TYPE,
+  omitKeys,
+  saveLogReq,
+  getLogsByMonthReq,
 };

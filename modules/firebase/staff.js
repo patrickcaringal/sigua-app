@@ -32,17 +32,19 @@ const collRef = collection(db, "staffs");
 
 export const signInStaffReq = async ({ email, password }) => {
   try {
-    // Authenticate
-    const res = await signInWithEmailAndPassword(auth, email, password);
-
-    // Get User Document
-    const id = res?.user?.uid;
-    const collRef = collection(db, "staffs");
-    const q = query(collRef, where("authId", "==", id));
+    // check if deleted
+    const q = query(
+      collRef,
+      where("email", "==", email),
+      where("deleted", "==", false)
+    );
     const querySnapshot = await getDocs(q);
 
     const exist = querySnapshot.docs.length === 1;
-    if (!exist) throw new Error("Staff document not found");
+    if (!exist) throw new Error("Invalid email or password.");
+
+    // Authenticate
+    const res = await signInWithEmailAndPassword(auth, email, password);
 
     const docRef = doc(db, "branches", "list");
     const docSnap = await getDoc(docRef);
