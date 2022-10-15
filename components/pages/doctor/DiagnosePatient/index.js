@@ -242,13 +242,11 @@ const QueueManagementPage = () => {
       >
         <PatientDetails patient={patient} />
         <Box sx={{ pr: 3 }}>
-          <Box sx={{ minHeight: "calc(100vh - 64px - 64px - 210px)" }}>
-            {/* Medical history  */}
-            <MedicalHistory
-              data={medicalRecords}
-              onRecordClick={handlePatientRecordModalOpen}
-            />
-          </Box>
+          {/* Medical history  */}
+          <MedicalHistory
+            data={medicalRecords}
+            onRecordClick={handlePatientRecordModalOpen}
+          />
 
           {/* Diagnosis */}
           <Box sx={{ mt: 5 }}>
