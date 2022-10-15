@@ -16,13 +16,18 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 
+import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useFilter, usePagination, useRequest } from "../../../../hooks";
 import {
+  LOG_ACTIONS,
+  RESOURCE_TYPE,
   addAnnouncementReq,
   deleteAnnouncementReq,
   getAnnouncementsReq,
+  omitKeys,
+  saveLogReq,
   updateAnnouncementReq,
 } from "../../../../modules/firebase";
 import { localUpdateDocs, pluralize } from "../../../../modules/helper";
@@ -45,6 +50,7 @@ const defaultModal = {
 
 const AnnouncementsManagementPage = () => {
   const router = useRouter();
+  const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
@@ -95,6 +101,16 @@ const AnnouncementsManagementPage = () => {
     });
     if (addError) return openErrorDialog(addError);
 
+    await saveLogReq({
+      actorId: user.id,
+      actorName: user.name,
+      action: LOG_ACTIONS.CREATE,
+      resourceType: RESOURCE_TYPE.ANNOUNCEMENT,
+      resourceId: newDocs.map((i) => i.id),
+      resourceName: newDocs.map((i) => i.title),
+      change: null,
+    });
+
     // Successful
     setAnnouncements((prev) => [...prev, ...newDocs]);
     openResponseDialog({
@@ -123,6 +139,16 @@ const AnnouncementsManagementPage = () => {
       announcement: updates,
     });
     if (updateError) return openErrorDialog(updateError);
+
+    await saveLogReq({
+      actorId: user.id,
+      actorName: user.name,
+      action: LOG_ACTIONS.UPDATE,
+      resourceType: RESOURCE_TYPE.ANNOUNCEMENT,
+      resourceId: updatedAnnouncement.id,
+      resourceName: updatedAnnouncement.title,
+      change: omitKeys(updates, RESOURCE_TYPE.ANNOUNCEMENT),
+    });
 
     // Success
     setAnnouncements(latestDocs);
@@ -160,6 +186,16 @@ const AnnouncementsManagementPage = () => {
     // Delete
     const { error: deleteError } = await deleteAnnouncement({ announcement });
     if (deleteError) return openErrorDialog(deleteError);
+
+    await saveLogReq({
+      actorId: user.id,
+      actorName: user.name,
+      action: LOG_ACTIONS.DELETE,
+      resourceType: RESOURCE_TYPE.ANNOUNCEMENT,
+      resourceId: announcement.id,
+      resourceName: announcement.title,
+      change: null,
+    });
 
     // Success
     setAnnouncements((prev) => prev.filter((i) => i.id !== announcement.id));

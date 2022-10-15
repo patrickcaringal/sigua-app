@@ -114,6 +114,11 @@ const LeftSidebar = () => {
           icon: <InsertChartIcon />,
           onClick: () => router.push(PATHS.DOCTOR.REPORT_QUEUE),
         },
+        {
+          text: "Activity Logs",
+          icon: <InsertChartIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.REPORT_ACTIVITY_LOGS),
+        },
       ]
     : isDoctor
     ? [

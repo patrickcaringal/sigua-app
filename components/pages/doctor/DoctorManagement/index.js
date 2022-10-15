@@ -17,14 +17,19 @@ import {
 import lodash from "lodash";
 import { useRouter } from "next/router";
 
+import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useFilter, usePagination, useRequest } from "../../../../hooks";
 import {
+  LOG_ACTIONS,
+  RESOURCE_TYPE,
   addDoctorReq,
   deleteDoctorReq,
   getBranchesReq,
   getDoctorsReq,
+  omitKeys,
+  saveLogReq,
   updateDoctorReq,
 } from "../../../../modules/firebase";
 import {
@@ -52,6 +57,7 @@ const defaultModal = {
 
 const DoctorsPage = () => {
   const router = useRouter();
+  const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
@@ -132,6 +138,16 @@ const DoctorsPage = () => {
     });
     if (addError) return openErrorDialog(addError);
 
+    await saveLogReq({
+      actorId: user.id,
+      actorName: user.name,
+      action: LOG_ACTIONS.CREATE,
+      resourceType: RESOURCE_TYPE.DOCTOR,
+      resourceId: newDocs.map((i) => i.id),
+      resourceName: newDocs.map((i) => i.name),
+      change: null,
+    });
+
     // Successful
     setDoctors((prev) => [...prev, ...newDocs]);
     openResponseDialog({
@@ -170,6 +186,16 @@ const DoctorsPage = () => {
     });
     if (updateError) return openErrorDialog(updateError);
 
+    await saveLogReq({
+      actorId: user.id,
+      actorName: user.name,
+      action: LOG_ACTIONS.UPDATE,
+      resourceType: RESOURCE_TYPE.DOCTOR,
+      resourceId: updatedDoctor.id,
+      resourceName: updatedDoctor.name,
+      change: omitKeys(updates, RESOURCE_TYPE.DOCTOR),
+    });
+
     // Success
     setDoctors(latestDocs);
     openResponseDialog({
@@ -203,6 +229,16 @@ const DoctorsPage = () => {
     // Delete
     const { error: deleteError } = await deleteDoctor({ doctor });
     if (deleteError) return openErrorDialog(deleteError);
+
+    await saveLogReq({
+      actorId: user.id,
+      actorName: user.name,
+      action: LOG_ACTIONS.DELETE,
+      resourceType: RESOURCE_TYPE.DOCTOR,
+      resourceId: doctor.id,
+      resourceName: doctor.name,
+      change: null,
+    });
 
     // Success
     setDoctors((prev) => prev.filter((i) => i.id !== doctor.id));

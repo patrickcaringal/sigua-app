@@ -17,14 +17,19 @@ import {
 import lodash from "lodash";
 import { useRouter } from "next/router";
 
+import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useFilter, usePagination, useRequest } from "../../../../hooks";
 import {
+  LOG_ACTIONS,
+  RESOURCE_TYPE,
   addBranchReq,
   deleteBranchReq,
   getBranchesReq,
   getServicesReq,
+  omitKeys,
+  saveLogReq,
   updateBranchReq,
 } from "../../../../modules/firebase";
 import { localUpdateDocs, pluralize } from "../../../../modules/helper";
@@ -47,6 +52,7 @@ const defaultModal = {
 
 const BranchManagementPage = () => {
   const router = useRouter();
+  const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
@@ -115,6 +121,16 @@ const BranchManagementPage = () => {
     });
     if (addError) return openErrorDialog(addError);
 
+    await saveLogReq({
+      actorId: user.id,
+      actorName: user.name,
+      action: LOG_ACTIONS.CREATE,
+      resourceType: RESOURCE_TYPE.BRANCH,
+      resourceId: newDocs.map((i) => i.id),
+      resourceName: newDocs.map((i) => i.name),
+      change: null,
+    });
+
     // Successful
     setBranches((prev) => [...prev, ...newDocs]);
     openResponseDialog({
@@ -143,6 +159,16 @@ const BranchManagementPage = () => {
       branch: updates,
     });
     if (updateError) return openErrorDialog(updateError);
+
+    await saveLogReq({
+      actorId: user.id,
+      actorName: user.name,
+      action: LOG_ACTIONS.UPDATE,
+      resourceType: RESOURCE_TYPE.BRANCH,
+      resourceId: updatedBranch.id,
+      resourceName: updatedBranch.name,
+      change: omitKeys(updates, RESOURCE_TYPE.BRANCH),
+    });
 
     // Success
     setBranches(latestDocs);
@@ -177,6 +203,16 @@ const BranchManagementPage = () => {
     // Delete
     const { error: deleteError } = await deleteBranch({ branch });
     if (deleteError) return openErrorDialog(deleteError);
+
+    await saveLogReq({
+      actorId: user.id,
+      actorName: user.name,
+      action: LOG_ACTIONS.DELETE,
+      resourceType: RESOURCE_TYPE.BRANCH,
+      resourceId: branch.id,
+      resourceName: branch.name,
+      change: null,
+    });
 
     // Success
     setBranches((prev) => prev.filter((i) => i.id !== branch.id));

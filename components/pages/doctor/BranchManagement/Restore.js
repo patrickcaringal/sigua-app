@@ -13,12 +13,16 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 
+import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useRequest, useSelect } from "../../../../hooks";
 import {
+  LOG_ACTIONS,
+  RESOURCE_TYPE,
   getDeletedBranchesReq,
   restoreBranchReq,
+  saveLogReq,
 } from "../../../../modules/firebase";
 import { arrayStringify, pluralize } from "../../../../modules/helper";
 import { PATHS, TableContainer, successMessage } from "../../../common";
@@ -27,6 +31,7 @@ import TableCells from "./TableCells";
 
 const BranchesRestorePage = () => {
   const router = useRouter();
+  const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
@@ -84,6 +89,16 @@ const BranchesRestorePage = () => {
     // Update
     const { error: restoreError } = await restoreBranch({ docs: items });
     if (restoreError) return openErrorDialog(restoreError);
+
+    await saveLogReq({
+      actorId: user.id,
+      actorName: user.name,
+      action: LOG_ACTIONS.RESTORE,
+      resourceType: RESOURCE_TYPE.BRANCH,
+      resourceId: ids,
+      resourceName: items.map((i) => i.name),
+      change: null,
+    });
 
     // Success
     setBranches((prev) => prev.filter((i) => !ids.includes(i.id)));

@@ -17,14 +17,19 @@ import {
 import lodash from "lodash";
 import { useRouter } from "next/router";
 
+import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useFilter, usePagination, useRequest } from "../../../../hooks";
 import {
+  LOG_ACTIONS,
+  RESOURCE_TYPE,
   addStaffReq,
   deleteStaffReq,
   getBranchesReq,
   getStaffsReq,
+  omitKeys,
+  saveLogReq,
   updateStaffReq,
 } from "../../../../modules/firebase";
 import {
@@ -52,6 +57,7 @@ const defaultModal = {
 
 const StaffsPage = () => {
   const router = useRouter();
+  const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
@@ -132,6 +138,16 @@ const StaffsPage = () => {
     });
     if (addError) return openErrorDialog(addError);
 
+    await saveLogReq({
+      actorId: user.id,
+      actorName: user.name,
+      action: LOG_ACTIONS.CREATE,
+      resourceType: RESOURCE_TYPE.STAFF,
+      resourceId: newDocs.map((i) => i.id),
+      resourceName: newDocs.map((i) => i.name),
+      change: null,
+    });
+
     // Successful
     setStaffs((prev) => [...prev, ...newDocs]);
     openResponseDialog({
@@ -152,6 +168,7 @@ const StaffsPage = () => {
       ...updatedDocs[0],
       ...personBuiltInFields(updatedDocs[0]),
     };
+
     const staffCopy = [...staffs];
     const { latestDocs, updates } = localUpdateDocs({
       updatedDoc: updatedStaff,
@@ -169,6 +186,16 @@ const StaffsPage = () => {
       staff: updates,
     });
     if (updateError) return openErrorDialog(updateError);
+
+    await saveLogReq({
+      actorId: user.id,
+      actorName: user.name,
+      action: LOG_ACTIONS.UPDATE,
+      resourceType: RESOURCE_TYPE.STAFF,
+      resourceId: updatedStaff.id,
+      resourceName: updatedStaff.name,
+      change: omitKeys(updates, RESOURCE_TYPE.STAFF),
+    });
 
     // Success
     setStaffs(latestDocs);
@@ -203,6 +230,16 @@ const StaffsPage = () => {
     // Delete
     const { error: deleteError } = await deleteStaff({ staff });
     if (deleteError) return openErrorDialog(deleteError);
+
+    await saveLogReq({
+      actorId: user.id,
+      actorName: user.name,
+      action: LOG_ACTIONS.DELETE,
+      resourceType: RESOURCE_TYPE.STAFF,
+      resourceId: staff.id,
+      resourceName: staff.name,
+      change: null,
+    });
 
     // Success
     setStaffs((prev) => prev.filter((i) => i.id !== staff.id));

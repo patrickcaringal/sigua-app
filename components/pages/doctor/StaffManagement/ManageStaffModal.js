@@ -42,6 +42,10 @@ export default function ManageStaffModal({
   onSave,
   branches,
 }) {
+  const branchesMap = branches.reduce((acc, i) => {
+    return { ...acc, [i.id]: i.name };
+  }, {});
+
   const isCreate = !data;
   const initialValues = isCreate ? defaultValues : { staffs: [data] };
 
@@ -52,7 +56,12 @@ export default function ManageStaffModal({
     enableReinitialize: true,
     onSubmit: async (values) => {
       const { staffs } = values;
-      onSave(staffs);
+      const mapped = staffs.map((i) => ({
+        ...i,
+        branchName: branchesMap[i.branch],
+      }));
+
+      onSave(mapped);
     },
   });
 

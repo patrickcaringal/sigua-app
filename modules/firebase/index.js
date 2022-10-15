@@ -44,6 +44,13 @@ import {
   updateDoctorReq,
 } from "./doctor";
 import {
+  LOG_ACTIONS,
+  RESOURCE_TYPE,
+  getLogsByMonthReq,
+  omitKeys,
+  saveLogReq,
+} from "./logs";
+import {
   getPatientRecordReq,
   getRecordsByBranchDateRangeReq,
   getRecordsByDateRangeReq,
@@ -187,4 +194,10 @@ export {
   // storage
   uploadImageReq,
   deleteImageReq,
+  // log
+  LOG_ACTIONS,
+  RESOURCE_TYPE,
+  omitKeys,
+  saveLogReq,
+  getLogsByMonthReq,
 };
