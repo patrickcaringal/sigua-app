@@ -101,7 +101,7 @@ const ActivityLogPage = () => {
             <TableRow>
               {[
                 { text: "Date", sx: { width: 200 } },
-                { text: "Actor", sx: { width: 200 } },
+                { text: "Actor", sx: { width: 300 } },
                 { text: "Action", sx: { width: 100 } },
                 // { text: "Resource Type", sx: { width: 140 } },
                 { text: "Resource" },
@@ -141,7 +141,7 @@ const ActivityLogPage = () => {
                 return (
                   <TableRow key={id}>
                     <TableCell>
-                      {formatTimeStamp(date, "MMM-dd-yyyy hh:mm")}
+                      {formatTimeStamp(date, "MMM-dd-yyyy hh:mm a")}
                     </TableCell>
                     <TableCell>{actorName}</TableCell>
                     <TableCell>{action}</TableCell>

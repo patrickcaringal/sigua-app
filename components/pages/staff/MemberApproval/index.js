@@ -12,13 +12,17 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 
+import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import { useFilter, usePagination, useRequest } from "../../../../hooks";
 import {
+  LOG_ACTIONS,
   MEMBER_STATUS,
+  RESOURCE_TYPE,
   deleteImageReq,
   getPatientsForApprovalReq,
+  saveLogReq,
   updatePatientReq,
 } from "../../../../modules/firebase";
 import {
@@ -39,6 +43,8 @@ import MemberApprovalModal from "./MemberApprovalModal";
 
 const MemberApprovalPage = () => {
   const router = useRouter();
+  const { user } = useAuth();
+
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
@@ -106,7 +112,6 @@ const MemberApprovalPage = () => {
       verificationRejectReason: null,
       status: MEMBER_STATUS.FOR_PHONE_VERIFICATION,
     };
-
     const { updates } = localUpdateDocs({
       updatedDoc,
       oldDocs: [...members],
@@ -120,6 +125,16 @@ const MemberApprovalPage = () => {
       setBackdropLoader(false);
       return openErrorDialog(updateError);
     }
+
+    await saveLogReq({
+      actorId: user.id,
+      actorName: user.name,
+      action: LOG_ACTIONS.APPROVE,
+      resourceType: RESOURCE_TYPE.PATIENT,
+      resourceId: patient.id,
+      resourceName: patient.name,
+      change: null,
+    });
 
     // Delete Image
     const url = patient.verificationAttachment;
@@ -173,6 +188,16 @@ const MemberApprovalPage = () => {
       setBackdropLoader(false);
       return openErrorDialog(updateError);
     }
+
+    await saveLogReq({
+      actorId: user.id,
+      actorName: user.name,
+      action: LOG_ACTIONS.REJECT,
+      resourceType: RESOURCE_TYPE.PATIENT,
+      resourceId: patient.id,
+      resourceName: patient.name,
+      change: null,
+    });
 
     // Delete Image
     const url = patient.verificationAttachment;

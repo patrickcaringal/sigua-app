@@ -14,7 +14,12 @@ import { useFormik } from "formik";
 import { useAuth } from "../../contexts/AuthContext";
 import { useResponseDialog } from "../../contexts/ResponseDialogContext";
 import useRequest from "../../hooks/useRequest";
-import { signInStaffReq } from "../../modules/firebase";
+import {
+  LOG_ACTIONS,
+  RESOURCE_TYPE,
+  saveLogReq,
+  signInStaffReq,
+} from "../../modules/firebase";
 import { DoctorSigninSchema } from "../../modules/validation";
 
 const defaultValues = {
@@ -39,6 +44,16 @@ const StaffSignInPage = () => {
         password,
       });
       if (authError) return openErrorDialog(authError);
+
+      await saveLogReq({
+        actorId: userInfo.id,
+        actorName: userInfo.name,
+        action: LOG_ACTIONS.LOGIN,
+        resourceType: RESOURCE_TYPE.STAFF,
+        resourceId: null,
+        resourceName: null,
+        change: null,
+      });
 
       manualSetUser(userInfo);
     },
