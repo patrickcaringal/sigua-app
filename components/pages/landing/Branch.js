@@ -34,10 +34,14 @@ const BranchSection = ({ branches, servicesMap }) => {
               <Typography
                 variant="h5"
                 color="common.white"
-                sx={{ mb: 2, letterSpacing: 2 }}
+                sx={{ letterSpacing: 2 }}
                 fontWeight={600}
+                gutterBottom
               >
                 {i.name} BRANCH
+              </Typography>
+              <Typography variant="caption" color="common.white" sx={{ mb: 3 }}>
+                {i.address}
               </Typography>
 
               <Typography
@@ -61,13 +65,11 @@ const BranchSection = ({ branches, servicesMap }) => {
                     key={idx}
                     label={servicesMap[i]}
                     color="primary"
+                    // variant="outlined"
                     size="small"
                   />
                 ))}
               </Box>
-              <Typography variant="caption" color="common.white" sx={{ mt: 3 }}>
-                {i.address}
-              </Typography>
             </Box>
           );
         })}

@@ -12,6 +12,8 @@ import IconButton from "@mui/material/IconButton";
 import { useTheme } from "@mui/material/styles";
 
 const AnnouncementSection = ({ announcements = [] }) => {
+  if (announcements.length === 0) return null;
+
   return (
     <Box sx={{ py: 10, minHeight: 500 }}>
       <Typography
