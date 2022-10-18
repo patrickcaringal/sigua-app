@@ -33,7 +33,7 @@ import CollapsibleRow from "../CollapsibleRow";
 import FilterModal from "../FilterModal";
 import useFilter from "../FilterModal/useFilter";
 
-const PerMonthTable = ({ data, start, end, branches }) => {
+export const compute = ({ branches, data, start, end }) => {
   const months = eachMonthOfInterval({
     start: new Date(start),
     end: new Date(end),
@@ -78,6 +78,17 @@ const PerMonthTable = ({ data, start, end, branches }) => {
     tData[k1][k2] += count;
     bData[k2] += count;
     bData.total += count;
+  });
+
+  return { tData, bData, months };
+};
+
+const PerMonthTable = ({ data, start, end, branches }) => {
+  const { months, tData, bData } = compute({
+    branches,
+    data,
+    start,
+    end,
   });
 
   return (

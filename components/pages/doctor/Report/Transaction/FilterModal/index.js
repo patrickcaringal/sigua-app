@@ -172,6 +172,8 @@ const FilterModal = ({ open = false, data, onApply, onClose }) => {
                         }}
                       />
                     )}
+                    minDate={new Date("2020-01-01")}
+                    maxDate={new Date()}
                   />
                 </Grid>
               )}

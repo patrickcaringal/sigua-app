@@ -20,7 +20,7 @@ import {
   getBranchesReq,
 } from "../../../../../modules/firebase";
 import { formatTimeStamp } from "../../../../../modules/helper";
-import { exportQueueList } from "../../../../../modules/pdf";
+import { exportPatientPerMonth } from "../../../../../modules/pdf";
 import {
   ACTION_ICONS,
   Input,
@@ -33,7 +33,7 @@ import { AdminMainContainer } from "../../../../shared";
 import CollapsibleRow from "./CollapsibleRow";
 import FilterModal from "./FilterModal";
 import useFilter from "./FilterModal/useFilter";
-import PerMonthTable from "./Tables/PerMonth";
+import PerMonthTable, { compute as PerMonthCompute } from "./Tables/PerMonth";
 
 const defaultModal = {
   open: false,
@@ -114,9 +114,23 @@ const QueueManagementPage = () => {
       toolbarContent={
         <>
           <Button
-            onClick={() => exportQueueList(filtering.filtered)}
+            onClick={() => {
+              if (filtering.filters.rangeDisplay === "permonth") {
+                const data = PerMonthCompute({
+                  branches,
+                  data: queues,
+                  start: filtering.filters.startDate,
+                  end: filtering.filters.endDate,
+                });
+                exportPatientPerMonth({
+                  start: filtering.filters.startDate,
+                  branches,
+                  ...data,
+                });
+              }
+            }}
             startIcon={ACTION_ICONS.EXPORT}
-            disabled={!filtering.filtered.length}
+            // disabled={!filtering.filtered.length}
           >
             export
           </Button>
