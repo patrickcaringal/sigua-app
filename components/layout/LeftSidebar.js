@@ -95,11 +95,11 @@ const LeftSidebar = () => {
           icon: <MedicalServicesIcon />,
           onClick: () => router.push(PATHS.DOCTOR.SERVICES_MANAGEMENT),
         },
-        {
-          text: "Queues",
-          icon: <ViewListIcon />,
-          onClick: () => router.push(PATHS.DOCTOR.QUEUE_MANAGEMENT),
-        },
+        // {
+        //   text: "Queues",
+        //   icon: <ViewListIcon />,
+        //   onClick: () => router.push(PATHS.DOCTOR.QUEUE_MANAGEMENT),
+        // },
         {
           text: "Announcements",
           icon: <CampaignIcon />,
@@ -109,9 +109,14 @@ const LeftSidebar = () => {
         { text: "Divider" },
         // { text: "subheader", title: "Reports" },
         {
-          text: "Queue Report",
+          text: "Queue Per Day",
           icon: <InsertChartIcon />,
           onClick: () => router.push(PATHS.DOCTOR.REPORT_QUEUE),
+        },
+        {
+          text: "Patients YTD",
+          icon: <InsertChartIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.REPORT_TRANSACTION),
         },
         {
           text: "Activity Logs",

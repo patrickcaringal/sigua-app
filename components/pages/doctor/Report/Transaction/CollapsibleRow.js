@@ -34,8 +34,7 @@ const CollapsibleRow = ({ data }) => {
     branchName,
     branchId,
   } = data;
-  // const registered = nextQueueNo - 1;
-  const registered = done?.length + skipped?.length;
+  const registered = nextQueueNo - 1;
   const doctors = lodash.values(counters).map((i) => i.name);
   const query = {
     branch: branchId,
