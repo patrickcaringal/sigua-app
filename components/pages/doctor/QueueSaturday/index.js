@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { Box, Button } from "@mui/material";
-import { isSaturday } from "date-fns";
+import { isSaturday, isSunday } from "date-fns";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import lodash from "lodash";
 import { useRouter } from "next/router";
@@ -49,9 +49,9 @@ const defaultModal = {
 };
 
 const baseday = saturdayThisWeek.formatted;
-const isSat = isSaturday(today);
+const isSat = isSunday(today);
 
-const SaturdayQueuePage = ({ branchId, openBranchModal }) => {
+const SundayQueuePage = ({ branchId, openBranchModal }) => {
   const router = useRouter();
   const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
@@ -161,7 +161,7 @@ const SaturdayQueuePage = ({ branchId, openBranchModal }) => {
       createdBy: user.id,
       openForRegistration: false,
       openQueue: false,
-      saturday: true,
+      sunday: true,
     };
 
     // Add
@@ -361,7 +361,7 @@ const SaturdayQueuePage = ({ branchId, openBranchModal }) => {
     <AdminMainContainer
       toolbarProps={{
         onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
-        paths: [{ text: "Saturday Queue" }],
+        paths: [{ text: "Sunday Queue" }],
       }}
       toolbarContent={
         <>
@@ -497,7 +497,7 @@ const SaturdayQueuePage = ({ branchId, openBranchModal }) => {
           </Box>
         </>
       ) : (
-        <Placeholder text="No Saturday Queue" branch={branchesMap[branchId]} />
+        <Placeholder text="No Sunday Queue" branch={branchesMap[branchId]} />
       )}
 
       {queueModal.open && (
@@ -545,4 +545,4 @@ const SaturdayQueuePage = ({ branchId, openBranchModal }) => {
   );
 };
 
-export default SaturdayQueuePage;
+export default SundayQueuePage;

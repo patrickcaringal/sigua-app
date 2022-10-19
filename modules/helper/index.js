@@ -1,4 +1,4 @@
-import { differenceInYears, format, nextSaturday } from "date-fns";
+import { differenceInYears, format, nextSaturday, nextSunday } from "date-fns";
 import { Timestamp } from "firebase/firestore";
 import lodash from "lodash";
 
@@ -36,8 +36,8 @@ export const convertToDate = (timestamp) => {
 
 export const today = formatTimeStamp(new Date());
 export const saturdayThisWeek = {
-  date: nextSaturday(new Date()),
-  formatted: formatTimeStamp(nextSaturday(new Date())),
+  date: nextSunday(new Date()),
+  formatted: formatTimeStamp(nextSunday(new Date())),
 };
 
 export const sortBy =

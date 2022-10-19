@@ -69,9 +69,9 @@ const LeftSidebar = () => {
           onClick: () => router.push(PATHS.DOCTOR.QUEUE_TODAY),
         },
         {
-          text: "Saturday Queue",
+          text: "Sunday Queue",
           icon: <QueueIcon />,
-          onClick: () => router.push(PATHS.DOCTOR.QUEUE_SATURDAY),
+          onClick: () => router.push(PATHS.DOCTOR.QUEUE_SUNDAY),
         },
 
         { text: "Divider" },
@@ -165,9 +165,9 @@ const LeftSidebar = () => {
           onClick: () => router.push(PATHS.STAFF.QUEUE_TODAY),
         },
         {
-          text: "Saturday Queue",
+          text: "Sunday Queue",
           icon: <QueueIcon />,
-          onClick: () => router.push(PATHS.STAFF.QUEUE_SATURDAY),
+          onClick: () => router.push(PATHS.STAFF.QUEUE_SUNDAY),
         },
         {
           text: "Queues",
