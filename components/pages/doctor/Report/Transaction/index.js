@@ -20,7 +20,10 @@ import {
   getBranchesReq,
 } from "../../../../../modules/firebase";
 import { formatTimeStamp } from "../../../../../modules/helper";
-import { exportPatientPerMonth } from "../../../../../modules/pdf";
+import {
+  exportPatientPerMonth,
+  exportPatientPerWeek,
+} from "../../../../../modules/pdf";
 import {
   ACTION_ICONS,
   Input,
@@ -34,6 +37,7 @@ import CollapsibleRow from "./CollapsibleRow";
 import FilterModal from "./FilterModal";
 import useFilter from "./FilterModal/useFilter";
 import PerMonthTable, { compute as PerMonthCompute } from "./Tables/PerMonth";
+import PerWeekTable, { compute as PerWeekCompute } from "./Tables/PerWeek";
 
 const defaultModal = {
   open: false,
@@ -127,6 +131,18 @@ const QueueManagementPage = () => {
                   branches,
                   ...data,
                 });
+              } else if (filtering.filters.rangeDisplay === "perweek") {
+                const data = PerWeekCompute({
+                  branches,
+                  data: queues,
+                  start: filtering.filters.startDate,
+                  end: filtering.filters.endDate,
+                });
+                exportPatientPerWeek({
+                  start: filtering.filters.startDate,
+                  branches,
+                  ...data,
+                });
               }
             }}
             startIcon={ACTION_ICONS.EXPORT}
@@ -153,6 +169,14 @@ const QueueManagementPage = () => {
     >
       {filtering.filters.rangeDisplay === "permonth" && (
         <PerMonthTable
+          data={queues}
+          branches={branches}
+          start={filtering.filters.startDate}
+          end={filtering.filters.endDate}
+        />
+      )}
+      {filtering.filters.rangeDisplay === "perweek" && (
+        <PerWeekTable
           data={queues}
           branches={branches}
           start={filtering.filters.startDate}

@@ -1,34 +1,40 @@
+import { endOfWeek } from "date-fns";
 import faker from "faker";
 import { jsPDF } from "jspdf";
 import lodash from "lodash";
 
 import { formatTimeStamp } from "../helper";
 
-export const exportPatientPerMonth = ({
+export const exportPatientPerWeek = ({
   start,
-  months,
+  weeks,
   tData,
   bData,
   branches,
 }) => {
+  const generateKey = (d) => formatTimeStamp(d, "w");
+
   const generateTbody = () => {
-    const x = months.map((i, idx) => {
-      const month = formatTimeStamp(i, "MMMM");
-      const v = lodash.values(tData[month]);
+    const x = weeks.map((i, idx) => {
+      const week = generateKey(i);
+      const v = lodash.values(tData[week]);
       const sum = lodash.sum(v);
 
       let result = {
-        month,
+        week: `${formatTimeStamp(i, "MMM dd")} - ${formatTimeStamp(
+          endOfWeek(i),
+          "MMM dd"
+        )}`,
         total: `${sum}`,
       };
 
       branches.forEach((j) => {
-        result[j.id] = tData[month][j.id] ? `${tData[month][j.id]}` : "-";
+        result[j.id] = tData[week][j.id] ? `${tData[week][j.id]}` : "-";
       });
 
       return result;
     });
-    let footer = { month: "TOTAL", total: `${bData.total}` };
+    let footer = { week: "TOTAL", total: `${bData.total}` };
     branches.forEach((j) => {
       const key = j.id;
       footer[key] = bData[key] ? `${bData[key]}` : "-";
@@ -40,7 +46,7 @@ export const exportPatientPerMonth = ({
 
   const thead = [
     {
-      name: "month",
+      name: "week",
       prompt: formatTimeStamp(start, "yyyy"),
     },
     ...branches.map((j) => ({ name: j.id, prompt: j.name, align: "right" })),
@@ -66,7 +72,7 @@ export const exportPatientPerMonth = ({
   doc.setFontSize(16);
 
   doc.text(
-    `${formatTimeStamp(start, "yyyy")} Number of Patients Per Month`,
+    `${formatTimeStamp(start, "yyyy")} Number of Patients Per Week`,
     baseX,
     movingY
   );
