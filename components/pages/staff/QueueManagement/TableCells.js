@@ -21,7 +21,8 @@ const TableCells = ({ data }) => {
   } = data;
   const doctors = lodash.values(counters).map((i) => i.name);
   // const registered = queue.length + next.length + skipped.length + done.length;
-  const registered = nextQueueNo - 1;
+  // const registered = nextQueueNo - 1;
+  const registered = done?.length + skipped?.length;
 
   return (
     <>
