@@ -65,6 +65,10 @@ const QueueManagementPage = () => {
   const [filterModal, setFilterModal] = useState(defaultModal);
   const filtering = useFilter({});
   const pagination = usePagination(filtering.filtered);
+  const exportDisabled =
+    !filtering.filters.rangeDisplay ||
+    !filtering.filters.startDate ||
+    !filtering.filters.endDate;
 
   useEffect(() => {
     const fetchQueues = async () => {
@@ -90,10 +94,6 @@ const QueueManagementPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handlePageChange = (event, value) => {
-    pagination.goToPage(value - 1);
-  };
-
   const handleFilterModalOpen = () => {
     setFilterModal({
       open: true,
@@ -117,7 +117,7 @@ const QueueManagementPage = () => {
     <AdminMainContainer
       toolbarProps={{
         onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
-        paths: [{ text: "Queue" }],
+        paths: [{ text: "Patients Year to date" }],
       }}
       toolbarContent={
         <>
@@ -163,7 +163,7 @@ const QueueManagementPage = () => {
               }
             }}
             startIcon={ACTION_ICONS.EXPORT}
-            // disabled={!filtering.filtered.length}
+            disabled={exportDisabled}
           >
             export
           </Button>

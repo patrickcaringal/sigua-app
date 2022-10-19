@@ -101,7 +101,7 @@ const PerWeekTable = ({ data, start, end, branches }) => {
   });
 
   return (
-    <TableContainer maxHeight="calc(100vh - 64px - 64px - 77px)">
+    <TableContainer maxHeight="calc(100vh - 64px - 64px - 15px)">
       <Table size="small" stickyHeader>
         <TableHead>
           <TableRow>

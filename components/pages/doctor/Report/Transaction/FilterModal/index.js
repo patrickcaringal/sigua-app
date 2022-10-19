@@ -37,25 +37,6 @@ import useFilter from "./useFilter";
 const FilterModal = ({ open = false, data, onApply, onClose }) => {
   const { setBackdropLoader } = useBackdropLoader();
 
-  // Requests
-  const [getBranches] = useRequest(getBranchesReq, setBackdropLoader);
-
-  // Local States
-  const [branches, setBranches] = useState([]);
-
-  useEffect(() => {
-    const fetchBranches = async () => {
-      // Get Branches
-      const { data, error } = await getBranches({ mapService: false });
-      if (error) return openErrorDialog(error);
-
-      setBranches(data);
-    };
-
-    fetchBranches();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const filtering = useFilter({
     ...data,
   });
