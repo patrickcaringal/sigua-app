@@ -49,7 +49,7 @@ const defaultModal = {
 const baseday = saturdayThisWeek.formatted;
 const isSat = isSaturday(today);
 
-const SaturdayQueuePage = () => {
+const SundayQueuePage = () => {
   const router = useRouter();
   const { user, isStaff } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
@@ -358,7 +358,7 @@ const SaturdayQueuePage = () => {
     <AdminMainContainer
       toolbarProps={{
         onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
-        paths: [{ text: "Queue Today" }],
+        paths: [{ text: "Sunday Queue" }],
       }}
       toolbarContent={
         <>
@@ -375,15 +375,17 @@ const SaturdayQueuePage = () => {
             onDoctorModalOpen={handleDoctorModalOpen}
             onQueueModalOpen={handleQueueModalOpen}
           />
-          <Button
-            variant="contained"
-            size="small"
-            onClick={handleManualRegModalOpen}
-            // startIcon={<AddCircleIcon />}
-            // disabled={hasQueueToday}
-          >
-            Manual register
-          </Button>
+          {isRegOpen && (
+            <Button
+              variant="contained"
+              size="small"
+              onClick={handleManualRegModalOpen}
+              // startIcon={<AddCircleIcon />}
+              // disabled={hasQueueToday}
+            >
+              Manual register
+            </Button>
+          )}
         </>
       }
     >
@@ -489,14 +491,12 @@ const SaturdayQueuePage = () => {
           </Box>
         </>
       ) : (
-        <Placeholder
-          text="No Saturday Queue"
-          branch={branchesMap[user.branch]}
-        />
+        <Placeholder text="No Sunday Queue" branch={branchesMap[user.branch]} />
       )}
 
       {queueModal.open && (
         <ManageQueueModal
+          isSaturday
           isStaff={isStaff}
           branches={branches}
           open={queueModal.open}
@@ -539,4 +539,4 @@ const SaturdayQueuePage = () => {
   );
 };
 
-export default SaturdayQueuePage;
+export default SundayQueuePage;

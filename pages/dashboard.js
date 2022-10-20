@@ -6,6 +6,7 @@ import {
   CardActionArea,
   CardContent,
   CardMedia,
+  Container,
   Typography,
 } from "@mui/material";
 import lodash from "lodash";
@@ -64,140 +65,142 @@ const DashboardPage = () => {
 
   const handleBranchQueueSat = (branchId) => {
     router.push({
-      pathname: PATHS.PATIENT.QUEUE_SATURDAY,
+      pathname: PATHS.PATIENT.QUEUE_SUNDAY,
       query: { id: branchId },
     });
   };
 
   return (
-    <Box
-      sx={{
-        height: "calc(100vh - 64px)",
-        display: "flex",
-        flexDirection: { xs: "column", md: "row" },
-        alignItems: "center",
-        justifyContent: "center",
-        rowGap: 3,
-        columnGap: 3,
-      }}
-    >
-      <Card sx={{ width: 296, height: 208 }}>
-        <CardActionArea
-          sx={{ width: "inherit", height: "inherit" }}
-          onClick={() => {
-            router.push(PATHS.PATIENT.FAMILY);
-          }}
-        >
-          <CardContent
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <Typography
-              gutterBottom
-              variant="h6"
-              component="div"
-              sx={{ textAlign: "center" }}
-            >
-              Manage Family
-              <br />
-              Members
-            </Typography>
-          </CardContent>
-        </CardActionArea>
-      </Card>
-
-      <Card sx={{ width: 296, height: 208 }}>
-        <CardActionArea sx={{ width: "inherit", height: "inherit" }}>
-          <CardContent
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
+    <Container maxWidth="lg">
+      <Box
+        sx={{
+          height: "calc(100vh - 64px)",
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          alignItems: "center",
+          justifyContent: "center",
+          rowGap: 3,
+          columnGap: 3,
+        }}
+      >
+        <Card sx={{ width: 296, height: 208 }}>
+          <CardActionArea
+            sx={{ width: "inherit", height: "inherit" }}
             onClick={() => {
-              router.push(PATHS.PATIENT.MEDICAL_RECORD);
+              router.push(PATHS.PATIENT.FAMILY);
             }}
           >
-            <Typography
-              gutterBottom
-              variant="h6"
-              component="div"
-              sx={{ textAlign: "center" }}
+            <CardContent
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
             >
-              View Family
-              <br />
-              Records
-            </Typography>
-          </CardContent>
-        </CardActionArea>
-      </Card>
+              <Typography
+                gutterBottom
+                variant="h6"
+                component="div"
+                sx={{ textAlign: "center" }}
+              >
+                Manage Family
+                <br />
+                Members
+              </Typography>
+            </CardContent>
+          </CardActionArea>
+        </Card>
 
-      <Card sx={{ width: 296, height: 208 }}>
-        <CardActionArea
-          sx={{ width: "inherit", height: "inherit" }}
-          onClick={handleBranchModalOpen}
-        >
-          <CardContent
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
+        <Card sx={{ width: 296, height: 208 }}>
+          <CardActionArea sx={{ width: "inherit", height: "inherit" }}>
+            <CardContent
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+              onClick={() => {
+                router.push(PATHS.PATIENT.MEDICAL_RECORD);
+              }}
+            >
+              <Typography
+                gutterBottom
+                variant="h6"
+                component="div"
+                sx={{ textAlign: "center" }}
+              >
+                View Family
+                <br />
+                Records
+              </Typography>
+            </CardContent>
+          </CardActionArea>
+        </Card>
+
+        <Card sx={{ width: 296, height: 208 }}>
+          <CardActionArea
+            sx={{ width: "inherit", height: "inherit" }}
+            onClick={handleBranchModalOpen}
           >
-            <Typography
-              gutterBottom
-              variant="h6"
-              component="div"
-              sx={{ textAlign: "center" }}
+            <CardContent
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
             >
-              Queue
-              <br />
-              Today
-            </Typography>
-          </CardContent>
-        </CardActionArea>
-      </Card>
+              <Typography
+                gutterBottom
+                variant="h6"
+                component="div"
+                sx={{ textAlign: "center" }}
+              >
+                Queue
+                <br />
+                Today
+              </Typography>
+            </CardContent>
+          </CardActionArea>
+        </Card>
 
-      <Card sx={{ width: 296, height: 208 }}>
-        <CardActionArea
-          sx={{ width: "inherit", height: "inherit" }}
-          onClick={() => handleBranchModalOpen({ isSat: true })}
-        >
-          <CardContent
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
+        <Card sx={{ width: 296, height: 208 }}>
+          <CardActionArea
+            sx={{ width: "inherit", height: "inherit" }}
+            onClick={() => handleBranchModalOpen({ isSat: true })}
           >
-            <Typography
-              gutterBottom
-              variant="h6"
-              component="div"
-              sx={{ textAlign: "center" }}
+            <CardContent
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
             >
-              Saturday
-              <br />
-              Queue
-            </Typography>
-          </CardContent>
-        </CardActionArea>
-      </Card>
+              <Typography
+                gutterBottom
+                variant="h6"
+                component="div"
+                sx={{ textAlign: "center" }}
+              >
+                Sunday
+                <br />
+                Queue
+              </Typography>
+            </CardContent>
+          </CardActionArea>
+        </Card>
 
-      {branchesModal.open && (
-        <BranchesDialog
-          open={branchesModal.open}
-          data={branchesModal.data}
-          onBranchClick={
-            branchesModal.isSat ? handleBranchQueueSat : handleBranchQueue
-          }
-          onClose={handleBranchModalClose}
-        />
-      )}
-    </Box>
+        {branchesModal.open && (
+          <BranchesDialog
+            open={branchesModal.open}
+            data={branchesModal.data}
+            onBranchClick={
+              branchesModal.isSat ? handleBranchQueueSat : handleBranchQueue
+            }
+            onClose={handleBranchModalClose}
+          />
+        )}
+      </Box>
+    </Container>
   );
 };
 

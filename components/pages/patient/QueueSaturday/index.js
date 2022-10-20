@@ -181,7 +181,7 @@ const PatientQueuePage = () => {
     <Container maxWidth="lg">
       <Toolbar
         onRootClick={() => router.push("/dashboard")}
-        paths={[{ text: "Saturday Queue" }]}
+        paths={[{ text: "Sunday Queue" }]}
       >
         <Button
           variant="contained"

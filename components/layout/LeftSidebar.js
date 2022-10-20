@@ -69,9 +69,9 @@ const LeftSidebar = () => {
           onClick: () => router.push(PATHS.DOCTOR.QUEUE_TODAY),
         },
         {
-          text: "Saturday Queue",
+          text: "Sunday Queue",
           icon: <QueueIcon />,
-          onClick: () => router.push(PATHS.DOCTOR.QUEUE_SATURDAY),
+          onClick: () => router.push(PATHS.DOCTOR.QUEUE_SUNDAY),
         },
 
         { text: "Divider" },
@@ -95,11 +95,11 @@ const LeftSidebar = () => {
           icon: <MedicalServicesIcon />,
           onClick: () => router.push(PATHS.DOCTOR.SERVICES_MANAGEMENT),
         },
-        {
-          text: "Queues",
-          icon: <ViewListIcon />,
-          onClick: () => router.push(PATHS.DOCTOR.QUEUE_MANAGEMENT),
-        },
+        // {
+        //   text: "Queues",
+        //   icon: <ViewListIcon />,
+        //   onClick: () => router.push(PATHS.DOCTOR.QUEUE_MANAGEMENT),
+        // },
         {
           text: "Announcements",
           icon: <CampaignIcon />,
@@ -109,9 +109,14 @@ const LeftSidebar = () => {
         { text: "Divider" },
         // { text: "subheader", title: "Reports" },
         {
-          text: "Queue Report",
+          text: "Queue Per Day",
           icon: <InsertChartIcon />,
           onClick: () => router.push(PATHS.DOCTOR.REPORT_QUEUE),
+        },
+        {
+          text: "Patients YTD",
+          icon: <InsertChartIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.REPORT_TRANSACTION),
         },
         {
           text: "Activity Logs",
@@ -160,9 +165,9 @@ const LeftSidebar = () => {
           onClick: () => router.push(PATHS.STAFF.QUEUE_TODAY),
         },
         {
-          text: "Saturday Queue",
+          text: "Sunday Queue",
           icon: <QueueIcon />,
-          onClick: () => router.push(PATHS.STAFF.QUEUE_SATURDAY),
+          onClick: () => router.push(PATHS.STAFF.QUEUE_SUNDAY),
         },
         {
           text: "Queues",

@@ -11,22 +11,26 @@ const DatePickerComponent = ({
   label = "",
   name = "",
   value = "",
+  views = ["year", "day"],
   onChange = () => {},
   onBlur = () => {},
   error = null,
-  //   ...rest
+  renderInput = (params) => (
+    <Input {...params} required={required} name={name} error={error} />
+  ),
+  ...rest
 }) => {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <MobileDatePicker
+        views={views}
         label={label}
         inputFormat="MM/dd/yyyy"
         value={value}
         onChange={onChange}
         onBlur={onBlur}
-        renderInput={(params) => (
-          <Input {...params} required={required} name={name} error={error} />
-        )}
+        renderInput={renderInput}
+        {...rest}
       />
     </LocalizationProvider>
   );
