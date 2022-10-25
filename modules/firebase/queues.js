@@ -259,6 +259,33 @@ export const sendQueueSmsReq = async (payload) => {
   }
 };
 
+export const sendVerificationSmsReq = async (payload) => {
+  try {
+    const res = await axios.post(getBaseApi("/verify-mobile-sms"), payload);
+
+    return { success: true, data: res?.data };
+  } catch (error) {
+    console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const checkVerificationCodeSmsReq = async (payload) => {
+  try {
+    const res = await axios.post(
+      getBaseApi("/check-verification-sms"),
+      payload
+    );
+
+    return { success: true, data: res?.data };
+  } catch (error) {
+    console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
 // Dev func
 export const resetQueueReq = async ({ id }) => {
   try {

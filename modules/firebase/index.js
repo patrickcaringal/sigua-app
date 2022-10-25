@@ -72,6 +72,7 @@ import {
 import {
   addQueueCounterReq,
   addQueueReq,
+  checkVerificationCodeSmsReq,
   getAllQueuesReq,
   getQueueReq,
   getQueuesByBranchDateRangeReq,
@@ -81,6 +82,7 @@ import {
   registerToQueueReq,
   resetQueueReq,
   sendQueueSmsReq,
+  sendVerificationSmsReq,
   transferQueueItemReq,
   updateQueueRegStatusReq,
   updateQueueStatusReq,
@@ -177,6 +179,7 @@ export {
   // queue
   addQueueCounterReq,
   addQueueReq,
+  checkVerificationCodeSmsReq,
   getAllQueuesReq,
   getQueueReq,
   getQueuesByBranchDateRangeReq,
@@ -186,6 +189,7 @@ export {
   registerToQueueReq,
   resetQueueReq,
   sendQueueSmsReq,
+  sendVerificationSmsReq,
   transferQueueItemReq,
   updateQueueRegStatusReq,
   updateQueueStatusReq,
