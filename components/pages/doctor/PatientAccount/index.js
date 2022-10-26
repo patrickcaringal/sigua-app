@@ -179,7 +179,7 @@ const PatientListPage = () => {
       }
     >
       <TableContainer>
-        <Table size="small">
+        <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
               {[
