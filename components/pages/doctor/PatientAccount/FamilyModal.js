@@ -23,10 +23,12 @@ import {
   MEMBER_STATUS,
   addPatientReq,
   getFamilyMembersReq,
+  updatePatientReq,
 } from "../../../../modules/firebase";
 import {
   calculateAge,
   formatTimeStamp,
+  localUpdateDocs,
   personBuiltInFields,
   pluralize,
 } from "../../../../modules/helper";
@@ -37,6 +39,7 @@ import {
   getActionButtons,
   successMessage,
 } from "../../../common";
+import { MobileNumberVerificationModal } from "../../../shared";
 import { icons } from "../../patient/FamilyMembers/utils";
 import ManageFamilyMemberModal from "./ManageFamilyMemberModal";
 import PrintIdModal from "./PrintIdModal";
@@ -58,12 +61,14 @@ const FamilyModal = ({
   // Requests
   const [getFamilyMembers] = useRequest(getFamilyMembersReq, setBackdropLoader);
   const [addFamilyMembers] = useRequest(addPatientReq, setBackdropLoader);
+  const [updateFamilyMember] = useRequest(updatePatientReq, setBackdropLoader);
   const [generateQRId] = useRequest(axios.post, setBackdropLoader);
 
   // Local States
   const [members, setMembers] = useState([]);
   const [familyMemberModal, setFamilyMemberModal] = useState(defaultModal);
   const [printIdModal, setPrintIdModal] = useState(defaultModal); // Phone Verification Modal
+  const [phoneModal, setPhoneModal] = useState(defaultModal);
 
   useEffect(() => {
     const fetch = async () => {
@@ -133,6 +138,45 @@ const FamilyModal = ({
     });
   };
 
+  const handleVerifyPhone = async (verified) => {
+    if (verified) {
+      setBackdropLoader(true);
+
+      const updatedDoc = {
+        id: phoneModal?.data?.id,
+        verifiedContactNo: true,
+        status: MEMBER_STATUS.VERFIED,
+      };
+      const { latestDocs, updates } = localUpdateDocs({
+        updatedDoc,
+        oldDocs: [...members],
+      });
+
+      // Update
+      const { error: updateError } = await updateFamilyMember({
+        patient: updates,
+      });
+      if (updateError) {
+        setBackdropLoader(false);
+        return openErrorDialog(updateError);
+      }
+
+      // Success
+      setBackdropLoader(false);
+      setMembers(latestDocs);
+      openResponseDialog({
+        autoClose: true,
+        content: successMessage({ noun: "Contact No", verb: "verified" }),
+        type: "SUCCESS",
+        closeCb() {
+          setPhoneModal(defaultModal);
+        },
+      });
+    } else {
+      openErrorDialog("Incorrect Verification code");
+    }
+  };
+
   const handleMemberModalOpen = () => {
     setFamilyMemberModal({
       open: true,
@@ -142,6 +186,18 @@ const FamilyModal = ({
 
   const handlePrintIdModalClose = () => {
     setPrintIdModal(defaultModal);
+  };
+
+  const handlePhoneModalOpen = (member) => {
+    console.log(member);
+    setPhoneModal({
+      open: true,
+      data: member,
+    });
+  };
+
+  const handlePhoneModalClose = () => {
+    setPhoneModal(defaultModal);
   };
 
   return (
@@ -233,6 +289,14 @@ const FamilyModal = ({
                                 onClick: () => handlePrintIdModalOpen(m),
                               },
                             ])}
+                          {status === MEMBER_STATUS.FOR_PHONE_VERIFICATION &&
+                            getActionButtons([
+                              {
+                                action: ACTION_BUTTONS.VERIFY_MOBILE,
+                                tooltipText: "Verify Mobile",
+                                onClick: () => handlePhoneModalOpen(m),
+                              },
+                            ])}
                         </TableCell>
                       </TableRow>
                     );
@@ -258,6 +322,15 @@ const FamilyModal = ({
           data={familyMemberModal.data}
           setOpen={setFamilyMemberModal}
           onSave={handleAddFamilyMemeber}
+        />
+      )}
+
+      {phoneModal.open && (
+        <MobileNumberVerificationModal
+          open={phoneModal.open}
+          data={phoneModal.data}
+          onClose={handlePhoneModalClose}
+          onVerify={handleVerifyPhone}
         />
       )}
     </>

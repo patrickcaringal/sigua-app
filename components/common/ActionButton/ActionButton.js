@@ -11,6 +11,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import QrCodeIcon from "@mui/icons-material/QrCode";
 import RestoreIcon from "@mui/icons-material/Restore";
+import SendToMobileIcon from "@mui/icons-material/SendToMobile";
 import { IconButton, Tooltip } from "@mui/material";
 
 export const ACTION_BUTTONS = {
@@ -23,6 +24,7 @@ export const ACTION_BUTTONS = {
   // specific
   VIEW_FAMILY_MEMBERS: "VIEW_FAMILY_MEMBERS",
   GENERATE_QR_CODE: "GENERATE_QR_CODE",
+  VERIFY_MOBILE: "VERIFY_MOBILE",
 };
 
 export const ACTION_ICONS = {
@@ -38,6 +40,7 @@ export const ACTION_ICONS = {
   EXPORT: <DownloadForOfflineIcon />,
   FILTER: <FilterListIcon />,
   CLEAR: <ClearIcon />,
+  VERIFY_MOBILE: <SendToMobileIcon />,
 };
 
 const getButton = ({ tooltipText = "", action, onClick }) => {
