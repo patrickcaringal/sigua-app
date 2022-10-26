@@ -212,14 +212,14 @@ const FamilyMemberPage = () => {
         oldDocs: [...members],
       });
 
-      // // Update
-      // const { error: updateError } = await updateFamilyMember({
-      //   patient: updates,
-      // });
-      // if (updateError) {
-      //   setBackdropLoader(false);
-      //   return openErrorDialog(updateError);
-      // }
+      // Update
+      const { error: updateError } = await updateFamilyMember({
+        patient: updates,
+      });
+      if (updateError) {
+        setBackdropLoader(false);
+        return openErrorDialog(updateError);
+      }
 
       // Success
       setBackdropLoader(false);

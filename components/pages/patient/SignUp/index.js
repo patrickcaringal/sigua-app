@@ -93,11 +93,8 @@ const SignUpPage = () => {
   });
   const { values } = formik;
 
-  const handleVerifyPhone = async (member) => {
-    const { code } = member;
-
-    // TODO: Verify code legit
-    if (code === "1234") {
+  const handleVerifyPhone = async (verified) => {
+    if (verified) {
       setBackdropLoader(true);
 
       // Create User Doc

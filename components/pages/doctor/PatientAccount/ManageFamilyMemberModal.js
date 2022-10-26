@@ -37,7 +37,7 @@ const defaultValues = isMockDataEnabled
 const ManageFamilyMemberModal = ({ open = false, data, setOpen, onSave }) => {
   const isCreate = !data?.id;
   const initialValues = {
-    familyMembers: [data],
+    familyMembers: [{ ...data, ...defaultValues }],
   };
 
   const formik = useFormik({
