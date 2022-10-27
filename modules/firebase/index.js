@@ -17,6 +17,7 @@ import {
   updateAnnouncementReq,
 } from "./announcements";
 import {
+  changePasswordReq,
   monitorAuthState,
   signInAnonymouslyReq,
   signInReq,
@@ -39,6 +40,7 @@ import {
   diagnosePatientReq,
   getBranchDoctorsReq,
   getDeletedDoctorsReq,
+  getDoctorReq,
   getDoctorsReq,
   restoreDoctorReq,
   updateDoctorReq,
@@ -99,6 +101,7 @@ import {
   addStaffReq,
   deleteStaffReq,
   getDeletedStaffsReq,
+  getStaffReq,
   getStaffsReq,
   restoreStaffReq,
   signInStaffReq,
@@ -116,6 +119,7 @@ export {
   signInAnonymouslyReq,
   signOutAnonymouslyReq,
   monitorAuthState,
+  changePasswordReq,
   // account
   REG_TYPE,
   addFamilyMembersReq,
@@ -138,6 +142,7 @@ export {
   diagnosePatientReq,
   getBranchDoctorsReq,
   getDeletedDoctorsReq,
+  getDoctorReq,
   getDoctorsReq,
   restoreDoctorReq,
   updateDoctorReq,
@@ -158,6 +163,7 @@ export {
   addStaffReq,
   deleteStaffReq,
   getDeletedStaffsReq,
+  getStaffReq,
   getStaffsReq,
   restoreStaffReq,
   signInStaffReq,

@@ -1,5 +1,6 @@
 import React from "react";
 
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LogoutIcon from "@mui/icons-material/Logout";
 import {
   Avatar,
@@ -12,7 +13,9 @@ import {
   MenuItem,
   Typography,
 } from "@mui/material";
+import { useRouter } from "next/router";
 
+import { PATHS } from "../../../components/common/Routes";
 import { getInitials } from "../../../modules/helper";
 
 const ROLE_TEXTS = {
@@ -23,6 +26,7 @@ const ROLE_TEXTS = {
 };
 
 const UserAvatar = ({ user, isStaff, onLogout }) => {
+  const router = useRouter();
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
   const handleOpenUserMenu = (event) => {
@@ -105,6 +109,22 @@ const UserAvatar = ({ user, isStaff, onLogout }) => {
           </Box>
         </Box>
         <Divider />
+
+        <MenuItem
+          onClick={() => {
+            if (["superadmin", "doctor"].includes(user.role))
+              router.push(PATHS.DOCTOR.PROFILE);
+            else if (["staff"].includes(user.role))
+              router.push(PATHS.STAFF.PROFILE);
+            handleCloseUserMenu();
+          }}
+        >
+          <ListItemIcon>
+            <AccountCircleIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Profile</ListItemText>
+        </MenuItem>
+
         <MenuItem onClick={handleLogout}>
           <ListItemIcon>
             <LogoutIcon fontSize="small" />

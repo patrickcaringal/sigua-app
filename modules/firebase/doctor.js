@@ -235,6 +235,25 @@ export const getDoctorsReq = async ({ mapBranch }) => {
   }
 };
 
+export const getDoctorReq = async ({ id }) => {
+  try {
+    // Get Doctor
+    const q = doc(db, collectionName, id);
+    const querySnapshot = await getDoc(q);
+
+    if (!querySnapshot.exists()) {
+      throw new Error("Unable to get Doctor doc");
+    }
+
+    const data = querySnapshot.data();
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
 export const getDeletedDoctorsReq = async () => {
   try {
     // TODO: adjust when get branch needed
