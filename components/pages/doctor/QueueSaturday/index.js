@@ -10,6 +10,7 @@ import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
+import { isSmsEnabled } from "../../../../modules/env";
 import {
   LOG_ACTIONS,
   RESOURCE_TYPE,
@@ -20,6 +21,7 @@ import {
   registerToQueueReq,
   resetQueueReq,
   saveLogReq,
+  sendQueueSmsReq,
   transferQueueItemReq,
   updateQueueRegStatusReq,
   updateQueueStatusReq,
@@ -73,6 +75,7 @@ const SundayQueuePage = ({ branchId, openBranchModal }) => {
     transferQueueItemReq,
     setBackdropLoader
   );
+  const [sendQueueSms] = useRequest(sendQueueSmsReq, setBackdropLoader);
   const [resetQueue] = useRequest(resetQueueReq, setBackdropLoader);
   const [registerToQueue] = useRequest(registerToQueueReq, setBackdropLoader);
 
@@ -231,15 +234,27 @@ const SundayQueuePage = ({ branchId, openBranchModal }) => {
   };
 
   const handleTransferSelect = async ({ patient, doctor, from, to, flow }) => {
-    // console.log({ patient, doctor, from, to, flow });
-    // return;
+    if (flow === QUEUE_FLOW.QUEUE_NEXT) {
+      if (queueToday?.next?.length === 3) {
+        return openResponseDialog({
+          autoClose: true,
+          content: `Only 3 Patients allowed for Next queue `,
+          type: "WARNING",
+        });
+      }
 
-    if (flow === QUEUE_FLOW.QUEUE_NEXT && queueToday?.next?.length === 3) {
-      return openResponseDialog({
-        autoClose: true,
-        content: `Only 3 Patients allowed for Next queue `,
-        type: "WARNING",
-      });
+      // Send SMS here
+      if (isSmsEnabled && from === "queue" && !!patient.patientContactNo) {
+        const payload = {
+          name: patient.patientName,
+          contactNo: patient.patientContactNo,
+          queueNo: patient.queueNo,
+          service: patient.serviceName,
+          branch: queueToday.branchName,
+        };
+        const { data, error } = await sendQueueSms(payload);
+        if (error) alert("Sending SMS failed.");
+      }
     }
 
     if (

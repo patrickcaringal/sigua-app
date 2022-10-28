@@ -1,5 +1,6 @@
 import {
   BranchesSchema,
+  ChangePassSchema,
   DiagnoseSchema,
   DoctorSigninSchema,
   FamilyMemberSchema,
@@ -9,12 +10,14 @@ import {
   SigninSchema,
   SignupSchema,
   StaffSchema,
+  UpdateProfileSchema,
   VerificationCodeSchema,
   VerificationRejectSchema,
 } from "./schema";
 
 export {
   BranchesSchema,
+  ChangePassSchema,
   DiagnoseSchema,
   DoctorSigninSchema,
   FamilyMemberSchema,
@@ -24,6 +27,7 @@ export {
   SigninSchema,
   SignupSchema,
   StaffSchema,
+  UpdateProfileSchema,
   VerificationCodeSchema,
   VerificationRejectSchema,
 };

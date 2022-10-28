@@ -1,3 +1,4 @@
+import axios from "axios";
 import {
   arrayRemove,
   arrayUnion,
@@ -14,6 +15,7 @@ import {
 } from "firebase/firestore";
 
 import { associationMessage } from "../../components/common";
+import { getBaseApi } from "../env";
 import { sortBy, sortByDate_Branch } from "../helper";
 import { getErrorMsg } from "./auth";
 import { db, timestampFields } from "./config";
@@ -238,6 +240,45 @@ export const transferQueueItemReq = async ({ id, from, to, document }) => {
     });
 
     return { success: true };
+  } catch (error) {
+    console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const sendQueueSmsReq = async (payload) => {
+  try {
+    const res = await axios.post(getBaseApi("/queue-sms"), payload);
+
+    return { success: true, data: res?.data };
+  } catch (error) {
+    console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const sendVerificationSmsReq = async (payload) => {
+  try {
+    const res = await axios.post(getBaseApi("/verify-mobile-sms"), payload);
+
+    return { success: true, data: res?.data };
+  } catch (error) {
+    console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};
+
+export const checkVerificationCodeSmsReq = async (payload) => {
+  try {
+    const res = await axios.post(
+      getBaseApi("/check-verification-sms"),
+      payload
+    );
+
+    return { success: true, data: res?.data };
   } catch (error) {
     console.log(error);
     const errMsg = getErrorMsg(error.code);

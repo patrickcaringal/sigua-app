@@ -163,11 +163,8 @@ const CreateAccountModal = ({ open = false, onCreate, onClose }) => {
     });
   };
 
-  const handleVerifyPhone = async (member) => {
-    const { code } = member;
-
-    // TODO: Verify code legit
-    if (code === "1234") {
+  const handleVerifyPhone = async (verified) => {
+    if (verified) {
       await createAccountFn();
     } else {
       openErrorDialog("Incorrect Verification code");

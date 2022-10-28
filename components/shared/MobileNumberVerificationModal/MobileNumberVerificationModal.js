@@ -13,12 +13,31 @@ import {
 } from "@mui/material";
 import { useFormik } from "formik";
 
+import { useBackdropLoader } from "../../../contexts/BackdropLoaderContext";
+import { useRequest } from "../../../hooks";
+import {
+  checkVerificationCodeSmsReq,
+  sendVerificationSmsReq,
+} from "../../../modules/firebase";
 import { VerificationCodeSchema } from "../../../modules/validation";
 import { Modal } from "../../common";
 
 const MobileNumberVerificationModal = ({ open, onClose, data, onVerify }) => {
+  const { setBackdropLoader } = useBackdropLoader();
   const { contactNo } = data;
-  const [codeSent, setCodeSent] = useState(false);
+
+  // Requests
+  const [sendVerificationSms] = useRequest(
+    sendVerificationSmsReq,
+    setBackdropLoader
+  );
+  const [checkVerificationCodeSms] = useRequest(
+    checkVerificationCodeSmsReq,
+    setBackdropLoader
+  );
+
+  // Local States
+  const [verifyRequestId, setVerifyRequestId] = useState(null);
 
   const formik = useFormik({
     initialValues: {
@@ -31,8 +50,13 @@ const MobileNumberVerificationModal = ({ open, onClose, data, onVerify }) => {
     validateOnChange: false,
     onSubmit: async (verificationCodes) => {
       const { digit1, digit2, digit3, digit4 } = verificationCodes;
-      const finalCode = `${digit1}${digit2}${digit3}${digit4}`;
-      onVerify({ ...data, code: finalCode });
+      const code = `${digit1}${digit2}${digit3}${digit4}`;
+
+      const payload = { code, request_id: verifyRequestId };
+      const { data, error } = await checkVerificationCodeSms(payload);
+      if (error) alert("Verify Mobile SMS failed.");
+
+      onVerify(data);
     },
   });
 
@@ -48,8 +72,12 @@ const MobileNumberVerificationModal = ({ open, onClose, data, onVerify }) => {
   const hasFormError =
     Object.keys(errors).length > 0 && Object.keys(touched).length === 4;
 
-  const handleSendCode = () => {
-    setCodeSent(true);
+  const handleSendCode = async () => {
+    const payload = { contactNo };
+    const { data, error } = await sendVerificationSms(payload);
+    if (error) alert("Verify Mobile SMS failed.");
+
+    setVerifyRequestId(data?.verifyRequestId);
   };
 
   const handleClose = () => {
@@ -76,9 +104,10 @@ const MobileNumberVerificationModal = ({ open, onClose, data, onVerify }) => {
                 color="inherit"
                 sx={{ mr: 2 }}
                 onClick={handleSendCode}
-                disabled={codeSent}
+                disabled={!!verifyRequestId}
               >
-                {!codeSent ? "send code" : "resend code"}
+                send code
+                {/* {!verifyRequestId ? "send code" : "resend code"} */}
               </Button>
               <Button color="inherit" onClick={handleClose}>
                 Cancel
@@ -101,7 +130,7 @@ const MobileNumberVerificationModal = ({ open, onClose, data, onVerify }) => {
           </Typography>
           <Typography variant="h6">{contactNo}</Typography>
 
-          {codeSent && (
+          {verifyRequestId && (
             <>
               <Box
                 sx={{

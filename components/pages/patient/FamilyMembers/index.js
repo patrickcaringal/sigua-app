@@ -198,15 +198,12 @@ const FamilyMemberPage = () => {
     });
   };
 
-  const handleVerifyPhone = async (patient) => {
-    const { code } = patient;
-
-    // TODO: Verify code legit
-    if (code === "1234") {
+  const handleVerifyPhone = async (verified) => {
+    if (verified) {
       setBackdropLoader(true);
 
       const updatedDoc = {
-        id: patient.id,
+        id: phoneModal?.data?.id,
         verifiedContactNo: true,
         status: MEMBER_STATUS.VERFIED,
       };

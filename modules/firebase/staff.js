@@ -28,6 +28,7 @@ import { getErrorMsg } from "./auth";
 import { auth, db, secondaryAuth, timestampFields } from "./config";
 import { checkDuplicate, registerNames } from "./helpers";
 
+const collectionName = "staffs";
 const collRef = collection(db, "staffs");
 
 export const signInStaffReq = async ({ email, password }) => {
@@ -97,6 +98,25 @@ export const getStaffsReq = async ({ mapBranch }) => {
           : data;
       })
       .sort(sortBy("dateCreated"));
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
+export const getStaffReq = async ({ id }) => {
+  try {
+    // Get Doctor
+    const q = doc(db, collectionName, id);
+    const querySnapshot = await getDoc(q);
+
+    if (!querySnapshot.exists()) {
+      throw new Error("Unable to get Staff doc");
+    }
+
+    const data = querySnapshot.data();
 
     return { data, success: true };
   } catch (error) {

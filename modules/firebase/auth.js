@@ -1,10 +1,13 @@
 import {
+  EmailAuthProvider,
   createUserWithEmailAndPassword,
   deleteUser,
   onAuthStateChanged,
+  reauthenticateWithCredential,
   signInAnonymously,
   signInWithEmailAndPassword,
   signOut,
+  updatePassword,
 } from "firebase/auth";
 import {
   collection,
@@ -95,6 +98,20 @@ export const signOutAnonymouslyReq = async (session) => {
   } catch (error) {
     console.log(error);
     return { error: error.message };
+  }
+};
+
+export const changePasswordReq = async ({ oldPassword, newPassword }) => {
+  try {
+    const user = auth.currentUser;
+    const credential = EmailAuthProvider.credential(user.email, oldPassword);
+    await reauthenticateWithCredential(user, credential);
+    await updatePassword(user, newPassword);
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
   }
 };
 

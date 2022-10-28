@@ -93,36 +93,13 @@ const PatientListPage = () => {
     setPatients((prev) => [...prev, ...newDocs]);
   };
 
-  const handleAddFamilyMemeber = async (docs) => {
-    docs = docs.map((i) => ({
-      ...i,
-      verified: false,
-      verifiedContactNo: false,
-      verificationAttachment: null,
-      verificationRejectReason: null,
-      status: MEMBER_STATUS.FOR_VERIFICATION,
-      ...personBuiltInFields(i),
-    }));
+  const handleAddMember = (patientId) => {
+    const copy = [...patients];
+    const idx = copy.findIndex((i) => i.id === patientId);
 
-    // Add
-    const { data: newDocs, error: addError } = await addFamilyMembers({
-      docs,
-    });
-    if (addError) return openErrorDialog(addError);
+    copy[idx].familyMembers += 1;
 
-    // Successful
-    // setMembers((prev) => [...prev, ...newDocs]);
-    openResponseDialog({
-      autoClose: true,
-      content: successMessage({
-        noun: pluralize("Family member", newDocs.length),
-        verb: "added",
-      }),
-      type: "SUCCESS",
-      closeCb() {
-        setFamilyMemberModal(defaultModal);
-      },
-    });
+    setPatients(copy);
   };
 
   const handleAccountModalOpen = () => {
@@ -202,7 +179,7 @@ const PatientListPage = () => {
       }
     >
       <TableContainer>
-        <Table size="small">
+        <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
               {[
@@ -310,16 +287,8 @@ const PatientListPage = () => {
         <FamilyModal
           open={familyModal.open}
           data={familyModal.data}
+          onAddMember={handleAddMember}
           onClose={handleFamilyModalClose}
-        />
-      )}
-
-      {familyMemberModal.open && (
-        <ManageFamilyMemberModal
-          open={familyMemberModal.open}
-          data={familyMemberModal.data}
-          setOpen={setFamilyMemberModal}
-          onSave={!familyMemberModal.data ? handleAddFamilyMemeber : () => {}}
         />
       )}
     </AdminMainContainer>
