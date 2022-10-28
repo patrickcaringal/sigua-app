@@ -40,38 +40,49 @@ const LeftSidebar = () => {
 
   if (!isLoggedIn || !isAdminPanel) return null;
 
+  // console.log();
+
   const sidebarItems = isAdmin
     ? [
         {
           text: "Patient Records",
           icon: <PeopleIcon />,
           onClick: () => router.push(PATHS.DOCTOR.PATIENTS_LIST),
+          id: [
+            PATHS.DOCTOR.PATIENTS_LIST,
+            PATHS.DOCTOR.PATIENTS_MEDICAL_RECORD,
+          ],
         },
         {
           text: "Patient Approval",
           icon: <FactCheckIcon />,
           onClick: () => router.push(PATHS.DOCTOR.PATIENTS_APPROVAL),
+          id: [PATHS.DOCTOR.PATIENTS_APPROVAL],
         },
         {
           text: "Patient Accounts",
           icon: <AccountBoxIcon />,
           onClick: () => router.push(PATHS.DOCTOR.PATIENT_ACCOUNTS),
+          id: [PATHS.DOCTOR.PATIENT_ACCOUNTS],
         },
         { text: "Divider" },
         {
           text: "Diagnose Patient",
           icon: <MedicalInformationIcon />,
           onClick: () => router.push(PATHS.DOCTOR.DIAGNOSE),
+          id: [PATHS.DOCTOR.DIAGNOSE],
         },
         {
           text: "Queue Today",
           icon: <QueueIcon />,
           onClick: () => router.push(PATHS.DOCTOR.QUEUE_TODAY),
+          id: [PATHS.DOCTOR.QUEUE_TODAY],
         },
         {
           text: "Sunday Queue",
           icon: <QueueIcon />,
           onClick: () => router.push(PATHS.DOCTOR.QUEUE_SUNDAY),
+          id: [PATHS.DOCTOR.QUEUE_SUNDAY],
         },
 
         { text: "Divider" },
@@ -79,21 +90,25 @@ const LeftSidebar = () => {
           text: "Doctors",
           icon: <AssignmentIndIcon />,
           onClick: () => router.push(PATHS.DOCTOR.DOCTOR_MANAGEMENT),
+          id: [PATHS.DOCTOR.DOCTOR_MANAGEMENT, PATHS.DOCTOR.DOCTOR_RESTORE],
         },
         {
           text: "Staffs",
           icon: <AssignmentIndIcon />,
           onClick: () => router.push(PATHS.DOCTOR.STAFF_MANAGEMENT),
+          id: [PATHS.DOCTOR.STAFF_MANAGEMENT, PATHS.DOCTOR.STAFF_RESTORE],
         },
         {
           text: "Branches",
           icon: <MapsHomeWorkIcon />,
           onClick: () => router.push(PATHS.DOCTOR.BRANCH_MANAGEMENT),
+          id: [PATHS.DOCTOR.BRANCH_MANAGEMENT, PATHS.DOCTOR.BRANCH_RESTORE],
         },
         {
           text: "Services",
           icon: <MedicalServicesIcon />,
           onClick: () => router.push(PATHS.DOCTOR.SERVICES_MANAGEMENT),
+          id: [PATHS.DOCTOR.SERVICES_MANAGEMENT, PATHS.DOCTOR.SERVICES_RESTORE],
         },
         // {
         //   text: "Queues",
@@ -104,6 +119,10 @@ const LeftSidebar = () => {
           text: "Announcements",
           icon: <CampaignIcon />,
           onClick: () => router.push(PATHS.DOCTOR.ANNOUNCEMENT_MANAGEMENT),
+          id: [
+            PATHS.DOCTOR.ANNOUNCEMENT_MANAGEMENT,
+            PATHS.DOCTOR.ANNOUNCEMENT_RESTORE,
+          ],
         },
 
         { text: "Divider" },
@@ -112,16 +131,19 @@ const LeftSidebar = () => {
           text: "Queue Per Day",
           icon: <InsertChartIcon />,
           onClick: () => router.push(PATHS.DOCTOR.REPORT_QUEUE),
+          id: [PATHS.DOCTOR.REPORT_QUEUE],
         },
         {
           text: "Patients YTD",
           icon: <InsertChartIcon />,
           onClick: () => router.push(PATHS.DOCTOR.REPORT_TRANSACTION),
+          id: [PATHS.DOCTOR.REPORT_TRANSACTION],
         },
         {
           text: "Activity Logs",
           icon: <InsertChartIcon />,
           onClick: () => router.push(PATHS.DOCTOR.REPORT_ACTIVITY_LOGS),
+          id: [PATHS.DOCTOR.REPORT_ACTIVITY_LOGS],
         },
       ]
     : isDoctor
@@ -195,22 +217,30 @@ const LeftSidebar = () => {
       <Toolbar />
       <Box sx={{ overflow: "auto" }}>
         <List>
-          {sidebarItems.map(({ text, icon, onClick, title }, index) => {
-            if (text === "Divider")
-              return <Divider key={index} sx={{ my: 1 }} />;
+          {sidebarItems.map(
+            ({ id = [], text, icon, onClick, title }, index) => {
+              if (text === "Divider")
+                return <Divider key={index} sx={{ my: 1 }} />;
 
-            // if (text === "Subheader")
-            //   return <ListSubheader component="div">{title}</ListSubheader>;
+              // if (text === "Subheader")
+              //   return <ListSubheader component="div">{title}</ListSubheader>;
 
-            return (
-              <ListItem key={text} disablePadding onClick={onClick}>
-                <ListItemButton>
-                  <ListItemIcon>{icon}</ListItemIcon>
-                  <ListItemText primary={text} />
-                </ListItemButton>
-              </ListItem>
-            );
-          })}
+              const selected = id.includes(router.pathname);
+              return (
+                <ListItem
+                  key={text}
+                  disablePadding
+                  onClick={onClick}
+                  selected={selected}
+                >
+                  <ListItemButton>
+                    <ListItemIcon>{icon}</ListItemIcon>
+                    <ListItemText primary={text} />
+                  </ListItemButton>
+                </ListItem>
+              );
+            }
+          )}
         </List>
         {/* 
         <Divider />

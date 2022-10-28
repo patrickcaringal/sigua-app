@@ -65,9 +65,9 @@ export const getRecordsByBranchDateRangeReq = async ({ id, start, end }) => {
 export const getRecordsByDateRangeReq = async ({ start, end }) => {
   try {
     const q = query(
-      collRef
-      // where("dateCreated", ">=", start),
-      // where("dateCreated", "<=", end)
+      collRef,
+      where("dateCreated", ">=", start),
+      where("dateCreated", "<=", end)
     );
     const querySnapshot = await getDocs(q);
     const data = querySnapshot.docs
