@@ -136,11 +136,25 @@ export const checkAccountDuplicateReq = async ({ contactNo, name }) => {
 
 export const checkAccountCredentialReq = async ({ contactNo, password }) => {
   try {
-    const q = query(collRef, where("contactNo", "==", contactNo));
+    // find account
+    const q = query(
+      collRef,
+      where("contactNo", "==", contactNo),
+      where("deleted", "==", false)
+    );
     const querySnapshot = await getDocs(q);
 
+    // find patient
+    const q2 = query(
+      collection(db, "patients"),
+      where("contactNo", "==", contactNo),
+      where("deleted", "==", false)
+    );
+    const querySnapshot2 = await getDocs(q2);
+
     // Check if account exist
-    const exist = querySnapshot.docs.length === 1;
+    const exist =
+      querySnapshot.docs.length === 1 && querySnapshot2.docs.length === 1;
     if (!exist) throw new Error("Invalid contact number or password");
 
     // Check if correct password
@@ -148,6 +162,7 @@ export const checkAccountCredentialReq = async ({ contactNo, password }) => {
       id: querySnapshot.docs[0].id,
       ...querySnapshot.docs[0].data(),
     };
+
     const correctPass = comparePassword(password, document.password);
     if (!correctPass) throw new Error("Invalid contact number or password");
 
