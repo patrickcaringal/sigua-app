@@ -10,10 +10,17 @@ import {
 } from "@mui/material";
 import { useFormik } from "formik";
 
+import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
-import { updateDoctorReq, updateStaffReq } from "../../../../modules/firebase";
+import {
+  LOG_ACTIONS,
+  RESOURCE_TYPE,
+  saveLogReq,
+  updateDoctorReq,
+  updateStaffReq,
+} from "../../../../modules/firebase";
 import {
   formatTimeStamp,
   localUpdateDocs,
@@ -24,6 +31,7 @@ import { successMessage } from "../../../common";
 import { DatePicker, Input, Select } from "../../../common/Form";
 
 const ProfilePage = ({ data, onSave, mode = "doctor" }) => {
+  const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
   const isDoctor = mode === "doctor";
@@ -60,6 +68,17 @@ const ProfilePage = ({ data, onSave, mode = "doctor" }) => {
       const payload = { [isDoctor ? "doctor" : "staff"]: updates };
       const { error } = await updateProfile(payload);
       if (error) return openErrorDialog(error);
+
+      // savelog
+      await saveLogReq({
+        actorId: user.id,
+        actorName: user.name,
+        action: LOG_ACTIONS.UPDATE,
+        resourceType: RESOURCE_TYPE.PROFILE,
+        resourceId: null,
+        resourceName: null,
+        change: null,
+      });
 
       // Successful
       onSave(updates);

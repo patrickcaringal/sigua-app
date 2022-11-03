@@ -37,6 +37,8 @@ export const RESOURCE_TYPE = {
   BRANCH: "BRANCH",
   QUEUE: "QUEUE",
   ANNOUNCEMENT: "ANNOUNCEMENT",
+  PROFILE: "PROFILE",
+  PASSWORD: "PASSWORD",
 };
 
 const collectionName = "logs";

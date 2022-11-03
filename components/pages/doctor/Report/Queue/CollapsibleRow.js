@@ -45,7 +45,7 @@ const CollapsibleRow = ({ data }) => {
 
   return (
     <>
-      <TableRow>
+      <TableRow id={id}>
         <TableCell sx={{ width: 60 }}>
           <IconButton
             size="small"

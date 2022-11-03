@@ -3,10 +3,16 @@ import React, { useEffect, useState } from "react";
 import { Box, Button, Container, Grid, Typography } from "@mui/material";
 import { useFormik } from "formik";
 
+import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
-import { changePasswordReq } from "../../../../modules/firebase";
+import {
+  LOG_ACTIONS,
+  RESOURCE_TYPE,
+  changePasswordReq,
+  saveLogReq,
+} from "../../../../modules/firebase";
 import {
   formatTimeStamp,
   localUpdateDocs,
@@ -17,6 +23,7 @@ import { successMessage } from "../../../common";
 import { Input } from "../../../common/Form";
 
 const PasswordPage = ({ data, onSave }) => {
+  const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
@@ -40,6 +47,17 @@ const PasswordPage = ({ data, onSave }) => {
       };
       const { error } = await changePassword(payload);
       if (error) return openErrorDialog(error);
+
+      // savelog
+      await saveLogReq({
+        actorId: user.id,
+        actorName: user.name,
+        action: LOG_ACTIONS.UPDATE,
+        resourceType: RESOURCE_TYPE.PASSWORD,
+        resourceId: null,
+        resourceName: null,
+        change: null,
+      });
 
       // Successful
       openResponseDialog({

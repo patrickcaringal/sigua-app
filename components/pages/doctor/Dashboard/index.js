@@ -81,6 +81,7 @@ const DashboardPage = () => {
       const payload = { ...daterange };
       const { data, error: getError } = await getQueues(payload);
       if (getError) return openErrorDialog(getError);
+
       setQueues(data);
     };
 
