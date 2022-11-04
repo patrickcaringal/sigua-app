@@ -1,6 +1,7 @@
 import {
   REG_TYPE,
   addFamilyMembersReq,
+  changeAccountPasswordReq,
   checkAccountCredentialReq,
   checkAccountDuplicateReq,
   checkContactNoReq,
@@ -127,6 +128,7 @@ export {
   // account
   REG_TYPE,
   addFamilyMembersReq,
+  changeAccountPasswordReq,
   checkAccountCredentialReq,
   checkAccountDuplicateReq,
   checkContactNoReq,

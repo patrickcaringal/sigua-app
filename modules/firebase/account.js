@@ -116,15 +116,27 @@ export const changeAccountPasswordReq = async ({
   newPassword,
 }) => {
   try {
-    // const user = auth.currentUser;
-    // const credential = EmailAuthProvider.credential(user.email, oldPassword);
-    // await reauthenticateWithCredential(user, credential);
-    // await updatePassword(user, newPassword);
+    const q = doc(db, collectionName, id);
+    const querySnapshot = await getDoc(q);
+
+    if (!querySnapshot.exists()) {
+      throw new Error("Unable to get Patient doc");
+    }
+
+    const data = querySnapshot.data();
+
+    const correctPass = comparePassword(oldPassword, data.password);
+    if (!correctPass) throw new Error("Incorrect password");
+
+    const docRef = doc(db, collectionName, id);
+    await updateDoc(docRef, {
+      password: hashPassword(newPassword),
+    });
+
     return { success: true };
   } catch (error) {
     console.log(error);
-    const errMsg = getErrorMsg(error.code);
-    return { error: errMsg || error.message };
+    return { error: error.message };
   }
 };
 

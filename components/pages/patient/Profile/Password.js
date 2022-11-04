@@ -10,7 +10,7 @@ import useRequest from "../../../../hooks/useRequest";
 import {
   LOG_ACTIONS,
   RESOURCE_TYPE,
-  changePasswordReq,
+  changeAccountPasswordReq,
   saveLogReq,
 } from "../../../../modules/firebase";
 import {
@@ -28,13 +28,16 @@ const PasswordPage = ({ data, onSave }) => {
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   // Requests
-  const [changePassword] = useRequest(changePasswordReq, setBackdropLoader);
+  const [changePassword] = useRequest(
+    changeAccountPasswordReq,
+    setBackdropLoader
+  );
 
   const formik = useFormik({
     initialValues: {
-      password: "", // 12345678
-      newPassword: "",
-      matchPassword: "",
+      password: "12345678", // 12345678
+      newPassword: "12345678",
+      matchPassword: "12345678",
     },
     validationSchema: ChangePassSchema,
     enableReinitialize: true,
@@ -42,6 +45,7 @@ const PasswordPage = ({ data, onSave }) => {
     onSubmit: async (values) => {
       // Update
       const payload = {
+        id: user.id,
         oldPassword: values.password,
         newPassword: values.newPassword,
       };
