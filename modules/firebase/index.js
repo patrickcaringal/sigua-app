@@ -3,9 +3,11 @@ import {
   addFamilyMembersReq,
   checkAccountCredentialReq,
   checkAccountDuplicateReq,
+  checkContactNoReq,
   createAccountReq,
   getAccountsReq,
   getMemberForApprovalReq,
+  resetPasswordReq,
   updateFamilyMembersReq,
 } from "./account";
 import {
@@ -125,9 +127,11 @@ export {
   addFamilyMembersReq,
   checkAccountCredentialReq,
   checkAccountDuplicateReq,
+  checkContactNoReq,
   createAccountReq,
   getAccountsReq,
   getMemberForApprovalReq,
+  resetPasswordReq,
   updateFamilyMembersReq,
   // Announcement
   addAnnouncementReq,

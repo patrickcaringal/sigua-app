@@ -1,4 +1,6 @@
+import axios from "axios";
 import bcrypt from "bcryptjs";
+import faker from "faker";
 import {
   collection,
   doc,
@@ -12,6 +14,7 @@ import {
 } from "firebase/firestore";
 import lodash from "lodash";
 
+import { getBaseApi } from "../env";
 import {
   formatDate,
   formatFirebasetimeStamp,
@@ -170,6 +173,45 @@ export const checkAccountCredentialReq = async ({ contactNo, password }) => {
     delete document.password;
 
     return { data: document, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
+export const checkContactNoReq = async ({ contactNo }) => {
+  try {
+    // find account
+    const q = query(collRef, where("contactNo", "==", contactNo));
+    const querySnapshot = await getDocs(q);
+
+    // Check if account exist
+    const exist = querySnapshot.docs.length === 1;
+    if (!exist) throw new Error("Contact number not registered.");
+    const data = querySnapshot.docs[0].data();
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
+export const resetPasswordReq = async ({ id, contactNo }) => {
+  try {
+    const password = faker.internet.password(8, false, /[a-z]/);
+
+    const docRef = doc(db, "accounts", id);
+    await updateDoc(docRef, {
+      password: hashPassword(password),
+    });
+
+    // send sms
+    const payload = { password, contactNo };
+    await axios.post(getBaseApi("/reset-password-sms"), payload);
+    // console.log(payload);
+
+    return { success: true };
   } catch (error) {
     console.log(error);
     return { error: error.message };
