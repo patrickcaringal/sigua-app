@@ -116,6 +116,7 @@ const UserAvatar = ({ user, isStaff, onLogout }) => {
               router.push(PATHS.DOCTOR.PROFILE);
             else if (["staff"].includes(user.role))
               router.push(PATHS.STAFF.PROFILE);
+            else router.push(PATHS.PATIENT.PROFILE);
             handleCloseUserMenu();
           }}
         >

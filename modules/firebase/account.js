@@ -25,9 +25,10 @@ import {
 } from "../helper";
 import { db, timestampFields } from "./config";
 import { checkDuplicate, registerNames } from "./helpers";
-import { MEMBER_STATUS } from "./patients";
+import { MEMBER_STATUS, updatePatientReq } from "./patients";
 
-const collRef = collection(db, "accounts");
+const collectionName = "accounts";
+const collRef = collection(db, collectionName);
 
 const transformedFields = (doc) => ({
   name: getFullName(doc),
@@ -106,6 +107,24 @@ export const createAccountReq = async (account) => {
   } catch (error) {
     console.log(error);
     return { error: error.message };
+  }
+};
+
+export const changeAccountPasswordReq = async ({
+  id,
+  oldPassword,
+  newPassword,
+}) => {
+  try {
+    // const user = auth.currentUser;
+    // const credential = EmailAuthProvider.credential(user.email, oldPassword);
+    // await reauthenticateWithCredential(user, credential);
+    // await updatePassword(user, newPassword);
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
   }
 };
 
@@ -218,6 +237,28 @@ export const resetPasswordReq = async ({ id, contactNo }) => {
   }
 };
 
+export const getAccountReq = async ({ id, contactNo }) => {
+  try {
+    // Patient
+    const q = query(
+      collection(db, "patients"),
+      where("accountId", "==", id),
+      where("contactNo", "==", contactNo)
+    );
+    const querySnapshot = await getDocs(q);
+
+    const exist = querySnapshot.docs.length;
+    if (!exist) throw new Error("Unable to get Patient Doc");
+
+    const data = querySnapshot.docs[0].data();
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
 export const getAccountsReq = async () => {
   try {
     // Get Accounts
@@ -261,6 +302,46 @@ export const getFamilyMembersReq = async (id) => {
     }
 
     return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
+export const updateAccountReq = async ({ account }) => {
+  try {
+    // // Check duplicate
+    // if (account.name || account.birthdate) {
+    //   await checkDuplicate({
+    //     collectionName: collectionName,
+    //     whereClause: where("nameBirthdate", "==", account.nameBirthdate),
+    //     errorMsg: {
+    //       noun: "Account",
+    //     },
+    //   });
+    // }
+
+    // Update
+    const batch = writeBatch(db);
+    const docRef = doc(db, collectionName, account.id);
+    const finalDoc = {
+      ...account,
+      ...timestampFields({ dateUpdated: true }),
+    };
+    batch.update(docRef, finalDoc);
+
+    // Register account name
+    if (account.name) {
+      const { namesDocRef, names } = await registerNames({
+        collectionName: collectionName,
+        names: { [account.id]: account.name },
+      });
+      batch.update(namesDocRef, names);
+    }
+
+    await batch.commit();
+
+    return { success: true };
   } catch (error) {
     console.log(error);
     return { error: error.message };
