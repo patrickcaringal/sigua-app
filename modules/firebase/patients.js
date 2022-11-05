@@ -267,6 +267,7 @@ export const deletePatientReq = async ({ patient }) => {
     //     noun: `some Branches`,
     //   }),
     // });
+    const batch = writeBatch(db);
 
     // Update to deleted status
     const docRef = doc(db, "patients", patient.id);
@@ -274,7 +275,17 @@ export const deletePatientReq = async ({ patient }) => {
       deleted: true,
       ...timestampFields({ dateUpdated: true }),
     };
-    await updateDoc(docRef, finalDoc);
+    batch.update(docRef, finalDoc);
+
+    // Account Update to deleted status
+    const docRef2 = doc(db, "accounts", patient.accountId);
+    const finalDoc2 = {
+      deleted: true,
+      ...timestampFields({ dateUpdated: true }),
+    };
+    batch.update(docRef2, finalDoc2);
+
+    await batch.commit();
 
     return { success: true };
   } catch (error) {
@@ -310,6 +321,7 @@ export const restorePatientReq = async ({ docs }) => {
     docs.forEach((d) => {
       const updatedFields = { deleted: false };
       batch.update(doc(db, "patients", d.id), updatedFields);
+      batch.update(doc(db, "accounts", d.accountId), updatedFields);
     });
 
     await batch.commit();

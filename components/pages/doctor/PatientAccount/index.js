@@ -222,7 +222,7 @@ const PatientListPage = () => {
                 } = m;
 
                 return (
-                  <TableRow key={index}>
+                  <TableRow key={index} id={id}>
                     <TableCell>{name}</TableCell>
                     <TableCell>{contactNo}</TableCell>
                     <TableCell>
