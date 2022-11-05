@@ -188,7 +188,7 @@ export const checkAccountCredentialReq = async ({ contactNo, password }) => {
 
     // Check if account exist
     const exist =
-      querySnapshot.docs.length === 1 && querySnapshot2.docs.length === 1;
+      querySnapshot.docs.length === 1 && querySnapshot2.docs.length >= 1;
     if (!exist) throw new Error("Invalid contact number or password");
 
     // Check if correct password
@@ -230,17 +230,18 @@ export const checkContactNoReq = async ({ contactNo }) => {
 
 export const resetPasswordReq = async ({ id, contactNo }) => {
   try {
-    const password = faker.internet.password(8, false, /[a-z]/);
-    // const password = "12345678";
+    // const password = faker.internet.password(8, false, /[a-z]/);
+    const password = "12345678";
 
     const docRef = doc(db, "accounts", id);
     await updateDoc(docRef, {
       password: hashPassword(password),
     });
+    // console.log({ id, password });
 
     // send sms
-    const payload = { password, contactNo };
-    await axios.post(getBaseApi("/reset-password-sms"), payload);
+    // const payload = { password, contactNo };
+    // await axios.post(getBaseApi("/reset-password-sms"), payload);
     // console.log(payload);
 
     return { success: true };
