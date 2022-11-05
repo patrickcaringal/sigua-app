@@ -231,6 +231,7 @@ export const checkContactNoReq = async ({ contactNo }) => {
 export const resetPasswordReq = async ({ id, contactNo }) => {
   try {
     const password = faker.internet.password(8, false, /[a-z]/);
+    // const password = "12345678";
 
     const docRef = doc(db, "accounts", id);
     await updateDoc(docRef, {
