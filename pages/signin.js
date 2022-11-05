@@ -12,6 +12,7 @@ import {
 import { useFormik } from "formik";
 import { useRouter } from "next/router";
 
+import { PATHS } from "../components/common";
 import { useAuth } from "../contexts/AuthContext";
 import { useResponseDialog } from "../contexts/ResponseDialogContext";
 import useRequest from "../hooks/useRequest";
@@ -130,7 +131,14 @@ export default function SignInPage() {
             </LoadingButton>
             <Grid container>
               <Grid item xs>
-                <Link href="#" variant="body2">
+                <Link
+                  href="#"
+                  variant="body2"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    router.push(PATHS.PUBLIC.PATIENT_FORGOT_PASSWORD);
+                  }}
+                >
                   Forgot password?
                 </Link>
               </Grid>

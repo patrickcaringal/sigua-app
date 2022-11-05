@@ -18,7 +18,8 @@ import {
   LOG_ACTIONS,
   RESOURCE_TYPE,
   saveLogReq,
-  updateDoctorReq,
+  updateAccountReq,
+  updatePatientReq,
   updateStaffReq,
 } from "../../../../modules/firebase";
 import {
@@ -30,17 +31,14 @@ import { UpdateProfileSchema } from "../../../../modules/validation";
 import { successMessage } from "../../../common";
 import { DatePicker, Input, Select } from "../../../common/Form";
 
-const ProfilePage = ({ data, onSave, mode = "doctor" }) => {
+const ProfilePage = ({ data, onSave }) => {
   const { user } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
-  const isDoctor = mode === "doctor";
 
   // Requests
-  const [updateProfile] = useRequest(
-    isDoctor ? updateDoctorReq : updateStaffReq,
-    setBackdropLoader
-  );
+  const [updateAccount] = useRequest(updateAccountReq, setBackdropLoader);
+  const [updatePatient] = useRequest(updatePatientReq, setBackdropLoader);
 
   const formik = useFormik({
     initialValues: { ...data },
@@ -65,20 +63,13 @@ const ProfilePage = ({ data, onSave, mode = "doctor" }) => {
       });
 
       // Update
-      const payload = { [isDoctor ? "doctor" : "staff"]: updates };
-      const { error } = await updateProfile(payload);
+      const payload = { patient: updates };
+      const { error } = await updatePatient(payload);
       if (error) return openErrorDialog(error);
 
-      // savelog
-      await saveLogReq({
-        actorId: user.id,
-        actorName: user.name,
-        action: LOG_ACTIONS.UPDATE,
-        resourceType: RESOURCE_TYPE.PROFILE,
-        resourceId: null,
-        resourceName: null,
-        change: null,
-      });
+      const upd = { ...updates, id: user.id };
+      const x = await updateAccount({ account: upd });
+      if (x.error) return openErrorDialog(x.error);
 
       // Successful
       onSave(updates);

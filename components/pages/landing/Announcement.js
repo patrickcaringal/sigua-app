@@ -25,6 +25,7 @@ const AnnouncementSection = ({ announcements = [] }) => {
           mb: 8,
           letterSpacing: 5,
           textTransform: "uppercase",
+          fontSize: { xs: "2rem", md: "3rem" },
         }}
       >
         Announcements
@@ -33,9 +34,9 @@ const AnnouncementSection = ({ announcements = [] }) => {
       <Container
         maxWidth="lg"
         sx={{
-          // display: "flex",
           display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
+          gridTemplateColumns: { xs: "1fr", md: "1fr 1fr 1fr" },
+          px: { xs: 5, md: 0 },
           gap: 5,
         }}
       >
@@ -92,19 +93,6 @@ const AnnouncementSection = ({ announcements = [] }) => {
                     </Typography>
                   </CardContent>
                 </Box>
-                {/* <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: 200,
-                  backgroundColor: "primary.light",
-                  // border: "1px solid red",
-                }}
-              >
-                <CampaignIcon sx={{ fontSize: 140, color: "primary.dark" }} />
-              </Box> */}
               </Card>
             </Badge>
           );

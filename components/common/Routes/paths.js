@@ -44,6 +44,7 @@ export const PATHS = {
   },
   PATIENT: {
     DASHBOARD: "/dashboard",
+    PROFILE: "/profile",
     FAMILY: "/family-members",
     MEDICAL_RECORD: "/medical-records",
     QUEUE_TODAY: "/queue/[id]",
@@ -53,6 +54,7 @@ export const PATHS = {
     ROOT: "/",
     PATIENT_SIGN_IN: "/signin",
     PATIENT_SIGN_UP: "/signup",
+    PATIENT_FORGOT_PASSWORD: "/forgot-password",
     DOCTOR_SIGN_IN: "/doctor/signin",
     STAFF_SIGN_IN: "/staff/signin",
   },

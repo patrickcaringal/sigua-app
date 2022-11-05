@@ -1,11 +1,16 @@
 import {
   REG_TYPE,
   addFamilyMembersReq,
+  changeAccountPasswordReq,
   checkAccountCredentialReq,
   checkAccountDuplicateReq,
+  checkContactNoReq,
   createAccountReq,
+  getAccountReq,
   getAccountsReq,
   getMemberForApprovalReq,
+  resetPasswordReq,
+  updateAccountReq,
   updateFamilyMembersReq,
 } from "./account";
 import {
@@ -123,11 +128,16 @@ export {
   // account
   REG_TYPE,
   addFamilyMembersReq,
+  changeAccountPasswordReq,
   checkAccountCredentialReq,
   checkAccountDuplicateReq,
+  checkContactNoReq,
   createAccountReq,
+  getAccountReq,
   getAccountsReq,
   getMemberForApprovalReq,
+  resetPasswordReq,
+  updateAccountReq,
   updateFamilyMembersReq,
   // Announcement
   addAnnouncementReq,

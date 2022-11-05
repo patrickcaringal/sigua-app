@@ -1,4 +1,6 @@
+import axios from "axios";
 import bcrypt from "bcryptjs";
+import faker from "faker";
 import {
   collection,
   doc,
@@ -12,6 +14,7 @@ import {
 } from "firebase/firestore";
 import lodash from "lodash";
 
+import { getBaseApi } from "../env";
 import {
   formatDate,
   formatFirebasetimeStamp,
@@ -22,9 +25,10 @@ import {
 } from "../helper";
 import { db, timestampFields } from "./config";
 import { checkDuplicate, registerNames } from "./helpers";
-import { MEMBER_STATUS } from "./patients";
+import { MEMBER_STATUS, updatePatientReq } from "./patients";
 
-const collRef = collection(db, "accounts");
+const collectionName = "accounts";
+const collRef = collection(db, collectionName);
 
 const transformedFields = (doc) => ({
   name: getFullName(doc),
@@ -106,6 +110,36 @@ export const createAccountReq = async (account) => {
   }
 };
 
+export const changeAccountPasswordReq = async ({
+  id,
+  oldPassword,
+  newPassword,
+}) => {
+  try {
+    const q = doc(db, collectionName, id);
+    const querySnapshot = await getDoc(q);
+
+    if (!querySnapshot.exists()) {
+      throw new Error("Unable to get Patient doc");
+    }
+
+    const data = querySnapshot.data();
+
+    const correctPass = comparePassword(oldPassword, data.password);
+    if (!correctPass) throw new Error("Incorrect password");
+
+    const docRef = doc(db, collectionName, id);
+    await updateDoc(docRef, {
+      password: hashPassword(newPassword),
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
 export const checkAccountDuplicateReq = async ({ contactNo, name }) => {
   try {
     if (contactNo) {
@@ -136,11 +170,25 @@ export const checkAccountDuplicateReq = async ({ contactNo, name }) => {
 
 export const checkAccountCredentialReq = async ({ contactNo, password }) => {
   try {
-    const q = query(collRef, where("contactNo", "==", contactNo));
+    // find account
+    const q = query(
+      collRef,
+      where("contactNo", "==", contactNo),
+      where("deleted", "==", false)
+    );
     const querySnapshot = await getDocs(q);
 
+    // find patient
+    const q2 = query(
+      collection(db, "patients"),
+      where("contactNo", "==", contactNo),
+      where("deleted", "==", false)
+    );
+    const querySnapshot2 = await getDocs(q2);
+
     // Check if account exist
-    const exist = querySnapshot.docs.length === 1;
+    const exist =
+      querySnapshot.docs.length === 1 && querySnapshot2.docs.length === 1;
     if (!exist) throw new Error("Invalid contact number or password");
 
     // Check if correct password
@@ -148,6 +196,7 @@ export const checkAccountCredentialReq = async ({ contactNo, password }) => {
       id: querySnapshot.docs[0].id,
       ...querySnapshot.docs[0].data(),
     };
+
     const correctPass = comparePassword(password, document.password);
     if (!correctPass) throw new Error("Invalid contact number or password");
 
@@ -155,6 +204,68 @@ export const checkAccountCredentialReq = async ({ contactNo, password }) => {
     delete document.password;
 
     return { data: document, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
+export const checkContactNoReq = async ({ contactNo }) => {
+  try {
+    // find account
+    const q = query(collRef, where("contactNo", "==", contactNo));
+    const querySnapshot = await getDocs(q);
+
+    // Check if account exist
+    const exist = querySnapshot.docs.length === 1;
+    if (!exist) throw new Error("Contact number not registered.");
+    const data = querySnapshot.docs[0].data();
+
+    return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
+export const resetPasswordReq = async ({ id, contactNo }) => {
+  try {
+    const password = faker.internet.password(8, false, /[a-z]/);
+    // const password = "12345678";
+
+    const docRef = doc(db, "accounts", id);
+    await updateDoc(docRef, {
+      password: hashPassword(password),
+    });
+
+    // send sms
+    const payload = { password, contactNo };
+    await axios.post(getBaseApi("/reset-password-sms"), payload);
+    // console.log(payload);
+
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
+export const getAccountReq = async ({ id, contactNo }) => {
+  try {
+    // Patient
+    const q = query(
+      collection(db, "patients"),
+      where("accountId", "==", id),
+      where("contactNo", "==", contactNo)
+    );
+    const querySnapshot = await getDocs(q);
+
+    const exist = querySnapshot.docs.length;
+    if (!exist) throw new Error("Unable to get Patient Doc");
+
+    const data = querySnapshot.docs[0].data();
+
+    return { data, success: true };
   } catch (error) {
     console.log(error);
     return { error: error.message };
@@ -204,6 +315,46 @@ export const getFamilyMembersReq = async (id) => {
     }
 
     return { data, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
+export const updateAccountReq = async ({ account }) => {
+  try {
+    // // Check duplicate
+    // if (account.name || account.birthdate) {
+    //   await checkDuplicate({
+    //     collectionName: collectionName,
+    //     whereClause: where("nameBirthdate", "==", account.nameBirthdate),
+    //     errorMsg: {
+    //       noun: "Account",
+    //     },
+    //   });
+    // }
+
+    // Update
+    const batch = writeBatch(db);
+    const docRef = doc(db, collectionName, account.id);
+    const finalDoc = {
+      ...account,
+      ...timestampFields({ dateUpdated: true }),
+    };
+    batch.update(docRef, finalDoc);
+
+    // Register account name
+    if (account.name) {
+      const { namesDocRef, names } = await registerNames({
+        collectionName: collectionName,
+        names: { [account.id]: account.name },
+      });
+      batch.update(namesDocRef, names);
+    }
+
+    await batch.commit();
+
+    return { success: true };
   } catch (error) {
     console.log(error);
     return { error: error.message };

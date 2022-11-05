@@ -97,8 +97,8 @@ export const getQueuesByDateRangeReq = async ({ id, start, end }) => {
   try {
     const q = query(
       collRef,
-      where("dateCreated", ">=", start),
-      where("dateCreated", "<=", end)
+      where("date", ">=", start),
+      where("date", "<=", end)
     );
     const querySnapshot = await getDocs(q);
     const data = querySnapshot.docs

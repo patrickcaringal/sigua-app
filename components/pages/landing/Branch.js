@@ -10,7 +10,8 @@ const BranchSection = ({ branches, servicesMap }) => {
         sx={{
           // display: "flex",
           display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
+          gridTemplateColumns: { xs: "1fr", md: "1fr 1fr 1fr" },
+          px: 0,
         }}
       >
         {branches.map((i, idx) => {

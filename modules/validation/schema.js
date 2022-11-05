@@ -53,6 +53,12 @@ export const SigninSchema = Yup.object().shape({
   password: Yup.string().required("Required"),
 });
 
+export const PatientForgotPasswordSchema = Yup.object().shape({
+  contactNo: Yup.string()
+    .matches(/^(09)\d{9}$/, "Invalid Contact Number")
+    .required("Required"),
+});
+
 export const DoctorSigninSchema = Yup.object().shape({
   email: Yup.string().email().required("Required"),
   password: Yup.string()

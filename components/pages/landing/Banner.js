@@ -9,13 +9,14 @@ const Banner = () => {
       maxWidth="lg"
       sx={{
         display: "flex",
-        flexDirection: "row",
+        flexDirection: { xs: "column", md: "row" },
+        alignItems: "center",
         py: 4,
         mb: 5,
         //   border: "1px solid blue",
       }}
     >
-      <Box sx={{ width: 500 }}>
+      <Box sx={{ width: { xs: 360, md: 500 } }}>
         <Image
           src="/banner.png"
           alt=""
@@ -25,17 +26,17 @@ const Banner = () => {
           objectFit="contain"
         />
       </Box>
+
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
           // alignItems: "center",
+          textAlign: { xs: "center", md: "left" },
           justifyContent: "center",
           flex: 1,
-          ml: 8,
-          // my: 3,
-          // mb: 10,
-          // border: "1px solid blue",
+          ml: { xs: 0, md: 8 },
+          mt: { xs: 3, md: 0 },
         }}
       >
         <Typography variant="h3" fontWeight={600} color="primary.dark">
