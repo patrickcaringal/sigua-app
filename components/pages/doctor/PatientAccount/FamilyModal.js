@@ -263,7 +263,7 @@ const FamilyModal = ({
                       m;
 
                     return (
-                      <TableRow key={id}>
+                      <TableRow key={id} id={id}>
                         <TableCell>{name}</TableCell>
                         <TableCell>
                           {formatTimeStamp(birthdate, "MMM-dd-yyyy")}

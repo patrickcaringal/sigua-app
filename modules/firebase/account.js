@@ -76,6 +76,7 @@ export const createAccountReq = async (account) => {
       ...lodash.omit(accountDoc, ["password", "role"]),
       id: docRef2.id,
       accountId: accountDoc.id,
+      account: true,
       verified: true,
       verifiedContactNo: true,
       verificationAttachment: null,
@@ -178,17 +179,8 @@ export const checkAccountCredentialReq = async ({ contactNo, password }) => {
     );
     const querySnapshot = await getDocs(q);
 
-    // find patient
-    const q2 = query(
-      collection(db, "patients"),
-      where("contactNo", "==", contactNo),
-      where("deleted", "==", false)
-    );
-    const querySnapshot2 = await getDocs(q2);
-
     // Check if account exist
-    const exist =
-      querySnapshot.docs.length === 1 && querySnapshot2.docs.length >= 1;
+    const exist = querySnapshot.docs.length === 1;
     if (!exist) throw new Error("Invalid contact number or password");
 
     // Check if correct password
