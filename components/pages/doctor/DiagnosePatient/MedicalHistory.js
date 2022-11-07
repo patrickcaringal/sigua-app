@@ -12,10 +12,18 @@ import {
   Typography,
 } from "@mui/material";
 
-import { LongTypography, TableContainer } from "../../../../components/common";
+import {
+  ACTION_BUTTONS,
+  LongTypography,
+  TableContainer,
+  getActionButtons,
+} from "../../../../components/common";
 import { formatTimeStamp } from "../../../../modules/helper";
 
-const MedicalHistory = ({ data = [], onRecordClick }) => {
+const MedicalHistory = ({ data = [], onRecordClick, onEdit, onDelete }) => {
+  const hasEdit = !!onEdit;
+  const hasDelete = !!onDelete;
+
   return (
     <TableContainer maxHeight="calc(100vh - 64px - 64px - 210px)">
       <Table size="small">
@@ -27,7 +35,11 @@ const MedicalHistory = ({ data = [], onRecordClick }) => {
               { text: "Service" },
               { text: "Doctor", sx: { width: 160 } },
               // { text: "Diagnosis" },
-              { text: "Actions", sx: { width: 82 } },
+              {
+                text: "Actions",
+                sx: { width: hasEdit ? 140 : 82 },
+                align: "center",
+              },
             ].map(({ text, align, sx }) => (
               <TableCell
                 key={text}
@@ -79,6 +91,19 @@ const MedicalHistory = ({ data = [], onRecordClick }) => {
                   <IconButton size="small" onClick={() => onRecordClick(i)}>
                     <AssignmentIcon />
                   </IconButton>
+
+                  {getActionButtons([
+                    hasEdit && {
+                      action: ACTION_BUTTONS.EDIT,
+                      tooltipText: "Edit Record",
+                      onClick: () => onEdit(i),
+                    },
+                    hasDelete && {
+                      action: ACTION_BUTTONS.DELETE,
+                      tooltipText: "Delete Record",
+                      onClick: () => onDelete(i),
+                    },
+                  ])}
                 </TableCell>
               </TableRow>
             );

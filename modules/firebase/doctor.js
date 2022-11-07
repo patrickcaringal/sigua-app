@@ -346,3 +346,37 @@ export const diagnosePatientReq = async ({ queue, medicalRecord }) => {
     return { error: error.message };
   }
 };
+
+export const updateMedicalRecordReq = async ({ updates }) => {
+  try {
+    // Update
+    const docRef = doc(db, "medicalRecords", updates.id);
+    const finalDoc = {
+      ...updates,
+      ...timestampFields({ dateUpdated: true }),
+    };
+    await updateDoc(docRef, finalDoc);
+
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+};
+
+export const deleteMedicalRecordReq = async ({ id }) => {
+  try {
+    const docRef = doc(db, "medicalRecords", id);
+    const finalDoc = {
+      deleted: true,
+      ...timestampFields({ dateUpdated: true }),
+    };
+    await updateDoc(docRef, finalDoc);
+
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    const errMsg = getErrorMsg(error.code);
+    return { error: errMsg || error.message };
+  }
+};

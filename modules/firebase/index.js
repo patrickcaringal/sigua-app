@@ -42,6 +42,7 @@ import { auth, db } from "./config";
 import {
   addDoctorReq,
   deleteDoctorReq,
+  deleteMedicalRecordReq,
   diagnosePatientReq,
   getBranchDoctorsReq,
   getDeletedDoctorsReq,
@@ -49,6 +50,7 @@ import {
   getDoctorsReq,
   restoreDoctorReq,
   updateDoctorReq,
+  updateMedicalRecordReq,
 } from "./doctor";
 import {
   LOG_ACTIONS,
@@ -149,6 +151,7 @@ export {
   // doctor
   addDoctorReq,
   deleteDoctorReq,
+  deleteMedicalRecordReq,
   diagnosePatientReq,
   getBranchDoctorsReq,
   getDeletedDoctorsReq,
@@ -156,6 +159,7 @@ export {
   getDoctorsReq,
   restoreDoctorReq,
   updateDoctorReq,
+  updateMedicalRecordReq,
   // patient
   MEMBER_STATUS,
   addPatientReq,
