@@ -13,6 +13,7 @@ import Logo from "../../Logo";
 import AnnouncementSection from "./Announcement";
 import BannerSection from "./Banner";
 import BranchSection from "./Branch";
+import FooterSection from "./Footer";
 
 const Landingpage = () => {
   // Requests
@@ -63,6 +64,7 @@ const Landingpage = () => {
       <BannerSection />
       <BranchSection branches={branches} servicesMap={servicesMap} />
       <AnnouncementSection announcements={announcements} />
+      <FooterSection />
     </Box>
   );
 };
