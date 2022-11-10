@@ -1,7 +1,9 @@
 import React from "react";
 
 import AssignmentIcon from "@mui/icons-material/Assignment";
+import CheckIcon from "@mui/icons-material/Check";
 import ClearIcon from "@mui/icons-material/Clear";
+import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DownloadForOfflineIcon from "@mui/icons-material/DownloadForOffline";
 import EditIcon from "@mui/icons-material/Edit";
@@ -13,7 +15,6 @@ import QrCodeIcon from "@mui/icons-material/QrCode";
 import RestoreIcon from "@mui/icons-material/Restore";
 import SendToMobileIcon from "@mui/icons-material/SendToMobile";
 import { IconButton, Tooltip } from "@mui/material";
-
 export const ACTION_BUTTONS = {
   DETAILS: "DETAILS",
   DETAILS_QUEUE: "DETAILS_QUEUE",
@@ -25,6 +26,8 @@ export const ACTION_BUTTONS = {
   VIEW_FAMILY_MEMBERS: "VIEW_FAMILY_MEMBERS",
   GENERATE_QR_CODE: "GENERATE_QR_CODE",
   VERIFY_MOBILE: "VERIFY_MOBILE",
+  APPROVE: "APPROVE",
+  REJECT: "REJECT",
 };
 
 export const ACTION_ICONS = {
@@ -41,6 +44,8 @@ export const ACTION_ICONS = {
   FILTER: <FilterListIcon />,
   CLEAR: <ClearIcon />,
   VERIFY_MOBILE: <SendToMobileIcon />,
+  APPROVE: <CheckIcon />,
+  REJECT: <CloseIcon />,
 };
 
 const getButton = ({ tooltipText = "", action, onClick }) => {

@@ -55,6 +55,8 @@ import {
 import {
   addFeedbackReq,
   approveFeedbackReq,
+  getApprovedFeedbacksReq,
+  getForApprovalFeedbacksReq,
   rejectFeedbackReq,
 } from "./feedbacks";
 import {
@@ -234,5 +236,7 @@ export {
   // feedback
   addFeedbackReq,
   approveFeedbackReq,
+  getForApprovalFeedbacksReq,
+  getApprovedFeedbacksReq,
   rejectFeedbackReq,
 };
