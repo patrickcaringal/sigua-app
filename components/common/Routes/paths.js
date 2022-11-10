@@ -45,6 +45,7 @@ export const PATHS = {
   PATIENT: {
     DASHBOARD: "/dashboard",
     PROFILE: "/profile",
+    FEEDBACK: "/feedback",
     FAMILY: "/family-members",
     MEDICAL_RECORD: "/medical-records",
     QUEUE_TODAY: "/queue/[id]",

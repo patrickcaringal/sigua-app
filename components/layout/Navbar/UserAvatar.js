@@ -1,6 +1,7 @@
 import React from "react";
 
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import FeedbackIcon from "@mui/icons-material/Feedback";
 import LogoutIcon from "@mui/icons-material/Logout";
 import {
   Avatar,
@@ -125,6 +126,19 @@ const UserAvatar = ({ user, isStaff, onLogout }) => {
           </ListItemIcon>
           <ListItemText>Profile</ListItemText>
         </MenuItem>
+
+        {["patient"].includes(user.role) && (
+          <MenuItem
+            onClick={() => {
+              router.push(PATHS.PATIENT.FEEDBACK);
+            }}
+          >
+            <ListItemIcon>
+              <FeedbackIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Feedback</ListItemText>
+          </MenuItem>
+        )}
 
         <MenuItem onClick={handleLogout}>
           <ListItemIcon>

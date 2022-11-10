@@ -26,6 +26,10 @@ export const UpdateProfileSchema = Yup.object().shape({
   address: Yup.string().required("Required"),
 });
 
+export const FeedbackSchema = Yup.object().shape({
+  feedback: Yup.string().max(250, "Description too long").required("Required"),
+});
+
 export const ChangePassSchema = Yup.object().shape({
   password: Yup.string()
     .min(8, "Password must be 8 characters long")

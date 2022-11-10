@@ -53,6 +53,11 @@ import {
   updateMedicalRecordReq,
 } from "./doctor";
 import {
+  addFeedbackReq,
+  approveFeedbackReq,
+  rejectFeedbackReq,
+} from "./feedbacks";
+import {
   LOG_ACTIONS,
   RESOURCE_TYPE,
   getLogsByMonthReq,
@@ -226,4 +231,8 @@ export {
   omitKeys,
   saveLogReq,
   getLogsByMonthReq,
+  // feedback
+  addFeedbackReq,
+  approveFeedbackReq,
+  rejectFeedbackReq,
 };
