@@ -42,6 +42,7 @@ import { auth, db } from "./config";
 import {
   addDoctorReq,
   deleteDoctorReq,
+  deleteMedicalRecordReq,
   diagnosePatientReq,
   getBranchDoctorsReq,
   getDeletedDoctorsReq,
@@ -49,7 +50,15 @@ import {
   getDoctorsReq,
   restoreDoctorReq,
   updateDoctorReq,
+  updateMedicalRecordReq,
 } from "./doctor";
+import {
+  addFeedbackReq,
+  approveFeedbackReq,
+  getApprovedFeedbacksReq,
+  getForApprovalFeedbacksReq,
+  rejectFeedbackReq,
+} from "./feedbacks";
 import {
   LOG_ACTIONS,
   RESOURCE_TYPE,
@@ -149,6 +158,7 @@ export {
   // doctor
   addDoctorReq,
   deleteDoctorReq,
+  deleteMedicalRecordReq,
   diagnosePatientReq,
   getBranchDoctorsReq,
   getDeletedDoctorsReq,
@@ -156,6 +166,7 @@ export {
   getDoctorsReq,
   restoreDoctorReq,
   updateDoctorReq,
+  updateMedicalRecordReq,
   // patient
   MEMBER_STATUS,
   addPatientReq,
@@ -222,4 +233,10 @@ export {
   omitKeys,
   saveLogReq,
   getLogsByMonthReq,
+  // feedback
+  addFeedbackReq,
+  approveFeedbackReq,
+  getForApprovalFeedbacksReq,
+  getApprovedFeedbacksReq,
+  rejectFeedbackReq,
 };

@@ -11,15 +11,22 @@ import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
 import {
+  deleteMedicalRecordReq,
   getPatientRecordReq,
   getPatientReq,
 } from "../../../../modules/firebase";
 import { formatTimeStamp } from "../../../../modules/helper";
 import { exportPatientRecords } from "../../../../modules/pdf";
-import { ACTION_ICONS, PATHS } from "../../../common";
+import {
+  ACTION_ICONS,
+  PATHS,
+  confirmMessage,
+  successMessage,
+} from "../../../common";
 import { AdminMainContainer } from "../../../shared";
 import MedicalHistory from "../../doctor/DiagnosePatient/MedicalHistory";
 import RecordModal from "../../doctor/DiagnosePatient/RecordModal";
+import EditRecordModal from "./EditRecordModal";
 import FilterModal from "./FilterModal";
 import useFilter from "./FilterModal/useFilter";
 import PatientDetails from "./PatientDetails";
@@ -32,20 +39,34 @@ const defaultModal = {
 const MedicalRecordPage = () => {
   const router = useRouter();
   const { setBackdropLoader } = useBackdropLoader();
-  const { openErrorDialog } = useResponseDialog();
+  const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
   const patientId = router.query.id;
 
   // Requests
   const [getPatient] = useRequest(getPatientReq, setBackdropLoader);
   const [getPatientRecord] = useRequest(getPatientRecordReq, setBackdropLoader);
+  const [deleteMedicalRecord] = useRequest(
+    deleteMedicalRecordReq,
+    setBackdropLoader
+  );
 
   // Local States
   const [patient, setPatient] = useState({});
   const [medicalRecords, setMedicalRecords] = useState([]);
   const [patientRecordModal, setPatientRecordModal] = useState(defaultModal);
+  const [editRecordModal, setEditRecordModal] = useState(defaultModal);
   const [filterModal, setFilterModal] = useState(defaultModal);
   const filtering = useFilter({ ...router.query });
+
+  const fetchMedicalRecord = async () => {
+    // Get Medical Record
+    const payload = { id: patientId };
+    const { data, error: getError } = await getPatientRecord(payload);
+    if (getError) return openErrorDialog(getError);
+
+    setMedicalRecords(data);
+  };
 
   useEffect(() => {
     if (patientId) {
@@ -56,15 +77,6 @@ const MedicalRecordPage = () => {
         if (getError) return openErrorDialog(getError);
 
         setPatient(data);
-      };
-
-      const fetchMedicalRecord = async () => {
-        // Get Medical Record
-        const payload = { id: patientId };
-        const { data, error: getError } = await getPatientRecord(payload);
-        if (getError) return openErrorDialog(getError);
-
-        setMedicalRecords(data);
       };
 
       fetchPatient();
@@ -90,6 +102,48 @@ const MedicalRecordPage = () => {
 
   const handlePatientRecordModalClose = () => {
     setPatientRecordModal(defaultModal);
+  };
+
+  const handleEditRecordModalOpen = (data) => {
+    setEditRecordModal({
+      open: true,
+      data,
+    });
+  };
+
+  const handleEditRecordModalClose = () => {
+    setEditRecordModal(defaultModal);
+  };
+
+  const handleDeleteConfirm = (i) => {
+    openResponseDialog({
+      content: confirmMessage({ item: "Medical Record" }),
+      type: "CONFIRM",
+      actions: (
+        <Button
+          variant="outlined"
+          color="error"
+          onClick={() => handleDelete(i)}
+          size="small"
+        >
+          delete
+        </Button>
+      ),
+    });
+  };
+
+  const handleDelete = async (i) => {
+    const payload = { id: i.id };
+    const { error } = await deleteMedicalRecord(payload);
+    if (error) return openErrorDialog(error);
+
+    // Success
+    fetchMedicalRecord();
+    openResponseDialog({
+      autoClose: true,
+      content: successMessage({ noun: "Medical Record", verb: "deleted" }),
+      type: "SUCCESS",
+    });
   };
 
   const handleFilterModalOpen = () => {
@@ -168,6 +222,8 @@ const MedicalRecordPage = () => {
             <MedicalHistory
               data={filtering.filtered}
               onRecordClick={handlePatientRecordModalOpen}
+              onEdit={handleEditRecordModalOpen}
+              onDelete={handleDeleteConfirm}
             />
           </Box>
         </Box>
@@ -178,6 +234,15 @@ const MedicalRecordPage = () => {
           open={patientRecordModal.open}
           data={patientRecordModal.data}
           onClose={handlePatientRecordModalClose}
+        />
+      )}
+
+      {editRecordModal.open && (
+        <EditRecordModal
+          open={editRecordModal.open}
+          data={editRecordModal.data}
+          onClose={handleEditRecordModalClose}
+          onSave={fetchMedicalRecord}
         />
       )}
 

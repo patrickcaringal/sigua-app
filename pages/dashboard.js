@@ -75,11 +75,13 @@ const DashboardPage = () => {
       <Box
         sx={{
           height: "calc(100vh - 64px)",
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
+          display: "grid",
+          gridTemplateColumns: { xs: "auto", md: "auto auto" },
+          // flexDirection: { xs: "column", md: "row" },
           alignItems: "center",
           justifyContent: "center",
-          rowGap: 3,
+          // border: "1px solid red",
+          // rowGap: 3,
           columnGap: 3,
         }}
       >

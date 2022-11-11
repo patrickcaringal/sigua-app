@@ -5,6 +5,7 @@ import AddToQueueIcon from "@mui/icons-material/AddToQueue";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import CampaignIcon from "@mui/icons-material/Campaign";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
+import FeedbackIcon from "@mui/icons-material/Feedback";
 import GroupIcon from "@mui/icons-material/Group";
 import InsertChartIcon from "@mui/icons-material/InsertChart";
 import ListIcon from "@mui/icons-material/List";
@@ -124,7 +125,12 @@ const LeftSidebar = () => {
             PATHS.DOCTOR.ANNOUNCEMENT_RESTORE,
           ],
         },
-
+        {
+          text: "Feedback approval",
+          icon: <FeedbackIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.FEEDBACK_APPROVAL),
+          id: [PATHS.DOCTOR.FEEDBACK_APPROVAL],
+        },
         { text: "Divider" },
         // { text: "subheader", title: "Reports" },
         {
