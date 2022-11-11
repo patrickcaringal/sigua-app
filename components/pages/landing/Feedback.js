@@ -26,26 +26,15 @@ import {
   localUpdateDocs,
 } from "../,,/../../../modules/helper";
 
-var items = [
-  {
-    name: "Random Name #1",
-    description: "Probably the most random thing you have ever seen!",
-  },
-  {
-    name: "Random Name #2",
-    description: "Hello World!",
-  },
-];
-
 const FeedbackSection = ({ feedbacks = [] }) => {
   if (feedbacks.length === 0) return null;
 
   return (
-    <Box sx={{ py: 10, minHeight: 500 }}>
+    <Box sx={{ py: 10, minHeight: 580, bgcolor: "#5DB2FF" }}>
       <Typography
         variant="h3"
         fontWeight={600}
-        color="primary.dark"
+        color="common.white"
         sx={{
           textAlign: "center",
           mb: 8,
@@ -59,32 +48,40 @@ const FeedbackSection = ({ feedbacks = [] }) => {
 
       <Container
         maxWidth="lg"
-        sx={
-          {
-            // display: "grid",
-            // gridTemplateColumns: { xs: "1fr", md: "1fr 1fr 1fr" },
-            // px: { xs: 5, md: 0 },
-            // gap: 5,
-          }
-        }
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
       >
-        {/* {feedbacks.map((i, idx) => {
-          const isEven = (idx + 1) % 2 == 0;
-          const fd = isEven ? "row-reverse" : "row";
-          const { feedback } = i;
-          return <>{feedback}</>;
-        })} */}
-        <Carousel>
+        <Carousel sx={{ width: { xs: "100%", md: 700 } }}>
           {feedbacks.map((item, i) => (
-            <Paper key={i}>
-              <Typography>{item.feedback}</Typography>
-              <Typography>{item.accountName}</Typography>
-              <Typography>
+            <Paper
+              key={i}
+              sx={{
+                p: 3,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                bgcolor: "grey.200",
+              }}
+            >
+              <Typography sx={{ mb: 3, textAlign: "center" }}>
+                {item.feedback}
+              </Typography>
+              {/* <Typography sx={{ mb: 3, textAlign: "center" }}>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
+                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
+                nulla pariatur. Excepteur sint occaecat cupidatat non proident,
+                sunt in culpa qui officia deserunt mollit anim id est laborum.
+              </Typography> */}
+              <Typography variant="subtitle2">{item.accountName}</Typography>
+              <Typography variant="caption">
                 {formatTimeStamp(item.dateCreated, "MMM yyyy")}
               </Typography>
-              {/* <p>{item.description}</p> */}
-
-              <Button className="CheckButton">Check it out!</Button>
             </Paper>
           ))}
         </Carousel>

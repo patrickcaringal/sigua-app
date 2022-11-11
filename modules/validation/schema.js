@@ -27,7 +27,7 @@ export const UpdateProfileSchema = Yup.object().shape({
 });
 
 export const FeedbackSchema = Yup.object().shape({
-  feedback: Yup.string().max(250, "Description too long").required("Required"),
+  feedback: Yup.string().max(500, "Feedback too long").required("Required"),
 });
 
 export const ChangePassSchema = Yup.object().shape({
