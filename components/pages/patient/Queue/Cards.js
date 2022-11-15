@@ -10,7 +10,7 @@ export const AdminCards = ({
   currentRegNo = "-",
   counters,
 }) => {
-  if (!isRegOpen && !isQueueOngoing) return null;
+  // if (!isRegOpen && !isQueueOngoing) return null;
 
   return (
     <Box
@@ -30,16 +30,16 @@ export const AdminCards = ({
           type={CARD_TYPES.OTHERS}
         />
       )}
-      {isQueueOngoing &&
-        counters.map((i) => (
-          <QueueCard
-            key={i.id}
-            queueNo={i.queue.length ? i.queue[0].queueNo : "-"}
-            title={`DR. ${i.name}`}
-            subtitle={`Now Serving Number`}
-            type={CARD_TYPES.OTHERS}
-          />
-        ))}
+      {/* isQueueOngoing && */}
+      {counters.map((i) => (
+        <QueueCard
+          key={i.id}
+          queueNo={i.queue.length ? i.queue[0].queueNo : "-"}
+          title={`DR. ${i.name}`}
+          subtitle={isQueueOngoing ? `Now Serving Number` : ""}
+          type={CARD_TYPES.OTHERS}
+        />
+      ))}
     </Box>
   );
 };
