@@ -13,6 +13,7 @@ import {
   where,
   writeBatch,
 } from "firebase/firestore";
+import lodash from "lodash";
 
 import { associationMessage } from "../../components/common";
 import { getBaseApi } from "../env";
@@ -146,6 +147,41 @@ export const addQueueReq = async ({ docs }) => {
     console.log(error);
     const errMsg = getErrorMsg(error.code);
     return { error: errMsg || error.message };
+  }
+};
+
+export const checkPatientHasQueueReq = async ({ date, patientId }) => {
+  try {
+    const q = query(collRef, where("queueDate", "==", date));
+    const querySnapshot = await getDocs(q);
+    let data = querySnapshot.docs.map((doc) => ({ ...doc.data() }));
+
+    const hasQueue = data.reduce((a, i) => {
+      if (a === true) return a;
+
+      const queue = i.queue?.filter((i) => i.patientId === patientId) || [];
+      const next = i.next?.filter((i) => i.patientId === patientId) || [];
+      const skipped = i.skipped?.filter((i) => i.patientId === patientId) || [];
+      const done = i.done?.filter((i) => i.patientId === patientId) || [];
+      const counters =
+        lodash
+          .values(i?.counters)
+          ?.reduce((a, i) => [...a, ...i.queue], [])
+          .filter((i) => i.patientId === patientId) || [];
+
+      return (
+        !!queue.length ||
+        !!next.length ||
+        !!skipped.length ||
+        !!done.length ||
+        !!counters.length
+      );
+    }, false);
+
+    return { data: hasQueue, success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: error.message };
   }
 };
 

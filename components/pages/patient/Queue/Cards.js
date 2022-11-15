@@ -35,7 +35,8 @@ export const AdminCards = ({
           <QueueCard
             key={i.id}
             queueNo={i.queue.length ? i.queue[0].queueNo : "-"}
-            title="Now Serving Number"
+            title={`DR. ${i.name}`}
+            subtitle={`Now Serving Number`}
             type={CARD_TYPES.OTHERS}
           />
         ))}

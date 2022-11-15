@@ -35,9 +35,9 @@ const PasswordPage = ({ data, onSave }) => {
 
   const formik = useFormik({
     initialValues: {
-      password: "12345678", // 12345678
-      newPassword: "12345678",
-      matchPassword: "12345678",
+      password: "", // 12345678
+      newPassword: "",
+      matchPassword: "",
     },
     validationSchema: ChangePassSchema,
     enableReinitialize: true,

@@ -88,6 +88,7 @@ import {
 import {
   addQueueCounterReq,
   addQueueReq,
+  checkPatientHasQueueReq,
   checkVerificationCodeSmsReq,
   getAllQueuesReq,
   getQueueReq,
@@ -206,6 +207,7 @@ export {
   // queue
   addQueueCounterReq,
   addQueueReq,
+  checkPatientHasQueueReq,
   checkVerificationCodeSmsReq,
   getAllQueuesReq,
   getQueueReq,

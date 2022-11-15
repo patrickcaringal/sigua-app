@@ -9,7 +9,11 @@ import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
-import { db, registerToQueueReq } from "../../../../modules/firebase";
+import {
+  checkPatientHasQueueReq,
+  db,
+  registerToQueueReq,
+} from "../../../../modules/firebase";
 import {
   formatFirebasetimeStamp,
   formatTimeStamp,
@@ -65,6 +69,10 @@ const PatientQueuePage = () => {
 
   // Requests
   const [registerToQueue] = useRequest(registerToQueueReq, setBackdropLoader);
+  const [checkPatientHasQueue] = useRequest(
+    checkPatientHasQueueReq,
+    setBackdropLoader
+  );
 
   // Local States
   const [queueToday, setQueueToday] = useState({});
@@ -120,6 +128,20 @@ const PatientQueuePage = () => {
       return openResponseDialog({
         autoClose: true,
         content: `${document.patientName} is already registered on today's queue.`,
+        type: "WARNING",
+      });
+    }
+
+    const { data: hasQueueOtherBranch, error } = await checkPatientHasQueue({
+      date: today,
+      patientId: document.patientId,
+    });
+    if (error) return openErrorDialog(error);
+
+    if (hasQueueOtherBranch) {
+      return openResponseDialog({
+        autoClose: true,
+        content: `${document.patientName} is already registered on today's queue with other branch.`,
         type: "WARNING",
       });
     }

@@ -68,8 +68,8 @@ const ProfilePage = () => {
       <Paper
         sx={{
           display: "grid",
-          gridTemplateColumns: "215px auto",
-          gridTemplateRows: "calc(100vh - 144px) auto",
+          gridTemplateColumns: { xs: "auto", md: "215px auto" },
+          gridTemplateRows: { xs: "auto", md: "calc(100vh - 144px) auto" },
           columnGap: 3,
         }}
       >
@@ -78,7 +78,8 @@ const ProfilePage = () => {
           sx={{
             display: "flex",
             flexDirection: "column",
-            borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+            borderRight: { xs: "none", md: "1px solid rgba(0, 0, 0, 0.12)" },
+            borderBottom: { xs: "1px solid rgba(0, 0, 0, 0.12)", md: "none" },
           }}
         >
           {/* Header */}

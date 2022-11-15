@@ -74,6 +74,15 @@ const CardComponent = ({
           >
             {title}
           </Typography>
+          {subtitle && (
+            <Typography
+              variant="body2"
+              sx={{ fontWeight: "600", textAlign: "center" }}
+            >
+              {subtitle}
+            </Typography>
+          )}
+
           <Typography
             variant="h2"
             component="div"

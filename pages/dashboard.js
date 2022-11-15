@@ -74,15 +74,17 @@ const DashboardPage = () => {
     <Container maxWidth="lg">
       <Box
         sx={{
-          height: "calc(100vh - 64px)",
+          height: { xs: "auto", md: "calc(100vh - 64px)" },
           display: "grid",
           gridTemplateColumns: { xs: "auto", md: "auto auto" },
           // flexDirection: { xs: "column", md: "row" },
           alignItems: "center",
           justifyContent: "center",
           // border: "1px solid red",
-          // rowGap: 3,
+          rowGap: { xs: 3, md: 0 },
           columnGap: 3,
+          pt: { xs: 4, md: 0 },
+          pb: { xs: 6, md: 0 },
         }}
       >
         <Card sx={{ width: 296, height: 208 }}>

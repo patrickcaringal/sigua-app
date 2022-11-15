@@ -319,7 +319,7 @@ const DoctorsPage = () => {
               {[
                 { text: "Name" },
                 { text: "Email", sx: { width: 200 } },
-                { text: "Birthdate", sx: { width: 140 } },
+                { text: "Specialty", sx: { width: 140 } },
                 { text: "Age", sx: { width: 40 }, align: "center" },
                 { text: "Gender", sx: { width: 100 } },
                 // { text: "Contact No.", sx: { width: 140 } },
