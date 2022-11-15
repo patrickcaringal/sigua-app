@@ -31,6 +31,7 @@ const defaultItem = {
   address: "",
   email: "",
   branch: "",
+  specialty: "",
 };
 
 const Form = ({
@@ -186,6 +187,16 @@ const Form = ({
                             }
                             onBlur={handleBlur}
                             error={getError("suffix")}
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
+                          <Input
+                            label="Specialty"
+                            name={getFieldName("specialty")}
+                            value={valueArr.specialty}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            error={getError("specialty")}
                           />
                         </Grid>
                         <Grid item xs={12} sm={6}>

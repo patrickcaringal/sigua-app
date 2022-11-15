@@ -6,13 +6,22 @@ import { LongTypography } from "../../../../components/common";
 import { calculateAge, formatTimeStamp } from "../../../../modules/helper";
 
 const TableCells = ({ data }) => {
-  const { id, name, birthdate, email, branch, gender, address, branchName } =
-    data;
+  const {
+    id,
+    name,
+    birthdate,
+    email,
+    branch,
+    gender,
+    address,
+    branchName,
+    specialty,
+  } = data;
   return (
     <>
       <TableCell>{name}</TableCell>
       <TableCell>{email}</TableCell>
-      <TableCell>{formatTimeStamp(birthdate, "MMM-dd-yyyy")}</TableCell>
+      <TableCell>{specialty || "-"}</TableCell>
       <TableCell align="center">
         {calculateAge(formatTimeStamp(birthdate))}
       </TableCell>
