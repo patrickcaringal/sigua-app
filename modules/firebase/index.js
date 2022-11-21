@@ -67,6 +67,7 @@ import {
   saveLogReq,
 } from "./logs";
 import {
+  getAllRecordsReq,
   getPatientRecordReq,
   getRecordsByBranchDateRangeReq,
   getRecordsByDateRangeReq,
@@ -223,6 +224,7 @@ export {
   updateQueueRegStatusReq,
   updateQueueStatusReq,
   // medical records
+  getAllRecordsReq,
   getPatientRecordReq,
   getRecordsByBranchDateRangeReq,
   getRecordsByDateRangeReq,

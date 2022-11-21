@@ -146,6 +146,12 @@ const LeftSidebar = () => {
           id: [PATHS.DOCTOR.REPORT_TRANSACTION],
         },
         {
+          text: "Top Services",
+          icon: <InsertChartIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.REPORT_TOP_SERVICES),
+          id: [PATHS.DOCTOR.REPORT_TOP_SERVICES],
+        },
+        {
           text: "Activity Logs",
           icon: <InsertChartIcon />,
           onClick: () => router.push(PATHS.DOCTOR.REPORT_ACTIVITY_LOGS),
