@@ -158,6 +158,13 @@ const LeftSidebar = () => {
           id: [PATHS.DOCTOR.REPORT_TOP_GENDER_STATISTICS],
         },
         {
+          text: "Age Statistics",
+          icon: <InsertChartIcon />,
+          onClick: () =>
+            router.push(PATHS.DOCTOR.REPORT_TOP_AGE_GROUP_STATISTICS),
+          id: [PATHS.DOCTOR.REPORT_TOP_AGE_GROUP_STATISTICS],
+        },
+        {
           text: "Activity Logs",
           icon: <InsertChartIcon />,
           onClick: () => router.push(PATHS.DOCTOR.REPORT_ACTIVITY_LOGS),
