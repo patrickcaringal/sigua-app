@@ -10,6 +10,7 @@ import {
   Title,
   Tooltip,
 } from "chart.js";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 import {
   eachMonthOfInterval,
   eachYearOfInterval,
@@ -31,7 +32,7 @@ import {
   getServicesReq,
 } from "../../../../../modules/firebase";
 import { calculateAge, formatTimeStamp } from "../../../../../modules/helper";
-import { ACTION_ICONS, PATHS } from "../../../../common";
+import { ACTION_ICONS, PATHS, chartplugin } from "../../../../common";
 import { AdminMainContainer } from "../../../../shared";
 import FilterModal from "./FilterModal";
 import useFilter from "./FilterModal/useFilter";
@@ -60,6 +61,7 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
+  ChartDataLabels,
   customCanvasBackgroundColor
 );
 
@@ -70,18 +72,11 @@ export const options = {
     legend: {
       position: "top",
     },
-    customCanvasBackgroundColor: {
-      color: "#fff",
-    },
+    ...chartplugin,
   },
   scales: {
-    x: {
-      // stacked: true,
-    },
     y: {
-      // stacked: true,
       ticks: {
-        // stepSize: 5,
         beginAtZero: true,
       },
     },
@@ -259,18 +254,18 @@ const AgeStatisticsPage = () => {
       {
         label: "Kid: 1 - 10 Years old",
         data: _.values(reportData).map((i) => i.kid),
-        backgroundColor: "rgba(53, 162, 235, 0.8)",
+        backgroundColor: "rgba(53, 162, 235, 0.7)",
       },
       {
         label: "Teenanger: 11 - 18 Years old",
         data: _.values(reportData).map((i) => i.teenanger),
-        backgroundColor: "rgba(255, 99, 132, 0.8)",
+        backgroundColor: "rgba(255, 99, 132, 0.7)",
       },
 
       {
         label: "Adult: 19 Years old - Onwards",
         data: _.values(reportData).map((i) => i.adult),
-        backgroundColor: "rgba(255, 206, 86, 0.8)",
+        backgroundColor: "rgba(255, 206, 86, 0.7)",
       },
     ],
   };

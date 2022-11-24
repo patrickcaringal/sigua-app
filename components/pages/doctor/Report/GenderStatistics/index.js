@@ -10,6 +10,7 @@ import {
   Title,
   Tooltip,
 } from "chart.js";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 import {
   eachMonthOfInterval,
   eachYearOfInterval,
@@ -35,7 +36,7 @@ import {
   getServicesReq,
 } from "../../../../../modules/firebase";
 import { formatTimeStamp } from "../../../../../modules/helper";
-import { ACTION_ICONS, PATHS } from "../../../../common";
+import { ACTION_ICONS, PATHS, chartplugin } from "../../../../common";
 import { AdminMainContainer } from "../../../../shared";
 import FilterModal from "./FilterModal";
 import useFilter from "./FilterModal/useFilter";
@@ -64,6 +65,7 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
+  ChartDataLabels,
   customCanvasBackgroundColor
 );
 
@@ -74,25 +76,18 @@ export const options = {
     legend: {
       position: "top",
     },
-    customCanvasBackgroundColor: {
-      color: "#fff",
-    },
+    ...chartplugin,
   },
   scales: {
-    x: {
-      // stacked: true,
-    },
     y: {
-      // stacked: true,
       ticks: {
-        // stepSize: 5,
         beginAtZero: true,
       },
     },
   },
 };
 
-const GenderStatisticsPage = () => {
+const TopBranchesPage = () => {
   const ref = useRef(null);
   const router = useRouter();
 
@@ -246,12 +241,12 @@ const GenderStatisticsPage = () => {
       {
         label: "Male",
         data: _.values(reportData).map((i) => i.male),
-        backgroundColor: "rgba(53, 162, 235, 0.5)",
+        backgroundColor: "rgba(53, 162, 235, 0.7)",
       },
       {
         label: "Female",
         data: _.values(reportData).map((i) => i.female),
-        backgroundColor: "rgba(255, 99, 132, 0.5)",
+        backgroundColor: "rgba(255, 99, 132, 0.7)",
       },
     ],
   };
@@ -359,4 +354,4 @@ const GenderStatisticsPage = () => {
   );
 };
 
-export default GenderStatisticsPage;
+export default TopBranchesPage;

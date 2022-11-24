@@ -152,6 +152,12 @@ const LeftSidebar = () => {
           id: [PATHS.DOCTOR.REPORT_TOP_SERVICES],
         },
         {
+          text: "Top Branches",
+          icon: <InsertChartIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.REPORT_TOP_BRANCHES),
+          id: [PATHS.DOCTOR.REPORT_TOP_BRANCHES],
+        },
+        {
           text: "Gender Statistics",
           icon: <InsertChartIcon />,
           onClick: () => router.push(PATHS.DOCTOR.REPORT_TOP_GENDER_STATISTICS),

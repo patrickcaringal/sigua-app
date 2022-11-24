@@ -1,11 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { Box, Button, ButtonGroup, Typography } from "@mui/material";
-import { ArcElement, Chart as ChartJS, Legend, Tooltip } from "chart.js";
+import {
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
+  Title,
+  Tooltip,
+} from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { jsPDF } from "jspdf";
 import { useRouter } from "next/router";
-import { Doughnut } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 
 import { useBackdropLoader } from "../../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../../contexts/ResponseDialogContext";
@@ -39,7 +47,10 @@ const customCanvasBackgroundColor = {
 };
 
 ChartJS.register(
-  ArcElement,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
   Tooltip,
   Legend,
   ChartDataLabels,
@@ -49,15 +60,17 @@ ChartJS.register(
 export const options = {
   responsive: true,
   maintainAspectRatio: false,
+  indexAxis: "y",
+  responsive: true,
   plugins: {
     legend: {
-      position: "right",
+      position: "top",
     },
     ...chartplugin,
   },
 };
 
-const QueueManagementPage = () => {
+const TopBranchesPage = () => {
   const ref = useRef(null);
   const router = useRouter();
 
@@ -66,12 +79,10 @@ const QueueManagementPage = () => {
 
   // Requests
   const [getAllRecords] = useRequest(getAllRecordsReq, setBackdropLoader);
-  const [getServices] = useRequest(getServicesReq, setBackdropLoader);
   const [getBranches] = useRequest(getBranchesReq, setBackdropLoader);
 
   // Local States
   const [medicalRecords, setMedicalRecords] = useState([]);
-  const [services, setServices] = useState([]);
   const [branches, setBranches] = useState([]);
   const [filterModal, setFilterModal] = useState(defaultModal);
   const filtering = useFilter({});
@@ -88,14 +99,6 @@ const QueueManagementPage = () => {
       filtering.setData(data);
       setMedicalRecords(data);
     };
-
-    const fetchServices = async () => {
-      const { data, error } = await getServices();
-      if (error) return openErrorDialog(error);
-
-      setServices(data);
-    };
-
     const fetchBranches = async () => {
       const { data, error } = await getBranches({ mapService: false });
       if (error) return openErrorDialog(error);
@@ -104,7 +107,6 @@ const QueueManagementPage = () => {
     };
 
     fetchMedicalRecords();
-    fetchServices();
     fetchBranches();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -129,7 +131,7 @@ const QueueManagementPage = () => {
   };
 
   const generateReportData = () => {
-    let s = services.reduce((a, i) => {
+    let s = branches.reduce((a, i) => {
       a[i.id] = {
         name: i.name,
         count: 0,
@@ -138,8 +140,8 @@ const QueueManagementPage = () => {
     }, {});
 
     filtering.filtered.forEach((i) => {
-      if (s[i.serviceId]) {
-        s[i.serviceId].count += 1;
+      if (s[i.branchId]) {
+        s[i.branchId].count += 1;
       }
     });
 
@@ -149,30 +151,13 @@ const QueueManagementPage = () => {
   const reportData = generateReportData();
 
   const data = {
-    labels: Object.values(reportData).reduce(
-      (a, i) => [...a, `${i.name}: ${i.count} Patients`],
-      []
-    ),
+    labels: Object.values(reportData).reduce((a, i) => [...a, `${i.name}`], []),
     datasets: [
       {
-        label: "# of Votes",
+        label: "Patients",
         data: Object.values(reportData).reduce((a, i) => [...a, i.count], []),
-        backgroundColor: [
-          "rgba(255, 99, 132, 0.7)",
-          "rgba(54, 162, 235, 0.7)",
-          "rgba(255, 206, 86, 0.7)",
-          "rgba(75, 192, 192, 0.7)",
-          "rgba(153, 102, 255, 0.7)",
-          "rgba(255, 159, 64, 0.7)",
-        ],
-        borderColor: [
-          "rgba(255, 99, 132, 1)",
-          "rgba(54, 162, 235, 1)",
-          "rgba(255, 206, 86, 1)",
-          "rgba(75, 192, 192, 1)",
-          "rgba(153, 102, 255, 1)",
-          "rgba(255, 159, 64, 1)",
-        ],
+        backgroundColor: ["rgba(54, 162, 235, 0.7)"],
+        borderColor: ["rgba(54, 162, 235, 1)"],
         borderWidth: 1,
       },
     ],
@@ -182,17 +167,12 @@ const QueueManagementPage = () => {
     const doc = new jsPDF({ orientation: "l" });
 
     doc.text(translateHeader(filtering.filters), 150, 15, null, null, "center");
-    doc.addImage(ref.current.canvas, null, 25, 30, 220, 130);
+    doc.addImage(ref.current.canvas, null, 25, 30, 240, 130);
 
     doc.output("pdfobjectnewwindow");
   };
 
-  const translateHeader = ({ branch, rangeDisplay, startDate, endDate }) => {
-    const b =
-      branch !== "-"
-        ? branches.find((i) => i.id === branch)?.name
-        : "All Branches";
-
+  const translateHeader = ({ rangeDisplay, startDate, endDate }) => {
     let d =
       rangeDisplay === "permonth"
         ? formatTimeStamp(new Date(startDate), "MMMM yyyy")
@@ -203,7 +183,7 @@ const QueueManagementPage = () => {
             "MMM dd, yyyy"
           )} - ${formatTimeStamp(new Date(endDate), "MMM dd, yyyy")}`;
 
-    return `Top Services ${d} ${b}`;
+    return `Top Branches ${d}`;
   };
 
   return (
@@ -253,12 +233,11 @@ const QueueManagementPage = () => {
           sx={{
             display: "flex",
             flexDirection: "row",
-            // border: "1px solid red",
           }}
         >
           {!!displayReport ? (
             <Box sx={{ height: 440, width: 800 }}>
-              <Doughnut options={options} data={data} ref={ref} />
+              <Bar options={options} data={data} ref={ref} />
             </Box>
           ) : (
             <Typography
@@ -285,4 +264,4 @@ const QueueManagementPage = () => {
   );
 };
 
-export default QueueManagementPage;
+export default TopBranchesPage;
