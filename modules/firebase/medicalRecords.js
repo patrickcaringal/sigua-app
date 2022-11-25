@@ -1,3 +1,4 @@
+import { endOfDay, endOfMonth, startOfDay, startOfMonth } from "date-fns";
 import {
   arrayRemove,
   arrayUnion,
@@ -14,6 +15,7 @@ import {
 } from "firebase/firestore";
 
 import { associationMessage } from "../../components/common";
+import medicalRecsJSON from "../../public/medicalRecs.json";
 import { sortBy } from "../helper";
 import { getErrorMsg } from "./auth";
 import { db, timestampFields } from "./config";
@@ -83,13 +85,18 @@ export const getRecordsByDateRangeReq = async ({ start, end }) => {
 
 export const getAllRecordsReq = async () => {
   try {
-    const q = query(collRef, where("deleted", "==", false));
-    const querySnapshot = await getDocs(q);
-    const data = querySnapshot.docs
-      .map((doc) => ({ ...doc.data() }))
-      .sort(sortBy("dateCreated", "desc"));
+    // const q = query(collRef, where("deleted", "==", false));
+    const q = query(
+      collRef,
+      where("dateCreated", ">=", startOfDay(new Date("2022-11-26")))
+    );
 
-    return { data, success: true };
+    const querySnapshot = await getDocs(q);
+    const data = querySnapshot.docs.map((doc) => ({ ...doc.data() }));
+    // .sort(sortBy("dateCreated", "desc"));
+    // console.log(medicalRecsJSON.concat(data));
+    const d = medicalRecsJSON.concat(data);
+    return { data: d, success: true };
   } catch (error) {
     console.log(error);
     return { error: error.message };

@@ -1,4 +1,11 @@
-import { format, getMonth, getWeek, getYear } from "date-fns";
+import {
+  endOfDay,
+  format,
+  getMonth,
+  getWeek,
+  getYear,
+  startOfDay,
+} from "date-fns";
 import {
   arrayUnion,
   collection,
@@ -44,11 +51,15 @@ export const RESOURCE_TYPE = {
 const collectionName = "logs";
 const collRef = collection(db, collectionName);
 
-export const getLogsByMonthReq = async () => {
+export const getLogsByMonthReq = async ({ date }) => {
   try {
-    const q = query(collRef);
+    const q = query(
+      collRef,
+      where("date", ">=", startOfDay(new Date(date))),
+      where("date", "<=", endOfDay(new Date(date)))
+    );
     const querySnapshot = await getDocs(q);
-    console.log("getLogsByMonthReq");
+
     const data = querySnapshot.docs
       .map((doc) => ({ ...doc.data() }))
       .sort(sortBy("date", "desc"));

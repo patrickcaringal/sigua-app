@@ -1,11 +1,4 @@
-import {
-  endOfDay,
-  format,
-  getMonth,
-  getWeek,
-  getYear,
-  startOfDay,
-} from "date-fns";
+import { endOfDay, endOfMonth, startOfDay, startOfMonth } from "date-fns";
 import {
   arrayUnion,
   collection,
@@ -24,10 +17,10 @@ import { db, timestampFields } from "../../modules/firebase/config";
 export default async function handler(req, res) {
   try {
     const q = query(
-      collection(db, "logs"),
-      // where("week", "==", getWeek(new Date()))
-      where("date", ">=", startOfDay(new Date("2022-11-24"))),
-      where("date", "<=", endOfDay(new Date("2022-11-19")))
+      collection(db, "medicalRecords"),
+      where("dateCreated", ">=", startOfDay(new Date("2022-11-25"))),
+      where("dateCreated", "<=", endOfDay(new Date("2022-11-26")))
+      // where("branchId", "in", ["6aZE5QOnGBliyEaQNqMs", "nbNK8rBWkxVLaqeHr56z"])
     );
     const querySnapshot = await getDocs(q);
     const data = querySnapshot.docs.map((doc) => ({
@@ -38,7 +31,7 @@ export default async function handler(req, res) {
     // if (data.length) {
     //   const batch = writeBatch(db);
     //   data.forEach((i) => {
-    //     batch.delete(doc(db, "logs", i.id));
+    //     batch.delete(doc(db, "medicalRecords", i.id));
     //   });
 
     //   await batch.commit();

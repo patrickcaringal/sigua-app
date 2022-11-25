@@ -21,6 +21,7 @@ import { arrayStringify, formatTimeStamp } from "../../../../../modules/helper";
 import { exportQueueList } from "../../../../../modules/pdf";
 import {
   ACTION_ICONS,
+  DatePicker,
   Input,
   PATHS,
   Pagination,
@@ -40,27 +41,20 @@ const ActivityLogPage = () => {
 
   // Local States
   const [logs, setLogs] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const filtering = useFilter({});
   const pagination = usePagination(filtering.filtered);
 
   useEffect(() => {
     const fetch = async () => {
-      // Get Staffs
-      const { data, error } = await getLogsByMonth();
+      const { data, error } = await getLogsByMonth({ date: selectedDate });
       if (error) return openErrorDialog(error);
-      // console.log(
-      //   data.map((i) => ({
-      //     action: i.action,
-      //     resourceType: i.resourceType,
-      //     resourceName: i.resourceName,
-      //   }))
-      // );
       setLogs(data);
     };
 
     fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [selectedDate]);
 
   useEffect(() => {
     filtering.setData(logs);
@@ -82,18 +76,19 @@ const ActivityLogPage = () => {
         onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
         paths: [{ text: "Activity Logs" }],
       }}
-      //   toolbarContent={
-      //     <>
-      //       <Box sx={{ width: 200 }}>
-      //         <Input
-      //           debounce
-      //           label="Search"
-      //           //   value={filtering.filters.name}
-      //           //   onChange={handleSearchChange}
-      //         />
-      //       </Box>
-      //     </>
-      //   }
+      toolbarContent={
+        <>
+          <DatePicker
+            closeOnSelect={true}
+            label="Date"
+            value={selectedDate}
+            onChange={(value) => {
+              const v = value ? formatTimeStamp(value) : new Date();
+              setSelectedDate(v);
+            }}
+          />
+        </>
+      }
     >
       <TableContainer>
         <Table>
