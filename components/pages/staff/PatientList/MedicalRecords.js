@@ -7,6 +7,7 @@ import faker from "faker";
 import { jsPDF } from "jspdf";
 import { useRouter } from "next/router";
 
+import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
@@ -38,6 +39,8 @@ const defaultModal = {
 
 const MedicalRecordPage = () => {
   const router = useRouter();
+  const { isAdmin } = useAuth();
+
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
@@ -222,8 +225,9 @@ const MedicalRecordPage = () => {
             <MedicalHistory
               data={filtering.filtered}
               onRecordClick={handlePatientRecordModalOpen}
-              onEdit={handleEditRecordModalOpen}
-              onDelete={handleDeleteConfirm}
+              onEdit={isAdmin && handleEditRecordModalOpen}
+              onDelete={isAdmin && handleDeleteConfirm}
+              maxHeight="calc(100vh - 150px)"
             />
           </Box>
         </Box>

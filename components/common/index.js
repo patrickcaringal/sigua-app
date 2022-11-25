@@ -1,4 +1,5 @@
 import { ACTION_BUTTONS, ACTION_ICONS, getActionButtons } from "./ActionButton";
+import { chartplugin } from "./Chart/plugins";
 import Datalist from "./Datalist";
 import { DatePicker, Input, Select } from "./Form";
 import Modal from "./Modal";
@@ -55,4 +56,6 @@ export {
   PdfFrame,
   // Table
   TableContainer,
+  // chart
+  chartplugin,
 };

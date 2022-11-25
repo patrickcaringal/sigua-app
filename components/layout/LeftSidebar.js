@@ -146,6 +146,31 @@ const LeftSidebar = () => {
           id: [PATHS.DOCTOR.REPORT_TRANSACTION],
         },
         {
+          text: "Top Services",
+          icon: <InsertChartIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.REPORT_TOP_SERVICES),
+          id: [PATHS.DOCTOR.REPORT_TOP_SERVICES],
+        },
+        {
+          text: "Top Branches",
+          icon: <InsertChartIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.REPORT_TOP_BRANCHES),
+          id: [PATHS.DOCTOR.REPORT_TOP_BRANCHES],
+        },
+        {
+          text: "Gender Statistics",
+          icon: <InsertChartIcon />,
+          onClick: () => router.push(PATHS.DOCTOR.REPORT_TOP_GENDER_STATISTICS),
+          id: [PATHS.DOCTOR.REPORT_TOP_GENDER_STATISTICS],
+        },
+        {
+          text: "Age Statistics",
+          icon: <InsertChartIcon />,
+          onClick: () =>
+            router.push(PATHS.DOCTOR.REPORT_TOP_AGE_GROUP_STATISTICS),
+          id: [PATHS.DOCTOR.REPORT_TOP_AGE_GROUP_STATISTICS],
+        },
+        {
           text: "Activity Logs",
           icon: <InsertChartIcon />,
           onClick: () => router.push(PATHS.DOCTOR.REPORT_ACTIVITY_LOGS),
