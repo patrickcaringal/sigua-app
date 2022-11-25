@@ -82,21 +82,21 @@ const DashboardPage = () => {
       setQueues(data);
     };
 
-    const fetchMedicalRecords = async () => {
-      // Get MedicalRecords
-      const payload = {
-        id: user.branch,
-        ...daterange,
-      };
-      const { data, error: getError } = await getMedicalRecords(payload);
-      if (getError) return openErrorDialog(getError);
-      setMedicalRecords(data);
-    };
+    // const fetchMedicalRecords = async () => {
+    //   // Get MedicalRecords
+    //   const payload = {
+    //     id: user.branch,
+    //     ...daterange,
+    //   };
+    //   const { data, error: getError } = await getMedicalRecords(payload);
+    //   if (getError) return openErrorDialog(getError);
+    //   setMedicalRecords(data);
+    // };
 
     fetchPatients();
     fetchPatientForApproval();
     fetchQueues();
-    fetchMedicalRecords();
+    // fetchMedicalRecords();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -134,7 +134,7 @@ const DashboardPage = () => {
 
       <Box sx={{ display: "flex", flexDirection: "row", gap: 3 }}>
         <QueueGraph data={patientGraphData} />
-        <ServiceGraph data={medicalRecordGraphData} />
+        {/* <ServiceGraph data={medicalRecordGraphData} /> */}
       </Box>
     </Box>
   );
