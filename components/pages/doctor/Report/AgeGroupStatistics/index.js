@@ -263,7 +263,7 @@ const AgeStatisticsPage = () => {
       },
 
       {
-        label: "Adult: 19 Years old - Onwards",
+        label: "Adult: 19 Years old - Above",
         data: _.values(reportData).map((i) => i.adult),
         backgroundColor: "rgba(255, 206, 86, 0.7)",
       },

@@ -20,13 +20,19 @@ import {
 } from "../../../../components/common";
 import { formatTimeStamp } from "../../../../modules/helper";
 
-const MedicalHistory = ({ data = [], onRecordClick, onEdit, onDelete }) => {
+const MedicalHistory = ({
+  data = [],
+  onRecordClick,
+  onEdit,
+  onDelete,
+  maxHeight = "calc(100vh - 64px - 64px - 210px)",
+}) => {
   const hasEdit = !!onEdit;
   const hasDelete = !!onDelete;
 
   return (
-    <TableContainer maxHeight="calc(100vh - 64px - 64px - 210px)">
-      <Table size="small">
+    <TableContainer maxHeight={maxHeight}>
+      <Table size="small" stickyHeader>
         <TableHead>
           <TableRow>
             {[
