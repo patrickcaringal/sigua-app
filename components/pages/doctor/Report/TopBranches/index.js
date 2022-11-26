@@ -190,7 +190,7 @@ const TopBranchesPage = () => {
     <AdminMainContainer
       toolbarProps={{
         onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
-        paths: [{ text: "Top Services" }],
+        paths: [{ text: "Top Branches" }],
       }}
       toolbarContent={
         <>
