@@ -14,6 +14,7 @@ import { Logo } from "../../../components";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../contexts/ResponseDialogContext";
+import { useScroll } from "../../../contexts/ScrollContext";
 import useRequest from "../../../hooks/useRequest";
 import { signOutAnonymouslyReq, signOutReq } from "../../../modules/firebase";
 import UserAvatar from "./UserAvatar";
@@ -23,6 +24,9 @@ const pages = ["Products", "Pricing", "Blog"];
 
 const ResponsiveAppBar = () => {
   const router = useRouter();
+  const { onBranchScroll, onAnnouncementScroll, onFeedbackScroll } =
+    useScroll();
+
   const {
     userSession,
     user,
@@ -74,7 +78,13 @@ const ResponsiveAppBar = () => {
           <Toolbar disableGutters>
             {/* Left */}
             <Box sx={{ flexGrow: 1 }}>
-              <Logo width="160" height="56" />
+              <Logo
+                width="160"
+                height="56"
+                onClick={() => {
+                  router.push("/");
+                }}
+              />
             </Box>
 
             {/* Mobile */}
@@ -133,16 +143,50 @@ const ResponsiveAppBar = () => {
 
             {/* Right */}
             <Box sx={{ flexGrow: 0 }}>
-              {isLoggedIn ? (
+              {isLoggedIn && (
                 <UserAvatar
                   user={user}
                   isStaff={isStaff}
                   onLogout={handleLogout}
                 />
-              ) : // displayed if page is not signin or signup
-              !["/signin", "/signup", "/doctor/signin"].includes(
-                  router.pathname
-                ) ? (
+              )}
+
+              {["/"].includes(router.pathname) && (
+                <>
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onBranchScroll();
+                    }}
+                    sx={{ mr: 4, display: { xs: "none", md: "inline-flex" } }}
+                  >
+                    Branches
+                  </Button>
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onAnnouncementScroll();
+                    }}
+                    sx={{ mr: 4, display: { xs: "none", md: "inline-flex" } }}
+                  >
+                    Announcements
+                  </Button>
+
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onFeedbackScroll();
+                    }}
+                    sx={{ mr: 4, display: { xs: "none", md: "inline-flex" } }}
+                  >
+                    feedbacks
+                  </Button>
+                </>
+              )}
+
+              {!["/signin", "/signup", "/doctor/signin"].includes(
+                router.pathname
+              ) && (
                 <Button
                   onClick={(e) => {
                     e.preventDefault();
@@ -151,7 +195,7 @@ const ResponsiveAppBar = () => {
                 >
                   Sign in
                 </Button>
-              ) : null}
+              )}
             </Box>
           </Toolbar>
         </Container>

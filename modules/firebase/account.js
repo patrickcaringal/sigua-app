@@ -222,8 +222,8 @@ export const checkContactNoReq = async ({ contactNo }) => {
 
 export const resetPasswordReq = async ({ id, contactNo }) => {
   try {
-    // const password = faker.internet.password(8, false, /[a-z]/);
-    const password = "12345678";
+    const password = faker.internet.password(8, false, /[a-z]/);
+    // const password = "12345678";
 
     const docRef = doc(db, "accounts", id);
     await updateDoc(docRef, {
@@ -232,8 +232,8 @@ export const resetPasswordReq = async ({ id, contactNo }) => {
     // console.log({ id, password });
 
     // send sms
-    // const payload = { password, contactNo };
-    // await axios.post(getBaseApi("/reset-password-sms"), payload);
+    const payload = { password, contactNo };
+    await axios.post(getBaseApi("/reset-password-sms"), payload);
     // console.log(payload);
 
     return { success: true };

@@ -17,6 +17,7 @@ import {
 import { AuthContextProvider } from "../contexts/AuthContext";
 import { BackdropLoaderProvider } from "../contexts/BackdropLoaderContext";
 import { ResponseDialogProvider } from "../contexts/ResponseDialogContext";
+import { ScrollContextProvider } from "../contexts/ScrollContext";
 import { defaultTheme } from "../modules/theme";
 
 function MyApp({ Component, pageProps }) {
@@ -49,26 +50,28 @@ function MyApp({ Component, pageProps }) {
         <AuthContextProvider>
           <BackdropLoaderProvider>
             <ResponseDialogProvider>
-              <Navbar />
-              <LeftSidebar />
-              <MainContainer>
-                {
-                  // should NOT be logged in to access routes
-                  isLoggedInInaccessible ? (
-                    <LoggedInInaccessibleRoute>
+              <ScrollContextProvider>
+                <Navbar />
+                <LeftSidebar />
+                <MainContainer>
+                  {
+                    // should NOT be logged in to access routes
+                    isLoggedInInaccessible ? (
+                      <LoggedInInaccessibleRoute>
+                        <Component {...pageProps} />
+                      </LoggedInInaccessibleRoute>
+                    ) : // should be logged in to access routes
+                    isProtected ? (
+                      <ProtectedRoute>
+                        <Component {...pageProps} />
+                      </ProtectedRoute>
+                    ) : (
+                      // accessible to anyone routes
                       <Component {...pageProps} />
-                    </LoggedInInaccessibleRoute>
-                  ) : // should be logged in to access routes
-                  isProtected ? (
-                    <ProtectedRoute>
-                      <Component {...pageProps} />
-                    </ProtectedRoute>
-                  ) : (
-                    // accessible to anyone routes
-                    <Component {...pageProps} />
-                  )
-                }
-              </MainContainer>
+                    )
+                  }
+                </MainContainer>
+              </ScrollContextProvider>
             </ResponseDialogProvider>
           </BackdropLoaderProvider>
         </AuthContextProvider>
