@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { Box, Chip, Container, Typography } from "@mui/material";
 import Image from "next/image";
 
+import { useScroll } from "../../../contexts/ScrollContext";
 import { useRequest } from "../../../hooks";
 import {
   getAnnouncementsReq,
@@ -18,6 +19,8 @@ import FeedbackSection from "./Feedback";
 import FooterSection from "./Footer";
 
 const Landingpage = () => {
+  const { feedbackRef, branchRef, announcementRef } = useScroll();
+
   // Requests
   const [getServices] = useRequest(getServicesReq);
   const [getBranches] = useRequest(getBranchesReq);
@@ -74,9 +77,15 @@ const Landingpage = () => {
   return (
     <Box>
       <BannerSection />
-      <BranchSection branches={branches} servicesMap={servicesMap} />
-      <AnnouncementSection announcements={announcements} />
-      <FeedbackSection feedbacks={feedbacks} />
+      <div ref={branchRef} style={{ paddingTop: 50 }}>
+        <BranchSection branches={branches} servicesMap={servicesMap} />
+      </div>
+      <div ref={announcementRef} style={{ paddingTop: 30 }}>
+        <AnnouncementSection announcements={announcements} />
+      </div>
+      <div ref={feedbackRef}>
+        <FeedbackSection feedbacks={feedbacks} />
+      </div>
       <FooterSection />
     </Box>
   );
