@@ -93,10 +93,10 @@ const DashboardPage = () => {
     //   setMedicalRecords(data);
     // };
 
-    // fetchPatients();
-    // fetchStaffs();
-    // fetchDoctors();
-    // fetchQueues();
+    fetchPatients();
+    fetchStaffs();
+    fetchDoctors();
+    fetchQueues();
     // fetchMedicalRecords();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
