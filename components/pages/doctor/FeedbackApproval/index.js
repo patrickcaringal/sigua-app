@@ -17,7 +17,7 @@ import { useRouter } from "next/router";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
-import { useFilter, usePagination, useRequest } from "../../../../hooks";
+import { usePagination, useRequest } from "../../../../hooks";
 import {
   LOG_ACTIONS,
   MEMBER_STATUS,
@@ -47,6 +47,7 @@ import {
   successMessage,
 } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
+import useFilter from "./useFilter";
 // import MemberApprovalModal from "./MemberApprovalModal";
 
 const FeedbackApprovalPage = () => {

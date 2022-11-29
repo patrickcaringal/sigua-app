@@ -19,7 +19,7 @@ import { useRouter } from "next/router";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
-import { useFilter, usePagination, useRequest } from "../../../../hooks";
+import { usePagination, useRequest } from "../../../../hooks";
 import {
   LOG_ACTIONS,
   RESOURCE_TYPE,
@@ -42,6 +42,7 @@ import {
 import { AdminMainContainer } from "../../../shared";
 import AnnouncementModal from "./AnnouncementModal";
 import TableCells from "./TableCells";
+import useFilter from "./useFilter";
 
 const defaultModal = {
   open: false,
