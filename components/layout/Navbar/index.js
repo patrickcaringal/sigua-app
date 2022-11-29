@@ -151,7 +151,7 @@ const ResponsiveAppBar = () => {
                 />
               )}
 
-              {["/"].includes(router.pathname) && (
+              {!isLoggedIn && ["/"].includes(router.pathname) && (
                 <>
                   <Button
                     onClick={(e) => {
@@ -184,18 +184,19 @@ const ResponsiveAppBar = () => {
                 </>
               )}
 
-              {!["/signin", "/signup", "/doctor/signin"].includes(
-                router.pathname
-              ) && (
-                <Button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    router.push("/signin");
-                  }}
-                >
-                  Sign in
-                </Button>
-              )}
+              {!isLoggedIn &&
+                !["/signin", "/signup", "/doctor/signin"].includes(
+                  router.pathname
+                ) && (
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      router.push("/signin");
+                    }}
+                  >
+                    Sign in
+                  </Button>
+                )}
             </Box>
           </Toolbar>
         </Container>
