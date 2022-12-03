@@ -160,6 +160,17 @@ const Form = ({
               error={getError("password")}
             />
           </Grid>
+          <Grid item xs={12}>
+            <PasswordInput
+              required
+              name="matchPassword"
+              label="Confirm Password"
+              value={values.matchPassword}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={getError("matchPassword")}
+            />
+          </Grid>
         </Grid>
         <LoadingButton
           type="submit"

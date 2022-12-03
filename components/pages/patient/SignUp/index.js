@@ -42,6 +42,7 @@ const defaultValue = isMockDataEnabled
       gender: faker.random.arrayElement(["male", "female"]),
       contactNo: faker.phone.phoneNumber("09#########"),
       password: "12345678",
+      matchPassword: "12345678",
     }
   : {
       firstName: "",
@@ -53,6 +54,7 @@ const defaultValue = isMockDataEnabled
       address: "",
       contactNo: "",
       password: "",
+      matchPassword: "",
     };
 
 const defaultModal = {
