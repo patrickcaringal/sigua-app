@@ -1,3 +1,4 @@
+import { differenceInYears } from "date-fns";
 import * as Yup from "yup";
 
 export const SignupSchema = Yup.object().shape({
@@ -5,7 +6,14 @@ export const SignupSchema = Yup.object().shape({
   middleName: Yup.string().max(50, "Middle Name too long").required("Required"),
   lastName: Yup.string().max(50, "Last Name too long").required("Required"),
   suffix: Yup.string().max(5, "Suffix too long"),
-  birthdate: Yup.string().nullable().required("Required"),
+  birthdate: Yup.string()
+    .nullable()
+    .required("Required")
+    .test(
+      "birthdate",
+      "Age 13 below is not allowed for account registration",
+      (value) => differenceInYears(new Date(), new Date(value)) >= 13
+    ),
   gender: Yup.string().required("Required"),
   address: Yup.string().required("Required"),
   contactNo: Yup.string()
@@ -14,6 +22,11 @@ export const SignupSchema = Yup.object().shape({
   password: Yup.string()
     .min(8, "Password must be 8 characters long")
     .required("Required"),
+  matchPassword: Yup.string()
+    .min(8, "Password must be 8 characters long")
+    .required("Required")
+    .oneOf([Yup.ref("password"), null], "Passwords must match"),
+  termsAgree: Yup.boolean().oneOf([true], "Must Accept Terms and Conditions"),
 });
 
 export const UpdateProfileSchema = Yup.object().shape({

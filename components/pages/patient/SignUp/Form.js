@@ -1,13 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 
 import InfoIcon from "@mui/icons-material/Info";
 import { LoadingButton } from "@mui/lab";
-import { Box, FormHelperText, Grid, Link, Typography } from "@mui/material";
+import {
+  Box,
+  Checkbox,
+  FormControlLabel,
+  FormHelperText,
+  Grid,
+  Link,
+  Typography,
+} from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
 import { useRouter } from "next/router";
 
 import { formatTimeStamp } from "../../../../modules/helper";
-import { DatePicker, Input, Select } from "../../../common/Form";
+import { DatePicker, Input, PasswordInput, Select } from "../../../common/Form";
+import TermsDialog from "./TermsDialog";
 
 const Form = ({
   handleSubmit,
@@ -18,6 +27,7 @@ const Form = ({
   errors,
   touched,
 }) => {
+  const [termsOpen, setTermsOpen] = useState(false);
   const router = useRouter();
   const getError = (field) => touched?.[field] && errors?.[field];
 
@@ -150,16 +160,55 @@ const Form = ({
             />
           </Grid>
           <Grid item xs={12}>
-            <Input
+            <PasswordInput
               required
               name="password"
               label="Password"
-              type="password"
               value={values.password}
               onChange={handleChange}
               onBlur={handleBlur}
               error={getError("password")}
             />
+          </Grid>
+          <Grid item xs={12}>
+            <PasswordInput
+              required
+              name="matchPassword"
+              label="Confirm Password"
+              value={values.matchPassword}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={getError("matchPassword")}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <FormControlLabel
+              name="termsAgree"
+              checked={!!values.termsAgree}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              control={<Checkbox />}
+              label={
+                <Typography variant="caption">
+                  Agree to our &nbsp;
+                  <Link
+                    href="#"
+                    fontWeight="bold"
+                    sx={{ textDecoration: "none" }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setTermsOpen(true);
+                    }}
+                  >
+                    Terms and Conditions
+                  </Link>
+                </Typography>
+              }
+            />
+            {!!getError("termsAgree") && (
+              <FormHelperText error>{getError("termsAgree")} </FormHelperText>
+            )}
           </Grid>
         </Grid>
         <LoadingButton
@@ -185,6 +234,16 @@ const Form = ({
           </Grid>
         </Grid>
       </Box>
+
+      <TermsDialog
+        open={termsOpen}
+        onAccept={() => {
+          setFieldValue("termsAgree", true, true);
+          // setFieldTouched("termsAgree", true, false);
+          setTermsOpen(false);
+        }}
+        onClose={() => setTermsOpen(false)}
+      />
     </Box>
   );
 };

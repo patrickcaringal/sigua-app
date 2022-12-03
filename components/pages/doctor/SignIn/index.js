@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { useFormik } from "formik";
 
+import { Input, PasswordInput } from "../../../../components/common";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useResponseDialog } from "../../../../contexts/ResponseDialogContext";
 import useRequest from "../../../../hooks/useRequest";
@@ -91,11 +92,9 @@ const DoctorSignInPage = () => {
           >
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <TextField
-                  fullWidth
+                <Input
                   name="email"
                   label="Email"
-                  autoComplete="off"
                   value={values.email}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -104,12 +103,9 @@ const DoctorSignInPage = () => {
                 />
               </Grid>
               <Grid item xs={12}>
-                <TextField
-                  fullWidth
+                <PasswordInput
                   name="password"
                   label="Password"
-                  type="password"
-                  autoComplete="off"
                   value={values.password}
                   onChange={handleChange}
                   onBlur={handleBlur}

@@ -42,6 +42,8 @@ const defaultValue = isMockDataEnabled
       gender: faker.random.arrayElement(["male", "female"]),
       contactNo: faker.phone.phoneNumber("09#########"),
       password: "12345678",
+      matchPassword: "12345678",
+      termsAgree: false,
     }
   : {
       firstName: "",
@@ -53,6 +55,8 @@ const defaultValue = isMockDataEnabled
       address: "",
       contactNo: "",
       password: "",
+      matchPassword: "",
+      termsAgree: false,
     };
 
 const defaultModal = {
@@ -137,10 +141,11 @@ const SignUpPage = () => {
   return (
     <Box
       sx={{
-        height: "calc(100vh - 64px)",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
+        pt: 5,
+        pb: 5,
       }}
     >
       <Container component="main" maxWidth="xs">

@@ -12,7 +12,7 @@ import {
 import { useFormik } from "formik";
 import { useRouter } from "next/router";
 
-import { PATHS } from "../components/common";
+import { Input, PATHS, PasswordInput } from "../components/common";
 import { useAuth } from "../contexts/AuthContext";
 import { useResponseDialog } from "../contexts/ResponseDialogContext";
 import useRequest from "../hooks/useRequest";
@@ -93,11 +93,9 @@ export default function SignInPage() {
           >
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <TextField
-                  fullWidth
+                <Input
                   name="contactNo"
                   label="Contact Number"
-                  autoComplete="off"
                   value={values.contactNo}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -106,12 +104,9 @@ export default function SignInPage() {
                 />
               </Grid>
               <Grid item xs={12}>
-                <TextField
-                  fullWidth
+                <PasswordInput
                   name="password"
                   label="Password"
-                  type="password"
-                  autoComplete="off"
                   value={values.password}
                   onChange={handleChange}
                   onBlur={handleBlur}
