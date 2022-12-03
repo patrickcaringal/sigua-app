@@ -1,7 +1,7 @@
 import { ACTION_BUTTONS, ACTION_ICONS, getActionButtons } from "./ActionButton";
 import { chartplugin } from "./Chart/plugins";
 import Datalist from "./Datalist";
-import { DatePicker, Input, Select } from "./Form";
+import { DatePicker, Input, PasswordInput, Select } from "./Form";
 import Modal from "./Modal";
 import Pagination from "./Pagination";
 import PdfFrame from "./PdfFrame";
@@ -36,6 +36,7 @@ export {
   DatePicker,
   Input,
   Select,
+  PasswordInput,
   // ResponseDialog
   ResponseDialog,
   associationMessage,

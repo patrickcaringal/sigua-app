@@ -7,7 +7,7 @@ import MenuItem from "@mui/material/MenuItem";
 import { useRouter } from "next/router";
 
 import { formatTimeStamp } from "../../../../modules/helper";
-import { DatePicker, Input, Select } from "../../../common/Form";
+import { DatePicker, Input, PasswordInput, Select } from "../../../common/Form";
 
 const Form = ({
   handleSubmit,
@@ -150,11 +150,10 @@ const Form = ({
             />
           </Grid>
           <Grid item xs={12}>
-            <Input
+            <PasswordInput
               required
               name="password"
               label="Password"
-              type="password"
               value={values.password}
               onChange={handleChange}
               onBlur={handleBlur}

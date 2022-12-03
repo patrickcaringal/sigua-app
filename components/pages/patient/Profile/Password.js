@@ -19,8 +19,7 @@ import {
   personBuiltInFields,
 } from "../../../../modules/helper";
 import { ChangePassSchema } from "../../../../modules/validation";
-import { successMessage } from "../../../common";
-import { Input } from "../../../common/Form";
+import { Input, PasswordInput, successMessage } from "../../../common";
 
 const PasswordPage = ({ data, onSave }) => {
   const { user } = useAuth();
@@ -92,8 +91,7 @@ const PasswordPage = ({ data, onSave }) => {
       </Typography>
       <Grid container spacing={2}>
         <Grid item xs={12}>
-          <Input
-            type="password"
+          <PasswordInput
             required
             label="Password"
             name="password"
@@ -104,8 +102,7 @@ const PasswordPage = ({ data, onSave }) => {
           />
         </Grid>
         <Grid item xs={12}>
-          <Input
-            type="password"
+          <PasswordInput
             required
             label="New Password"
             name="newPassword"
@@ -116,8 +113,7 @@ const PasswordPage = ({ data, onSave }) => {
           />
         </Grid>
         <Grid item xs={12}>
-          <Input
-            type="password"
+          <PasswordInput
             required
             label="Retype Password"
             name="matchPassword"
