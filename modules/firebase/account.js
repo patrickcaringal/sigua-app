@@ -243,13 +243,13 @@ export const resetPasswordReq = async ({ id, contactNo }) => {
   }
 };
 
-export const getAccountReq = async ({ id, contactNo }) => {
+export const getAccountReq = async ({ id, nameBirthdate }) => {
   try {
     // Patient
     const q = query(
       collection(db, "patients"),
       where("accountId", "==", id),
-      where("contactNo", "==", contactNo)
+      where("nameBirthdate", "==", nameBirthdate)
     );
     const querySnapshot = await getDocs(q);
 

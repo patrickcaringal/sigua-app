@@ -42,7 +42,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     const fetch = async () => {
-      const payload = { id: user.id, contactNo: user.contactNo };
+      const payload = { id: user.id, nameBirthdate: user.nameBirthdate };
       const { data, error } = await getProfile(payload);
       if (error) return openErrorDialog(error);
 
