@@ -58,7 +58,7 @@ export default function AlertDialog({ open, onAccept, onClose }) {
       </DialogContent>
       <DialogActions>
         <Button onClick={handleAccept} size="small" variant="contained">
-          accpet
+          accept
         </Button>
         <Button onClick={handleClose} size="small">
           cancel
@@ -82,7 +82,10 @@ const terms = [
         Agreement and you represent and warrant that you have the right,
         authority, and capacity to enter into this Agreement. If you do
         not agree with all of the provisions of this Agreement, do not
-        access and/or use the Services.`,
+        access and/or use the Services. You may not access or use the 
+        Services or accept the Agreement if you are not at least 18 years 
+        old unless you have parental or legal guardian consent. You may not 
+        access the Services under any circumstances if you are below the age of 13.`,
       `By accepting our Privacy Policy and Terms of Use you consent to
         our collection, storage, use and disclosure of your personal and
         other information as described in this Privacy Policy.`,
