@@ -9,6 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useFormik } from "formik";
+import _ from "lodash";
 
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useBackdropLoader } from "../../../../contexts/BackdropLoaderContext";
@@ -32,7 +33,7 @@ import { successMessage } from "../../../common";
 import { DatePicker, Input, Select } from "../../../common/Form";
 
 const ProfilePage = ({ data, onSave }) => {
-  const { user } = useAuth();
+  const { user, manualSetUser } = useAuth();
   const { setBackdropLoader } = useBackdropLoader();
   const { openResponseDialog, openErrorDialog } = useResponseDialog();
 
@@ -70,6 +71,11 @@ const ProfilePage = ({ data, onSave }) => {
       const upd = { ...updates, id: user.id };
       const x = await updateAccount({ account: upd });
       if (x.error) return openErrorDialog(x.error);
+
+      manualSetUser({
+        ...user,
+        ..._.omit(updates, ["id"]),
+      });
 
       // Successful
       onSave(updates);
