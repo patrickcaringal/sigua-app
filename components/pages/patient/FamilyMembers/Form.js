@@ -143,6 +143,7 @@ const Form = ({
                           }
                           onBlur={handleBlur}
                           error={getError("firstName")}
+                          disabled={!isCreate && valueArr.account}
                         />
                       </Grid>
                       <Grid item xs={12} sm={6}>
@@ -159,6 +160,7 @@ const Form = ({
                           }
                           onBlur={handleBlur}
                           error={getError("middleName")}
+                          disabled={!isCreate && valueArr.account}
                         />
                       </Grid>
                       <Grid item xs={12} sm={9}>
@@ -175,6 +177,7 @@ const Form = ({
                           }
                           onBlur={handleBlur}
                           error={getError("lastName")}
+                          disabled={!isCreate && valueArr.account}
                         />
                       </Grid>
                       <Grid item xs={12} sm={3}>
@@ -190,6 +193,7 @@ const Form = ({
                           }
                           onBlur={handleBlur}
                           error={getError("suffix")}
+                          disabled={!isCreate && valueArr.account}
                         />
                       </Grid>
                       <Grid item xs={12} sm={6}>
@@ -208,6 +212,7 @@ const Form = ({
                           }}
                           onBlur={handleBlur}
                           error={getError("birthdate")}
+                          disabled={!isCreate && valueArr.account}
                         />
                       </Grid>
                       <Grid item xs={12} sm={6}>
@@ -216,6 +221,7 @@ const Form = ({
                           size="small"
                           required
                           error={getError("gender")}
+                          disabled={!isCreate && valueArr.account}
                         >
                           <InputLabel>Gender</InputLabel>
                           <Select
@@ -254,11 +260,11 @@ const Form = ({
                           }
                           onBlur={handleBlur}
                           error={getError("address")}
+                          disabled={!isCreate && valueArr.account}
                         />
                       </Grid>
                       <Grid item xs={12}>
                         <Input
-                          disabled={!isCreate}
                           value={valueArr.contactNo}
                           required
                           label="Contact Number"
@@ -266,6 +272,7 @@ const Form = ({
                           onChange={handleChange}
                           onBlur={handleBlur}
                           error={getError("contactNo")}
+                          disabled={!isCreate && valueArr.account}
                         />
                       </Grid>
                     </Grid>

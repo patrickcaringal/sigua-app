@@ -249,7 +249,8 @@ export const getAccountReq = async ({ id, nameBirthdate }) => {
     const q = query(
       collection(db, "patients"),
       where("accountId", "==", id),
-      where("nameBirthdate", "==", nameBirthdate)
+      where("account", "==", true)
+      // where("nameBirthdate", "==", nameBirthdate)
     );
     const querySnapshot = await getDocs(q);
 
