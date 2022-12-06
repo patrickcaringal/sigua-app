@@ -86,7 +86,7 @@ const PatientListPage = () => {
     <AdminMainContainer
       toolbarProps={{
         onRootClick: () => router.push(PATHS.STAFF.DASHBOARD),
-        paths: [{ text: "Patient Approval" }],
+        paths: [{ text: "Patient Records" }],
       }}
       toolbarContent={
         <Box sx={{ width: 200 }}>
