@@ -14,11 +14,7 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import {
   eachMonthOfInterval,
   eachYearOfInterval,
-  endOfMonth,
   endOfYear,
-  getYear,
-  isWithinInterval,
-  startOfMonth,
   startOfYear,
 } from "date-fns";
 import { jsPDF } from "jspdf";
@@ -35,7 +31,7 @@ import {
   getBranchesReq,
   getServicesReq,
 } from "../../../../../modules/firebase";
-import { formatTimeStamp } from "../../../../../modules/helper";
+import { calculateAge, formatTimeStamp } from "../../../../../modules/helper";
 import { ACTION_ICONS, PATHS, chartplugin } from "../../../../common";
 import { AdminMainContainer } from "../../../../shared";
 import FilterModal from "./FilterModal";
@@ -87,7 +83,7 @@ export const options = {
   },
 };
 
-const TopBranchesPage = () => {
+const AgeStatisticsPage = () => {
   const ref = useRef(null);
   const router = useRouter();
 
@@ -102,7 +98,7 @@ const TopBranchesPage = () => {
 
   // Local States
   const [medicalRecords, setMedicalRecords] = useState([]);
-  const [patientsGender, setPatientsGender] = useState([]);
+  const [ageGroup, setAgeGroup] = useState([]);
   // const [services, setServices] = useState([]);
   const [branches, setBranches] = useState([]);
   const [filterModal, setFilterModal] = useState(defaultModal);
@@ -125,13 +121,25 @@ const TopBranchesPage = () => {
       const { data, error } = await getPatients();
       if (error) return openErrorDialog(error);
 
-      const gender = _.chain(data).groupBy("gender").value();
+      const kid = data
+        .filter((i) =>
+          _.inRange(calculateAge(formatTimeStamp(i.birthdate)), 1, 10)
+        )
+        .map((i) => i.id);
 
-      gender.male = gender.male.map((i) => i.id);
-      gender.female = gender.female.map((i) => i.id);
+      const teenanger = data
+        .filter((i) =>
+          _.inRange(calculateAge(formatTimeStamp(i.birthdate)), 11, 18)
+        )
+        .map((i) => i.id);
 
-      console.log({ gender });
-      setPatientsGender(gender);
+      const adult = data
+        .filter((i) =>
+          _.inRange(calculateAge(formatTimeStamp(i.birthdate)), 11, 100)
+        )
+        .map((i) => i.id);
+
+      setAgeGroup({ kid, teenanger, adult });
     };
 
     const fetchBranches = async () => {
@@ -180,7 +188,7 @@ const TopBranchesPage = () => {
 
       // init data
       months.forEach((m) => {
-        x[formatTimeStamp(m, "MMMM yyyy")] = { male: 0, female: 0 };
+        x[formatTimeStamp(m, "MMMM yyyy")] = { kid: 0, teenanger: 0, adult: 0 };
       });
 
       // populate data
@@ -190,10 +198,12 @@ const TopBranchesPage = () => {
         );
 
         perMonthVisit.forEach((i) => {
-          if (patientsGender.male.includes(i.patientId)) {
-            x[formatTimeStamp(m, "MMMM yyyy")].male += 1;
+          if (ageGroup.kid.includes(i.patientId)) {
+            x[formatTimeStamp(m, "MMMM yyyy")].kid += 1;
+          } else if (ageGroup.teenanger.includes(i.patientId)) {
+            x[formatTimeStamp(m, "MMMM yyyy")].teenanger += 1;
           } else {
-            x[formatTimeStamp(m, "MMMM yyyy")].female += 1;
+            x[formatTimeStamp(m, "MMMM yyyy")].adult += 1;
           }
         });
       });
@@ -207,7 +217,7 @@ const TopBranchesPage = () => {
 
       // init data
       years.forEach((y) => {
-        x[formatTimeStamp(y, "yyyy")] = { male: 0, female: 0 };
+        x[formatTimeStamp(y, "yyyy")] = { kid: 0, teenanger: 0, adult: 0 };
       });
 
       // populate data
@@ -217,10 +227,12 @@ const TopBranchesPage = () => {
         );
 
         perYearVisit.forEach((i) => {
-          if (patientsGender.male.includes(i.patientId)) {
-            x[formatTimeStamp(y, "yyyy")].male += 1;
+          if (ageGroup.kid.includes(i.patientId)) {
+            x[formatTimeStamp(y, "yyyy")].kid += 1;
+          } else if (ageGroup.teenanger.includes(i.patientId)) {
+            x[formatTimeStamp(y, "yyyy")].teenanger += 1;
           } else {
-            x[formatTimeStamp(y, "yyyy")].female += 1;
+            x[formatTimeStamp(y, "yyyy")].adult += 1;
           }
         });
       });
@@ -240,14 +252,20 @@ const TopBranchesPage = () => {
     ),
     datasets: [
       {
-        label: "Male",
-        data: _.values(reportData).map((i) => i.male),
+        label: "Kid: 1 - 10 Years old",
+        data: _.values(reportData).map((i) => i.kid),
         backgroundColor: "rgba(53, 162, 235, 0.7)",
       },
       {
-        label: "Female",
-        data: _.values(reportData).map((i) => i.female),
+        label: "Teenanger: 11 - 18 Years old",
+        data: _.values(reportData).map((i) => i.teenanger),
         backgroundColor: "rgba(255, 99, 132, 0.7)",
+      },
+
+      {
+        label: "Adult: 19 Years old - Above",
+        data: _.values(reportData).map((i) => i.adult),
+        backgroundColor: "rgba(255, 206, 86, 0.7)",
       },
     ],
   };
@@ -274,14 +292,14 @@ const TopBranchesPage = () => {
         ? `Per Year`
         : "";
 
-    return `Patient Gender Visit ${d} ${b}`;
+    return `Patient Age Group Visit ${d} ${b}`;
   };
 
   return (
     <AdminMainContainer
       toolbarProps={{
         onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
-        paths: [{ text: "Gender Statistics" }],
+        paths: [{ text: "Age Group Statistics" }],
       }}
       toolbarContent={
         <>
@@ -355,4 +373,4 @@ const TopBranchesPage = () => {
   );
 };
 
-export default TopBranchesPage;
+export default AgeStatisticsPage;
