@@ -85,7 +85,11 @@ const PatientListPage = () => {
 
   const handleDeleteConfirm = (patient) => {
     openResponseDialog({
-      content: confirmMessage({ noun: "Patient", item: patient.name }),
+      content: confirmMessage({
+        noun: "Patient",
+        item: patient.name,
+        verb: "archived",
+      }),
       type: "CONFIRM",
       actions: (
         <Button
@@ -94,7 +98,7 @@ const PatientListPage = () => {
           onClick={() => handleDelete(patient)}
           size="small"
         >
-          delete
+          archive
         </Button>
       ),
     });
@@ -119,7 +123,7 @@ const PatientListPage = () => {
     setPatients((prev) => prev.filter((i) => i.id !== patient.id));
     openResponseDialog({
       autoClose: true,
-      content: successMessage({ noun: "Patient", verb: "deleted" }),
+      content: successMessage({ noun: "Patient", verb: "archived" }),
       type: "SUCCESS",
     });
   };
@@ -212,7 +216,7 @@ const PatientListPage = () => {
                           ? [
                               {
                                 action: ACTION_BUTTONS.DELETE,
-                                tooltipText: "Delete",
+                                tooltipText: "Archive",
                                 onClick: () => handleDeleteConfirm(i),
                               },
                             ]

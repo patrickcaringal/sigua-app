@@ -11,7 +11,7 @@ export const associationMessage = ({ noun = "Item", item, verb = "" }) => {
   return `Unable to ${verb} ${item}. Associated with ${noun}.`;
 };
 
-export const confirmMessage = ({ noun, item }) => {
+export const confirmMessage = ({ noun, item, verb = "delete" }) => {
   let str = noun ? `${noun} ${item}` : item;
-  return `Are you sure you want to delete ${str}.`;
+  return `Are you sure you want to ${verb} ${str}.`;
 };

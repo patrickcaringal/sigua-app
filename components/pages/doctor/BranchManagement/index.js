@@ -34,11 +34,13 @@ import {
 } from "../../../../modules/firebase";
 import { localUpdateDocs, pluralize } from "../../../../modules/helper";
 import {
+  ACTION_BUTTONS,
   Input,
   PATHS,
   Pagination,
   TableContainer,
   confirmMessage,
+  getActionButtons,
   successMessage,
 } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
@@ -184,7 +186,11 @@ const BranchManagementPage = () => {
 
   const handleDeleteConfirm = (branch) => {
     openResponseDialog({
-      content: confirmMessage({ noun: "Branch", item: branch.name }),
+      content: confirmMessage({
+        noun: "Branch",
+        item: branch.name,
+        verb: "archive",
+      }),
       type: "CONFIRM",
       actions: (
         <Button
@@ -193,7 +199,7 @@ const BranchManagementPage = () => {
           onClick={() => handleDelete(branch)}
           size="small"
         >
-          delete
+          archive
         </Button>
       ),
     });
@@ -218,7 +224,7 @@ const BranchManagementPage = () => {
     setBranches((prev) => prev.filter((i) => i.id !== branch.id));
     openResponseDialog({
       autoClose: true,
-      content: successMessage({ noun: "Branch", verb: "deleted" }),
+      content: successMessage({ noun: "Branch", verb: "archived" }),
       type: "SUCCESS",
     });
   };
@@ -327,18 +333,18 @@ const BranchManagementPage = () => {
                   <TableRow key={i.id}>
                     <TableCells data={data} />
                     <TableCell align="center">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleEditBranchModalOpen(data)}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        onClick={() => handleDeleteConfirm(i)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
+                      {getActionButtons([
+                        {
+                          action: ACTION_BUTTONS.EDIT,
+                          tooltipText: "Edit",
+                          onClick: () => handleEditBranchModalOpen(data),
+                        },
+                        {
+                          action: ACTION_BUTTONS.DELETE,
+                          tooltipText: "Archive",
+                          onClick: () => handleDeleteConfirm(i),
+                        },
+                      ])}
                     </TableCell>
                   </TableRow>
                 );

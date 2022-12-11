@@ -32,11 +32,13 @@ import {
 } from "../../../../modules/firebase";
 import { localUpdateDocs, pluralize } from "../../../../modules/helper";
 import {
+  ACTION_BUTTONS,
   Input,
   PATHS,
   Pagination,
   TableContainer,
   confirmMessage,
+  getActionButtons,
   successMessage,
 } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
@@ -159,7 +161,11 @@ const ServicesManagementPage = () => {
 
   const handleDeleteConfirm = (service) => {
     openResponseDialog({
-      content: confirmMessage({ noun: "Service", item: service.name }),
+      content: confirmMessage({
+        noun: "Service",
+        item: service.name,
+        verb: "archive",
+      }),
       type: "CONFIRM",
       actions: (
         <Button
@@ -168,7 +174,7 @@ const ServicesManagementPage = () => {
           onClick={() => handleDelete(service)}
           size="small"
         >
-          delete
+          archive
         </Button>
       ),
     });
@@ -193,7 +199,7 @@ const ServicesManagementPage = () => {
     setServices((prev) => prev.filter((i) => i.id !== service.id));
     openResponseDialog({
       autoClose: true,
-      content: successMessage({ noun: "Service", verb: "deleted" }),
+      content: successMessage({ noun: "Service", verb: "archived" }),
       type: "SUCCESS",
     });
   };
@@ -296,18 +302,18 @@ const ServicesManagementPage = () => {
                   <TableRow key={i.id}>
                     <TableCells data={i} />
                     <TableCell align="center">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleEditServiceModalOpen(i)}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        onClick={() => handleDeleteConfirm(i)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
+                      {getActionButtons([
+                        {
+                          action: ACTION_BUTTONS.EDIT,
+                          tooltipText: "Edit",
+                          onClick: () => handleEditServiceModalOpen(i),
+                        },
+                        {
+                          action: ACTION_BUTTONS.DELETE,
+                          tooltipText: "Archive",
+                          onClick: () => handleDeleteConfirm(i),
+                        },
+                      ])}
                     </TableCell>
                   </TableRow>
                 );
