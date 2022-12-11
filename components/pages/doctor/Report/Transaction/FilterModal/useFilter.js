@@ -64,7 +64,7 @@ const useFilter = ({
   };
 
   const clear = () => {
-    setRangeDisplay(ALL);
+    setRangeDisplay("permonth");
     setStartDate("");
     setEndDate("");
     setBranch(ALL);

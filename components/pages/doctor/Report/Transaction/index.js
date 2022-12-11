@@ -9,6 +9,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
+import { endOfYear, isThisYear, startOfYear } from "date-fns";
 import { useRouter } from "next/router";
 
 import { useAuth } from "../../../../../contexts/AuthContext";
@@ -63,7 +64,14 @@ const QueueManagementPage = () => {
   const [queues, setQueues] = useState([]);
   const [branches, setBranches] = useState([]);
   const [filterModal, setFilterModal] = useState(defaultModal);
-  const filtering = useFilter({});
+  const filtering = useFilter({
+    rangeDisplay: "permonth",
+    startDate: formatTimeStamp(startOfYear(new Date())),
+    endDate: formatTimeStamp(
+      isThisYear(new Date()) ? new Date() : endOfYear(new Date())
+    ),
+  });
+
   const pagination = usePagination(filtering.filtered);
   const exportDisabled =
     !filtering.filters.rangeDisplay ||

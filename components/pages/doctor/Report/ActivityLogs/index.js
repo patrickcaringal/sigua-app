@@ -10,6 +10,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
+import { jsPDF } from "jspdf";
 import { useRouter } from "next/router";
 
 import { useAuth } from "../../../../../contexts/AuthContext";
@@ -70,6 +71,8 @@ const ActivityLogPage = () => {
     pagination.goToPage(value - 1);
   };
 
+  const exportDisabled = filtering.filtered.length <= 0;
+
   return (
     <AdminMainContainer
       toolbarProps={{
@@ -78,15 +81,24 @@ const ActivityLogPage = () => {
       }}
       toolbarContent={
         <>
-          <DatePicker
-            closeOnSelect={true}
-            label="Date"
-            value={selectedDate}
-            onChange={(value) => {
-              const v = value ? formatTimeStamp(value) : new Date();
-              setSelectedDate(v);
-            }}
-          />
+          <Button
+            onClick={() => exportLogs(filtering.filtered)}
+            startIcon={ACTION_ICONS.EXPORT}
+            disabled={exportDisabled}
+          >
+            export
+          </Button>
+          <Box sx={{ width: 200 }}>
+            <DatePicker
+              closeOnSelect={true}
+              label="Date"
+              value={selectedDate}
+              onChange={(value) => {
+                const v = value ? formatTimeStamp(value) : new Date();
+                setSelectedDate(v);
+              }}
+            />
+          </Box>
         </>
       }
     >
@@ -99,7 +111,7 @@ const ActivityLogPage = () => {
                 { text: "Actor", sx: { width: 300 } },
                 { text: "Action", sx: { width: 100 } },
                 // { text: "Resource Type", sx: { width: 140 } },
-                { text: "Resource" },
+                { text: "Activity" },
                 // { text: "Actions", align: "center", sx: { width: 110 } },
               ].map(({ text, align, sx }) => (
                 <TableCell
@@ -153,6 +165,69 @@ const ActivityLogPage = () => {
       <Pagination pagination={pagination} onChange={handlePageChange} />
     </AdminMainContainer>
   );
+};
+
+const exportLogs = (data) => {
+  var doc = new jsPDF();
+  const baseX = 8;
+  const baseY = 10;
+  let movingY = baseY;
+
+  const config = {
+    autoSize: true,
+    fontSize: 10,
+    headerBackgroundColor: "#009FFE",
+  };
+
+  data = data.map((i) => {
+    const { resourceName, resourceType, date, action, actorName } = i;
+    const resource =
+      typeof resourceName == "string"
+        ? resourceName
+        : !!resourceName
+        ? arrayStringify(resourceName)
+        : "";
+
+    return {
+      date: formatTimeStamp(date, "MMM-dd-yyyy hh:mm a"),
+      action,
+      actorName,
+      resource: resource ? `${resourceType}: ${resource}` : "-",
+    };
+  });
+
+  const thead = [
+    {
+      name: "date",
+      prompt: "Date",
+    },
+    {
+      name: "actorName",
+      prompt: "Actor",
+    },
+    {
+      name: "action",
+      prompt: "Action",
+    },
+    {
+      name: "resource",
+      prompt: "Activity",
+    },
+  ];
+
+  doc.setFont(undefined, "bold");
+  doc.setFontSize(16);
+
+  doc.text(
+    `Activity Logs ${formatTimeStamp(data?.[0]?.date, "MMMM dd, yyyy")}`,
+    baseX,
+    movingY
+  );
+
+  movingY += 10;
+
+  doc.table(baseX, movingY, data, thead, config);
+  doc.output("pdfobjectnewwindow");
 };
 
 export default ActivityLogPage;
