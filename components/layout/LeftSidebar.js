@@ -222,11 +222,11 @@ const LeftSidebar = () => {
           icon: <QueueIcon />,
           onClick: () => router.push(PATHS.STAFF.QUEUE_SUNDAY),
         },
-        {
-          text: "Queues",
-          icon: <ViewListIcon />,
-          onClick: () => router.push(PATHS.STAFF.QUEUE_MANAGEMENT),
-        },
+        // {
+        //   text: "Queues",
+        //   icon: <ViewListIcon />,
+        //   onClick: () => router.push(PATHS.STAFF.QUEUE_MANAGEMENT),
+        // },
       ];
 
   return (

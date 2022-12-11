@@ -44,7 +44,7 @@ const ProtectedRoute = ({ children }) => {
   // Logged in, Role Authorization
   useEffect(() => {
     if (isRouteNotAllowed.staff) {
-      router.push(PATHS.STAFF.DASHBOARD);
+      router.push(PATHS.STAFF.QUEUE_TODAY);
       return;
     }
 

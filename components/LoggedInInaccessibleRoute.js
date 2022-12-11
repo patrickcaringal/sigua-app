@@ -12,16 +12,16 @@ const LoggedInInaccessibleRoute = ({ children }) => {
   useEffect(() => {
     if (isLoggedIn) {
       if (router.pathname.includes("/doctor")) {
-        router.push("/doctor/dashboard");
+        router.push(PATHS.DOCTOR.DASHBOARD);
         return;
       }
 
       if (router.pathname.includes("/staff")) {
-        router.push("/staff/dashboard");
+        router.push(PATHS.STAFF.QUEUE_TODAY);
         return;
       }
 
-      router.push("/dashboard");
+      router.push(PATHS.DASHBOARD);
     }
   }, [router, isLoggedIn]);
 
