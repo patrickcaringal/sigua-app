@@ -20,10 +20,12 @@ export const SignupSchema = Yup.object().shape({
     .matches(/^(09)\d{9}$/, "Invalid Contact Number")
     .required("Required"),
   password: Yup.string()
-    .min(8, "Password must be 8 characters long")
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/,
+      "Password must Contain 8 Characters (atleast 1 Uppercase, 1 Lowercase, 1 Number and 1 Special Case Character)"
+    )
     .required("Required"),
   matchPassword: Yup.string()
-    .min(8, "Password must be 8 characters long")
     .required("Required")
     .oneOf([Yup.ref("password"), null], "Passwords must match"),
   termsAgree: Yup.boolean().oneOf([true], "Must Accept Terms and Conditions"),
@@ -44,14 +46,14 @@ export const FeedbackSchema = Yup.object().shape({
 });
 
 export const ChangePassSchema = Yup.object().shape({
-  password: Yup.string()
-    .min(8, "Password must be 8 characters long")
-    .required("Required"),
+  password: Yup.string().required("Required"),
   newPassword: Yup.string()
-    .min(8, "Password must be 8 characters long")
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/,
+      "Password must Contain 8 Characters (atleast 1 Uppercase, 1 Lowercase, 1 Number and 1 Special Case Character)"
+    )
     .required("Required"),
   matchPassword: Yup.string()
-    .min(8, "Password must be 8 characters long")
     .required("Required")
     .oneOf([Yup.ref("newPassword"), null], "Passwords must match"),
 });
@@ -78,9 +80,7 @@ export const PatientForgotPasswordSchema = Yup.object().shape({
 
 export const DoctorSigninSchema = Yup.object().shape({
   email: Yup.string().email().required("Required"),
-  password: Yup.string()
-    // .min(8, "Password must be 8 characters long")
-    .required("Required"),
+  password: Yup.string().required("Required"),
 });
 
 export const FamilyMemberSchema = Yup.object().shape({
