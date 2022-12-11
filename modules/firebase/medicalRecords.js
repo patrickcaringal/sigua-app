@@ -86,14 +86,16 @@ export const getRecordsByDateRangeReq = async ({ start, end }) => {
 export const getAllRecordsReq = async () => {
   try {
     // const q = query(collRef, where("deleted", "==", false));
-    const q = query(collRef, where("deleted", "==", false));
+    const q = query(
+      collRef,
+      where("dateCreated", ">=", startOfDay(new Date("2022-11-26")))
+    );
 
     const querySnapshot = await getDocs(q);
     const data = querySnapshot.docs.map((doc) => ({ ...doc.data() }));
     // .sort(sortBy("dateCreated", "desc"));
     // console.log(medicalRecsJSON.concat(data));
-    // const d = medicalRecsJSON.concat(data);
-    const d = data;
+    const d = medicalRecsJSON.concat(data);
     return { data: d, success: true };
   } catch (error) {
     console.log(error);
