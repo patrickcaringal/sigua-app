@@ -9,18 +9,21 @@ const useFilter = ({
   startDate: defaultStartDate = "",
   endDate: defaultEndDate = "",
   branch: defaultBranch = ALL,
+  gender: defaultGender = "",
 }) => {
   const [initialData, setInitialData] = useState(data);
   const [rangeDisplay, setRangeDisplay] = useState(defaultRangeDisplay);
   const [startDate, setStartDate] = useState(defaultStartDate);
   const [endDate, setEndDate] = useState(defaultEndDate);
   const [branch, setBranch] = useState(defaultBranch);
+  const [gender, setGender] = useState(defaultGender);
 
   const filters = {
     rangeDisplay,
     startDate,
     endDate,
     branch,
+    gender,
     // service,
   };
 
@@ -61,6 +64,7 @@ const useFilter = ({
     setStartDate(f?.startDate);
     setEndDate(f?.endDate);
     setBranch(f?.branch);
+    setGender(f?.gender);
   };
 
   const clear = () => {
@@ -68,10 +72,15 @@ const useFilter = ({
     setStartDate("");
     setEndDate("");
     setBranch(ALL);
+    setGender("");
   };
 
   const hasFilter =
-    !!startDate || !!endDate || branch !== ALL || rangeDisplay !== ALL;
+    !!startDate ||
+    !!endDate ||
+    branch !== ALL ||
+    rangeDisplay !== ALL ||
+    !!gender;
 
   return {
     filtered,
@@ -83,6 +92,7 @@ const useFilter = ({
     setStartDate,
     setEndDate,
     setBranch,
+    setGender,
     // setService,
     clear,
   };

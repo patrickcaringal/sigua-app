@@ -235,6 +235,23 @@ const FilterModal = ({ open = false, data, onApply, onClose, branches }) => {
                   ))}
                 </Select>
               </Grid>
+
+              <Grid item xs={12}>
+                <Select
+                  value={filtering.filters.gender}
+                  label="Gender"
+                  onChange={(e) => {
+                    filtering.setGender(e.target.value);
+                  }}
+                >
+                  <MenuItem value="male" dense>
+                    Male
+                  </MenuItem>
+                  <MenuItem value="female" dense>
+                    Female
+                  </MenuItem>
+                </Select>
+              </Grid>
             </Grid>
           </Container>
         </Box>

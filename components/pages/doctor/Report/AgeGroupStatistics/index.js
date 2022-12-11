@@ -99,6 +99,7 @@ const AgeStatisticsPage = () => {
   // Local States
   const [medicalRecords, setMedicalRecords] = useState([]);
   const [ageGroup, setAgeGroup] = useState([]);
+  const [patientsGender, setPatientsGender] = useState([]);
   // const [services, setServices] = useState([]);
   const [branches, setBranches] = useState([]);
   const [filterModal, setFilterModal] = useState(defaultModal);
@@ -106,7 +107,8 @@ const AgeStatisticsPage = () => {
   const displayReport =
     !!filtering.filters.rangeDisplay &&
     !!filtering.filters.startDate &&
-    !!filtering.filters.endDate;
+    !!filtering.filters.endDate &&
+    !!filtering.filters.gender;
 
   useEffect(() => {
     const fetchMedicalRecords = async () => {
@@ -140,6 +142,14 @@ const AgeStatisticsPage = () => {
         .map((i) => i.id);
 
       setAgeGroup({ kid, teenanger, adult });
+
+      // Gender
+      const gender = _.chain(data).groupBy("gender").value();
+
+      gender.male = gender.male.map((i) => i.id);
+      gender.female = gender.female.map((i) => i.id);
+
+      setPatientsGender(gender);
     };
 
     const fetchBranches = async () => {
@@ -178,6 +188,10 @@ const AgeStatisticsPage = () => {
   const generateReportData = () => {
     if (!displayReport) return;
 
+    const d = filtering.filtered.filter((i) =>
+      patientsGender[filtering.filters.gender].includes(i.patientId)
+    );
+
     let x = {};
 
     if (filtering.filters.rangeDisplay === "permonth") {
@@ -193,7 +207,7 @@ const AgeStatisticsPage = () => {
 
       // populate data
       months.forEach((m) => {
-        const perMonthVisit = filtering.filtered.filter(
+        const perMonthVisit = d.filter(
           (i) => formatTimeStamp(i.date, "MMM") === formatTimeStamp(m, "MMM")
         );
 
@@ -222,7 +236,7 @@ const AgeStatisticsPage = () => {
 
       // populate data
       years.forEach((y) => {
-        const perYearVisit = filtering.filtered.filter(
+        const perYearVisit = d.filter(
           (i) => formatTimeStamp(i.date, "yyyy") === formatTimeStamp(y, "yyyy")
         );
 
@@ -279,7 +293,13 @@ const AgeStatisticsPage = () => {
     doc.output("pdfobjectnewwindow");
   };
 
-  const translateHeader = ({ branch, rangeDisplay, startDate, endDate }) => {
+  const translateHeader = ({
+    branch,
+    rangeDisplay,
+    startDate,
+    endDate,
+    gender,
+  }) => {
     const b =
       branch !== "-"
         ? branches.find((i) => i.id === branch)?.name
@@ -292,14 +312,16 @@ const AgeStatisticsPage = () => {
         ? `Per Year`
         : "";
 
-    return `Patient Age Group Visit ${d} ${b}`;
+    const g = gender === "male" ? "Male" : "Female";
+
+    return `${g} Patient Age Group Visit ${d} ${b}`;
   };
 
   return (
     <AdminMainContainer
       toolbarProps={{
         onRootClick: () => router.push(PATHS.DOCTOR.DASHBOARD),
-        paths: [{ text: "Age Group Statistics" }],
+        paths: [{ text: "Statistics" }],
       }}
       toolbarContent={
         <>

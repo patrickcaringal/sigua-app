@@ -130,7 +130,6 @@ const TopBranchesPage = () => {
       gender.male = gender.male.map((i) => i.id);
       gender.female = gender.female.map((i) => i.id);
 
-      console.log({ gender });
       setPatientsGender(gender);
     };
 
