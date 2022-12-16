@@ -149,7 +149,6 @@ const Form = ({
                       <Grid item xs={12} sm={6}>
                         <Input
                           value={valueArr.middleName}
-                          required
                           label="Middle Name"
                           name={getFieldName("middleName")}
                           onChange={(e) =>

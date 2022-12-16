@@ -30,8 +30,9 @@ export const PATHS = {
     REPORT_ACTIVITY_LOGS: "/doctor/report/activity-logs",
     REPORT_TOP_SERVICES: "/doctor/report/top-services",
     REPORT_TOP_BRANCHES: "/doctor/report/top-branches",
-    REPORT_TOP_GENDER_STATISTICS: "/doctor/report/gender-statistics",
-    REPORT_TOP_AGE_GROUP_STATISTICS: "/doctor/report/age-group-statistics",
+    REPORT_STATISTICS: "/doctor/report/statistics",
+    // REPORT_TOP_GENDER_STATISTICS: "/doctor/report/gender-statistics",
+    // REPORT_TOP_AGE_GROUP_STATISTICS: "/doctor/report/age-group-statistics",
     // REPORT_PATIENT_MEDICAL_RECORD: "/doctor/patient/medical-record",
   },
   STAFF: {

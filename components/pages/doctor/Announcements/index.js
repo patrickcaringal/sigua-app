@@ -32,11 +32,13 @@ import {
 } from "../../../../modules/firebase";
 import { localUpdateDocs, pluralize } from "../../../../modules/helper";
 import {
+  ACTION_BUTTONS,
   Input,
   PATHS,
   Pagination,
   TableContainer,
   confirmMessage,
+  getActionButtons,
   successMessage,
 } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
@@ -167,7 +169,8 @@ const AnnouncementsManagementPage = () => {
     openResponseDialog({
       content: confirmMessage({
         noun: "Announcement",
-        item: announcement.name,
+        item: "",
+        verb: "archive",
       }),
       type: "CONFIRM",
       actions: (
@@ -177,7 +180,7 @@ const AnnouncementsManagementPage = () => {
           onClick={() => handleDelete(announcement)}
           size="small"
         >
-          delete
+          archive
         </Button>
       ),
     });
@@ -202,7 +205,7 @@ const AnnouncementsManagementPage = () => {
     setAnnouncements((prev) => prev.filter((i) => i.id !== announcement.id));
     openResponseDialog({
       autoClose: true,
-      content: successMessage({ noun: "Announcement", verb: "deleted" }),
+      content: successMessage({ noun: "Announcement", verb: "archived" }),
       type: "SUCCESS",
     });
   };
@@ -305,18 +308,18 @@ const AnnouncementsManagementPage = () => {
                   <TableRow key={i.id}>
                     <TableCells data={i} />
                     <TableCell align="center">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleEditAnnouncementModalOpen(i)}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        onClick={() => handleDeleteConfirm(i)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
+                      {getActionButtons([
+                        {
+                          action: ACTION_BUTTONS.EDIT,
+                          tooltipText: "Edit",
+                          onClick: () => handleEditAnnouncementModalOpen(i),
+                        },
+                        {
+                          action: ACTION_BUTTONS.DELETE,
+                          tooltipText: "Archive",
+                          onClick: () => handleDeleteConfirm(i),
+                        },
+                      ])}
                     </TableCell>
                   </TableRow>
                 );

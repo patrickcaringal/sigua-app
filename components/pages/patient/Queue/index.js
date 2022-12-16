@@ -231,6 +231,8 @@ const PatientQueuePage = () => {
             <StatusChips
               isRegOpen={isRegOpen}
               isQueueOngoing={isQueueOngoing}
+              registered={queueToday?.nextQueueNo - 1}
+              capacity={queueToday?.capacity}
             />
             <Box
               sx={{

@@ -39,11 +39,13 @@ import {
   pluralize,
 } from "../../../../modules/helper";
 import {
+  ACTION_BUTTONS,
   Input,
   PATHS,
   Pagination,
   TableContainer,
   confirmMessage,
+  getActionButtons,
   successMessage,
 } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
@@ -210,7 +212,11 @@ const DoctorsPage = () => {
 
   const handleDeleteConfirm = (doctor) => {
     openResponseDialog({
-      content: confirmMessage({ noun: "Doctor", item: doctor.name }),
+      content: confirmMessage({
+        noun: "Doctor",
+        item: doctor.name,
+        verb: "archive",
+      }),
       type: "CONFIRM",
       actions: (
         <Button
@@ -219,7 +225,7 @@ const DoctorsPage = () => {
           onClick={() => handleDelete(doctor)}
           size="small"
         >
-          delete
+          archive
         </Button>
       ),
     });
@@ -244,7 +250,7 @@ const DoctorsPage = () => {
     setDoctors((prev) => prev.filter((i) => i.id !== doctor.id));
     openResponseDialog({
       autoClose: true,
-      content: successMessage({ noun: "Doctor", verb: "deleted" }),
+      content: successMessage({ noun: "Doctor", verb: "archived" }),
       type: "SUCCESS",
     });
   };
@@ -351,23 +357,22 @@ const DoctorsPage = () => {
                   <TableRow key={id}>
                     <TableCells data={data} />
                     <TableCell align="center">
-                      <IconButton
-                        size="small"
-                        onClick={() =>
-                          handleEditModalOpen({
-                            ...i,
-                            birthdate: formatTimeStamp(birthdate),
-                          })
-                        }
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        onClick={() => handleDeleteConfirm(i)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
+                      {getActionButtons([
+                        {
+                          action: ACTION_BUTTONS.EDIT,
+                          tooltipText: "Edit",
+                          onClick: () =>
+                            handleEditModalOpen({
+                              ...i,
+                              birthdate: formatTimeStamp(birthdate),
+                            }),
+                        },
+                        {
+                          action: ACTION_BUTTONS.DELETE,
+                          tooltipText: "Archive",
+                          onClick: () => handleDeleteConfirm(i),
+                        },
+                      ])}
                     </TableCell>
                   </TableRow>
                 );

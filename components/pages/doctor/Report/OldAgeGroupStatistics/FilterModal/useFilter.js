@@ -29,7 +29,7 @@ const useFilter = ({
 
     if (startDate || endDate) {
       filtered = filtered.filter((i) => {
-        const d1 = new Date(i.queueDate);
+        const d1 = new Date(i.date);
         const d2 = new Date(startDate);
         const d3 = new Date(endDate);
 
@@ -64,13 +64,14 @@ const useFilter = ({
   };
 
   const clear = () => {
-    setRangeDisplay("permonth");
+    setRangeDisplay(ALL);
     setStartDate("");
     setEndDate("");
     setBranch(ALL);
   };
 
-  const hasFilter = !!startDate || !!endDate || branch !== ALL;
+  const hasFilter =
+    !!startDate || !!endDate || branch !== ALL || rangeDisplay !== ALL;
 
   return {
     filtered,

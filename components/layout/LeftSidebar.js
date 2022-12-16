@@ -158,18 +158,24 @@ const LeftSidebar = () => {
           id: [PATHS.DOCTOR.REPORT_TOP_BRANCHES],
         },
         {
-          text: "Gender Statistics",
+          text: "Statistics",
           icon: <InsertChartIcon />,
-          onClick: () => router.push(PATHS.DOCTOR.REPORT_TOP_GENDER_STATISTICS),
-          id: [PATHS.DOCTOR.REPORT_TOP_GENDER_STATISTICS],
+          onClick: () => router.push(PATHS.DOCTOR.REPORT_STATISTICS),
+          id: [PATHS.DOCTOR.REPORT_STATISTICS],
         },
-        {
-          text: "Age Statistics",
-          icon: <InsertChartIcon />,
-          onClick: () =>
-            router.push(PATHS.DOCTOR.REPORT_TOP_AGE_GROUP_STATISTICS),
-          id: [PATHS.DOCTOR.REPORT_TOP_AGE_GROUP_STATISTICS],
-        },
+        // {
+        //   text: "Gender Statistics",
+        //   icon: <InsertChartIcon />,
+        //   onClick: () => router.push(PATHS.DOCTOR.REPORT_TOP_GENDER_STATISTICS),
+        //   id: [PATHS.DOCTOR.REPORT_TOP_GENDER_STATISTICS],
+        // },
+        // {
+        //   text: "Age Statistics",
+        //   icon: <InsertChartIcon />,
+        //   onClick: () =>
+        //     router.push(PATHS.DOCTOR.REPORT_TOP_AGE_GROUP_STATISTICS),
+        //   id: [PATHS.DOCTOR.REPORT_TOP_AGE_GROUP_STATISTICS],
+        // },
         {
           text: "Activity Logs",
           icon: <InsertChartIcon />,
@@ -222,11 +228,11 @@ const LeftSidebar = () => {
           icon: <QueueIcon />,
           onClick: () => router.push(PATHS.STAFF.QUEUE_SUNDAY),
         },
-        {
-          text: "Queues",
-          icon: <ViewListIcon />,
-          onClick: () => router.push(PATHS.STAFF.QUEUE_MANAGEMENT),
-        },
+        // {
+        //   text: "Queues",
+        //   icon: <ViewListIcon />,
+        //   onClick: () => router.push(PATHS.STAFF.QUEUE_MANAGEMENT),
+        // },
       ];
 
   return (
