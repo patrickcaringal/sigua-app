@@ -25,7 +25,7 @@ const CountCard = ({ count = 0, label = "-", icon }) => (
         <Typography variant="h3" fontWeight={500} color="text.secondary">
           {count}
         </Typography>
-        <Typography variant="body1" color="text.secondary">
+        <Typography variant="body1" color="text.secondary" width={180}>
           {label}
         </Typography>
       </Box>

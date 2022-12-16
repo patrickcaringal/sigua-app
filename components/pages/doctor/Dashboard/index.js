@@ -106,8 +106,15 @@ const DashboardPage = () => {
 
   const counters = [
     {
-      label: "Verified Patients",
-      count: patients?.length,
+      label: "Online Registered Patients",
+      count: patients?.filter((i) => i.registrationType !== "STAFF_REGISTERED")
+        ?.length,
+      icon: <PeopleIcon sx={{ fontSize: 90, color: "text.secondary" }} />,
+    },
+    {
+      label: "Walk in Patients",
+      count: patients?.filter((i) => i.registrationType === "STAFF_REGISTERED")
+        ?.length,
       icon: <PeopleIcon sx={{ fontSize: 90, color: "text.secondary" }} />,
     },
     {

@@ -21,7 +21,7 @@ const LoggedInInaccessibleRoute = ({ children }) => {
         return;
       }
 
-      router.push(PATHS.DASHBOARD);
+      router.push(PATHS.PATIENT.DASHBOARD);
     }
   }, [router, isLoggedIn]);
 

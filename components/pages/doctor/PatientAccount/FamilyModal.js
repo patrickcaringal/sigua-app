@@ -108,11 +108,11 @@ const FamilyModal = ({
   const handleAddFamilyMemeber = async (docs) => {
     docs = docs.map((i) => ({
       ...i,
-      verified: false,
-      verifiedContactNo: false,
+      verified: true,
+      verifiedContactNo: true,
       verificationAttachment: null,
       verificationRejectReason: null,
-      status: MEMBER_STATUS.FOR_PHONE_VERIFICATION,
+      status: MEMBER_STATUS.VERFIED,
       ...personBuiltInFields(i),
     }));
 
@@ -188,12 +188,28 @@ const FamilyModal = ({
     setPrintIdModal(defaultModal);
   };
 
-  const handlePhoneModalOpen = (member) => {
-    console.log(member);
-    setPhoneModal({
-      open: true,
-      data: member,
+  const handlePhoneModalOpen = async (member) => {
+    const updatedDoc = {
+      id: member?.id,
+      verified: true,
+      verifiedContactNo: true,
+      status: MEMBER_STATUS.VERFIED,
+    };
+
+    // Update
+    const { error: updateError } = await updateFamilyMember({
+      patient: updatedDoc,
     });
+    if (updateError) {
+      setBackdropLoader(false);
+      return openErrorDialog(updateError);
+    }
+
+    alert("updated");
+    // setPhoneModal({
+    //   open: true,
+    //   data: member,
+    // });
   };
 
   const handlePhoneModalClose = () => {

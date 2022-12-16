@@ -89,11 +89,11 @@ const FamilyMemberPage = () => {
     docs = docs.map((i) => ({
       ...i,
       accountId: user.id,
-      verified: false,
-      verifiedContactNo: false,
+      verified: true,
+      verifiedContactNo: true,
       verificationAttachment: null,
       verificationRejectReason: null,
-      status: MEMBER_STATUS.FOR_VERIFICATION,
+      status: MEMBER_STATUS.VERFIED,
       ...personBuiltInFields(i),
     }));
 
@@ -251,18 +251,52 @@ const FamilyMemberPage = () => {
     });
   };
 
-  const handleAttachmentModalOpen = (member) => {
-    setVerificationModal({
-      open: true,
-      data: member,
+  const handleAttachmentModalOpen = async (member) => {
+    const updatedDoc = {
+      id: member?.id,
+      verified: true,
+      verifiedContactNo: true,
+      status: MEMBER_STATUS.VERFIED,
+    };
+
+    // Update
+    const { error: updateError } = await updateFamilyMember({
+      patient: updatedDoc,
     });
+    if (updateError) {
+      setBackdropLoader(false);
+      return openErrorDialog(updateError);
+    }
+
+    alert("updated");
+    // setVerificationModal({
+    //   open: true,
+    //   data: member,
+    // });
   };
 
-  const handlePhoneModalOpen = (member) => {
-    setPhoneModal({
-      open: true,
-      data: member,
+  const handlePhoneModalOpen = async (member) => {
+    const updatedDoc = {
+      id: member?.id,
+      verified: true,
+      verifiedContactNo: true,
+      status: MEMBER_STATUS.VERFIED,
+    };
+
+    // Update
+    const { error: updateError } = await updateFamilyMember({
+      patient: updatedDoc,
     });
+    if (updateError) {
+      setBackdropLoader(false);
+      return openErrorDialog(updateError);
+    }
+
+    alert("updated");
+    // setPhoneModal({
+    //   open: true,
+    //   data: member,
+    // });
   };
 
   const handleAttachmentModalClose = () => {
@@ -352,23 +386,23 @@ const FamilyMemberPage = () => {
         />
       )}
 
-      {verificationModal.open && (
+      {/* {verificationModal.open && (
         <UploadAttachmentModal
           data={verificationModal.data}
           open={verificationModal.open}
           onClose={handleAttachmentModalClose}
           onUpload={handleUploadAttachment}
         />
-      )}
+      )} */}
 
-      {phoneModal.open && (
+      {/* {phoneModal.open && (
         <MobileNumberVerificationModal
           open={phoneModal.open}
           data={phoneModal.data}
           onClose={handlePhoneModalClose}
           onVerify={handleVerifyPhone}
         />
-      )}
+      )} */}
     </Container>
   );
 };
