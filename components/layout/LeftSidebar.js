@@ -54,12 +54,12 @@ const LeftSidebar = () => {
             PATHS.DOCTOR.PATIENTS_MEDICAL_RECORD,
           ],
         },
-        {
-          text: "Patient Approval",
-          icon: <FactCheckIcon />,
-          onClick: () => router.push(PATHS.DOCTOR.PATIENTS_APPROVAL),
-          id: [PATHS.DOCTOR.PATIENTS_APPROVAL],
-        },
+        // {
+        //   text: "Patient Approval",
+        //   icon: <FactCheckIcon />,
+        //   onClick: () => router.push(PATHS.DOCTOR.PATIENTS_APPROVAL),
+        //   id: [PATHS.DOCTOR.PATIENTS_APPROVAL],
+        // },
         {
           text: "Patient Accounts",
           icon: <AccountBoxIcon />,
@@ -207,11 +207,11 @@ const LeftSidebar = () => {
           icon: <PeopleIcon />,
           onClick: () => router.push(PATHS.STAFF.PATIENTS_LIST),
         },
-        {
-          text: "Patient Approval",
-          icon: <FactCheckIcon />,
-          onClick: () => router.push(PATHS.STAFF.MEMBER_APPROVAL),
-        },
+        // {
+        //   text: "Patient Approval",
+        //   icon: <FactCheckIcon />,
+        //   onClick: () => router.push(PATHS.STAFF.MEMBER_APPROVAL),
+        // },
         {
           text: "Patient Accounts",
           icon: <AccountBoxIcon />,

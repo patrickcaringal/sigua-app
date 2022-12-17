@@ -42,6 +42,7 @@ import ToolbarButtons from "../../staff/QueueToday/ToolbarButtons";
 import TransferModal, {
   QUEUE_FLOW,
 } from "../../staff/QueueToday/TransferModal";
+import VitalsignsModal from "./VitalsignsModal";
 
 const defaultModal = {
   open: false,
@@ -81,6 +82,8 @@ const QueueTodayPage = ({ branchId, openBranchModal }) => {
   const [queueModal, setQueueModal] = useState(defaultModal);
   const [doctorModal, setDoctorModal] = useState(defaultModal);
   const [transferModal, setTransferModal] = useState(defaultModal);
+  const [vitalSignsModal, setVitalSignsModal] = useState(defaultModal);
+
   // manual register
   const [manualRegModal, setManualRegModal] = useState(defaultModal);
 
@@ -360,6 +363,17 @@ const QueueTodayPage = ({ branchId, openBranchModal }) => {
     setManualRegModal(defaultModal);
   };
 
+  const handleVitalSignsModalOpen = (data) => {
+    setVitalSignsModal({
+      open: true,
+      data,
+    });
+  };
+
+  const handleitalSignsModalClose = () => {
+    setVitalSignsModal(defaultModal);
+  };
+
   const handleResetQueue = async () => {
     const payload = { id: queueToday.id };
     const { error: resetError } = await resetQueue(payload);
@@ -537,6 +551,7 @@ const QueueTodayPage = ({ branchId, openBranchModal }) => {
           doctors={doctorCounters}
           onTransferSelect={handleTransferSelect}
           onClose={handleTransferModalClose}
+          onVitalSign={handleVitalSignsModalOpen}
         />
       )}
 
@@ -546,6 +561,15 @@ const QueueTodayPage = ({ branchId, openBranchModal }) => {
           data={manualRegModal.data}
           onClose={handleManualRegModalClose}
           onSave={handleManualReg}
+        />
+      )}
+
+      {vitalSignsModal.open && (
+        <VitalsignsModal
+          open={vitalSignsModal.open}
+          data={vitalSignsModal.data}
+          onClose={handleitalSignsModalClose}
+          onSave={handleTransferSelect}
         />
       )}
     </AdminMainContainer>

@@ -21,6 +21,12 @@ const RecordModal = ({ open = false, data, onClose }) => {
     doctorName,
     diagnosis,
     patientNote,
+    // vitals
+    bodyTemperature,
+    pulseRate,
+    bloodPressure,
+    height,
+    weight,
   } = data;
 
   const meicalRecord = [
@@ -39,6 +45,29 @@ const RecordModal = ({ open = false, data, onClose }) => {
     {
       label: "Doctor",
       value: doctorName,
+    },
+  ];
+
+  const vitals = [
+    {
+      label: "Body Temp",
+      value: bodyTemperature ? `${bodyTemperature} °C` : "-",
+    },
+    {
+      label: "Pulse Rate",
+      value: pulseRate ? `${pulseRate} beats per minute` : "-",
+    },
+    {
+      label: "Blood Pressure",
+      value: bloodPressure ? bloodPressure : "-",
+    },
+    {
+      label: "Height",
+      value: height ? `${height} cm` : "-",
+    },
+    {
+      label: "Weight",
+      value: weight ? `${weight} kg` : "-",
     },
   ];
 
@@ -65,6 +94,8 @@ const RecordModal = ({ open = false, data, onClose }) => {
         <Box sx={{ py: 2 }}>
           <Container maxWidth="lg">
             <Datalist data={meicalRecord} labelWidth={140} />
+            <Divider sx={{ my: 2 }} />
+            <Datalist data={vitals} labelWidth={140} />
             <Divider sx={{ my: 2 }} />
             <Typography gutterBottom>Patient Note</Typography>
             <Typography

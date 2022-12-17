@@ -169,3 +169,11 @@ export const RegisterForQueueSchema = Yup.object().shape({
 export const DiagnoseSchema = Yup.object().shape({
   diagnosis: Yup.string().required("Required").max(500, "Diagnosis too long"),
 });
+
+export const VitalSignsSchema = Yup.object().shape({
+  bodyTemperature: Yup.string().required("Required"),
+  pulseRate: Yup.string().required("Required"),
+  bloodPressure: Yup.string().required("Required"),
+  height: Yup.string().required("Required"),
+  weight: Yup.string().required("Required"),
+});

@@ -15,6 +15,7 @@ import {
   UpdateProfileSchema,
   VerificationCodeSchema,
   VerificationRejectSchema,
+  VitalSignsSchema,
 } from "./schema";
 
 export {
@@ -34,4 +35,5 @@ export {
   UpdateProfileSchema,
   VerificationCodeSchema,
   VerificationRejectSchema,
+  VitalSignsSchema,
 };

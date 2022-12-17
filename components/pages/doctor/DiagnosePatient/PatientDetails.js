@@ -18,6 +18,12 @@ const PatientDetails = ({ patient = {} }) => {
     address,
     serviceName,
     patientNote,
+    // vitals
+    bodyTemperature,
+    pulseRate,
+    bloodPressure,
+    height,
+    weight,
   } = patient;
 
   const patientData = hasPatient
@@ -35,8 +41,24 @@ const PatientDetails = ({ patient = {} }) => {
           value: gender,
         },
         {
-          label: "Contact No.",
-          value: contactNo,
+          label: "Body Temp",
+          value: bodyTemperature ? `${bodyTemperature} °C` : "-",
+        },
+        {
+          label: "Pulse Rate",
+          value: pulseRate ? `${pulseRate} beats per minute` : "-",
+        },
+        {
+          label: "Blood Pressure",
+          value: bloodPressure ? bloodPressure : "-",
+        },
+        {
+          label: "Height",
+          value: height ? `${height} cm` : "-",
+        },
+        {
+          label: "Weight",
+          value: weight ? `${weight} kg` : "-",
         },
       ]
     : [];
@@ -56,6 +78,8 @@ const PatientDetails = ({ patient = {} }) => {
         display: "flex",
         flexDirection: "column",
         borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+        maxHeight: "calc(100vh - 144px)",
+        overflow: "overlay",
       }}
     >
       {/* Header */}

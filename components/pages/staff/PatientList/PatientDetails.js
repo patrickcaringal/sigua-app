@@ -9,7 +9,19 @@ import { Datalist } from "../../../common";
 const PatientDetails = ({ patient = {} }) => {
   const hasPatient = !!lodash.keys(patient).length;
 
-  const { name, gender, birthdate, contactNo, address, serviceName } = patient;
+  const {
+    name,
+    gender,
+    birthdate,
+    contactNo,
+    address,
+    // vitals
+    bodyTemperature,
+    pulseRate,
+    bloodPressure,
+    height,
+    weight,
+  } = patient;
 
   const patientData = hasPatient
     ? [
@@ -28,6 +40,26 @@ const PatientDetails = ({ patient = {} }) => {
         {
           label: "Contact No.",
           value: contactNo,
+        },
+        {
+          label: "Body Temp",
+          value: bodyTemperature ? `${bodyTemperature} °C` : "-",
+        },
+        {
+          label: "Pulse Rate",
+          value: pulseRate ? `${pulseRate} beats per minute` : "-",
+        },
+        {
+          label: "Blood Pressure",
+          value: bloodPressure ? bloodPressure : "-",
+        },
+        {
+          label: "Height",
+          value: height ? `${height} cm` : "-",
+        },
+        {
+          label: "Weight",
+          value: weight ? `${weight} kg` : "-",
         },
       ]
     : [];

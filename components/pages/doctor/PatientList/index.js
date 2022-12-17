@@ -23,6 +23,7 @@ import {
   getPatientsReq,
   saveLogReq,
 } from "../../../../modules/firebase";
+import { exportPatientInfo } from "../../../../modules/pdf";
 import {
   ACTION_BUTTONS,
   ACTION_ICONS,
@@ -161,6 +162,17 @@ const PatientListPage = () => {
               onChange={handleSearchChange}
             />
           </Box>
+          <Button
+            variant="outlined"
+            // onClick={() => exportPatientRecords(filtering.filtered, patient)}
+            onClick={() => {
+              exportPatientInfo(filtering.filtered);
+            }}
+            startIcon={ACTION_ICONS.EXPORT}
+            disabled={!filtering.filtered.length}
+          >
+            export
+          </Button>
           {isAdmin && (
             <Button
               variant="outlined"

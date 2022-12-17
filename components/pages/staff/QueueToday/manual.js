@@ -32,6 +32,7 @@ import {
 } from "../../../../modules/helper";
 import { PATHS, successMessage } from "../../../common";
 import { AdminMainContainer } from "../../../shared";
+import VitalsignsModal from "../../doctor/QueueToday/VitalsignsModal";
 import DoctorsModal from "./DoctorsModal";
 import Header from "./Header";
 import ManualRegistrationModal from "./ManualRegistrationModal";
@@ -79,6 +80,8 @@ const QueueTodayPage = () => {
   const [queueModal, setQueueModal] = useState(defaultModal);
   const [doctorModal, setDoctorModal] = useState(defaultModal);
   const [transferModal, setTransferModal] = useState(defaultModal);
+  const [vitalSignsModal, setVitalSignsModal] = useState(defaultModal);
+
   // manual register
   const [manualRegModal, setManualRegModal] = useState(defaultModal);
 
@@ -358,6 +361,17 @@ const QueueTodayPage = () => {
     setManualRegModal(defaultModal);
   };
 
+  const handleVitalSignsModalOpen = (data) => {
+    setVitalSignsModal({
+      open: true,
+      data,
+    });
+  };
+
+  const handleitalSignsModalClose = () => {
+    setVitalSignsModal(defaultModal);
+  };
+
   const handleResetQueue = async () => {
     const payload = { id: queueToday.id };
     const { error: resetError } = await resetQueue(payload);
@@ -532,6 +546,7 @@ const QueueTodayPage = () => {
           doctors={doctorCounters}
           onTransferSelect={handleTransferSelect}
           onClose={handleTransferModalClose}
+          onVitalSign={handleVitalSignsModalOpen}
         />
       )}
 
@@ -541,6 +556,15 @@ const QueueTodayPage = () => {
           data={manualRegModal.data}
           onClose={handleManualRegModalClose}
           onSave={handleManualReg}
+        />
+      )}
+
+      {vitalSignsModal.open && (
+        <VitalsignsModal
+          open={vitalSignsModal.open}
+          data={vitalSignsModal.data}
+          onClose={handleitalSignsModalClose}
+          onSave={handleTransferSelect}
         />
       )}
     </AdminMainContainer>
