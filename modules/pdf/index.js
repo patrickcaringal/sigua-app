@@ -1,3 +1,4 @@
+import { exportPatientInfo } from "./patientInfo";
 import { exportPatientPerDay } from "./patientPerDay";
 import { exportPatientPerMonth } from "./patientPerMonth";
 import { exportPatientPerWeek } from "./patientPerWeek";
@@ -10,4 +11,5 @@ export {
   exportPatientPerWeek,
   exportPatientRecords,
   exportQueueList,
+  exportPatientInfo,
 };
