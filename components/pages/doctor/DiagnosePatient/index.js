@@ -98,6 +98,13 @@ const QueueManagementPage = () => {
             "serviceId",
             "serviceName",
           ]),
+          ...lodash.pick(patient, [
+            "bodyTemperature",
+            "pulseRate",
+            "bloodPressure",
+            "height",
+            "weight",
+          ]),
           doctorId: doctorId,
           doctorName: user.name,
         },

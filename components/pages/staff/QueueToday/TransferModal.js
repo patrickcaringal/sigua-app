@@ -23,7 +23,14 @@ export const QUEUE_FLOW = {
   DOCTOR_DONE: "DOCTOR_DONE",
 };
 
-const TransferModal = ({ open, data, doctors, onTransferSelect, onClose }) => {
+const TransferModal = ({
+  open,
+  data,
+  doctors,
+  onTransferSelect,
+  onClose,
+  onVitalSign,
+}) => {
   const fromQueue = data.from === "queue";
   const fromNext = data.from === "next";
   const fromSkipped = data.from === "skipped";
@@ -50,12 +57,18 @@ const TransferModal = ({ open, data, doctors, onTransferSelect, onClose }) => {
               <ListItem
                 button
                 onClick={() => {
-                  onTransferSelect({
+                  onVitalSign({
                     ...data,
                     doctor: i,
                     to: `counters.${id}.queue`,
                     flow: QUEUE_FLOW.NEXT_DOCTOR,
                   });
+                  // onTransferSelect({
+                  //   ...data,
+                  //   doctor: i,
+                  //   to: `counters.${id}.queue`,
+                  //   flow: QUEUE_FLOW.NEXT_DOCTOR,
+                  // });
                   handleClose();
                 }}
                 key={id}
