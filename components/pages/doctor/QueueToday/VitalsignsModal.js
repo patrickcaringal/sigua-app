@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 
-import { Co2Sharp } from "@mui/icons-material";
 import {
   AppBar,
   Box,
