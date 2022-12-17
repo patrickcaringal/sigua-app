@@ -13,6 +13,7 @@ import {
   ListItemText,
   MenuItem,
   Paper,
+  Rating,
   Typography,
 } from "@mui/material";
 import { useFormik } from "formik";
@@ -39,6 +40,7 @@ const ProfilePage = () => {
   const formik = useFormik({
     initialValues: {
       feedback: "",
+      rating: 5,
     },
     validationSchema: FeedbackSchema,
     validateOnChange: false,
@@ -94,6 +96,23 @@ const ProfilePage = () => {
           onBlur={formik.handleBlur}
           error={formik.touched.feedback && formik.errors.feedback}
         />
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            mt: 2,
+          }}
+        >
+          <Typography sx={{ mr: 2 }}>Rating</Typography>
+          <Rating
+            size="large"
+            name="simple-controlled"
+            value={formik.values.rating}
+            onChange={(event, newValue) => {
+              formik.setFieldValue("rating", newValue);
+            }}
+          />
+        </Box>
         <Button
           variant="contained"
           size="small"

@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   IconButton,
+  Rating,
   Table,
   TableBody,
   TableCell,
@@ -204,6 +205,7 @@ const FeedbackApprovalPage = () => {
               {[
                 { text: "User name", sx: { width: 300 } },
                 { text: "Date submitted", sx: { width: 140 } },
+                { text: "Rating", sx: { width: 140 } },
                 { text: "Feedback" },
                 // { text: "Age", sx: { width: 40 }, align: "center" },
                 // { text: "Gender", sx: { width: 100 } },
@@ -225,7 +227,13 @@ const FeedbackApprovalPage = () => {
             {filtering.filtered
               .slice(pagination.info.start, pagination.info.end)
               .map((i) => {
-                const { id, accountName, dateCreated, feedback } = i;
+                const {
+                  id,
+                  accountName,
+                  dateCreated,
+                  feedback,
+                  rating = 0,
+                } = i;
 
                 return (
                   <TableRow key={id}>
@@ -234,15 +242,12 @@ const FeedbackApprovalPage = () => {
                       {formatTimeStamp(dateCreated, "MMM-dd-yyyy")}
                     </TableCell>
                     <TableCell>
+                      <Rating size="small" readOnly value={rating} />
+                    </TableCell>
+                    <TableCell>
                       <LongTypography text={feedback} displayedLines={3} />
                     </TableCell>
                     <TableCell align="center">
-                      {/* <IconButton
-                        component="span"
-                        onClick={() => handleMemberModalOpen(m)}
-                      >
-                        <FactCheckIcon />
-                      </IconButton> */}
                       {getActionButtons([
                         {
                           action: ACTION_BUTTONS.APPROVE,

@@ -11,6 +11,7 @@ import {
   Chip,
   Container,
   Paper,
+  Rating,
   Typography,
 } from "@mui/material";
 import Card from "@mui/material/Card";
@@ -69,7 +70,10 @@ const FeedbackSection = ({ feedbacks = [] }) => {
               <Typography sx={{ mb: 3, textAlign: "center" }}>
                 {item.feedback}
               </Typography>
-              <Typography variant="subtitle2">{item.accountName}</Typography>
+              <Rating size="large" readOnly value={item.rating} />
+              <Typography variant="subtitle2" sx={{ mt: 2 }}>
+                {item.accountName}
+              </Typography>
               <Typography variant="caption">
                 {formatTimeStamp(item.dateCreated, "MMM yyyy")}
               </Typography>
