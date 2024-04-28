@@ -1,34 +1,77 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## About The Project
 
-## Getting Started
+A Real-time queue management web application , monitoring patient flow and activities across different clinic branches. Keep patients informed with SMS notifications regarding their queue progress. Utilize comprehensive patient data management tools for historical records and generate graphical reports for comprehensive clinic and staff performance analysis.
 
-First, run the development server:
+### Built With
 
-```bash
-npm run dev
-# or
-yarn dev
-```
+- ![React][React-badge]
+- ![NextJS][NextJS-badge]
+- ![JavaScript][JavaScript-badge]
+- ![NodeJS][NodeJS-badge]
+- ![Expressjs][Expressjs-badge]
+- ![Firebase][Firebase-badge]
+- ![SASS][SASS-badge]
+- ![MUI][MUI-badge]
+- Vonage (SMS provider)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+#### Administrator / Doctor / Staff account
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+- Access and view historical medical records of patients for efficient diagnosis and treatment.
+- Generation of unique QR ID for patients to expedite identification during clinic visits, streamlining the check-in process.
+- Doctor Diagnosis feature to assess patient conditions and prescribe appropriate treatments.
+- Doctor, Staff, Branch, and Services Management.
+- Administer clinic announcements and updates for patients via the clinic portal website, enhancing communication and visibility.
+- Generate comprehensive reports including daily queue statistics, top services utilized, top-performing branches, and year-to-date patient records, enabling data-driven decision-making and performance evaluation.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+#### Patient account
 
-## Learn More
+- Family Account Integration enabling patients to add family members under one account, facilitating seamless appointment scheduling for the entire household.
+- Queue Registration allowing patients to register for a queue at different branches, specifying the reason for their visit and adding any additional notes for the healthcare provider.
+- Real-time Queue Monitoring provididing patients with a real-time view of the queue status, enabling them to track their position in the queue.
+- SMS Queue Notifications which sends SMS notifications to patients when their queue turn is approaching, ensuring they are alerted and ready for their appointment.
+- Comprehensive Medical Records Access allowing patients to view their own medical history as well as that of their entire family, including diagnosis records.
 
-To learn more about Next.js, take a look at the following resources:
+## Screenshots
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Administrator / Doctor / Staff
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+#### Real-time queue management
 
-## Deploy on Vercel
+![alt text](queue-screenshot1.png)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+#### Patient's medical record
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+![alt text](queue-screenshot4.png)
+
+#### Family members per patient account
+
+![alt text](queue-screenshot3.png)
+
+### Patient account
+
+#### Real-time Queue Monitoring
+
+![alt text](queue-screenshot-patient2.png)
+
+#### Queue Registration
+
+![alt text](queue-screenshot-patient3.png)
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
+[React-Query-badge]: https://img.shields.io/badge/-React%20Query-FF4154?style=for-the-badge&logo=react%20query&logoColor=white
+[TypeScript-badge]: https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white
+[React-badge]: https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB
+[Chakra-badge]: https://img.shields.io/badge/chakra-%234ED1C5.svg?style=for-the-badge&logo=chakraui&logoColor=white
+[CSS3-badge]: https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white
+[SASS-badge]: https://img.shields.io/badge/SASS-hotpink.svg?style=for-the-badge&logo=SASS&logoColor=white
+[Firebase-badge]: https://img.shields.io/badge/firebase-a08021?style=for-the-badge&logo=firebase&logoColor
+[Bootstrap-badge]: https://img.shields.io/badge/bootstrap-%238511FA.svg?style=for-the-badge&logo=bootstrap&logoColor=white
+[JavaScript-badge]: https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E
+[NextJS-badge]: https://img.shields.io/badge/Next-black?style=for-the-badge&logo=next.js&logoColor=white
+[NodeJS-badge]: https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white
+[MUI-badge]: https://img.shields.io/badge/MUI-%230081CB.svg?style=for-the-badge&logo=mui&logoColor=white
+[Expressjs-badge]: https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB
