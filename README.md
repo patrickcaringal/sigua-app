@@ -1,6 +1,6 @@
 ## About The Project
 
-A Real-time queue management web application , monitoring patient flow and activities across different clinic branches. Keep patients informed with SMS notifications regarding their queue progress. Utilize comprehensive patient data management tools for historical records and generate graphical reports for comprehensive clinic and staff performance analysis.
+A Real-time queue management web application, monitoring patient flow and activities across different clinic branches. Keep patients informed with SMS notifications regarding their queue progress. Utilize comprehensive patient data management tools for historical records and generate graphical reports for comprehensive clinic and staff performance analysis.
 
 ### Built With
 
